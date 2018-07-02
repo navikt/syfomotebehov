@@ -32,6 +32,7 @@
         <ojdbc8.version>12.2.0.1</ojdbc8.version>
         <h2.version>1.4.196</h2.version>
         <flyway-core.version>5.0.7</flyway-core.version>
+        <lombok.version>1.16.22</lombok.version>
     </properties>
 
     <dependencies>
@@ -87,11 +88,13 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring-boot.version}</version>
             <scope>test</scope>
         </dependency>
 
