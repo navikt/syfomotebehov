@@ -1,1 +1,1 @@
-INSERT INTO CAR VALUES ('id', 'blue', 'SUZUKI', DATE '2018-02-22');
+--INSERT INTO CAR VALUES ('id', 'blue', 'SUZUKI', DATE '2018-02-22');
