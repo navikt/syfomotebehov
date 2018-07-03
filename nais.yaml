@@ -29,7 +29,7 @@ resources:
 fasitResources:
   exposed:
   used:
-  - alias: $APPLIKASJONSNAVN$DB
+  - alias: syfo-dialogmotebehovDB
       resourceType: datasource
       propertyMap:
         url: SPRING_DATASOURCE_URL
