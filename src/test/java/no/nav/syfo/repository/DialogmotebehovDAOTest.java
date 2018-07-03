@@ -47,7 +47,7 @@ public class DialogmotebehovDAOTest {
                 .tidspunktFriskmelding("Om et par måneder. Svært sannsynlig")
                 .tiltak(TILTAK)
                 .resultatTiltak("Rygg og skulderproblemene ble umiddelbart bedre")
-            //    .trengerMote(true)
+                .trengerMote(true)
                 .behovDialogmote("Fordi")
                 .build();
 

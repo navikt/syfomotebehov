@@ -29,7 +29,7 @@ public class DialogmotebehovDAO{
                 ":tidspunkt_friskmelding, " +
                 ":tiltak, " +
                 ":resultat_tiltak, " +
-                //":trenger_mote ," +
+                ":trenger_mote, " +
                 ":behov_dialogmote" +
                 ")";
 
@@ -38,7 +38,7 @@ public class DialogmotebehovDAO{
                 .addValue("tidspunkt_friskmelding", dialogmotebehov.getTidspunktFriskmelding())
                 .addValue("tiltak", dialogmotebehov.getTiltak())
                 .addValue("resultat_tiltak", dialogmotebehov.getResultatTiltak())
-                //.addValue("trenger_mote", dialogmotebehov.isTrengerMote())
+                .addValue("trenger_mote", dialogmotebehov.isTrengerMote())
                 .addValue("behov_dialogmote", dialogmotebehov.getBehovDialogmote());
 
         namedParameterJdbcTemplate.update(lagreSql, mapeLagreSql);
