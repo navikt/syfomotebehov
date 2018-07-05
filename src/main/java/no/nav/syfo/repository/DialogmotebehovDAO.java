@@ -53,9 +53,10 @@ public class DialogmotebehovDAO{
     public static RowMapper<Dialogmotebehov> getInnsendingRowMapper() {
         return (resultSet, i) -> Dialogmotebehov.builder()
                 .uuid(resultSet.getString("DIALOGMOTEBEHOV_UUID"))
+                .tidspunktFriskmelding(resultSet.getString("TIDSPUNKT_FRISKMELDING"))
                 .tiltak(resultSet.getString("TILTAK"))
                 .resultatTiltak(resultSet.getString("RESULTAT_TILTAK"))
-                //.trengerMote(resultSet.getBoolean("TRENGER_MOTE"))
+                .trengerMote(resultSet.getBoolean("TRENGER_MOTE"))
                 .behovDialogmote(resultSet.getString("BEHOV_DIALOGMOTE"))
                 .build();
     }
