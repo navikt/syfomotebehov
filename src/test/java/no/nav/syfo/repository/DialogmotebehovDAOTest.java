@@ -20,7 +20,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public class DialogmotebehovDAOTest {
 
-    public static final String TILTAK = "Ståmatte";
+    private static final String TILTAK = "Hvilerom";
+    private static final Dialogmotebehov DIALOGMOTEBEHOV_1 = Dialogmotebehov.builder()
+            .tidspunktFriskmelding("Snart")
+            .tiltak(TILTAK)
+            .resultatTiltak("Mindre smerter")
+            .trengerMote(true)
+            .behovDialogmote("Megling")
+            .build();
+
     @Inject
     private JdbcTemplate jdbcTemplate;
 
@@ -34,24 +42,23 @@ public class DialogmotebehovDAOTest {
 
     @Test
     public void hentDialogmotebehovListe() {
-        jdbcTemplate.update("INSERT INTO dialogmotebehov VALUES('id', 'Snart', 'Hvilerom', " +
+        jdbcTemplate.update("INSERT INTO dialogmotebehov VALUES('id', 'Snart', '" + TILTAK + "', " +
                 "'Mindre smerter', '1', 'Megling')");
-
         List<Dialogmotebehov> dialogmotebehovListe = dialogmotebehovDAO.hentDialogmotebehovListe();
+
+        assertThat(dialogmotebehovListe.size()).isEqualTo(1);
+        final Dialogmotebehov dialogmotebehovFraDb = dialogmotebehovListe.get(0);
+        assertThat(dialogmotebehovFraDb.getTidspunktFriskmelding()).isEqualTo(DIALOGMOTEBEHOV_1.getTidspunktFriskmelding());
+        assertThat(dialogmotebehovFraDb.getTiltak()).isEqualTo(DIALOGMOTEBEHOV_1.getTiltak());
+        assertThat(dialogmotebehovFraDb.getResultatTiltak()).isEqualTo(DIALOGMOTEBEHOV_1.getResultatTiltak());
+        assertThat(dialogmotebehovFraDb.isTrengerMote()).isTrue();
+        assertThat(dialogmotebehovFraDb.getBehovDialogmote()).isEqualTo(DIALOGMOTEBEHOV_1.getBehovDialogmote());
 
     }
 
     @Test
     public void lagreDialogmotebehov() {
-        Dialogmotebehov dialogmotebehov = Dialogmotebehov.builder()
-                .tidspunktFriskmelding("Om et par måneder. Svært sannsynlig")
-                .tiltak(TILTAK)
-                .resultatTiltak("Rygg og skulderproblemene ble umiddelbart bedre")
-                .trengerMote(true)
-                .behovDialogmote("Fordi")
-                .build();
-
-        dialogmotebehovDAO.lagreDialogmotebehov(dialogmotebehov);
+        dialogmotebehovDAO.lagreDialogmotebehov(DIALOGMOTEBEHOV_1);
 
         List<Dialogmotebehov> dialogmotebehovListe = jdbcTemplate.query("SELECT * FROM dialogmotebehov", DialogmotebehovDAO.getInnsendingRowMapper());
         assertThat(dialogmotebehovListe.size()).isEqualTo(1);
