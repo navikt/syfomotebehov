@@ -33,7 +33,7 @@ public class DialogmotebehovDAO{
                 ":behov_dialogmote" +
                 ")";
 
-         MapSqlParameterSource mapeLagreSql = new MapSqlParameterSource()
+         MapSqlParameterSource mapLagreSql = new MapSqlParameterSource()
                 .addValue("uuid", uuid)
                 .addValue("tidspunkt_friskmelding", dialogmotebehov.getTidspunktFriskmelding())
                 .addValue("tiltak", dialogmotebehov.getTiltak())
@@ -41,7 +41,7 @@ public class DialogmotebehovDAO{
                 .addValue("trenger_mote", dialogmotebehov.isTrengerMote())
                 .addValue("behov_dialogmote", dialogmotebehov.getBehovDialogmote());
 
-        namedParameterJdbcTemplate.update(lagreSql, mapeLagreSql);
+        namedParameterJdbcTemplate.update(lagreSql, mapLagreSql);
 
         return uuid;
     }
