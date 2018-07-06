@@ -1,11 +1,15 @@
 # syfo-dialogmotebehov
 
-syfo-dialogmøtebehov er en mikrotjeneste i POC-en Robot-Berit. syfo-dialogmotebehov lagrer data om behovet for et
+syfo-dialogmotebehov er en mikrotjeneste i POC-en Robot-Berit. syfo-dialogmotebehov lagrer data om behovet for et
 dialogmøte, dette rapportertes inn av den sykemeldtes nærmeste leder.
+
+syfo-dialogmotebehov er en springboot-applikasjon basert på https://github.com/navikt/syfospringboot-kickstarter. Den er
+satt opp til å kjøre på nais.
 
 ## Lokal utvikling 
 
 ### Oppstart
+
 Start opp appen fra [LocalApplication.java](../syfo-dialogmotebehov/src/test/java/no/nav/syfo/LocalApplication.java).
 
 Har du IntelliJ satt opp med Spring-støtte, må du i Run/Debug configuration endre Spring boot modulen til å bruke
@@ -22,13 +26,21 @@ Appen kjører da på localhost:8080/
 
 ### Properties
 
-Se [ApplicationCofig](../syfo-dialogmotebehov/src/test/java/no/nav/syfo/config/ApplicationConfigTest.java)
+Se [ApplicationConfig](../syfo-dialogmotebehov/src/test/java/no/nav/syfo/config/ApplicationConfigTest.java)
 
 ### Testing
 
+Enhetstester er satt opp med in-memory db og kan kjøres på vanlig vis: **mvn test**.
+
 ### Bygging
 
+Applikasjonen pakkes til en stor jar vha spring-boot-maven-plugin, og bygges med docker . Applikasjonen kan kjøres opp 
+lokalt på docker hvis jdbc-url legges på path.
+
 ### Deploy
+
+Deploy til preprod med fasitressurser fra q1 gjøres av alle brancher pushet til github. Dette kontrolleres av seed-
+jobbene i https://github.com/navikt/jenkins-dsl-scripts, som er satt opp på https://jenkins-digisyfo.adeo.no.
 
 
 ## Database
