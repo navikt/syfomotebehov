@@ -13,30 +13,11 @@
         <maven>3.3.9</maven>
     </prerequisites>
 
-    <scm>
-        <developerConnection>scm:git:https://github.com/navikt/syfospringboot-kickstarter.git</developerConnection>
-        <url>https://github.com/navikt/syfo-dialogmotebehov</url>
-        <tag>HEAD</tag>
-    </scm>
-
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.0.3.RELEASE</version>
     </parent>
-
-    <distributionManagement>
-        <repository>
-            <id>maven-releases</id>
-            <name>NAV Internal Repository</name>
-            <url>https://repo.adeo.no/repository/maven-releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>maven-snapshots</id>
-            <name>NAV Snapshot Repository</name>
-            <url>https://repo.adeo.no/repository/maven-snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
 
     <properties>
         <start-class>no.nav.syfo.Application</start-class>
@@ -48,9 +29,10 @@
         <logstash-logback-encoder.version>4.10</logstash-logback-encoder.version>
         <prometheus.version>0.3.0</prometheus.version>
         <micrometer-registry-prometheus.version>1.0.2</micrometer-registry-prometheus.version>
-        <junit.version>4.12</junit.version>
-        <mockito-all.version>2.15.0</mockito-all.version>
-        <assertj-core.version>3.6.2</assertj-core.version>
+        <ojdbc8.version>12.2.0.1</ojdbc8.version>
+        <h2.version>1.4.196</h2.version>
+        <flyway-core.version>5.0.7</flyway-core.version>
+        <lombok.version>1.16.22</lombok.version>
     </properties>
 
     <dependencies>
@@ -106,30 +88,44 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${mockito-all.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>${assertj-core.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring-boot.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <!-- Database -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>${spring-boot.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jta-atomikos</artifactId>
+            <version>${spring-boot.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc8</artifactId>
+            <version>${ojdbc8.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${flyway-core.version}</version>
         </dependency>
     </dependencies>
 
@@ -192,4 +188,18 @@
             </properties>
         </profile>
     </profiles>
+
+    <distributionManagement>
+        <repository>
+            <id>maven-releases</id>
+            <name>NAV Internal Repository</name>
+            <url>https://repo.adeo.no/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>maven-snapshots</id>
+            <name>NAV Snapshot Repository</name>
+            <url>https://repo.adeo.no/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>
