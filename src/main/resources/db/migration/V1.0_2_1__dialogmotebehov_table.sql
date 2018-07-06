@@ -1,7 +1,7 @@
 -- https://confluence.adeo.no/display/fsys/Database
 
 CREATE TABLE DIALOGMOTEBEHOV (
-  dialogmotebehov_uuid       VARCHAR(100) NOT NULL PRIMARY KEY,
+  dialogmotebehov_uuid       VARCHAR(36) NOT NULL PRIMARY KEY,
   tidspunkt_friskmelding     VARCHAR(1200),
   tiltak                     VARCHAR(1200),
   resultat_tiltak            VARCHAR(1200),
