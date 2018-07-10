@@ -10,4 +10,6 @@ spring:
   jta.atomikos.datasource:
     max-pool-size: 32
     min-pool-size: 8
+server:
+  port: 8811
 

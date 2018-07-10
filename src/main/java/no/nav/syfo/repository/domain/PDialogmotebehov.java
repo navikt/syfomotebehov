@@ -1,4 +1,4 @@
-package no.nav.syfo.domain;
+package no.nav.syfo.repository.domain;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 @Value
 @Getter
-public class Dialogmotebehov {
+public class PDialogmotebehov {
     private String uuid;
     private LocalDateTime opprettetDato;
     private String opprettetAv;
