@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Value
 @Getter
 public class Dialogmotebehov {
-    private String uuid;
+    private String id;
     private LocalDateTime opprettetDato;
     private String opprettetAv;
     private String aktoerId;

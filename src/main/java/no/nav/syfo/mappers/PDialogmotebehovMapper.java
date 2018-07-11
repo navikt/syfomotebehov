@@ -9,7 +9,7 @@ public class PDialogmotebehovMapper {
 
     public static Function<PDialogmotebehov, Dialogmotebehov> p2dialogmotebehov = pDialogmotebehov ->
             Dialogmotebehov.builder()
-                    .uuid(pDialogmotebehov.getUuid())
+                    .id(pDialogmotebehov.getUuid())
                     .opprettetDato(pDialogmotebehov.getOpprettetDato())
                     .opprettetAv(pDialogmotebehov.getOpprettetAv())
                     .aktoerId(pDialogmotebehov.getAktoerId())
