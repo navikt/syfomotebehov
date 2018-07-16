@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 public class PDialogmotebehov {
     private String uuid;
-    private LocalDateTime opprettetDato;
+    public LocalDateTime opprettetDato;
     private String opprettetAv;
     private String aktoerId;
     private String friskmeldingForventning;

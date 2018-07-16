@@ -13,3 +13,24 @@ spring:
 server:
   port: 8811
 
+securitytokenservice.url: "sts.url"
+srvsyfo-dialogmotebehov:
+  username: "kek"
+  password: "bur"
+
+toggle.enable:
+  nullstill: true
+  motebehov: true
+
+no.nav.security.oidc:
+  issuers: selvbetjening
+  issuer:
+    selvbetjening.discoveryurl: http://metadata
+    selvbetjening.accepted_audience: aud-localhost
+    selvbetjening.cookie_name: localhost-idtoken
+
+aktoer.v2.endpointurl: "aktoerv2.url"
+
+fasit.environment.name: 'local'
+
+mockAktoer_V2: true

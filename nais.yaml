@@ -8,7 +8,7 @@ port: 8080
 healthcheck:
   liveness:
     path: /internal/isAlive
-    initialDelay: 60
+    initialDelay: 120
     timeout: 1
     periodSeconds: 10
     failureThreshold: 3
@@ -28,10 +28,29 @@ resources:
     memory: 384Mi
 fasitResources:
   exposed:
+  - alias: syfo-dialogmotebehovapi
+    resourceType: restservice
+    path: /api
   used:
+  - alias: Aktoer_v2
+    resourceType: webserviceendpoint
+  - alias: srvsyfo-dialogmotebehov
+    resourceType: credential
+  - alias: securityTokenService
+    resourceType: baseurl
+  - alias: loadbalancer:syfo-dialogmotebehov
+    resourceType: loadbalancerconfig
+  - alias: aad_b2c_clientid
+    resourceType: credential
+    propertyMap:
+      username: NO_NAV_SECURITY_OIDC_ISSUER_SELVBETJENING_ACCEPTEDAUDIENCE
+  - alias: aad_b2c_discovery
+    resourceType: baseurl
+    propertyMap:
+      url: NO_NAV_SECURITY_OIDC_ISSUER_SELVBETJENING_DISCOVERYURL
   - alias: syfo-dialogmotebehovDB
-      resourceType: datasource
-      propertyMap:
-        url: SPRING_DATASOURCE_URL
-        username: SPRING_DATASOURCE_USERNAME
-        password: SPRING_DATASOURCE_PASSWORD
+    resourceType: datasource
+    propertyMap:
+      url: SPRING_DATASOURCE_URL
+      username: SPRING_DATASOURCE_USERNAME
+      password: SPRING_DATASOURCE_PASSWORD

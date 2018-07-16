@@ -1,7 +1,6 @@
 package no.nav.syfo.repository;
 
 import no.nav.syfo.LocalApplication;
-import no.nav.syfo.domain.Dialogmotebehov;
 import no.nav.syfo.repository.dao.DialogmotebehovDAO;
 import no.nav.syfo.repository.domain.PDialogmotebehov;
 import org.junit.Before;
@@ -29,7 +28,7 @@ public class DialogmotebehovDAOTest {
     private static final String ARBEIDSGIVER_AKTOERID = "10123456780";
     private static final Timestamp OPPRETTET_DATO = Timestamp.valueOf("2018-03-07 15:10:50.112000");
 
-    private static final Dialogmotebehov DIALOGMOTEBEHOV_1 = Dialogmotebehov.builder()
+    private static final PDialogmotebehov DIALOGMOTEBEHOV_1 = PDialogmotebehov.builder()
             .opprettetDato(convert(OPPRETTET_DATO))
             .opprettetAv(ARBEIDSGIVER_AKTOERID)
             .aktoerId(SYKMELDT_AKTOERID)
@@ -55,10 +54,10 @@ public class DialogmotebehovDAOTest {
     public void hentDialogmotebehovListeForAktoer() {
         jdbcTemplate.update("INSERT INTO dialogmotebehov VALUES('id', '2018-03-07 15:10:50.112000', '" + ARBEIDSGIVER_AKTOERID + "', '" + SYKMELDT_AKTOERID + "', 'Snart', '" + TILTAK + "', " +
                 "'Mindre smerter', '1', 'Megling')");
-        List<Dialogmotebehov> dialogmotebehovListe = dialogmotebehovDAO.hentDialogmotebehovListeForAktoer(SYKMELDT_AKTOERID);
+        List<PDialogmotebehov> dialogmotebehovListe = dialogmotebehovDAO.hentDialogmotebehovListeForAktoer(SYKMELDT_AKTOERID);
 
         assertThat(dialogmotebehovListe.size()).isEqualTo(1);
-        final Dialogmotebehov dialogmotebehovFraDb = dialogmotebehovListe.get(0);
+        final PDialogmotebehov dialogmotebehovFraDb = dialogmotebehovListe.get(0);
         assertThat(dialogmotebehovFraDb.getOpprettetDato()).isEqualTo(DIALOGMOTEBEHOV_1.getOpprettetDato());
         assertThat(dialogmotebehovFraDb.getOpprettetAv()).isEqualTo(DIALOGMOTEBEHOV_1.getOpprettetAv());
         assertThat(dialogmotebehovFraDb.getAktoerId()).isEqualTo(DIALOGMOTEBEHOV_1.getAktoerId());

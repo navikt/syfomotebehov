@@ -1,6 +1,6 @@
 package no.nav.syfo.repository.dao;
 
-import no.nav.syfo.domain.Dialogmotebehov;
+import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.repository.domain.PDialogmotebehov;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -16,12 +16,11 @@ import java.util.List;
 import java.util.UUID;
 
 import static java.time.LocalDateTime.now;
-import static no.nav.sbl.java8utils.MapUtil.mapListe;
-import static no.nav.syfo.mappers.PDialogmotebehovMapper.p2dialogmotebehov;
 import static no.nav.syfo.repository.DbUtil.convert;
 import static no.nav.syfo.repository.DbUtil.sanitizeUserInput;
 
 @Service
+@Slf4j
 @Transactional
 @Repository
 public class DialogmotebehovDAO {
@@ -35,11 +34,11 @@ public class DialogmotebehovDAO {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Dialogmotebehov> hentDialogmotebehovListeForAktoer(String aktoerId) {
-        return mapListe(jdbcTemplate.query("SELECT * FROM DIALOGMOTEBEHOV where aktoer_id = ?", getInnsendingRowMapper(), aktoerId), p2dialogmotebehov);
+    public List<PDialogmotebehov> hentDialogmotebehovListeForAktoer(String aktoerId) {
+        return jdbcTemplate.query("SELECT * FROM DIALOGMOTEBEHOV WHERE aktoer_id = ?", getInnsendingRowMapper(), aktoerId);
     }
 
-    public String create(final Dialogmotebehov dialogmotebehov) {
+    public String create(final PDialogmotebehov dialogmotebehov) {
         String uuid = UUID.randomUUID().toString();
         String lagreSql = "INSERT INTO DIALOGMOTEBEHOV VALUES(" +
                 ":uuid, " +
@@ -81,5 +80,25 @@ public class DialogmotebehovDAO {
                 .harMotebehov(rs.getBoolean("har_motebehov"))
                 .forklaring(rs.getString("forklaring"))
                 .build();
+    }
+
+    public int nullstillMotebehov(String aktoerId) {
+        List<Long> motebehovIder = namedParameterJdbcTemplate.query(
+                "SELECT dialogmotebehov_uuid FROM DIALOGMOTEBEHOV WHERE (aktoer_id = :aktoerId)",
+
+                new MapSqlParameterSource()
+                        .addValue("aktoerId", aktoerId),
+
+                (row, rowNum) -> row.getLong("dialogmotebehov_uuid"));
+
+        int antallMotebehovSlettet = namedParameterJdbcTemplate.update(
+                "DELETE FROM DIALOGMOTEBEHOV WHERE dialogmotebehov_uuid IN (:motebehovIder)",
+
+                new MapSqlParameterSource()
+                        .addValue("motebehovIder", motebehovIder));
+
+        log.info("Slettet {} møtebehov på aktør: {}", antallMotebehovSlettet, aktoerId);
+
+        return antallMotebehovSlettet;
     }
 }
