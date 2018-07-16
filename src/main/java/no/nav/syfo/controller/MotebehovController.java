@@ -8,7 +8,6 @@ import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.consumer.ws.AktoerConsumer;
 import no.nav.syfo.domain.rest.LagreMotebehov;
 import no.nav.syfo.domain.rest.Motebehov;
-import no.nav.syfo.domain.rest.MotebehovSvar;
 import no.nav.syfo.domain.rest.Person;
 import no.nav.syfo.repository.dao.DialogmotebehovDAO;
 import no.nav.syfo.util.Toggle;
@@ -16,11 +15,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static no.nav.sbl.java8utils.MapUtil.map;
-import static no.nav.sbl.java8utils.MapUtil.mapListe;
 import static no.nav.syfo.mappers.PersistencyMappers.rsMotebehov2p;
 import static no.nav.syfo.mappers.RestMappers.dialogmotebehov2rs;
-import static no.nav.syfo.mappers.RestMappers.lagreMotebehov2motebehov;
+import static no.nav.syfo.util.MapUtil.map;
+import static no.nav.syfo.util.MapUtil.mapListe;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
