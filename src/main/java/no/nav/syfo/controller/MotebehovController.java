@@ -9,14 +9,14 @@ import no.nav.syfo.consumer.ws.AktoerConsumer;
 import no.nav.syfo.domain.rest.LagreMotebehov;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.Person;
-import no.nav.syfo.repository.dao.DialogmotebehovDAO;
+import no.nav.syfo.repository.dao.MotebehovDAO;
 import no.nav.syfo.util.Toggle;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 import static no.nav.syfo.mappers.PersistencyMappers.rsMotebehov2p;
-import static no.nav.syfo.mappers.RestMappers.dialogmotebehov2rs;
+import static no.nav.syfo.mappers.RestMappers.motebehov2rs;
 import static no.nav.syfo.util.MapUtil.map;
 import static no.nav.syfo.util.MapUtil.mapListe;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -29,14 +29,14 @@ public class MotebehovController {
 
     private OIDCRequestContextHolder contextHolder;
     private AktoerConsumer aktoerConsumer;
-    private DialogmotebehovDAO dialogmotebehovDAO;
+    private MotebehovDAO motebehovDAO;
 
     public MotebehovController(final OIDCRequestContextHolder contextHolder,
                                final AktoerConsumer aktoerConsumer,
-                               final DialogmotebehovDAO dialogmotebehovDAO) {
+                               final MotebehovDAO motebehovDAO) {
         this.contextHolder = contextHolder;
         this.aktoerConsumer = aktoerConsumer;
-        this.dialogmotebehovDAO = dialogmotebehovDAO;
+        this.motebehovDAO = motebehovDAO;
     }
 
     @ResponseBody
@@ -44,7 +44,7 @@ public class MotebehovController {
     public List<Motebehov> hentMotebehovListe(@PathVariable String fnr) {
         if (Toggle.endepunkterForMotebehov) {
             String arbeidstakerFnr = fnr.isEmpty() ? fnrFraOIDC() : fnr;
-            return mapListe(dialogmotebehovDAO.hentDialogmotebehovListeForAktoer(aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr)), dialogmotebehov2rs);
+            return mapListe(motebehovDAO.hentMotebehovListeForAktoer(aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr)), motebehov2rs);
         } else {
             log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");
             return null;
@@ -56,7 +56,7 @@ public class MotebehovController {
         if (Toggle.endepunkterForMotebehov) {
             Motebehov motebehov = mapLagremotebehovTilMotebehov(lagreMotebehov);
 
-            dialogmotebehovDAO.create(map(motebehov, rsMotebehov2p));
+            motebehovDAO.create(map(motebehov, rsMotebehov2p));
         } else {
             log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");
         }

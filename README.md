@@ -1,16 +1,16 @@
-# syfo-dialogmotebehov
+# syfomotebehov
 
-syfo-dialogmotebehov er en mikrotjeneste i POC-en Robot-Berit. syfo-dialogmotebehov lagrer data om behovet for et
+syfomotebehov er en mikrotjeneste i POC-en Robot-Berit. syfomotebehov lagrer data om behovet for et
 dialogmøte, dette rapportertes inn av den sykemeldtes nærmeste leder.
 
-syfo-dialogmotebehov er en springboot-applikasjon basert på https://github.com/navikt/syfospringboot-kickstarter. Den er
+syfomotebehov er en springboot-applikasjon basert på https://github.com/navikt/syfospringboot-kickstarter. Den er
 satt opp til å kjøre på nais.
 
 ## Lokal utvikling 
 
 ### Oppstart
 
-Start opp appen fra [LocalApplication.java](../syfo-dialogmotebehov/src/test/java/no/nav/syfo/LocalApplication.java).
+Start opp appen fra [LocalApplication.java](../syfomotebehov/src/test/java/no/nav/syfo/LocalApplication.java).
 
 Har du IntelliJ satt opp med Spring-støtte, må du i Run/Debug configuration endre Spring boot modulen til å bruke
 testversjonen og ikke prodversjonen av applikasjonen:
@@ -26,7 +26,7 @@ Appen kjører da på localhost:8080/
 
 ### Properties
 
-Se [ApplicationConfig](../syfo-dialogmotebehov/src/test/java/no/nav/syfo/config/ApplicationConfigTest.java)
+Se [ApplicationConfig](../syfomotebehov/src/test/java/no/nav/syfo/config/ApplicationConfigTest.java)
 
 ### Testing
 

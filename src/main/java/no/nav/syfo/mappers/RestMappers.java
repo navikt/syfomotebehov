@@ -4,7 +4,7 @@ import no.nav.syfo.domain.rest.LagreMotebehov;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.MotebehovSvar;
 import no.nav.syfo.domain.rest.Person;
-import no.nav.syfo.repository.domain.PDialogmotebehov;
+import no.nav.syfo.repository.domain.PMotebehov;
 
 import java.util.function.Function;
 
@@ -19,19 +19,19 @@ public class RestMappers {
                     )
                     .motebehovSvar(lagreMotebehov.motebehovSvar());
 
-    public static Function<PDialogmotebehov, Motebehov> dialogmotebehov2rs = dialogmotebehov ->
+    public static Function<PMotebehov, Motebehov> motebehov2rs = motebehov ->
             new Motebehov()
-                    .id(dialogmotebehov.getUuid())
-                    .opprettetDato(dialogmotebehov.getOpprettetDato())
-                    .opprettetAv(dialogmotebehov.getOpprettetAv())
+                    .id(motebehov.getUuid())
+                    .opprettetDato(motebehov.getOpprettetDato())
+                    .opprettetAv(motebehov.getOpprettetAv())
                     .arbeidstaker(new Person()
-                            .fnr(aktoerConsumer().hentFnrForAktoerId(dialogmotebehov.getAktoerId()))
+                            .fnr(aktoerConsumer().hentFnrForAktoerId(motebehov.getAktoerId()))
                     )
                     .motebehovSvar(new MotebehovSvar()
-                            .friskmeldingForventning(dialogmotebehov.getFriskmeldingForventning())
-                            .tiltak(dialogmotebehov.getTiltak())
-                            .tiltakResultat(dialogmotebehov.getTiltakResultat())
-                            .harMotebehov(dialogmotebehov.isHarMotebehov())
-                            .forklaring(dialogmotebehov.getForklaring())
+                            .friskmeldingForventning(motebehov.getFriskmeldingForventning())
+                            .tiltak(motebehov.getTiltak())
+                            .tiltakResultat(motebehov.getTiltakResultat())
+                            .harMotebehov(motebehov.isHarMotebehov())
+                            .forklaring(motebehov.getForklaring())
                     );
 }

@@ -14,7 +14,7 @@ server:
   port: 8811
 
 securitytokenservice.url: "sts.url"
-srvsyfo-dialogmotebehov:
+srvsyfomotebehov:
   username: "kek"
   password: "bur"
 

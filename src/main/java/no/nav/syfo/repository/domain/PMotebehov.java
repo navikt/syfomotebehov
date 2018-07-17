@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 @Value
 @Getter
-public class PDialogmotebehov {
+public class PMotebehov {
     private String uuid;
     public LocalDateTime opprettetDato;
     private String opprettetAv;
