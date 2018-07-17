@@ -38,8 +38,6 @@ fasitResources:
     resourceType: credential
   - alias: securityTokenService
     resourceType: baseurl
-  - alias: loadbalancer:syfo-dialogmotebehov
-    resourceType: loadbalancerconfig
   - alias: aad_b2c_clientid
     resourceType: credential
     propertyMap:
