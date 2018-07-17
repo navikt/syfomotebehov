@@ -41,7 +41,7 @@ public class MotebehovController {
 
     @ResponseBody
     @RequestMapping(value = "/motebehov", produces = APPLICATION_JSON_VALUE)
-    public List<Motebehov> hentMotebehovListe(@PathVariable String fnr) {
+    public List<Motebehov> hentMotebehovListe(@RequestParam String fnr) {
         if (Toggle.endepunkterForMotebehov) {
             String arbeidstakerFnr = fnr.isEmpty() ? fnrFraOIDC() : fnr;
             return mapListe(motebehovDAO.hentMotebehovListeForAktoer(aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr)), motebehov2rs);
