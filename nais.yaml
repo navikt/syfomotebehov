@@ -36,6 +36,8 @@ fasitResources:
     resourceType: webserviceendpoint
   - alias: srvsyfomotebehov
     resourceType: credential
+  - alias: loadbalancer:syfomotebehov
+    resourceType: loadbalancerconfig
   - alias: securityTokenService
     resourceType: baseurl
   - alias: aad_b2c_clientid
