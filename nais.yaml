@@ -34,6 +34,8 @@ fasitResources:
   used:
   - alias: Aktoer_v2
     resourceType: webserviceendpoint
+  - alias: syfomotebehov.properties
+    resourceType: applicationproperties
   - alias: srvsyfomotebehov
     resourceType: credential
   - alias: loadbalancer:syfomotebehov
