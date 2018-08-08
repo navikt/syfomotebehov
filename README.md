@@ -22,7 +22,7 @@ Name --> LocalApplication
 Main --> no.nav.syfo.LocalApplication
 ```
 
-Appen kjører da på localhost:8080/
+Appen kjører da på localhost:8811/
 
 ### Properties
 
@@ -34,7 +34,7 @@ Enhetstester er satt opp med in-memory db og kan kjøres på vanlig vis: **mvn t
 
 ### Bygging
 
-Applikasjonen pakkes til en stor jar vha spring-boot-maven-plugin, og bygges med docker . Applikasjonen kan kjøres opp 
+Applikasjonen pakkes til en stor jar vha spring-boot-maven-plugin, og bygges med docker. Applikasjonen kan kjøres opp 
 lokalt på docker hvis jdbc-url legges på path.
 
 ### Deploy
