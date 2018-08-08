@@ -17,5 +17,3 @@ CREATE TABLE MOTEBEHOV (
   forklaring                  CLOB,
   CONSTRAINT MOTEBEHOV_PK PRIMARY KEY (motebehov_uuid)
 );
-
-CREATE INDEX motebehov_uuid_index ON MOTEBEHOV (motebehov_uuid);
