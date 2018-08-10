@@ -1,15 +1,15 @@
 package no.nav.syfo.repository;
 
-import org.owasp.html.PolicyFactory;
 import org.owasp.html.HtmlPolicyBuilder;
+import org.owasp.html.PolicyFactory;
 import org.slf4j.Logger;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 import static java.util.Optional.ofNullable;
-import static org.slf4j.LoggerFactory.getLogger;
 import static org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4;
+import static org.slf4j.LoggerFactory.getLogger;
 
 public class DbUtil {
 

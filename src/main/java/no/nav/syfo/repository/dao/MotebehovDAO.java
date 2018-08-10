@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Types;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -68,6 +69,10 @@ public class MotebehovDAO {
         namedParameterJdbcTemplate.update(lagreSql, mapLagreSql);
 
         return uuid;
+    }
+
+    public List<PMotebehov> finnMotebehovOpprettetSiden(LocalDateTime timestamp) {
+        return jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE opprettet_dato > ?", getInnsendingRowMapper(), timestamp);
     }
 
     public static RowMapper<PMotebehov> getInnsendingRowMapper() {
