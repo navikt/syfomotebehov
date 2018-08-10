@@ -37,6 +37,7 @@
         <cxf.version>3.2.0</cxf.version>
         <oidc-spring-support.version>0.2.4</oidc-spring-support.version>
         <aktoer.version>1.0</aktoer.version>
+        <postgresql.version>42.2.4</postgresql.version>
     </properties>
 
     <dependencies>
@@ -164,9 +165,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc8</artifactId>
-            <version>${ojdbc8.version}</version>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
