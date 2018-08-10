@@ -73,6 +73,7 @@ public class MotebehovController {
                 .arbeidstaker(new Person()
                         .fnr(arbeidstakerFnr)
                 )
+                .virksomhetsnummer(lagreMotebehov.virksomhetsnummer)
                 .motebehovSvar(lagreMotebehov.motebehovSvar());
     }
 

@@ -14,6 +14,7 @@ public class PMotebehov {
     public LocalDateTime opprettetDato;
     private String opprettetAv;
     private String aktoerId;
+    private String virksomhetsnummer;
     private String friskmeldingForventning;
     private String tiltak;
     private String tiltakResultat;

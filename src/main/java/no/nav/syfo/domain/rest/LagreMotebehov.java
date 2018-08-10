@@ -9,5 +9,6 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode
 public class LagreMotebehov {
     public String arbeidstakerFnr;
+    public String virksomhetsnummer;
     public MotebehovSvar motebehovSvar;
 }

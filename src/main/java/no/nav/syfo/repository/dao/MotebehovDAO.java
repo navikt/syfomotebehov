@@ -45,6 +45,7 @@ public class MotebehovDAO {
                 ":opprettet_dato, " +
                 ":opprettet_av, " +
                 ":aktoer_id, " +
+                ":virksomhetsnummer, " +
                 ":friskmelding_forventning, " +
                 ":tiltak, " +
                 ":tiltak_resultat, " +
@@ -57,6 +58,7 @@ public class MotebehovDAO {
                 .addValue("opprettet_av", motebehov.getOpprettetAv())
                 .addValue("opprettet_dato", convert(now()))
                 .addValue("aktoer_id", motebehov.getAktoerId())
+                .addValue("virksomhetsnummer", motebehov.getVirksomhetsnummer())
                 .addValue("friskmelding_forventning", new SqlLobValue(sanitizeUserInput(motebehov.getFriskmeldingForventning())), Types.CLOB)
                 .addValue("tiltak", new SqlLobValue(sanitizeUserInput(motebehov.getTiltak())), Types.CLOB)
                 .addValue("tiltak_resultat", new SqlLobValue(sanitizeUserInput(motebehov.getTiltakResultat())), Types.CLOB)
@@ -74,6 +76,7 @@ public class MotebehovDAO {
                 .opprettetDato(convert(rs.getTimestamp("opprettet_dato")))
                 .opprettetAv(rs.getString("opprettet_av"))
                 .aktoerId(rs.getString("aktoer_id"))
+                .virksomhetsnummer(rs.getString("virksomhetsnummer"))
                 .friskmeldingForventning(rs.getString("friskmelding_forventning"))
                 .tiltak(rs.getString("tiltak"))
                 .tiltakResultat(rs.getString("tiltak_resultat"))

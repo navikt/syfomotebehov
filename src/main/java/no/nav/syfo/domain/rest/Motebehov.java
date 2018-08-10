@@ -14,5 +14,6 @@ public class Motebehov {
     public LocalDateTime opprettetDato;
     public String opprettetAv;
     public Person arbeidstaker;
+    public String virksomhetsnummer;
     public MotebehovSvar motebehovSvar;
 }

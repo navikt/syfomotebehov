@@ -26,12 +26,14 @@ public class MotebehovDAOTest {
     private static final String TILTAK = "Hvilerom";
     private static final String SYKMELDT_AKTOERID = "10123456789";
     private static final String ARBEIDSGIVER_AKTOERID = "10123456780";
+    private static final String VIRKSOMHETSNUMMER = "951110345";
     private static final Timestamp OPPRETTET_DATO = Timestamp.valueOf("2018-03-07 15:10:50.112000");
 
     private static final PMotebehov MOTEBEHOV_1 = PMotebehov.builder()
             .opprettetDato(convert(OPPRETTET_DATO))
             .opprettetAv(ARBEIDSGIVER_AKTOERID)
             .aktoerId(SYKMELDT_AKTOERID)
+            .virksomhetsnummer(VIRKSOMHETSNUMMER)
             .friskmeldingForventning("Snart")
             .tiltak(TILTAK)
             .tiltakResultat("Mindre smerter")
@@ -52,7 +54,7 @@ public class MotebehovDAOTest {
 
     @Test
     public void hentMotebehovListeForAktoer() {
-        jdbcTemplate.update("INSERT INTO MOTEBEHOV VALUES('id', '2018-03-07 15:10:50.112000', '" + ARBEIDSGIVER_AKTOERID + "', '" + SYKMELDT_AKTOERID + "', 'Snart', '" + TILTAK + "', " +
+        jdbcTemplate.update("INSERT INTO MOTEBEHOV VALUES('id', '2018-03-07 15:10:50.112000', '" + ARBEIDSGIVER_AKTOERID + "', '" + SYKMELDT_AKTOERID + "', '" + VIRKSOMHETSNUMMER + "', 'Snart', '" + TILTAK + "', " +
                 "'Mindre smerter', '1', 'Megling')");
         List<PMotebehov> motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(SYKMELDT_AKTOERID);
 
@@ -61,6 +63,7 @@ public class MotebehovDAOTest {
         assertThat(motebehovFraDb.getOpprettetDato()).isEqualTo(MOTEBEHOV_1.getOpprettetDato());
         assertThat(motebehovFraDb.getOpprettetAv()).isEqualTo(MOTEBEHOV_1.getOpprettetAv());
         assertThat(motebehovFraDb.getAktoerId()).isEqualTo(MOTEBEHOV_1.getAktoerId());
+        assertThat(motebehovFraDb.getVirksomhetsnummer()).isEqualTo(MOTEBEHOV_1.getVirksomhetsnummer());
         assertThat(motebehovFraDb.getFriskmeldingForventning()).isEqualTo(MOTEBEHOV_1.getFriskmeldingForventning());
         assertThat(motebehovFraDb.getTiltak()).isEqualTo(MOTEBEHOV_1.getTiltak());
         assertThat(motebehovFraDb.getTiltakResultat()).isEqualTo(MOTEBEHOV_1.getTiltakResultat());
