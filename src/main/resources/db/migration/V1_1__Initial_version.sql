@@ -11,9 +11,9 @@ CREATE TABLE MOTEBEHOV (
   opprettet_av                VARCHAR(13) NOT NULL,
   aktoer_id                   VARCHAR(13) NOT NULL,
   virksomhetsnummer           VARCHAR(9)  NOT NULL,
-  friskmelding_forventning    VARCHAR(MAX),
-  tiltak                      VARCHAR(MAX),
-  tiltak_resultat             VARCHAR(MAX),
+  friskmelding_forventning    TEXT,
+  tiltak                      TEXT,
+  tiltak_resultat             TEXT,
   har_motebehov               BOOLEAN,
-  forklaring                  VARCHAR(MAX)
+  forklaring                  TEXT
 );
