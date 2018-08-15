@@ -12,7 +12,8 @@ public class PersistencyMappers {
     public static Function<Motebehov, PMotebehov> rsMotebehov2p = motebehov ->
             PMotebehov.builder()
                     .opprettetAv(motebehov.opprettetAv())
-                    .aktoerId(aktoerConsumer().hentAktoerIdForFnr(motebehov.arbeidstaker().fnr()))
+                    .aktoerId(aktoerConsumer().hentAktoerIdForFnr(motebehov.arbeidstaker.toString()))
+                    .virksomhetsnummer(motebehov.virksomhetsnummer)
                     .harMotebehov(motebehov.motebehovSvar().harMotebehov())
                     .friskmeldingForventning(motebehov.motebehovSvar().friskmeldingForventning())
                     .tiltak(motebehov.motebehovSvar().tiltak())

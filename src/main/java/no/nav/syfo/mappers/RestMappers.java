@@ -1,9 +1,9 @@
 package no.nav.syfo.mappers;
 
+import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.LagreMotebehov;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.MotebehovSvar;
-import no.nav.syfo.domain.rest.Person;
 import no.nav.syfo.repository.domain.PMotebehov;
 
 import java.util.function.Function;
@@ -14,24 +14,21 @@ public class RestMappers {
 
     public static Function<LagreMotebehov, Motebehov> lagreMotebehov2motebehov = lagreMotebehov ->
             new Motebehov()
-                    .arbeidstaker(new Person()
-                            .fnr(lagreMotebehov.arbeidstakerFnr())
-                    )
+                    .arbeidstaker(lagreMotebehov.arbeidstakerFnr())
                     .motebehovSvar(lagreMotebehov.motebehovSvar());
 
-    public static Function<PMotebehov, Motebehov> motebehov2rs = motebehov ->
+    public static Function<PMotebehov, Motebehov> motebehov2rs = pMotebehov ->
             new Motebehov()
-                    .id(motebehov.getUuid())
-                    .opprettetDato(motebehov.getOpprettetDato())
-                    .opprettetAv(motebehov.getOpprettetAv())
-                    .arbeidstaker(new Person()
-                            .fnr(aktoerConsumer().hentFnrForAktoerId(motebehov.getAktoerId()))
-                    )
+                    .id(pMotebehov.getUuid())
+                    .opprettetDato(pMotebehov.getOpprettetDato())
+                    .opprettetAv(pMotebehov.getOpprettetAv())
+                    .arbeidstaker(new Fnr(aktoerConsumer().hentFnrForAktoerId(pMotebehov.getAktoerId())))
+                    .virksomhetsnummer(pMotebehov.getVirksomhetsnummer())
                     .motebehovSvar(new MotebehovSvar()
-                            .friskmeldingForventning(motebehov.getFriskmeldingForventning())
-                            .tiltak(motebehov.getTiltak())
-                            .tiltakResultat(motebehov.getTiltakResultat())
-                            .harMotebehov(motebehov.isHarMotebehov())
-                            .forklaring(motebehov.getForklaring())
+                            .friskmeldingForventning(pMotebehov.getFriskmeldingForventning())
+                            .tiltak(pMotebehov.getTiltak())
+                            .tiltakResultat(pMotebehov.getTiltakResultat())
+                            .harMotebehov(pMotebehov.isHarMotebehov())
+                            .forklaring(pMotebehov.getForklaring())
                     );
 }

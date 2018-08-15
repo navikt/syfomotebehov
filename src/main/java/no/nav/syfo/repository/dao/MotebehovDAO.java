@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static java.time.LocalDateTime.now;
+import static java.util.UUID.fromString;
 import static no.nav.syfo.repository.DbUtil.convert;
 import static no.nav.syfo.repository.DbUtil.sanitizeUserInput;
 
@@ -39,8 +40,8 @@ public class MotebehovDAO {
         return jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE aktoer_id = ?", getInnsendingRowMapper(), aktoerId);
     }
 
-    public String create(final PMotebehov motebehov) {
-        String uuid = UUID.randomUUID().toString();
+    public UUID create(final PMotebehov motebehov) {
+        UUID uuid = UUID.randomUUID();
         String lagreSql = "INSERT INTO MOTEBEHOV VALUES(" +
                 ":uuid, " +
                 ":opprettet_dato, " +
@@ -55,7 +56,7 @@ public class MotebehovDAO {
                 ")";
 
         MapSqlParameterSource mapLagreSql = new MapSqlParameterSource()
-                .addValue("uuid", uuid)
+                .addValue("uuid", uuid.toString())
                 .addValue("opprettet_av", motebehov.getOpprettetAv())
                 .addValue("opprettet_dato", convert(now()))
                 .addValue("aktoer_id", motebehov.getAktoerId())
@@ -77,7 +78,7 @@ public class MotebehovDAO {
 
     public static RowMapper<PMotebehov> getInnsendingRowMapper() {
         return (rs, i) -> PMotebehov.builder()
-                .uuid(rs.getString("motebehov_uuid"))
+                .uuid(fromString(rs.getString("motebehov_uuid")))
                 .opprettetDato(convert(rs.getTimestamp("opprettet_dato")))
                 .opprettetAv(rs.getString("opprettet_av"))
                 .aktoerId(rs.getString("aktoer_id"))

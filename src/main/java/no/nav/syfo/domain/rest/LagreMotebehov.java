@@ -4,11 +4,21 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
 @Data
 @Accessors(fluent = true, chain = true)
 @EqualsAndHashCode
 public class LagreMotebehov {
-    public String arbeidstakerFnr;
+
+    @Valid
+    public Fnr arbeidstakerFnr;
+
+    @NotEmpty
     public String virksomhetsnummer;
+
+    @NotNull
     public MotebehovSvar motebehovSvar;
 }

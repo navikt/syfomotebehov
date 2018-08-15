@@ -5,12 +5,13 @@ import lombok.Getter;
 import lombok.Value;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Builder
 @Value
 @Getter
 public class PMotebehov {
-    private String uuid;
+    private UUID uuid;
     public LocalDateTime opprettetDato;
     private String opprettetAv;
     private String aktoerId;

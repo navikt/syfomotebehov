@@ -54,7 +54,7 @@ public class MotebehovDAOTest {
 
     @Test
     public void hentMotebehovListeForAktoer() {
-        jdbcTemplate.update("INSERT INTO MOTEBEHOV VALUES('id', '2018-03-07 15:10:50.112000', '" + ARBEIDSGIVER_AKTOERID + "', '" + SYKMELDT_AKTOERID + "', '" + VIRKSOMHETSNUMMER + "', 'Snart', '" + TILTAK + "', " +
+        jdbcTemplate.update("INSERT INTO MOTEBEHOV VALUES('bae778f2-a085-11e8-98d0-529269fb1459', '2018-03-07 15:10:50.112000', '" + ARBEIDSGIVER_AKTOERID + "', '" + SYKMELDT_AKTOERID + "', '" + VIRKSOMHETSNUMMER + "', 'Snart', '" + TILTAK + "', " +
                 "'Mindre smerter', '1', 'Megling')");
         List<PMotebehov> motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(SYKMELDT_AKTOERID);
 

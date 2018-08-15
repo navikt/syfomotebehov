@@ -28,8 +28,6 @@
         <spring.version>5.0.7.RELEASE</spring.version>
         <jose4j.version>0.5.0</jose4j.version>
         <logstash-logback-encoder.version>4.10</logstash-logback-encoder.version>
-        <prometheus.version>0.3.0</prometheus.version>
-        <micrometer-registry-prometheus.version>1.0.2</micrometer-registry-prometheus.version>
         <ojdbc8.version>12.2.0.1</ojdbc8.version>
         <h2.version>1.4.196</h2.version>
         <flyway-core.version>5.0.7</flyway-core.version>
@@ -67,7 +65,6 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
-            <version>${micrometer-registry-prometheus.version}</version>
         </dependency>
 
         <dependency>
