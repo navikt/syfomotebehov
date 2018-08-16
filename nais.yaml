@@ -13,12 +13,12 @@ healthcheck:
     periodSeconds: 10
     failureThreshold: 3
   readiness:
-    path: /internal/isReady
+    path: /syfomotebehov/internal/isReady
     initialDelay: 120
     timeout: 1
 prometheus:
   enabled: true
-  path: /internal/prometheus
+  path: /syfomotebehov/internal/prometheus
 resources:
   limits:
     cpu: 3000m
@@ -30,7 +30,7 @@ fasitResources:
   exposed:
   - alias: syfomotebehovapi
     resourceType: restservice
-    path: /api
+    path: /syfomotebehov/api
   used:
   - alias: Aktoer_v2
     resourceType: webserviceendpoint
