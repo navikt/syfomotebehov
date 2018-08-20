@@ -15,4 +15,13 @@
             <url-pattern>/*</url-pattern>
         </web-resource-collection>
     </security-constraint>
+
+    <filter>
+        <filter-name>authorizationFilterFeed</filter-name>
+        <filter-class>no.nav.syfo.controller.authorization.AuthorizationFilterFeed</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>authorizationFilterFeed</filter-name>
+        <url-pattern>/api/feed/*</url-pattern>
+    </filter-mapping>
 </web-app>

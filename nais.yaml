@@ -31,6 +31,9 @@ fasitResources:
   - alias: syfomotebehovapi
     resourceType: restservice
     path: /syfomotebehov/api
+  - alias: motebehovfeedveilederoppgaver
+    resourceType: restservice
+    path: /syfomotebehov/api/feed/motebehov
   used:
   - alias: Aktoer_v2
     resourceType: webserviceendpoint
@@ -41,6 +44,8 @@ fasitResources:
   - alias: securityTokenService
     resourceType: baseurl
   - alias: aad_b2c_clientid
+    resourceType: credential
+  - alias: syfoveilederoppgaver.systemapi
     resourceType: credential
     propertyMap:
       username: NO_NAV_SECURITY_OIDC_ISSUER_SELVBETJENING_ACCEPTEDAUDIENCE
