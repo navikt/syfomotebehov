@@ -7,18 +7,18 @@ replicas:
 port: 8080
 healthcheck:
   liveness:
-    path: /internal/isAlive
+    path: /syfomotebehov/internal/isAlive
     initialDelay: 120
     timeout: 1
     periodSeconds: 10
     failureThreshold: 3
   readiness:
-    path: /internal/isReady
+    path: /syfomotebehov/internal/isReady
     initialDelay: 120
     timeout: 1
 prometheus:
   enabled: true
-  path: /internal/prometheus
+  path: /syfomotebehov/internal/prometheus
 resources:
   limits:
     cpu: 3000m
@@ -30,7 +30,10 @@ fasitResources:
   exposed:
   - alias: syfomotebehovapi
     resourceType: restservice
-    path: /api
+    path: /syfomotebehov/api
+  - alias: motebehovfeedveilederoppgaver
+    resourceType: restservice
+    path: /syfomotebehov/api/feed/motebehov
   used:
   - alias: Aktoer_v2
     resourceType: webserviceendpoint
@@ -38,11 +41,11 @@ fasitResources:
     resourceType: applicationproperties
   - alias: srvsyfomotebehov
     resourceType: credential
-  - alias: loadbalancer:syfomotebehov
-    resourceType: loadbalancerconfig
   - alias: securityTokenService
     resourceType: baseurl
   - alias: aad_b2c_clientid
+    resourceType: credential
+  - alias: syfoveilederoppgaver.systemapi
     resourceType: credential
     propertyMap:
       username: NO_NAV_SECURITY_OIDC_ISSUER_SELVBETJENING_ACCEPTEDAUDIENCE
