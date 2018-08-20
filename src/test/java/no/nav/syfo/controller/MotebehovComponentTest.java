@@ -8,9 +8,9 @@ import no.nav.security.oidc.context.TokenContext;
 import no.nav.security.spring.oidc.test.JwtTokenGenerator;
 import no.nav.syfo.LocalApplication;
 import no.nav.syfo.domain.rest.Fnr;
-import no.nav.syfo.domain.rest.LagreMotebehov;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.MotebehovSvar;
+import no.nav.syfo.domain.rest.NyttMotebehov;
 import no.nav.syfo.mock.AktoerMock;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import org.junit.After;
@@ -71,7 +71,7 @@ public class MotebehovComponentTest {
                 .tiltakResultat("Kommer seg fremover")
                 .forklaring("");
 
-        final LagreMotebehov lagreMotebehov = new LagreMotebehov()
+        final NyttMotebehov lagreMotebehov = new NyttMotebehov()
                 .arbeidstakerFnr(Fnr.of(ARBEIDSTAKER_FNR))
                 .virksomhetsnummer(VIRKSOMHETSNUMMER)
                 .motebehovSvar(

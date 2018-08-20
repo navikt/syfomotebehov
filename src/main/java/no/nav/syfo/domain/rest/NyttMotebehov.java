@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @Accessors(fluent = true, chain = true)
 @EqualsAndHashCode
-public class LagreMotebehov {
+public class NyttMotebehov {
 
     @Valid
     public Fnr arbeidstakerFnr;

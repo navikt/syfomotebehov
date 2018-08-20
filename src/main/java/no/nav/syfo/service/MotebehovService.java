@@ -42,7 +42,7 @@ public class MotebehovService {
                 .collect(toList());
     }
 
-    public UUID lagreMotebehov(Fnr innloggetFNR, final LagreMotebehov lagreMotebehov) {
+    public UUID lagreMotebehov(Fnr innloggetFNR, final NyttMotebehov lagreMotebehov) {
         final String innloggetBrukerAktoerId = aktoerConsumer.hentAktoerIdForFnr(innloggetFNR.getFnr());
         final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(lagreMotebehov.arbeidstakerFnr.getFnr());
         final PMotebehov motebehov = mapLagreMotebehovToPMotebehov(innloggetBrukerAktoerId, arbeidstakerAktoerId, lagreMotebehov);
@@ -60,7 +60,7 @@ public class MotebehovService {
                 .collect(toList());
     }
 
-    private PMotebehov mapLagreMotebehovToPMotebehov(String innloggetAktoerId, String arbeidstakerAktoerId, LagreMotebehov lagreMotebehov) {
+    private PMotebehov mapLagreMotebehovToPMotebehov(String innloggetAktoerId, String arbeidstakerAktoerId, NyttMotebehov lagreMotebehov) {
         return new PMotebehov()
                 .opprettetAv(innloggetAktoerId)
                 .aktoerId(arbeidstakerAktoerId)

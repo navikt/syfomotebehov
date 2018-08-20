@@ -6,8 +6,8 @@ import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.oidc.context.OIDCValidationContext;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.domain.rest.Fnr;
-import no.nav.syfo.domain.rest.LagreMotebehov;
 import no.nav.syfo.domain.rest.Motebehov;
+import no.nav.syfo.domain.rest.NyttMotebehov;
 import no.nav.syfo.service.MotebehovService;
 import no.nav.syfo.util.Toggle;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +54,7 @@ public class MotebehovController {
 
     @ResponseBody
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public UUID lagreMotebehov(@RequestBody @Valid LagreMotebehov lagreMotebehov) {
+    public UUID lagreMotebehov(@RequestBody @Valid NyttMotebehov lagreMotebehov) {
         if (Toggle.endepunkterForMotebehov) {
             return motebehovService.lagreMotebehov(fnrFraOIDC(), lagreMotebehov);
         } else {
