@@ -7,23 +7,20 @@ import no.nav.tjeneste.virksomhet.aktoer.v2.HentIdentForAktoerIdPersonIkkeFunnet
 import no.nav.tjeneste.virksomhet.aktoer.v2.meldinger.WSHentAktoerIdForIdentRequest;
 import no.nav.tjeneste.virksomhet.aktoer.v2.meldinger.WSHentIdentForAktoerIdRequest;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
 @Component
 @Slf4j
-public class AktoerConsumer  implements InitializingBean {
+public class AktoerConsumer implements InitializingBean {
 
     private static AktoerConsumer instance;
 
     private final AktoerV2 aktoerV2;
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         instance = this;
     }
 
@@ -37,13 +34,10 @@ public class AktoerConsumer  implements InitializingBean {
     }
 
     public String hentAktoerIdForFnr(String fnr) {
-        log.info("Henter aktoerid for fnr");
         try {
-            String aktoerid = aktoerV2.hentAktoerIdForIdent(new WSHentAktoerIdForIdentRequest()
+            return aktoerV2.hentAktoerIdForIdent(new WSHentAktoerIdForIdentRequest()
                     .withIdent(fnr)
             ).getAktoerId();
-            log.info("Fant aktoerid for fnr: {}", aktoerid);
-            return aktoerid;
         } catch (HentAktoerIdForIdentPersonIkkeFunnet e) {
             log.error("Fant ikke person med gitt fnr");
             throw new RuntimeException(e);
@@ -51,16 +45,13 @@ public class AktoerConsumer  implements InitializingBean {
     }
 
     public String hentFnrForAktoerId(String aktoerId) {
-        log.info("Henter fnr for aktoerid");
         try {
-            String aktoerid = aktoerV2.hentIdentForAktoerId(
+            return aktoerV2.hentIdentForAktoerId(
                     new WSHentIdentForAktoerIdRequest()
                             .withAktoerId(aktoerId)
             ).getIdent();
-            log.info("Fant fnr for aktoerid: {}", aktoerid);
-            return aktoerid;
         } catch (HentIdentForAktoerIdPersonIkkeFunnet e) {
-            log.error("Fant ikke person med gitt aktoerId");
+            log.error("Fant ikke person med aktoerId: " + aktoerId);
             throw new RuntimeException(e);
         }
     }

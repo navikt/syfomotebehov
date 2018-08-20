@@ -14,9 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static java.time.LocalDateTime.now;
+import static java.util.Optional.ofNullable;
+import static java.util.UUID.fromString;
 import static no.nav.syfo.repository.DbUtil.convert;
 import static no.nav.syfo.repository.DbUtil.sanitizeUserInput;
 
@@ -35,12 +38,12 @@ public class MotebehovDAO {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<PMotebehov> hentMotebehovListeForAktoer(String aktoerId) {
-        return jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE aktoer_id = ?", getInnsendingRowMapper(), aktoerId);
+    public Optional<List<PMotebehov>> hentMotebehovListeForAktoer(String aktoerId) {
+        return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE aktoer_id = ?", getInnsendingRowMapper(), aktoerId));
     }
 
-    public String create(final PMotebehov motebehov) {
-        String uuid = UUID.randomUUID().toString();
+    public UUID create(final PMotebehov motebehov) {
+        UUID uuid = UUID.randomUUID();
         String lagreSql = "INSERT INTO MOTEBEHOV VALUES(" +
                 ":uuid, " +
                 ":opprettet_dato, " +
@@ -55,16 +58,16 @@ public class MotebehovDAO {
                 ")";
 
         MapSqlParameterSource mapLagreSql = new MapSqlParameterSource()
-                .addValue("uuid", uuid)
-                .addValue("opprettet_av", motebehov.getOpprettetAv())
+                .addValue("uuid", uuid.toString())
+                .addValue("opprettet_av", motebehov.opprettetAv)
                 .addValue("opprettet_dato", convert(now()))
-                .addValue("aktoer_id", motebehov.getAktoerId())
-                .addValue("virksomhetsnummer", motebehov.getVirksomhetsnummer())
-                .addValue("friskmelding_forventning", new SqlLobValue(sanitizeUserInput(motebehov.getFriskmeldingForventning())), Types.CLOB)
-                .addValue("tiltak", new SqlLobValue(sanitizeUserInput(motebehov.getTiltak())), Types.CLOB)
-                .addValue("tiltak_resultat", new SqlLobValue(sanitizeUserInput(motebehov.getTiltakResultat())), Types.CLOB)
-                .addValue("har_motebehov", motebehov.isHarMotebehov())
-                .addValue("forklaring", new SqlLobValue(sanitizeUserInput(motebehov.getForklaring())), Types.CLOB);
+                .addValue("aktoer_id", motebehov.aktoerId)
+                .addValue("virksomhetsnummer", motebehov.virksomhetsnummer)
+                .addValue("friskmelding_forventning", new SqlLobValue(sanitizeUserInput(motebehov.friskmeldingForventning)), Types.CLOB)
+                .addValue("tiltak", new SqlLobValue(sanitizeUserInput(motebehov.tiltak)), Types.CLOB)
+                .addValue("tiltak_resultat", new SqlLobValue(sanitizeUserInput(motebehov.tiltakResultat)), Types.CLOB)
+                .addValue("har_motebehov", motebehov.harMotebehov)
+                .addValue("forklaring", new SqlLobValue(sanitizeUserInput(motebehov.forklaring)), Types.CLOB);
 
         namedParameterJdbcTemplate.update(lagreSql, mapLagreSql);
 
@@ -75,9 +78,9 @@ public class MotebehovDAO {
         return jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE opprettet_dato > ?", getInnsendingRowMapper(), timestamp);
     }
 
-    public static RowMapper<PMotebehov> getInnsendingRowMapper() {
-        return (rs, i) -> PMotebehov.builder()
-                .uuid(rs.getString("motebehov_uuid"))
+    private static RowMapper<PMotebehov> getInnsendingRowMapper() {
+        return (rs, i) -> new PMotebehov()
+                .uuid(fromString(rs.getString("motebehov_uuid")))
                 .opprettetDato(convert(rs.getTimestamp("opprettet_dato")))
                 .opprettetAv(rs.getString("opprettet_av"))
                 .aktoerId(rs.getString("aktoer_id"))
@@ -86,8 +89,7 @@ public class MotebehovDAO {
                 .tiltak(rs.getString("tiltak"))
                 .tiltakResultat(rs.getString("tiltak_resultat"))
                 .harMotebehov(rs.getBoolean("har_motebehov"))
-                .forklaring(rs.getString("forklaring"))
-                .build();
+                .forklaring(rs.getString("forklaring"));
     }
 
     public int nullstillMotebehov(String aktoerId) {
