@@ -14,7 +14,7 @@ public class Motebehov {
     public UUID id;
     public LocalDateTime opprettetDato;
     public String opprettetAv;
-    public Fnr arbeidstaker;
+    public Fnr arbeidstakerFnr;
     public String virksomhetsnummer;
     public MotebehovSvar motebehovSvar;
 }

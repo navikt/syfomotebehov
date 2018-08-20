@@ -14,6 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.inject.Inject;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.UUID;
 
 import static no.nav.syfo.repository.DbUtil.convert;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +30,7 @@ public class MotebehovDAOTest {
     private static final String VIRKSOMHETSNUMMER = "951110345";
     private static final Timestamp OPPRETTET_DATO = Timestamp.valueOf("2018-03-07 15:10:50.112000");
 
-    private static final PMotebehov MOTEBEHOV_1 = PMotebehov.builder()
+    private static final PMotebehov MOTEBEHOV_1 = new PMotebehov()
             .opprettetDato(convert(OPPRETTET_DATO))
             .opprettetAv(ARBEIDSGIVER_AKTOERID)
             .aktoerId(SYKMELDT_AKTOERID)
@@ -38,8 +39,7 @@ public class MotebehovDAOTest {
             .tiltak(TILTAK)
             .tiltakResultat("Mindre smerter")
             .harMotebehov(true)
-            .forklaring("Megling")
-            .build();
+            .forklaring("Megling");
 
     @Inject
     private JdbcTemplate jdbcTemplate;
@@ -53,31 +53,32 @@ public class MotebehovDAOTest {
     }
 
     @Test
-    public void hentMotebehovListeForAktoer() {
+    public void hentMotebehovListeForAktoer() throws Exception {
         jdbcTemplate.update("INSERT INTO MOTEBEHOV VALUES('bae778f2-a085-11e8-98d0-529269fb1459', '2018-03-07 15:10:50.112000', '" + ARBEIDSGIVER_AKTOERID + "', '" + SYKMELDT_AKTOERID + "', '" + VIRKSOMHETSNUMMER + "', 'Snart', '" + TILTAK + "', " +
                 "'Mindre smerter', '1', 'Megling')");
-        List<PMotebehov> motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(SYKMELDT_AKTOERID);
+        List<PMotebehov> motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(SYKMELDT_AKTOERID).orElseThrow(Exception::new);
 
         assertThat(motebehovListe.size()).isEqualTo(1);
         final PMotebehov motebehovFraDb = motebehovListe.get(0);
-        assertThat(motebehovFraDb.getOpprettetDato()).isEqualTo(MOTEBEHOV_1.getOpprettetDato());
-        assertThat(motebehovFraDb.getOpprettetAv()).isEqualTo(MOTEBEHOV_1.getOpprettetAv());
-        assertThat(motebehovFraDb.getAktoerId()).isEqualTo(MOTEBEHOV_1.getAktoerId());
-        assertThat(motebehovFraDb.getVirksomhetsnummer()).isEqualTo(MOTEBEHOV_1.getVirksomhetsnummer());
-        assertThat(motebehovFraDb.getFriskmeldingForventning()).isEqualTo(MOTEBEHOV_1.getFriskmeldingForventning());
-        assertThat(motebehovFraDb.getTiltak()).isEqualTo(MOTEBEHOV_1.getTiltak());
-        assertThat(motebehovFraDb.getTiltakResultat()).isEqualTo(MOTEBEHOV_1.getTiltakResultat());
-        assertThat(motebehovFraDb.isHarMotebehov()).isTrue();
-        assertThat(motebehovFraDb.getForklaring()).isEqualTo(MOTEBEHOV_1.getForklaring());
+        assertThat(motebehovFraDb.opprettetDato).isEqualTo(MOTEBEHOV_1.opprettetDato);
+        assertThat(motebehovFraDb.opprettetAv).isEqualTo(MOTEBEHOV_1.opprettetAv);
+        assertThat(motebehovFraDb.aktoerId).isEqualTo(MOTEBEHOV_1.aktoerId);
+        assertThat(motebehovFraDb.virksomhetsnummer).isEqualTo(MOTEBEHOV_1.virksomhetsnummer);
+        assertThat(motebehovFraDb.friskmeldingForventning).isEqualTo(MOTEBEHOV_1.friskmeldingForventning);
+        assertThat(motebehovFraDb.tiltak).isEqualTo(MOTEBEHOV_1.tiltak);
+        assertThat(motebehovFraDb.tiltakResultat).isEqualTo(MOTEBEHOV_1.tiltakResultat);
+        assertThat(motebehovFraDb.harMotebehov).isTrue();
+        assertThat(motebehovFraDb.forklaring).isEqualTo(MOTEBEHOV_1.forklaring);
 
     }
 
     @Test
-    public void lagreMotebehov() {
-        motebehovDAO.create(MOTEBEHOV_1);
+    public void lagreMotebehov() throws Exception {
+        UUID uuid = motebehovDAO.create(MOTEBEHOV_1);
 
-        List<PMotebehov> motebehovListe = jdbcTemplate.query("SELECT * FROM motebehov", MotebehovDAO.getInnsendingRowMapper());
+        List<PMotebehov> motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(SYKMELDT_AKTOERID).orElseThrow(Exception::new);
         assertThat(motebehovListe.size()).isEqualTo(1);
-        assertThat(motebehovListe.get(0).getTiltak()).isEqualTo(TILTAK);
+        assertThat(motebehovListe.get(0).uuid).isEqualTo(uuid);
+        assertThat(motebehovListe.get(0).tiltak).isEqualTo(TILTAK);
     }
 }

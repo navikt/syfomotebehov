@@ -39,7 +39,7 @@ public class AktoerConsumer implements InitializingBean {
                     .withIdent(fnr)
             ).getAktoerId();
         } catch (HentAktoerIdForIdentPersonIkkeFunnet e) {
-            log.error("Fant ikke person med fnr " + fnr);
+            log.error("Fant ikke person med gitt fnr");
             throw new RuntimeException(e);
         }
     }

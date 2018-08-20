@@ -72,7 +72,7 @@ public class MotebehovComponentTest {
                 .forklaring("");
 
         final LagreMotebehov lagreMotebehov = new LagreMotebehov()
-                .arbeidstakerFnr(new Fnr(ARBEIDSTAKER_FNR))
+                .arbeidstakerFnr(Fnr.of(ARBEIDSTAKER_FNR))
                 .virksomhetsnummer(VIRKSOMHETSNUMMER)
                 .motebehovSvar(
                         motebehovSvar
@@ -88,7 +88,7 @@ public class MotebehovComponentTest {
         Motebehov motebehov = motebehovListe.get(0);
         assertThat(motebehov.id).isEqualTo(uuid);
         assertThat(motebehov.opprettetAv).isEqualTo(LEDER_AKTORID);
-        assertThat(motebehov.arbeidstaker).isEqualTo(ARBEIDSTAKER_FNR);
+        assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR);
         assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER);
         assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(motebehovSvar);
     }

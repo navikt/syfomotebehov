@@ -1,15 +1,11 @@
 package no.nav.syfo.domain.rest;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.experimental.Accessors;
+import lombok.Value;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 
-@Data
-@Accessors(fluent = true, chain = true)
-@AllArgsConstructor
+@Value(staticConstructor = "of")
 public class Fnr {
     
     @NotEmpty
@@ -30,4 +26,5 @@ public class Fnr {
     public String toString() {
         return fnr;
     }
+
 }

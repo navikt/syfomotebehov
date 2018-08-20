@@ -1,24 +1,24 @@
 package no.nav.syfo.repository.domain;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Value;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Builder
-@Value
-@Getter
+@Data
+@Accessors(fluent = true, chain = true)
+@EqualsAndHashCode
 public class PMotebehov {
-    private UUID uuid;
+    public UUID uuid;
     public LocalDateTime opprettetDato;
-    private String opprettetAv;
-    private String aktoerId;
-    private String virksomhetsnummer;
-    private String friskmeldingForventning;
-    private String tiltak;
-    private String tiltakResultat;
-    private boolean harMotebehov;
-    private String forklaring;
+    public String opprettetAv;
+    public String aktoerId;
+    public String virksomhetsnummer;
+    public String friskmeldingForventning;
+    public String tiltak;
+    public String tiltakResultat;
+    public boolean harMotebehov;
+    public String forklaring;
 }
