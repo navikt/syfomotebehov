@@ -12,6 +12,9 @@ spring:
     min-pool-size: 8
 server:
   port: 8811
+  servlet:
+    context-path: /syfomotebehov
+
 
 securitytokenservice.url: "sts.url"
 srvsyfomotebehov:
