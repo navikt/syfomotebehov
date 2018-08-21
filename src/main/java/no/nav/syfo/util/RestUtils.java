@@ -10,10 +10,10 @@ public class RestUtils {
     }
 
     private static String miljo() {
-        if ("p".equals(getProperty("environment.name"))) {
+        if ("p".equals(getProperty("FASIT_ENVIRONMENT_NAME"))) {
             return "";
         }
-        return "-" + getProperty("environment.name");
+        return "-" + getProperty("FASIT_ENVIRONMENT_NAME");
     }
 
 }
