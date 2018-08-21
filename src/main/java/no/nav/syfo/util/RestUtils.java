@@ -1,6 +1,6 @@
 package no.nav.syfo.util;
 
-import static java.lang.System.getProperty;
+import static java.lang.System.getenv;
 
 public class RestUtils {
 
@@ -10,10 +10,10 @@ public class RestUtils {
     }
 
     private static String miljo() {
-        if ("p".equals(getProperty("FASIT_ENVIRONMENT_NAME"))) {
+        String environmentName = getenv("FASIT_ENVIRONMENT_NAME");
+        if ("p".equals(environmentName)) {
             return "";
         }
-        return "-" + getProperty("FASIT_ENVIRONMENT_NAME");
+        return "-" + environmentName;
     }
-
 }
