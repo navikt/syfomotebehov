@@ -127,6 +127,11 @@
             <version>${oidc-spring-support.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>no.nav.security</groupId>
+            <artifactId>oidc-support</artifactId>
+            <version>${oidc-spring-support.version}</version>
+        </dependency>
 
         <!-- CXF -->
         <dependency>
