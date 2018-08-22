@@ -48,7 +48,7 @@ fasitResources:
   - alias: aad_b2c_clientid
     resourceType: credential
   - alias: syfomotebehov-oidc
-    resourseType: openIdConnect
+    resourceType: openIdConnect
   - alias: syfoveilederoppgaver.systemapi
     resourceType: credential
     propertyMap:
