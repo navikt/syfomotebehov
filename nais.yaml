@@ -26,6 +26,8 @@ resources:
   requests:
     cpu: 500m
     memory: 384Mi
+logins:
+
 fasitResources:
   exposed:
   - alias: syfomotebehovapi
@@ -46,6 +48,10 @@ fasitResources:
   - alias: loadbalancer:syfomotebehov
     resourceType: loadbalancerconfig
   - alias: aad_b2c_clientid
+    resourceType: credential
+  - alias: openIdConnect
+    resourceType: baseurl
+  - alias: openIdConnectAgent
     resourceType: credential
   - alias: isso-host
     resourceType: baseurl
