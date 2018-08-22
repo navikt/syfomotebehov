@@ -47,6 +47,16 @@ fasitResources:
     resourceType: loadbalancerconfig
   - alias: aad_b2c_clientid
     resourceType: credential
+  - alias: isso-host
+    resourceType: baseurl
+  - alias: isso-jwks
+    resourceType: baseurl
+  - alias: isso-issuer
+    resourceType: baseurl
+  - alias: isso.isalive
+    resourceType: baseurl
+  - alias: isso-rp-user
+    resourceType: credential
   - alias: syfoveilederoppgaver.systemapi
     resourceType: credential
     propertyMap:
