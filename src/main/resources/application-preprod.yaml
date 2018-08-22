@@ -3,5 +3,8 @@ management:
    endpoint: 
      health.show-details: always
      security.enabled: false
-               
+
+server:
+  servlet:
+    context-path: /syfomotebehov
        
