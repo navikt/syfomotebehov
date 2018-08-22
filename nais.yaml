@@ -45,14 +45,8 @@ fasitResources:
     resourceType: baseurl
   - alias: loadbalancer:syfomotebehov
     resourceType: loadbalancerconfig
-  - alias: freg-security-oidc
-    resourceType: OpenIdConnect
-    propertyMap:
-      agentName: freg.security.oidc.idp.openAm.clientId
-      password: freg.security.oidc.idp.openAm.clientSecret
-      hostUrl: freg.security.oidc.idp.openAm.hostUrl
-      issuerUrl: freg.security.oidc.idp.openAm.issuerUrl
-      jwksUrl: freg.security.oidc.idp.openAm.jwksUrl
+  - alias: syfomotebehov-oidc
+    resourceType: openIdConnect
   - alias: syfoveilederoppgaver.systemapi
     resourceType: credential
   - alias: syfomotebehovDB

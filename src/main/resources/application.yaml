@@ -17,10 +17,3 @@ spring:
     max-pool-size: 32
     min-pool-size: 8
 
-### OIDC ###
-freg.security.oidc.auth.securedPath=/api/**
-freg.security.oidc.auth.ignoredPaths=/internal/**,/webjars/**,/swagger-ui.html,/swagger-resources/**,/swagger/**
-
-freg.security.oidc.idp.openAm.loginUrl=${freg.security.oidc.idp.openAm.hostUrl}/oauth2/authorize
-freg.security.oidc.idp.openAm.authorizationUrl=${freg.security.oidc.idp.openAm.hostUrl}/oauth2/access_token
-
