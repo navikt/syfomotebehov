@@ -1,9 +1,3 @@
-no.nav.security.oidc:
-  issuers: selvbetjening
-  issuer.selvbetjening:
-    discoveryurl: <SETTES FRA FASIT>
-    accepted_audience: <SETTES FRA FASIT>
-
 logging.config: classpath:logback-spring.xml
 
 management:
