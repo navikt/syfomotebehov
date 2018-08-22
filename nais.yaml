@@ -45,18 +45,10 @@ fasitResources:
     resourceType: baseurl
   - alias: loadbalancer:syfomotebehov
     resourceType: loadbalancerconfig
-  - alias: aad_b2c_clientid
-    resourceType: credential
   - alias: syfomotebehov-oidc
     resourceType: openIdConnect
   - alias: syfoveilederoppgaver.systemapi
     resourceType: credential
-    propertyMap:
-      username: NO_NAV_SECURITY_OIDC_ISSUER_SELVBETJENING_ACCEPTEDAUDIENCE
-  - alias: aad_b2c_discovery
-    resourceType: baseurl
-    propertyMap:
-      url: NO_NAV_SECURITY_OIDC_ISSUER_SELVBETJENING_DISCOVERYURL
   - alias: syfomotebehovDB
     resourceType: datasource
     propertyMap:
