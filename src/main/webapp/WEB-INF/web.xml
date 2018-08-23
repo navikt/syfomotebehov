@@ -22,6 +22,6 @@
     </filter>
     <filter-mapping>
         <filter-name>authorizationFilterFeed</filter-name>
-        <url-pattern>/api/feed/dd/*</url-pattern>
+        <url-pattern>/api/feed/*</url-pattern>
     </filter-mapping>
 </web-app>
