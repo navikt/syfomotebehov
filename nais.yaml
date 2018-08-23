@@ -43,10 +43,6 @@ fasitResources:
     resourceType: credential
   - alias: securityTokenService
     resourceType: baseurl
-  - alias: loadbalancer:syfomotebehov
-    resourceType: loadbalancerconfig
-  - alias: syfomotebehov-oidc
-    resourceType: openIdConnect
   - alias: syfoveilederoppgaver.systemapi
     resourceType: credential
   - alias: aad_b2c_clientid

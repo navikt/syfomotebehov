@@ -27,6 +27,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RestController
+@ProtectedWithClaims(issuer = "selvbetjening", claimMap = {"acr=Level4"})
 @RequestMapping(value = "/api/motebehov")
 public class MotebehovController {
 

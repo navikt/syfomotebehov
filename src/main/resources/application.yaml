@@ -4,6 +4,8 @@ no.nav.security.oidc:
     discoveryurl: <SETTES FRA FASIT>
     accepted_audience: <SETTES FRA FASIT>
 
+http.proxy: http://webproxy-utvikler.nav.no:8088
+
 logging.config: classpath:logback-spring.xml
 
 management:
