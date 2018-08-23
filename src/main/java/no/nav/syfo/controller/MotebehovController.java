@@ -5,7 +5,6 @@ import no.nav.security.oidc.OIDCConstants;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.oidc.context.OIDCValidationContext;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
-import no.nav.security.spring.oidc.validation.api.Unprotected;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.NyttMotebehov;
@@ -41,7 +40,6 @@ public class MotebehovController {
         this.motebehovService = motebehovService;
     }
 
-    @Unprotected
     @ResponseBody
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public List<Motebehov> hentMotebehovListe(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
