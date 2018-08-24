@@ -28,6 +28,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RestController
+@Unprotected
 @RequestMapping(value = "/api/motebehov")
 public class MotebehovController {
 
