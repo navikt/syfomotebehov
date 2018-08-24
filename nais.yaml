@@ -31,6 +31,9 @@ fasitResources:
   - alias: syfomotebehovapi
     resourceType: restservice
     path: /syfomotebehov/api/motebehov
+  - alias: syfomotebehovapitest
+    resourceType: restservice
+    path: /syfomotebehov/api/motebehovtest
   - alias: motebehovfeedveilederoppgaver
     resourceType: restservice
     path: /syfomotebehov/api/feed/motebehov
