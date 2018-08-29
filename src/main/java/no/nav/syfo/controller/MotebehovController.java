@@ -43,8 +43,14 @@ public class MotebehovController {
 
     @ResponseBody
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public List<Motebehov> hentMotebehovListe(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
+    public List<Motebehov> hentMotebehovListe(
+            @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr,
+            @RequestParam(name = "virksomhetsnummer") String virksomhetsnummer
+        ) {
         if (Toggle.endepunkterForMotebehov) {
+            if (!virksomhetsnummer.isEmpty()) {
+                return motebehovService.hentMotebehovListe(Fnr.of(arbeidstakerFnr), virksomhetsnummer);
+            }
             return motebehovService.hentMotebehovListe(Fnr.of(arbeidstakerFnr));
         } else {
             log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");

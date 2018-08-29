@@ -42,6 +42,10 @@ public class MotebehovDAO {
         return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE aktoer_id = ?", getInnsendingRowMapper(), aktoerId));
     }
 
+    public Optional<List<PMotebehov>> hentMotebehovListeForAktoerOgVirksomhetsnummer(String aktoerId, String virksomhetsnummer) {
+        return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE aktoer_id = ? AND virksomhetsnummer = ?", getInnsendingRowMapper(), aktoerId, virksomhetsnummer));
+    }
+
     public UUID create(final PMotebehov motebehov) {
         UUID uuid = UUID.randomUUID();
         String lagreSql = "INSERT INTO MOTEBEHOV VALUES(" +

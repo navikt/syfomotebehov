@@ -82,7 +82,7 @@ public class MotebehovComponentTest {
         UUID uuid = motebehovController.lagreMotebehov(lagreMotebehov);
 
         // Hent
-        List<Motebehov> motebehovListe = motebehovController.hentMotebehovListe(ARBEIDSTAKER_FNR);
+        List<Motebehov> motebehovListe = motebehovController.hentMotebehovListe(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
         assertThat(motebehovListe).size().isOne();
 
         Motebehov motebehov = motebehovListe.get(0);
