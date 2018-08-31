@@ -30,7 +30,7 @@ fasitResources:
   exposed:
   - alias: syfomotebehovapi
     resourceType: restservice
-    path: /syfomotebehov/api
+    path: /api
   - alias: motebehovfeedveilederoppgaver
     resourceType: restservice
     path: /syfomotebehov/api/feed/motebehov
