@@ -47,10 +47,10 @@ public class MotebehovVeilederController {
     public List<Motebehov> hentMotebehovListe(
             @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
         if (Toggle.endepunkterForMotebehov) {
-            System.out.println(":: Endepunkt for motebehov togglet på");
+            log.info("Endepunktet veileder/motebehov ble kalt");
             return motebehovService.hentMotebehovListe(Fnr.of(arbeidstakerFnr));
         } else {
-            log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");
+            log.info("Det ble gjort kall mot 'veileder/motebehov', men dette endepunktet er togglet av.");
             return emptyList();
         }
     }
