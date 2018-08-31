@@ -45,6 +45,8 @@ fasitResources:
     resourceType: baseurl
   - alias: loadbalancer:syfomotebehov
     resourceType: loadbalancerconfig
+  - alias: loadbalancer:syfomotebehov-preprod
+    resourceType: loadbalancerconfig
   - alias: syfoveilederoppgaver.systemapi
     resourceType: credential
   - alias: aad_b2c_clientid
