@@ -43,6 +43,7 @@ public class MotebehovVeilederController {
     }
 
     @ResponseBody
+    @CrossOrigin(origins = "https://app-q1.adeo.no")
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public List<Motebehov> hentMotebehovListe(
             @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
