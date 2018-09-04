@@ -1,5 +1,6 @@
 package no.nav.syfo.service;
 
+import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.consumer.ws.AktoerConsumer;
 import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.repository.dao.MotebehovDAO;
@@ -18,9 +19,10 @@ import static no.nav.syfo.util.RestUtils.baseUrl;
 /**
  * MøtebehovService har ansvaret for å knytte sammen og oversette mellom REST-grensesnittet, andre tjenester (aktør-registeret)
  * og database-koblingen, slik at de ikke trenger å vite noe om hverandre. (Low coupling - high cohesion)
- *
+ * <p>
  * Det er også nyttig å ha mappingen her (så lenge klassen er under en skjermlengde), slik at man ser den i sammenheng med stedet den blir brukt.
  */
+@Slf4j
 @Service
 public class MotebehovService {
 
@@ -49,6 +51,15 @@ public class MotebehovService {
                 .stream()
                 .map(dbMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov))
                 .collect(toList());
+    }
+
+    public Motebehov hentMotebehov(final Fnr arbeidstakerFnr, final UUID uuid) {
+        return motebehovDAO.hentMotebehov(uuid)
+                .map(dbMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov))
+                .orElseThrow(() -> {
+                    log.error("Finner ikke møtebehov med uuid {}", uuid);
+                    return new RuntimeException("Fant ikke møtebehov med uuid " + uuid);
+                });
     }
 
     public UUID lagreMotebehov(Fnr innloggetFNR, final NyttMotebehov lagreMotebehov) {
