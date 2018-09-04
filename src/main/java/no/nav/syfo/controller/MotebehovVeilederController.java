@@ -35,8 +35,7 @@ public class MotebehovVeilederController {
     @ResponseBody
     @CrossOrigin(allowCredentials = "true")
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public List<Motebehov> hentMotebehovListe(
-            @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
+    public List<Motebehov> hentMotebehovListe(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
         if (Toggle.endepunkterForMotebehov) {
             log.info("Endepunktet veileder/motebehov ble kalt");
             return motebehovService.hentMotebehovListe(Fnr.of(arbeidstakerFnr));

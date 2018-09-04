@@ -5,7 +5,6 @@ import no.nav.security.oidc.OIDCConstants;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.oidc.context.OIDCValidationContext;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
-import no.nav.security.spring.oidc.validation.api.Unprotected;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.NyttMotebehov;
@@ -28,7 +27,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RestController
-@Unprotected
+@ProtectedWithClaims(issuer = "selvbetjening", claimMap = {"acr=Level4"})
 @RequestMapping(value = "/api/motebehov")
 public class MotebehovController {
 
@@ -37,7 +36,7 @@ public class MotebehovController {
 
     @Inject
     public MotebehovController(final OIDCRequestContextHolder contextHolder,
-                               final MotebehovService motebehovService){
+                               final MotebehovService motebehovService) {
         this.contextHolder = contextHolder;
         this.motebehovService = motebehovService;
     }
@@ -47,7 +46,7 @@ public class MotebehovController {
     public List<Motebehov> hentMotebehovListe(
             @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr,
             @RequestParam(name = "virksomhetsnummer") String virksomhetsnummer
-        ) {
+    ) {
         if (Toggle.endepunkterForMotebehov) {
             if (!virksomhetsnummer.isEmpty()) {
                 return motebehovService.hentMotebehovListe(Fnr.of(arbeidstakerFnr), virksomhetsnummer);
