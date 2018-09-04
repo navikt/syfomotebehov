@@ -14,7 +14,6 @@ import org.springframework.web.client.RestTemplate;
 import javax.inject.Inject;
 import java.util.List;
 
-import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static no.nav.syfo.util.AuthorizationFilterUtils.basicCredentials;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
@@ -39,7 +38,7 @@ public class VeilederOppgaverService {
                 .toUriString();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add(AUTHORIZATION, basicCredentials("syfoveilederoppgaver.systemapi"));
+        headers.add("Authorization", basicCredentials("syfoveilederoppgaver.systemapi"));
         HttpEntity<String> request = new HttpEntity<>(headers);
 
         log.info("Henter møtebehov på URL: {}", url);
