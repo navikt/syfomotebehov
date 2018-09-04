@@ -60,12 +60,11 @@ public class MotebehovController {
 
     @ResponseBody
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public UUID lagreMotebehov(@RequestBody @Valid NyttMotebehov lagreMotebehov) {
+    public void lagreMotebehov(@RequestBody @Valid NyttMotebehov lagreMotebehov) {
         if (Toggle.endepunkterForMotebehov) {
-            return motebehovService.lagreMotebehov(fnrFraOIDC(), lagreMotebehov);
+            motebehovService.lagreMotebehov(fnrFraOIDC(), lagreMotebehov);
         } else {
             log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");
-            return null;
         }
     }
 
