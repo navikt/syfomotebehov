@@ -10,7 +10,6 @@ import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.NyttMotebehov;
 import no.nav.syfo.service.MotebehovService;
 import no.nav.syfo.util.Toggle;
-import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +19,6 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,10 +61,14 @@ public class MotebehovController {
 
     @ResponseBody
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public Motebehov lagreMotebehov(@RequestBody @Valid NyttMotebehov lagreMotebehov) {
+    public ResponseEntity<Motebehov> lagreMotebehov(@RequestBody @Valid NyttMotebehov lagreMotebehov) {
         if (Toggle.endepunkterForMotebehov) {
             UUID uuid = motebehovService.lagreMotebehov(fnrFraOIDC(), lagreMotebehov);
-            return motebehovService.hentMotebehov(fnrFraOIDC(), uuid);
+            Motebehov motebehov =  motebehovService.hentMotebehov(fnrFraOIDC(), uuid);
+            return ResponseEntity
+                    .status(201)
+                    .body(motebehov);
+
         } else {
             log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");
             return null;
