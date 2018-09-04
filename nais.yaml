@@ -47,6 +47,8 @@ fasitResources:
     resourceType: loadbalancerconfig
   - alias: syfoveilederoppgaver.systemapi
     resourceType: credential
+  - alias: syfoveilederoppgaver-system-v1
+    resourceType: restservice
   - alias: aad_b2c_clientid
     resourceType: credential
     propertyMap:
