@@ -19,7 +19,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 import static java.util.Collections.emptyList;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
