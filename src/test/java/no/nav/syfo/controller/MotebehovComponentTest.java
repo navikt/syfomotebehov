@@ -79,14 +79,14 @@ public class MotebehovComponentTest {
                 );
 
         // Lagre
-        String uuid = motebehovController.lagreMotebehov(lagreMotebehov);
+        motebehovController.lagreMotebehov(lagreMotebehov);
 
         // Hent
         List<Motebehov> motebehovListe = motebehovController.hentMotebehovListe(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
         assertThat(motebehovListe).size().isOne();
 
         Motebehov motebehov = motebehovListe.get(0);
-        assertThat(motebehov.id.toString()).isEqualTo(uuid);
+//        assertThat(motebehov.id.toString()).isEqualTo(uuid);
         assertThat(motebehov.opprettetAv).isEqualTo(LEDER_AKTORID);
         assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR);
         assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER);
