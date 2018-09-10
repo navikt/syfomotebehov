@@ -23,13 +23,19 @@ public class VeilederOppgaverService {
 
     private final RestTemplate restTemplate;
     private final String syfoveilederoppgaverUrl;
+    private final String credUsername;
+    private final String credPassword;
 
     @Inject
     public VeilederOppgaverService(
-            @Value("${syfoveilederoppgaver-system-v1.url}") String syfoveilederoppgaverUrl,
+            @Value("${syfoveilederoppgaver_system_v1.url}") String syfoveilederoppgaverUrl,
+            @Value("${syfoveilederoppgaver.systemapi.username}") String credUsername,
+            @Value("${syfoveilederoppgaver.systemapi.password}") String credPassword,
             RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
         this.syfoveilederoppgaverUrl = syfoveilederoppgaverUrl;
+        this.credUsername = credUsername;
+        this.credPassword = credPassword;
     }
 
     List<VeilederOppgave> get(String fnr) {
@@ -38,7 +44,7 @@ public class VeilederOppgaverService {
                 .toUriString();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", basicCredentials("syfoveilederoppgaver.systemapi"));
+        headers.add("Authorization", basicCredentials(credUsername, credPassword));
         HttpEntity<String> request = new HttpEntity<>(headers);
 
         log.info("Henter møtebehov på URL: {}", url);
