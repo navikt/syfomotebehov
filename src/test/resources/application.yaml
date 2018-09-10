@@ -33,7 +33,9 @@ no.nav.security.oidc:
     selvbetjening.cookie_name: localhost-idtoken
 
 aktoer.v2.endpointurl: "aktoerv2.url"
+brukerprofil.v3.endpointurl: "brukerprofilv3.url"
 
 fasit.environment.name: 'local'
 
 mockAktoer_V2: true
+mockBrukerprofil_V3: true
