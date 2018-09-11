@@ -26,7 +26,7 @@ public class VeilederOppgaverService {
 
     @Inject
     public VeilederOppgaverService(
-            @Value("${syfoveilederoppgaver-system-v1.url}") String syfoveilederoppgaverUrl,
+            @Value("${syfoveilederoppgaver_system_v1.url}") String syfoveilederoppgaverUrl,
             RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
         this.syfoveilederoppgaverUrl = syfoveilederoppgaverUrl;
