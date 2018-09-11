@@ -37,7 +37,7 @@
         <cxf.version>3.2.0</cxf.version>
         <oidc-spring-support.version>0.2.4</oidc-spring-support.version>
         <aktoer.version>1.0</aktoer.version>
-        <brukerprofil.version>3.0.3</brukerprofil.version>
+        <nav-person.version>3.4.1</nav-person.version>
         <postgresql.version>42.2.4</postgresql.version>
     </properties>
 
@@ -124,9 +124,9 @@
             <version>${aktoer.version}</version>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl</groupId>
-            <artifactId>brukerprofil-v3-tjenestespesifikasjon</artifactId>
-            <version>${brukerprofil.version}</version>
+            <groupId>no.nav.tjenester</groupId>
+            <artifactId>nav-person-v3-tjenestespesifikasjon</artifactId>
+            <version>${nav-person.version}</version>
         </dependency>
         <dependency>
             <groupId>no.nav.security</groupId>

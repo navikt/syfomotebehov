@@ -37,7 +37,7 @@ fasitResources:
   used:
   - alias: Aktoer_v2
     resourceType: webserviceendpoint
-  - alias: virksomhet:Brukerprofil_v3
+  - alias: virksomhet:Person_v3
     resourceType: webserviceendpoint
   - alias: syfomotebehov.properties
     resourceType: applicationproperties

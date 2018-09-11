@@ -1,7 +1,7 @@
 package no.nav.syfo.service;
 
 import no.nav.syfo.consumer.ws.AktoerConsumer;
-import no.nav.syfo.consumer.ws.BrukerprofilConsumer;
+import no.nav.syfo.consumer.ws.PersonConsumer;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Historikk;
 import no.nav.syfo.domain.rest.Motebehov;
@@ -19,18 +19,15 @@ public class HistorikkService {
 
     private final MotebehovService motebehovService;
     private final VeilederOppgaverService veilederOppgaverService;
-    private final BrukerprofilConsumer brukerprofilConsumer;
-    private final AktoerConsumer aktoerConsumer;
+    private final PersonConsumer personConsumer;
 
     @Inject
     public HistorikkService(final MotebehovService motebehovService,
                             final VeilederOppgaverService veilederOppgaverService,
-                            final BrukerprofilConsumer brukerprofilConsumer,
-                            final AktoerConsumer aktoerConsumer) {
+                            final PersonConsumer personConsumer) {
         this.veilederOppgaverService = veilederOppgaverService;
         this.motebehovService = motebehovService;
-        this.brukerprofilConsumer = brukerprofilConsumer;
-        this.aktoerConsumer = aktoerConsumer;
+        this.personConsumer = personConsumer;
     }
 
     public List<Historikk> hentHistorikkListe(final Fnr arbeidstakerFnr) {
@@ -46,7 +43,7 @@ public class HistorikkService {
         List<Historikk> opprettetHistorikk = mapListe(
                 motebehovListe,
                 motebehov -> new Historikk()
-                        .tekst("Møtebehovet ble opprettet av " + brukerprofilConsumer.hentBrukersNavn(aktoerConsumer.hentFnrForAktoerId(motebehov.opprettetAv())) + ".")
+                        .tekst("Møtebehovet ble opprettet av " + personConsumer.hentNavnFraAktoerId(motebehov.opprettetAv()) + ".")
                         .tidspunkt(motebehov.opprettetDato)
         );
         return concat(opprettetHistorikk.stream(), utfoertHistorikk.stream()).collect(toList());
