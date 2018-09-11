@@ -43,6 +43,7 @@ public class HistorikkService {
         List<Historikk> opprettetHistorikk = mapListe(
                 motebehovListe,
                 motebehov -> new Historikk()
+                        .opprettetAv(motebehov.opprettetAv)
                         .tekst("Møtebehovet ble opprettet av " + personConsumer.hentNavnFraAktoerId(motebehov.opprettetAv()) + ".")
                         .tidspunkt(motebehov.opprettetDato)
         );
