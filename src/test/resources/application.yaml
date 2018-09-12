@@ -33,7 +33,8 @@ no.nav.security.oidc:
     selvbetjening.cookie_name: localhost-idtoken
 
 aktoer.v2.endpointurl: "aktoerv2.url"
-person.v3.endpointurl: "personv3.url"
+virksomhet:
+  person.v3.endpointurl: "personv3.url"
 
 fasit.environment.name: 'local'
 
