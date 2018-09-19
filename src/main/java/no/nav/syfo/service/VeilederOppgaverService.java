@@ -38,7 +38,7 @@ public class VeilederOppgaverService {
                 .toUriString();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", basicCredentials("SYFOVEILEDEROPPGAVER_SYSTEMAPI"));
+        headers.add("Authorization", basicCredentials("syfoveilederoppgaver.systemapi"));
         HttpEntity<String> request = new HttpEntity<>(headers);
 
         log.info("Henter møtebehov på URL: {}", url);

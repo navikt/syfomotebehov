@@ -17,8 +17,8 @@ public class AuthorizationFilterUtils {
 
     public static String basicCredentials(String credential) {
         log.info("Cred: " + credential);
-        log.info("User: " + getProperty(credential + "_USERNAME"));
-        log.info("Pass: " + getProperty(credential + "_PASSWORD"));
-        return "Basic " + Base64.getEncoder().encodeToString(format("%s:%s", getProperty(credential + "_USERNAME"), getProperty(credential + "_PASSWORD")).getBytes());
+        log.info("User: " + getProperty(credential + ".username"));
+        log.info("Pass: " + getProperty(credential + ".password"));
+        return "Basic " + Base64.getEncoder().encodeToString(format("%s:%s", getProperty(credential + ".username"), getProperty(credential + ".password")).getBytes());
     }
 }
