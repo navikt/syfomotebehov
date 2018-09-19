@@ -34,7 +34,7 @@ public class HistorikkService {
         List<Motebehov> motebehovListe = motebehovService.hentMotebehovListe(arbeidstakerFnr);
 
         List<Historikk> utfoertHistorikk = veilederOppgaverService.get(arbeidstakerFnr.getFnr()).stream()
-                .filter(veilederOppgave -> veilederOppgave.status.equals("FERDIG"))
+                .filter(veilederOppgave -> veilederOppgave.type.equals("MOTEBEHOV_MOTTATT") && veilederOppgave.status.equals("FERDIG"))
                 .map(veilederOppgave -> new Historikk()
                         .tekst("Møtebehovet ble lest av " + veilederOppgave.sistEndretAv)
                         .tidspunkt(veilederOppgave.getSistEndret())
