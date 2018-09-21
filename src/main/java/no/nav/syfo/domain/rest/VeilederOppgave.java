@@ -27,16 +27,16 @@ public class VeilederOppgave {
     public String uuid;
 
     public LocalDateTime getCreated() {
-        int aar = Integer.parseInt(this.created.substring(0, 4));
+        int year = Integer.parseInt(this.created.substring(0, 4));
         Month month = Month.of(Integer.parseInt(this.created.substring(6, 7)));
         int day = Integer.parseInt(this.created.substring(8, 10));
-        return LocalDateTime.of(aar, month, day, 0, 0);
+        return LocalDateTime.of(year, month, day, 0, 0);
     }
 
     public LocalDateTime getSistEndret() {
-        int aar = Integer.parseInt(this.sistEndret.substring(0, 4));
+        int year = Integer.parseInt(this.sistEndret.substring(0, 4));
         Month month = Month.of(Integer.parseInt(this.sistEndret.substring(6, 7)));
         int day = Integer.parseInt(this.sistEndret.substring(8, 10));
-        return LocalDateTime.of(aar, month, day, 0, 0);
+        return LocalDateTime.of(year, month, day, 0, 0);
     }
 }
