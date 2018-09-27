@@ -17,7 +17,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RestController
-@Unprotected
+@Unprotected //TODO implement authorization here
 @RequestMapping(value = "/internal")
 public class NullstillController {
 
