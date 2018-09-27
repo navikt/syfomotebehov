@@ -1,7 +1,7 @@
 package no.nav.syfo.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.security.spring.oidc.validation.api.Unprotected;
+import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.service.MotebehovService;
@@ -21,7 +21,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RestController
-@Unprotected
+@ProtectedWithClaims(issuer = "intern", claimMap = {"sub=srvmodiasyfofront"})
 @RequestMapping(value = "/api/veileder/motebehov")
 public class MotebehovVeilederController {
 
@@ -33,7 +33,7 @@ public class MotebehovVeilederController {
     }
 
     @ResponseBody
-    @CrossOrigin(allowCredentials = "true")
+    @CrossOrigin(allowCredentials = "true") //TODO It's safer to block calls from other origins(domains) - remove if not absolutely necessary
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public List<Motebehov> hentMotebehovListe(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
         if (Toggle.endepunkterForMotebehov) {

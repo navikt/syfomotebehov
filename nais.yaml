@@ -55,6 +55,14 @@ fasitResources:
     resourceType: baseurl
     propertyMap:
       url: NO_NAV_SECURITY_OIDC_ISSUER_SELVBETJENING_DISCOVERYURL
+  - alias: isso-rp-user
+    resourceType: credential
+    propertyMap:
+      username: NO_NAV_SECURITY_OIDC_ISSUER_INTERN_ACCEPTEDAUDIENCE
+  - alias: opam_oidc_discovery
+    resourceType: baseurl
+    propertyMap:
+      url: NO_NAV_SECURITY_OIDC_ISSUER_INTERN_DISCOVERYURL
   - alias: syfomotebehovDB
     resourceType: datasource
     propertyMap:
