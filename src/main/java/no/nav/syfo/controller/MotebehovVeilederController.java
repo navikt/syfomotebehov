@@ -35,8 +35,7 @@ public class MotebehovVeilederController {
 
     @ResponseBody
 //    @CrossOrigin(allowCredentials = "true")
-//    @ProtectedWithClaims(issuer = INTERN, claimMap = {"acr=Level4"})
-    @Unprotected
+    @ProtectedWithClaims(issuer = INTERN, claimMap = {"acr=Level4"})
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public List<Motebehov> hentMotebehovListe(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
         if (Toggle.endepunkterForMotebehov) {
