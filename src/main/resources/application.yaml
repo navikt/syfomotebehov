@@ -3,6 +3,11 @@ no.nav.security.oidc:
   issuer.selvbetjening:
     discoveryurl: <SETTES FRA FASIT>
     accepted_audience: <SETTES FRA FASIT>
+    cookie_name: selvbetjening-idtoken
+  intern:
+    discoveryurl: <SETTES FRA FASIT>
+    accepted_audience: <SETTES FRA FASIT>
+    cookie_name: ID_token
 
 http.proxy: http://webproxy-nais.nav.no:8088
 
