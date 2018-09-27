@@ -1,6 +1,5 @@
 package no.nav.syfo.service;
 
-import no.nav.syfo.consumer.ws.AktoerConsumer;
 import no.nav.syfo.consumer.ws.PersonConsumer;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Historikk;
@@ -8,11 +7,14 @@ import no.nav.syfo.domain.rest.Motebehov;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
-import static no.nav.syfo.util.MapUtil.mapListe;
+import static java.util.stream.Stream.empty;
 
 @Service
 public class HistorikkService {
@@ -40,13 +42,20 @@ public class HistorikkService {
                         .tidspunkt(veilederOppgave.getSistEndret())
                 )
                 .collect(toList());
-        List<Historikk> opprettetHistorikk = mapListe(
-                motebehovListe,
-                motebehov -> new Historikk()
-                        .opprettetAv(motebehov.opprettetAv)
-                        .tekst("Møtebehovet ble opprettet av " + personConsumer.hentNavnFraAktoerId(motebehov.opprettetAv()) + ".")
-                        .tidspunkt(motebehov.opprettetDato)
-        );
+
+        Function<Motebehov, Historikk> fraMotebehovTilHistorikk = motebehov -> new Historikk()
+                .opprettetAv(motebehov.opprettetAv)
+                .tekst("Møtebehovet ble opprettet av " + personConsumer.hentNavnFraAktoerId(motebehov.opprettetAv()) + ".")
+                .tidspunkt(motebehov.opprettetDato);
+
+        List<Historikk> opprettetHistorikk = ofNullable(motebehovListe).map(f -> ofNullable(f.stream())
+                .map(g -> g.map(fraMotebehovTilHistorikk))
+                .orElse(empty())
+                .collect(toList()))
+                .orElse(new ArrayList<>());
         return concat(opprettetHistorikk.stream(), utfoertHistorikk.stream()).collect(toList());
     }
+
+
+
 }

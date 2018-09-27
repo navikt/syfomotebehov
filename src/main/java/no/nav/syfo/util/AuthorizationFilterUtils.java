@@ -21,9 +21,6 @@ public class AuthorizationFilterUtils {
     }
 
     public static String basicCredentials(String credUsername, String credPassword) {
-        log.info("User: " + credUsername);
-        log.info("Pass: " + credPassword);
-
         return "Basic " + Base64.getEncoder().encodeToString(format("%s:%s", credUsername, credPassword).getBytes());
     }
 }
