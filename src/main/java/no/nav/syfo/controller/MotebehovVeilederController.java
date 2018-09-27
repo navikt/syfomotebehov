@@ -1,7 +1,7 @@
 package no.nav.syfo.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.security.spring.oidc.validation.api.Unprotected;
+import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Historikk;
 import no.nav.syfo.domain.rest.Motebehov;
@@ -18,17 +18,17 @@ import java.io.IOException;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
+import static no.nav.syfo.OIDCIssuer.INTERN;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RestController
-@Unprotected
-@CrossOrigin(allowCredentials = "true")
 @RequestMapping(value = "/api/veileder")
 public class MotebehovVeilederController {
 
     private HistorikkService historikkService;
+
     private MotebehovService motebehovService;
 
     @Inject
@@ -41,6 +41,7 @@ public class MotebehovVeilederController {
 
     @ResponseBody
     @RequestMapping(value = "/motebehov")
+    @ProtectedWithClaims(issuer = INTERN)
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public List<Motebehov> hentMotebehovListe(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
         if (Toggle.endepunkterForMotebehov) {
@@ -53,6 +54,7 @@ public class MotebehovVeilederController {
 
     @ResponseBody
     @RequestMapping(value = "/historikk")
+    @ProtectedWithClaims(issuer = INTERN)
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public List<Historikk> hentMotebehovHistorikk(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
         if (Toggle.endepunkterForMotebehov) {
