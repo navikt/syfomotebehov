@@ -5,13 +5,11 @@ no.nav.security.oidc:
       discoveryurl: <SETTES FRA FASIT>
       accepted_audience: <SETTES FRA FASIT>
       cookie_name: selvbetjening-idtoken
-  issuer:
     intern:
       discoveryurl: <SETTES FRA FASIT>
       accepted_audience: <SETTES FRA FASIT>
       cookie_name: ID_token
 
-http.proxy: http://webproxy-nais.nav.no:8088
 
 logging.config: classpath:logback-spring.xml
 
