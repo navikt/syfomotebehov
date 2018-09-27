@@ -1,6 +1,7 @@
 package no.nav.syfo.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.security.spring.oidc.validation.api.Unprotected;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Motebehov;
@@ -21,10 +22,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RestController
-@Unprotected
 @RequestMapping(value = "/api/veileder/motebehov")
 public class MotebehovVeilederController {
 
+    private static final String INTERN = "intern";
     private MotebehovService motebehovService;
 
     @Inject
@@ -33,7 +34,8 @@ public class MotebehovVeilederController {
     }
 
     @ResponseBody
-    @CrossOrigin(allowCredentials = "true")
+//    @CrossOrigin(allowCredentials = "true")
+    @ProtectedWithClaims(issuer = INTERN, claimMap = {"acr=Level4"})
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public List<Motebehov> hentMotebehovListe(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
         if (Toggle.endepunkterForMotebehov) {
