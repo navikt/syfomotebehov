@@ -7,7 +7,6 @@ import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication
 @EnableOIDCTokenValidation(ignore="org.springframework")
-@PropertySource("classpath:environment.properties")
 public class LocalApplication {
     public static void main(String[] args) {
         SpringApplication.run(LocalApplication.class, args);
