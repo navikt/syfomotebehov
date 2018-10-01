@@ -1,22 +1,9 @@
-no.nav.security.oidc:
-  issuers: selvbetjening,intern
-  issuer:
-    selvbetjening:
-      discoveryurl: <SETTES FRA FASIT>
-      accepted_audience: <SETTES FRA FASIT>
-      cookie_name: selvbetjening-idtoken
-    intern:
-      discoveryurl: <SETTES FRA FASIT>
-      accepted_audience: <SETTES FRA FASIT>
-      cookie_name: ID_token
-
 management:
    endpoints.web.exposure.include:  '*'
-   endpoint: 
+   endpoint:
      health.show-details: always
      security.enabled: false
 
 server:
   servlet:
     context-path: /syfomotebehov
-       
