@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class WsClient<T> {
+public class WsOIDCClient<T> {
 
     @SuppressWarnings("unchecked")
     public T createPort(String serviceUrl, Class<?> portType, List<Handler> handlers, PhaseInterceptor<? extends Message>... interceptors) {
@@ -25,6 +25,7 @@ public class WsClient<T> {
         ((BindingProvider) port).getBinding().setHandlerChain(handlers);
         Client client = ClientProxy.getClient(port);
         Arrays.stream(interceptors).forEach(client.getOutInterceptors()::add);
+        STSClientConfig.configureRequestSamlTokenOnBehalfOfOidc(port);
         return port;
     }
 

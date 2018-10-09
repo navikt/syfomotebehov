@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @ConditionalOnProperty(value = "mockAktoer_V2", havingValue = "true")
 public class AktoerMock implements AktoerV2 {
 
-    private static final String MOCK_AKTORID_PREFIX = "ak";
+    private static final String MOCK_AKTORID_PREFIX = "10";
 
     public WSHentAktoerIdForIdentListeResponse hentAktoerIdForIdentListe(WSHentAktoerIdForIdentListeRequest wsHentAktoerIdForIdentListeRequest) {
         throw new RuntimeException("Ikke implementert i mock");
