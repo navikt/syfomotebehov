@@ -33,6 +33,7 @@ no.nav.security.oidc:
     selvbetjening.cookie_name: localhost-idtoken
 
 aktoer.v2.endpointurl: "aktoerv2.url"
+sykefravaersoppfoelging.v1.endpointurl: "sykefravaeroppfoelgingv1.url"
 virksomhet:
   person.v3.endpointurl: "personv3.url"
 
@@ -40,6 +41,9 @@ fasit.environment.name: 'local'
 
 mockAktoer_V2: true
 mockPerson_V3: true
+mockSykefravaeroppfoelging_V1: true
+
+dev: true
 
 syfoveilederoppgaver_system_v1.url: "https://app-q1.adeo.no/syfoveilederoppgaver/api/system/veilederoppgaver/v1"
 syfoveilederoppgaver.systemapi.username: "dummy"
