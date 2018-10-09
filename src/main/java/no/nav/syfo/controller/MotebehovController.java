@@ -5,6 +5,7 @@ import no.nav.security.oidc.OIDCConstants;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.oidc.context.OIDCValidationContext;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
+import no.nav.syfo.consumer.rest.TilgangskontrollConsumer;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.NyttMotebehov;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
+import javax.ws.rs.ForbiddenException;
 import java.io.IOException;
 import java.util.List;
 
@@ -33,12 +35,16 @@ public class MotebehovController {
 
     private OIDCRequestContextHolder contextHolder;
     private MotebehovService motebehovService;
+    private TilgangskontrollConsumer tilgangskontrollConsumer;
 
     @Inject
     public MotebehovController(final OIDCRequestContextHolder contextHolder,
-                               final MotebehovService motebehovService) {
+                               final MotebehovService motebehovService,
+                               final TilgangskontrollConsumer tilgangskontrollConsumer
+    ) {
         this.contextHolder = contextHolder;
         this.motebehovService = motebehovService;
+        this.tilgangskontrollConsumer = tilgangskontrollConsumer;
     }
 
     @ResponseBody
@@ -48,10 +54,14 @@ public class MotebehovController {
             @RequestParam(name = "virksomhetsnummer") String virksomhetsnummer
     ) {
         if (Toggle.endepunkterForMotebehov) {
-            if (!virksomhetsnummer.isEmpty()) {
-                return motebehovService.hentMotebehovListe(Fnr.of(arbeidstakerFnr), virksomhetsnummer);
+            Fnr fnr = Fnr.of(arbeidstakerFnr);
+            if (!tilgangskontrollConsumer.harTilgangTilOppslaattBruker(fnr.getFnr())){
+                throw new ForbiddenException();
             }
-            return motebehovService.hentMotebehovListe(Fnr.of(arbeidstakerFnr));
+            if (!virksomhetsnummer.isEmpty()) {
+                return motebehovService.hentMotebehovListe(fnr, virksomhetsnummer);
+            }
+            return motebehovService.hentMotebehovListe(fnr);
         } else {
             log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");
             return emptyList();
@@ -62,7 +72,11 @@ public class MotebehovController {
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public void lagreMotebehov(@RequestBody @Valid NyttMotebehov lagreMotebehov) {
         if (Toggle.endepunkterForMotebehov) {
-            motebehovService.lagreMotebehov(fnrFraOIDC(), lagreMotebehov);
+            Fnr fnr = fnrFraOIDC();
+            if (!tilgangskontrollConsumer.harTilgangTilOppslaattBruker(fnr.getFnr())){
+                throw new ForbiddenException();
+            }
+            motebehovService.lagreMotebehov(fnr, lagreMotebehov);
         } else {
             log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");
         }
