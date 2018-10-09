@@ -23,7 +23,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,8 +36,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MotebehovComponentTest {
 
     private static final String ARBEIDSTAKER_FNR = "12345678910";
+    public static final String ARBEIDSTAKER_AKTORID = AktoerMock.mockAktorId(ARBEIDSTAKER_FNR);
     private static final String LEDER_FNR = "10987654321";
-    private static final String LEDER_AKTORID = AktoerMock.mockAktorId(LEDER_FNR);
+    public static final String LEDER_AKTORID = AktoerMock.mockAktorId(LEDER_FNR);
     private static final String VIRKSOMHETSNUMMER = "1234";
 
     @Inject

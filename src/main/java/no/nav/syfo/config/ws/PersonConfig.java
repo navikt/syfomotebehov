@@ -1,6 +1,7 @@
 package no.nav.syfo.config.ws;
 
 import no.nav.syfo.consumer.util.ws.LogErrorHandler;
+import no.nav.syfo.consumer.util.ws.STSClientConfig;
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3;
 import no.nav.syfo.consumer.util.ws.WsClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +19,9 @@ public class PersonConfig {
     @ConditionalOnProperty(value = "mockPerson_V3", havingValue = "false", matchIfMissing = true)
     @Primary
     public PersonV3 personV3(@Value("${virksomhet.person.v3.endpointurl}") String serviceUrl) {
-        return new WsClient<PersonV3>().createPort(serviceUrl, PersonV3.class, singletonList(new LogErrorHandler()));
+        PersonV3 port = new WsClient<PersonV3>().createPort(serviceUrl, PersonV3.class, singletonList(new LogErrorHandler()));
+        STSClientConfig.configureRequestSamlToken(port);
+        return port;
     }
 
 }
