@@ -49,11 +49,11 @@ public class TilgangskontrollConsumer {
 
         log.info("Sjekker tilgang på URL: {} for {}", url, fnr);
 
-        ResponseEntity response = template.exchange(
+        ResponseEntity<String> response = template.exchange(
                 url,
                 HttpMethod.GET,
-                new HttpEntity<>(getHeaders()),
-                Response.class
+                new HttpEntity<String>(getHeaders()),
+                String.class
         );
 
 //        Response response = template.getForObject(
@@ -75,7 +75,7 @@ public class TilgangskontrollConsumer {
 
     private HttpHeaders getHeaders() {
         final HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.TEXT_HTML);
+        headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(OIDCConstants.AUTHORIZATION_HEADER, "Bearer " + tokenFraOIDC());
         return headers;
     }
