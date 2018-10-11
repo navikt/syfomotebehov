@@ -62,6 +62,7 @@ public class TilgangskontrollConsumer {
 //        );
 
         HttpStatus status = response.getStatusCode();
+        log.info("Fiks response med sttus {}", status);
         if (status == HttpStatus.FORBIDDEN) {
             return false;
         } else if (status != HttpStatus.OK) {
