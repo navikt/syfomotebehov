@@ -3,6 +3,7 @@ package no.nav.syfo.consumer.rest;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.oidc.OIDCConstants;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
+import no.nav.syfo.domain.rest.Tilgang;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -45,12 +46,14 @@ public class TilgangskontrollConsumer {
 
         log.info("Sjekker tilgang på URL: {} for {}", url, fnr);
 
-        ResponseEntity<String> response = template.exchange(
+
+        ResponseEntity<Tilgang> response = template.exchange(
                 url,
                 HttpMethod.GET,
-                new HttpEntity<String>(getHeaders()),
-                String.class
+                new HttpEntity<>(getHeaders()),
+                Tilgang.class
         );
+        log.info("Fikk response med innhold {}", response.getBody().harTilgang);
 
         HttpStatus status = response.getStatusCode();
         log.info("Fikk response med stattus {}", status);
