@@ -1,6 +1,7 @@
 package no.nav.syfo.service;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.consumer.ws.AktoerConsumer;
 import no.nav.syfo.consumer.ws.PersonConsumer;
 import no.nav.syfo.consumer.ws.SykefravaeroppfoelgingConsumer;
@@ -9,22 +10,27 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 
+import static no.nav.syfo.util.OIDCUtil.fnrFraOIDC;
+
 @Service
 @Slf4j
 public class TilgangService {
 
     private String dev;
+    private OIDCRequestContextHolder contextHolder;
     private AktoerConsumer aktoerConsumer;
     private PersonConsumer personConsumer;
     private SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer;
 
     @Inject
     public TilgangService(@Value("${dev}") String dev,
+                          final OIDCRequestContextHolder contextHolder,
                           final AktoerConsumer aktoerConsumer,
                           final PersonConsumer personConsumer,
                           final SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer
     ) {
         this.dev = dev;
+        this.contextHolder = contextHolder;
         this.aktoerConsumer = aktoerConsumer;
         this.personConsumer = personConsumer;
         this.sykefravaeroppfoelgingConsumer = sykefravaeroppfoelgingConsumer;
@@ -35,15 +41,7 @@ public class TilgangService {
             return true;
         }
         String oppslaattAktoerId = aktoerConsumer.hentAktoerIdForFnr(fnr);
-        String innloggetIdent = "03097043123";
-        log.error("fnr {}", fnr);
-        log.error("Iident {}", innloggetIdent);
-        log.error("1 {}", sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetIdent, fnr));
-        log.error("2 {}", personConsumer.erBrukerKode6(oppslaattAktoerId));
-        log.error("3 {}", !(sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetIdent, fnr)
-                || personConsumer.erBrukerKode6(oppslaattAktoerId)));
-        log.error("4 {}", sporInnloggetBrukerOmSegSelv(innloggetIdent, fnr));
-        log.error("5 {}", sporInnloggetBrukerOmEnAnsatt(innloggetIdent, fnr));
+        String innloggetIdent = fnrFraOIDC(contextHolder).getFnr();
         return !(sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetIdent, fnr)
                 || personConsumer.erBrukerKode6(oppslaattAktoerId));
     }

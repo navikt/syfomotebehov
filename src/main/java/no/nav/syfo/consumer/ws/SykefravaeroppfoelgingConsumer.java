@@ -38,7 +38,7 @@ public class SykefravaeroppfoelgingConsumer {
     }
 
     public List<String> hentAnsatteAktorId(String aktoerId) {
-        log.error("Henter ansatte for aktoerId", aktoerId);
+        log.error("Henter ansatte for aktoerId {}", aktoerId);
         try {
             WSHentNaermesteLedersAnsattListeResponse response = sykefravaersoppfoelgingV1
                     .hentNaermesteLedersAnsattListe(new WSHentNaermesteLedersAnsattListeRequest()
