@@ -77,7 +77,7 @@ public class TilgangskontrollConsumer {
     private String tokenFraOIDC() {
         return contextHolder
                 .getOIDCValidationContext()
-                .getToken("selvbetjening")
+                .getToken("intern")
                 .getIdToken();
     }
 }
