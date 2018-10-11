@@ -7,8 +7,7 @@ import no.nav.security.oidc.context.OIDCValidationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -50,15 +49,22 @@ public class TilgangskontrollConsumer {
 
         log.info("Sjekker tilgang på URL: {} for {}", url, fnr);
 
-        Response response = template.getForObject(
+        ResponseEntity response = template.exchange(
                 url,
+                HttpMethod.GET,
+                new HttpEntity<>(getHeaders()),
                 Response.class
         );
 
-        int status = response.getStatus();
-        if (403 == status) {
+//        Response response = template.getForObject(
+//                url,
+//                Response.class
+//        );
+
+        HttpStatus status = response.getStatusCode();
+        if (status == HttpStatus.FORBIDDEN) {
             return false;
-        } else if (200 != status) {
+        } else if (status != HttpStatus.OK) {
             log.error("Sjekking av tilgang til bruker {} feiler med HTTP-{}", status, fnr);
             throw new RuntimeException("Sjekking av tilgang til bruker feiler med HTTP-" + status);
         } else {
@@ -66,16 +72,17 @@ public class TilgangskontrollConsumer {
         }
     }
 
-//    private HttpHeaders getHeaders() {
-//        final HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_JSON);
-//        headers.set(OIDCConstants.AUTHORIZATION_HEADER, "Bearer " + tokenFraOIDC());
-//        return headers;
-//    }
-//
-//    private String tokenFraOIDC() {
-//        OIDCValidationContext context = (OIDCValidationContext) contextHolder
-//                .getRequestAttribute(OIDCConstants.AUTHORIZATION_HEADER);
-//        return context.getClaims("selvbetjening").getClaimSet().getSubject();
-//    }
+    private HttpHeaders getHeaders() {
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(OIDCConstants.AUTHORIZATION_HEADER, "Bearer " + tokenFraOIDC());
+        return headers;
+    }
+
+    private String tokenFraOIDC() {
+        return contextHolder
+                .getOIDCValidationContext()
+                .getToken("selvbetjening")
+                .getIdToken();
+    }
 }
