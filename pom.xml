@@ -38,7 +38,7 @@
         <oidc-spring-support.version>0.2.4</oidc-spring-support.version>
         <aktoer.version>1.0</aktoer.version>
         <nav-person.version>3.4.1</nav-person.version>
-        <sykefravaersoppfoelgingv1-tjenestespesifikasjon.version>1.0.20</sykefravaersoppfoelgingv1-tjenestespesifikasjon.version>
+        <sykefravaersoppfoelgingv1-tjenestespesifikasjon.version>1.0.21-20181011.152000-1</sykefravaersoppfoelgingv1-tjenestespesifikasjon.version>
         <postgresql.version>42.2.4</postgresql.version>
     </properties>
 
