@@ -44,7 +44,7 @@ public class TilgangskontrollConsumer {
         }
 
         String url = fromHttpUrl(syfotilgangskontrollUrl)
-                .path("/bruker/selvEllerEgneAnsatte")
+                .path("/tilgangTilselvEllerEgneAnsatte")
                 .queryParam("fnr", fnr)
                 .toUriString();
 
