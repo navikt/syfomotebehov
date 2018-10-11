@@ -18,9 +18,5 @@ public class LocalApplicationConfig {
         System.setProperty("SECURITYTOKENSERVICE_URL", environment.getProperty("securitytokenservice.url"));
         System.setProperty("SRVSYFOMOTEBEHOV_USERNAME", environment.getProperty("srvsyfomotebehov.username"));
         System.setProperty("SRVSYFOMOTEBEHOV_PASSWORD", environment.getProperty("srvsyfomotebehov.password"));
-
-
-        System.setProperty("dev", "true");
-        System.setProperty("tilgangskontrollapi.url", "https://syfo-tilgangskontroll-q1.nais.preprod.local/syfo-tilgangskontroll/api/tilgang");
     }
 }

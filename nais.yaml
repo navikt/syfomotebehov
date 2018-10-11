@@ -38,6 +38,8 @@ fasitResources:
   used:
   - alias: Aktoer_v2
     resourceType: webserviceendpoint
+  - alias: Sykefravaersoppfoelging_v1
+    resourceType: webserviceendpoint
   - alias: virksomhet:Person_v3
     resourceType: webserviceendpoint
   - alias: syfomotebehov.properties
@@ -52,8 +54,6 @@ fasitResources:
     resourceType: credential
   # Rest-tjenester
   - alias: syfoveilederoppgaver_system_v1
-    resourceType: restservice
-  - alias: tilgangskontrollapi
     resourceType: restservice
   - alias: isso-rp-user
     resourceType: credential

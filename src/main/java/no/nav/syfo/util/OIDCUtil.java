@@ -1,0 +1,16 @@
+package no.nav.syfo.util;
+
+import no.nav.security.oidc.OIDCConstants;
+import no.nav.security.oidc.context.OIDCRequestContextHolder;
+import no.nav.security.oidc.context.OIDCValidationContext;
+import no.nav.syfo.domain.rest.Fnr;
+
+public class OIDCUtil {
+
+    public static Fnr fnrFraOIDC(OIDCRequestContextHolder contextHolder) {
+        OIDCValidationContext context = (OIDCValidationContext) contextHolder
+                .getRequestAttribute(OIDCConstants.OIDC_VALIDATION_CONTEXT);
+        return Fnr.of(context.getClaims("selvbetjening").getClaimSet().getSubject());
+    }
+
+}
