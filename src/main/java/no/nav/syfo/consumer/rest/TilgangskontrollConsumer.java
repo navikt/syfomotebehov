@@ -69,7 +69,6 @@ public class TilgangskontrollConsumer {
 
     private HttpHeaders getHeaders() {
         final HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(OIDCConstants.AUTHORIZATION_HEADER, "Bearer " + tokenFraOIDC());
         return headers;
     }
