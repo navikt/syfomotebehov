@@ -52,6 +52,7 @@ public class OnBehalfOfOutInterceptor extends AbstractPhaseInterceptor<Message> 
         TokenType tokenType = (TokenType)message.get(REQUEST_CONTEXT_ONBEHALFOF_TOKEN_TYPE);
 
 //
+        OIDCValidationContext oidcValidationContext = new OIDCValidationContext();
 //        String token = OIDCUtil.tokenFraOIDC(new OIDCValidationContext());
 //        TokenType tokenType = TokenType.OIDC;
 

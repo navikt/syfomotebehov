@@ -1,5 +1,6 @@
 package no.nav.syfo.consumer.util.ws;
 
+import no.nav.security.oidc.context.OIDCValidationContext;
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -16,6 +17,8 @@ import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.neethi.Policy;
 
 import java.util.HashMap;
+
+import static no.nav.syfo.util.OIDCUtil.tokenFraOIDC;
 
 public class STSClientConfig {
     public static final String STS_URL_KEY = "SECURITYTOKENSERVICE_URL";
@@ -35,12 +38,18 @@ public class STSClientConfig {
     }
 
     public static <T> T configureRequestSamlTokenOnBehalfOfOidc(T port) {
+        OIDCValidationContext oidcValidationContext = new OIDCValidationContext();
+        String oidcToken = tokenFraOIDC(oidcValidationContext);
+
         Client client = ClientProxy.getClient(port);
+        client.getRequestContext().put(OnBehalfOfOutInterceptor.REQUEST_CONTEXT_ONBEHALFOF_TOKEN_TYPE, OnBehalfOfOutInterceptor.TokenType.OIDC);
+        client.getRequestContext().put(OnBehalfOfOutInterceptor.REQUEST_CONTEXT_ONBEHALFOF_TOKEN, oidcToken);
         // Add interceptor to exctract token from request context and add to STS
         // request as the OnbehalfOf element. Could use a callbackhandler instead if the oidc token
         // can be retrieved from the thread, i.e. Spring SecurityContext etc, leaving this to the implementer of
         // the application.
         client.getOutInterceptors().add(new OnBehalfOfOutInterceptor());
+
         // want to cache the token with the OnBehalfOfToken, not per proxy
         configureStsRequestSamlToken(client, false);
         return port;

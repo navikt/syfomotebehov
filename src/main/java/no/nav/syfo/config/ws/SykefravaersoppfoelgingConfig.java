@@ -3,6 +3,7 @@ package no.nav.syfo.config.ws;
 import no.nav.syfo.consumer.util.ws.LogErrorHandler;
 import no.nav.syfo.consumer.util.ws.STSClientConfig;
 import no.nav.syfo.consumer.util.ws.WsClient;
+import no.nav.syfo.consumer.util.ws.WsOIDCClient;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.SykefravaersoppfoelgingV1;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -19,8 +20,7 @@ public class SykefravaersoppfoelgingConfig {
     @ConditionalOnProperty(value = "mockSykefravaeroppfoelging_V1", havingValue = "false", matchIfMissing = true)
     @Primary
     public SykefravaersoppfoelgingV1 sykefravaersoppfoelgingV1(@Value("${sykefravaersoppfoelging.v1.endpointurl}") String serviceUrl) {
-        SykefravaersoppfoelgingV1 port = new WsClient<SykefravaersoppfoelgingV1>().createPort(serviceUrl, SykefravaersoppfoelgingV1.class, singletonList(new LogErrorHandler()));
-        STSClientConfig.configureRequestSamlTokenOnBehalfOfOidc(port);
+        SykefravaersoppfoelgingV1 port = new WsOIDCClient<SykefravaersoppfoelgingV1>().createPort(serviceUrl, SykefravaersoppfoelgingV1.class, singletonList(new LogErrorHandler()));
         return port;
     }
 
