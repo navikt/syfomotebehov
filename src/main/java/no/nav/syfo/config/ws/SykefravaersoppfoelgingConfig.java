@@ -1,6 +1,9 @@
 package no.nav.syfo.config.ws;
 
-import no.nav.syfo.consumer.util.ws.*;
+import no.nav.syfo.consumer.util.ws.LogErrorHandler;
+import no.nav.syfo.consumer.util.ws.OnBehalfOfOutInterceptor;
+import no.nav.syfo.consumer.util.ws.STSClientConfig;
+import no.nav.syfo.consumer.util.ws.WsOIDCClient;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentNaermesteLedersAnsattListeSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.SykefravaersoppfoelgingV1;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNaermesteLedersAnsattListeRequest;
@@ -16,7 +19,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
 
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.Handler;
@@ -26,29 +28,30 @@ import java.util.Objects;
 
 import static java.util.Collections.singletonList;
 
-@Component
+@Configuration
 public class SykefravaersoppfoelgingConfig {
-//    @SuppressWarnings("unchecked")
-//    @Bean
-//    @ConditionalOnProperty(value = "mockSykefravaeroppfoelging_V1", havingValue = "false", matchIfMissing = true)
-//    @Primary
-//    public SykefravaersoppfoelgingV1 sykefravaersoppfoelgingV1(@Value("${sykefravaersoppfoelging.v1.endpointurl}") String serviceUrl) {
-//        SykefravaersoppfoelgingV1 port = new WsOIDCClient<SykefravaersoppfoelgingV1>().createPort();
-//        return port;
-//    }
-
     @Value("${sykefravaersoppfoelging.v1.endpointurl}")
-    protected String adress;
-    
+    protected String serviceUrl;
+
     private SykefravaersoppfoelgingV1 proxy;
+
+
+    @SuppressWarnings("unchecked")
+    @Bean
+    @ConditionalOnProperty(value = "mockSykefravaeroppfoelging_V1", havingValue = "false", matchIfMissing = true)
+    @Primary
+    public SykefravaersoppfoelgingV1 sykefravaersoppfoelgingV1(@Value("${sykefravaersoppfoelging.v1.endpointurl}") String serviceUrl) {
+        SykefravaersoppfoelgingV1 port = new WsOIDCClient<SykefravaersoppfoelgingV1>().createPort(serviceUrl, SykefravaersoppfoelgingV1.class, singletonList(new LogErrorHandler()));
+        return port;
+    }
+
 
     public SykefravaersoppfoelgingConfig() {
     }
 
-    @SuppressWarnings("unchecked")
-    public SykefravaersoppfoelgingV1 sykefravaersoppfoelgingV1() {
+    public SykefravaersoppfoelgingV1 proxy() {
         if (proxy == null) {
-            this.proxy = createPort(this.adress, SykefravaersoppfoelgingV1.class, singletonList(new LogErrorHandler()));
+            this.proxy = createPort(this.serviceUrl, SykefravaersoppfoelgingV1.class, singletonList(new LogErrorHandler()));
         }
         return this.proxy;
     }
@@ -68,7 +71,7 @@ public class SykefravaersoppfoelgingConfig {
 
     public WSHentNaermesteLedersAnsattListeResponse hentNaermesteLedersAnsattListe(WSHentNaermesteLedersAnsattListeRequest request, String oidcToken) throws HentNaermesteLedersAnsattListeSikkerhetsbegrensning {
 
-        Client c = ClientProxy.getClient(sykefravaersoppfoelgingV1());
+        Client c = ClientProxy.getClient(proxy());
         c.getRequestContext().put(OnBehalfOfOutInterceptor.REQUEST_CONTEXT_ONBEHALFOF_TOKEN_TYPE, OnBehalfOfOutInterceptor.TokenType.OIDC);
         c.getRequestContext().put(OnBehalfOfOutInterceptor.REQUEST_CONTEXT_ONBEHALFOF_TOKEN, oidcToken);
 
