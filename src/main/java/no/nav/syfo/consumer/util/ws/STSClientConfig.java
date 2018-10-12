@@ -17,7 +17,7 @@ import org.apache.neethi.Policy;
 
 import java.util.HashMap;
 
-class STSClientConfig {
+public class STSClientConfig {
     public static final String STS_URL_KEY = "SECURITYTOKENSERVICE_URL";
     public static final String SERVICEUSER_USERNAME = "SRVSYFOMOTEBEHOV_USERNAME";
     public static final String SERVICEUSER_PASSWORD = "SRVSYFOMOTEBEHOV_PASSWORD";
