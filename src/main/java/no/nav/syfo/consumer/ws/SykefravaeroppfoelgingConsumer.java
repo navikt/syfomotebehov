@@ -1,6 +1,7 @@
 package no.nav.syfo.consumer.ws;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.security.oidc.OIDCConstants;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.oidc.context.OIDCValidationContext;
 import no.nav.syfo.config.ws.SykefravaersoppfoelgingConfig;
@@ -47,7 +48,15 @@ public class SykefravaeroppfoelgingConsumer {
     }
 
     public List<String> hentAnsatteAktorId(String aktoerId) {
-        OIDCValidationContext oidcValidationContext = new OIDCValidationContext();
+        OIDCValidationContext oidcValidationContext = (OIDCValidationContext) this.contextHolder.getRequestAttribute(OIDCConstants.OIDC_VALIDATION_CONTEXT);
+
+        log.info("JTRACE 1 token: ", this.contextHolder.getOIDCValidationContext().getToken("selvbetjening").getIdToken());
+        log.info("JTRACE 2 token: ", this.contextHolder.getOIDCValidationContext().hasTokenFor("selvbetjening"));
+        log.info("JTRACE 3 token: ", this.contextHolder.getOIDCValidationContext().hasValidToken());
+        log.info("JTRACE 4 token: ", oidcValidationContext.getToken("selvbetjening"));
+        log.info("JTRACE 5 token: ", oidcValidationContext.hasTokenFor("selvbetjening"));
+        log.info("JTRACE 6 token: ", oidcValidationContext.hasValidToken());
+
         String oidcToken = tokenFraOIDC(oidcValidationContext);
 
         log.error("Henter ansatte for aktoerId {} med token {}", aktoerId, oidcToken);

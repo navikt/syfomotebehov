@@ -1,5 +1,6 @@
 package no.nav.syfo.util;
 
+import lombok.extern.slf4j.Slf4j;
 import no.nav.security.oidc.OIDCConstants;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.oidc.context.OIDCValidationContext;
