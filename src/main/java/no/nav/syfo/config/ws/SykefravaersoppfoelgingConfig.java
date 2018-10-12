@@ -1,5 +1,6 @@
 package no.nav.syfo.config.ws;
 
+import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.consumer.util.ws.LogErrorHandler;
 import no.nav.syfo.consumer.util.ws.OnBehalfOfOutInterceptor;
 import no.nav.syfo.consumer.util.ws.STSClientConfig;
@@ -28,20 +29,21 @@ import java.util.Objects;
 
 import static java.util.Collections.singletonList;
 
+@Slf4j
 @Configuration
 public class SykefravaersoppfoelgingConfig {
+
     @Value("${sykefravaersoppfoelging.v1.endpointurl}")
     protected String serviceUrl;
 
     private SykefravaersoppfoelgingV1 proxy;
-
 
     @SuppressWarnings("unchecked")
     @Bean
     @ConditionalOnProperty(value = "mockSykefravaeroppfoelging_V1", havingValue = "false", matchIfMissing = true)
     @Primary
     public SykefravaersoppfoelgingV1 sykefravaersoppfoelgingV1(@Value("${sykefravaersoppfoelging.v1.endpointurl}") String serviceUrl) {
-        SykefravaersoppfoelgingV1 port = new WsOIDCClient<SykefravaersoppfoelgingV1>().createPort(serviceUrl, SykefravaersoppfoelgingV1.class, singletonList(new LogErrorHandler()));
+        SykefravaersoppfoelgingV1 port = createPort(serviceUrl, SykefravaersoppfoelgingV1.class, singletonList(new LogErrorHandler()));
         return port;
     }
 
@@ -58,15 +60,24 @@ public class SykefravaersoppfoelgingConfig {
 
     public SykefravaersoppfoelgingV1 createPort(String serviceUrl, Class<?> portType, List<Handler> handlers, PhaseInterceptor<? extends Message>... interceptors) {
         JaxWsProxyFactoryBean jaxWsProxyFactoryBean = new JaxWsProxyFactoryBean();
-        jaxWsProxyFactoryBean.setServiceClass(portType);
-        jaxWsProxyFactoryBean.setAddress(Objects.requireNonNull(serviceUrl));
-        jaxWsProxyFactoryBean.getFeatures().add(new WSAddressingFeature());
+        jaxWsProxyFactoryBean.setServiceClass(SykefravaersoppfoelgingV1.class);
+        jaxWsProxyFactoryBean.setAddress(serviceUrl);
         SykefravaersoppfoelgingV1 port = (SykefravaersoppfoelgingV1) jaxWsProxyFactoryBean.create();
-        ((BindingProvider) port).getBinding().setHandlerChain(handlers);
-        Client client = ClientProxy.getClient(port);
-        Arrays.stream(interceptors).forEach(client.getOutInterceptors()::add);
+
         STSClientConfig.configureRequestSamlTokenOnBehalfOfOidc(port);
+
         return port;
+
+//        JaxWsProxyFactoryBean jaxWsProxyFactoryBean = new JaxWsProxyFactoryBean();
+//        jaxWsProxyFactoryBean.setServiceClass(portType);
+//        jaxWsProxyFactoryBean.setAddress(Objects.requireNonNull(serviceUrl));
+//        jaxWsProxyFactoryBean.getFeatures().add(new WSAddressingFeature());
+//        SykefravaersoppfoelgingV1 port = (SykefravaersoppfoelgingV1) jaxWsProxyFactoryBean.create();
+//        ((BindingProvider) port).getBinding().setHandlerChain(handlers);
+//        Client client = ClientProxy.getClient(port);
+//        Arrays.stream(interceptors).forEach(client.getOutInterceptors()::add);
+//        STSClientConfig.configureRequestSamlTokenOnBehalfOfOidc(port);
+//        return port;
     }
 
     public WSHentNaermesteLedersAnsattListeResponse hentNaermesteLedersAnsattListe(WSHentNaermesteLedersAnsattListeRequest request, String oidcToken) throws HentNaermesteLedersAnsattListeSikkerhetsbegrensning {
@@ -74,6 +85,9 @@ public class SykefravaersoppfoelgingConfig {
         Client c = ClientProxy.getClient(proxy());
         c.getRequestContext().put(OnBehalfOfOutInterceptor.REQUEST_CONTEXT_ONBEHALFOF_TOKEN_TYPE, OnBehalfOfOutInterceptor.TokenType.OIDC);
         c.getRequestContext().put(OnBehalfOfOutInterceptor.REQUEST_CONTEXT_ONBEHALFOF_TOKEN, oidcToken);
+
+        log.info("JTRACE oidcToken {}", oidcToken);
+        log.info("JTRACE aktoerId {}", request.getAktoerId());
 
         return proxy.hentNaermesteLedersAnsattListe(request);
     }
