@@ -9,7 +9,7 @@ import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.NyttMotebehov;
 import no.nav.syfo.service.MotebehovService;
-import no.nav.syfo.service.TilgangService;
+import no.nav.syfo.service.TilgangBrukerService;
 import no.nav.syfo.util.Toggle;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,16 +35,16 @@ public class MotebehovController {
 
     private OIDCRequestContextHolder contextHolder;
     private MotebehovService motebehovService;
-    private TilgangService tilgangService;
+    private TilgangBrukerService tilgangBrukerService;
 
     @Inject
     public MotebehovController(final OIDCRequestContextHolder contextHolder,
                                final MotebehovService motebehovService,
-                               final TilgangService tilgangService
+                               final TilgangBrukerService tilgangBrukerService
     ) {
         this.contextHolder = contextHolder;
         this.motebehovService = motebehovService;
-        this.tilgangService = tilgangService;
+        this.tilgangBrukerService = tilgangBrukerService;
     }
 
     @ResponseBody
@@ -55,7 +55,7 @@ public class MotebehovController {
     ) {
         if (Toggle.endepunkterForMotebehov) {
             Fnr fnr = Fnr.of(arbeidstakerFnr);
-            if (!tilgangService.harTilgangTilOppslaattBruker(fnr.getFnr())) {
+            if (!tilgangBrukerService.harTilgangTilOppslaattBruker(fnr.getFnr())) {
                 throw new ForbiddenException();
             }
             if (!virksomhetsnummer.isEmpty()) {
@@ -73,7 +73,7 @@ public class MotebehovController {
     public void lagreMotebehov(@RequestBody @Valid NyttMotebehov lagreMotebehov) {
         if (Toggle.endepunkterForMotebehov) {
             Fnr fnr = fnrFraOIDC();
-            if (!tilgangService.harTilgangTilOppslaattBruker(fnr.getFnr())) {
+            if (!tilgangBrukerService.harTilgangTilOppslaattBruker(fnr.getFnr())) {
                 throw new ForbiddenException();
             }
             motebehovService.lagreMotebehov(fnr, lagreMotebehov);

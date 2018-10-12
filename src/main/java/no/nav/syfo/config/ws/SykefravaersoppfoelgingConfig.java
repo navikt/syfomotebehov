@@ -5,8 +5,11 @@ import no.nav.syfo.consumer.util.ws.LogErrorHandler;
 import no.nav.syfo.consumer.util.ws.OnBehalfOfOutInterceptor;
 import no.nav.syfo.consumer.util.ws.STSClientConfig;
 import no.nav.syfo.consumer.util.ws.WsClient;
+import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentNaermesteLederListeSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentNaermesteLedersAnsattListeSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.SykefravaersoppfoelgingV1;
+import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNaermesteLederListeRequest;
+import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNaermesteLederListeResponse;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNaermesteLedersAnsattListeRequest;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNaermesteLedersAnsattListeResponse;
 import org.apache.cxf.endpoint.Client;
@@ -39,22 +42,20 @@ public class SykefravaersoppfoelgingConfig {
         return port;
     }
 
-
-    public SykefravaersoppfoelgingConfig() {
-    }
-
     public WSHentNaermesteLedersAnsattListeResponse hentNaermesteLedersAnsattListe(WSHentNaermesteLedersAnsattListeRequest request, String OIDCToken) throws HentNaermesteLedersAnsattListeSikkerhetsbegrensning {
-        leggTilOidcOnBehalfOfOutInterceptor(port, OIDCToken);
-
-        log.info("JTRACE oidcToken {}", OIDCToken);
-        log.info("JTRACE aktoerId {}", request.getAktoerId());
+        leggTilOnBehalfOfOutInterceptorForOIDC(ClientProxy.getClient(port), OIDCToken);
 
         return port.hentNaermesteLedersAnsattListe(request);
     }
 
-    private void leggTilOidcOnBehalfOfOutInterceptor(SykefravaersoppfoelgingV1 port, String OIDCToken) {
-        Client c = ClientProxy.getClient(port);
-        c.getRequestContext().put(OnBehalfOfOutInterceptor.REQUEST_CONTEXT_ONBEHALFOF_TOKEN_TYPE, OnBehalfOfOutInterceptor.TokenType.OIDC);
-        c.getRequestContext().put(OnBehalfOfOutInterceptor.REQUEST_CONTEXT_ONBEHALFOF_TOKEN, OIDCToken);
+    public WSHentNaermesteLederListeResponse hentNaermesteLederListe(WSHentNaermesteLederListeRequest request, String OIDCToken) throws HentNaermesteLederListeSikkerhetsbegrensning {
+        leggTilOnBehalfOfOutInterceptorForOIDC(ClientProxy.getClient(port), OIDCToken);
+
+        return port.hentNaermesteLederListe(request);
+    }
+
+    private void leggTilOnBehalfOfOutInterceptorForOIDC( Client client, String OIDCToken) {
+        client.getRequestContext().put(OnBehalfOfOutInterceptor.REQUEST_CONTEXT_ONBEHALFOF_TOKEN_TYPE, OnBehalfOfOutInterceptor.TokenType.OIDC);
+        client.getRequestContext().put(OnBehalfOfOutInterceptor.REQUEST_CONTEXT_ONBEHALFOF_TOKEN, OIDCToken);
     }
 }

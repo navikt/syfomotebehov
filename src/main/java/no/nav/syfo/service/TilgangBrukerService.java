@@ -11,11 +11,11 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import javax.ws.rs.ForbiddenException;
 
-import static no.nav.syfo.util.OIDCUtil.fnrFraOIDC;
+import static no.nav.syfo.util.OIDCUtil.fnrFraOIDCEkstern;
 
 @Service
 @Slf4j
-public class TilgangService {
+public class TilgangBrukerService {
 
     private String dev;
     private OIDCRequestContextHolder contextHolder;
@@ -24,11 +24,11 @@ public class TilgangService {
     private SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer;
 
     @Inject
-    public TilgangService(@Value("${dev}") String dev,
-                          final OIDCRequestContextHolder contextHolder,
-                          final AktoerConsumer aktoerConsumer,
-                          final PersonConsumer personConsumer,
-                          final SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer
+    public TilgangBrukerService(@Value("${dev}") String dev,
+                                final OIDCRequestContextHolder contextHolder,
+                                final AktoerConsumer aktoerConsumer,
+                                final PersonConsumer personConsumer,
+                                final SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer
     ) {
         this.dev = dev;
         this.contextHolder = contextHolder;
@@ -42,7 +42,7 @@ public class TilgangService {
             return true;
         }
         String oppslaattAktoerId = aktoerConsumer.hentAktoerIdForFnr(fnr);
-        String innloggetIdent = fnrFraOIDC(contextHolder).getFnr();
+        String innloggetIdent = fnrFraOIDCEkstern(contextHolder).getFnr();
         try {
             return !(sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetIdent, fnr)
                     || personConsumer.erBrukerKode6(oppslaattAktoerId));

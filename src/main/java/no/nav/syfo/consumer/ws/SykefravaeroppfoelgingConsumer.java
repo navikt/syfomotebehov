@@ -25,7 +25,7 @@ import static java.util.stream.Collectors.toList;
 import static no.nav.syfo.mappers.WSAnsattMapper.wsAnsatt2AktorId;
 import static no.nav.syfo.mappers.WSNaermesteLederMapper.ws2naermesteLeder;
 import static no.nav.syfo.util.MapUtil.mapListe;
-import static no.nav.syfo.util.OIDCUtil.fnrFraOIDC;
+import static no.nav.syfo.util.OIDCUtil.fnrFraOIDCEkstern;
 import static no.nav.syfo.util.OIDCUtil.tokenFraOIDC;
 
 @Component
@@ -46,38 +46,38 @@ public class SykefravaeroppfoelgingConsumer {
     }
 
     public List<String> hentAnsatteAktorId(String aktoerId) {
-        OIDCValidationContext oidcValidationContext = (OIDCValidationContext) this.contextHolder.getRequestAttribute(OIDCConstants.OIDC_VALIDATION_CONTEXT);
-
-        String oidcToken = tokenFraOIDC(oidcValidationContext, OIDCIssuer.EKSTERN);
+        String oidcToken = tokenFraOIDC((OIDCValidationContext) this.contextHolder.getRequestAttribute(OIDCConstants.OIDC_VALIDATION_CONTEXT), OIDCIssuer.EKSTERN);
 
         try {
             WSHentNaermesteLedersAnsattListeResponse response = sykefravaersoppfoelgingConfig.hentNaermesteLedersAnsattListe(new WSHentNaermesteLedersAnsattListeRequest()
                     .withAktoerId(aktoerId), oidcToken);
             return mapListe(response.getAnsattListe(), wsAnsatt2AktorId);
         } catch (HentNaermesteLedersAnsattListeSikkerhetsbegrensning e) {
-            log.warn("{} fikk sikkerhetsbegrensning {} ved henting av ansatte for person {}", fnrFraOIDC(contextHolder), e.getFaultInfo().getFeilaarsak().toUpperCase(), aktoerId);
+            log.warn("{} fikk sikkerhetsbegrensning {} ved henting av ansatte for person {}", fnrFraOIDCEkstern(contextHolder), e.getFaultInfo().getFeilaarsak().toUpperCase(), aktoerId);
             throw new ForbiddenException();
         } catch (RuntimeException e) {
             log.error("{} fikk Runtimefeil ved henting av ansatte for person {}. " +
-                    "Antar dette er tilgang nektet fra modig-security, og kaster ForbiddenException videre.", fnrFraOIDC(contextHolder), aktoerId, e);
+                    "Antar dette er tilgang nektet fra modig-security, og kaster ForbiddenException videre.", fnrFraOIDCEkstern(contextHolder), aktoerId, e);
             //TODO RuntimeException når SyfoService kaster sikkerhetsbegrensing riktig igjen
             throw new ForbiddenException();
         }
     }
 
     public List<NaermesteLeder> hentNaermesteLedere(String aktoerId) {
+        String oidcToken = tokenFraOIDC((OIDCValidationContext) this.contextHolder.getRequestAttribute(OIDCConstants.OIDC_VALIDATION_CONTEXT), OIDCIssuer.EKSTERN);
+
         try {
             log.error("Henter ledere for aktoerId", aktoerId);
-            WSHentNaermesteLederListeResponse response = sykefravaersoppfoelgingV1.hentNaermesteLederListe(new WSHentNaermesteLederListeRequest()
+            WSHentNaermesteLederListeResponse response = sykefravaersoppfoelgingConfig.hentNaermesteLederListe(new WSHentNaermesteLederListeRequest()
                     .withAktoerId(aktoerId)
-                    .withKunAktive(false));
+                    .withKunAktive(false), oidcToken);
             return mapListe(response.getNaermesteLederListe(), ws2naermesteLeder);
         } catch (HentNaermesteLederListeSikkerhetsbegrensning e) {
-            log.warn("{} fikk sikkerhetsbegrensning {} ved henting av naermeste ledere for person {}", fnrFraOIDC(contextHolder), e.getFaultInfo().getFeilaarsak().toUpperCase(), aktoerId);
+            log.warn("{} fikk sikkerhetsbegrensning {} ved henting av naermeste ledere for person {}", fnrFraOIDCEkstern(contextHolder), e.getFaultInfo().getFeilaarsak().toUpperCase(), aktoerId);
             throw new ForbiddenException();
         } catch (RuntimeException e) {
             log.error("{} fikk Runtimefeil ved henting av naermeste ledere for person {}" +
-                    "Antar dette er tilgang nektet fra modig-security, og kaster ForbiddenException videre.", fnrFraOIDC(contextHolder), aktoerId, e);
+                    "Antar dette er tilgang nektet fra modig-security, og kaster ForbiddenException videre.", fnrFraOIDCEkstern(contextHolder), aktoerId, e);
             //TODO RuntimeException når SyfoService kaster sikkerhetsbegrensing riktig igjen
             throw new ForbiddenException();
         }
