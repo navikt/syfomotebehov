@@ -4,27 +4,23 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.consumer.util.ws.LogErrorHandler;
 import no.nav.syfo.consumer.util.ws.OnBehalfOfOutInterceptor;
 import no.nav.syfo.consumer.util.ws.STSClientConfig;
+import no.nav.syfo.consumer.util.ws.WsClient;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentNaermesteLedersAnsattListeSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.SykefravaersoppfoelgingV1;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNaermesteLedersAnsattListeRequest;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNaermesteLedersAnsattListeResponse;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
-import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptor;
-import org.apache.cxf.ws.addressing.WSAddressingFeature;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.Handler;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import static java.util.Collections.singletonList;
 
@@ -52,30 +48,13 @@ public class SykefravaersoppfoelgingConfig {
 
     public SykefravaersoppfoelgingV1 proxy() {
         if (proxy == null) {
-            this.proxy = createPort( SykefravaersoppfoelgingV1.class, singletonList(new LogErrorHandler()));
+            this.proxy = createPort(SykefravaersoppfoelgingV1.class, singletonList(new LogErrorHandler()));
         }
         return this.proxy;
     }
 
     public SykefravaersoppfoelgingV1 createPort(Class<?> portType, List<Handler> handlers, PhaseInterceptor<? extends Message>... interceptors) {
-//        JaxWsProxyFactoryBean jaxWsProxyFactoryBean = new JaxWsProxyFactoryBean();
-//        jaxWsProxyFactoryBean.setServiceClass(SykefravaersoppfoelgingV1.class);
-//        jaxWsProxyFactoryBean.setAddress(serviceUrl);
-//        SykefravaersoppfoelgingV1 port = (SykefravaersoppfoelgingV1) jaxWsProxyFactoryBean.create();
-//
-//        STSClientConfig.configureRequestSamlTokenOnBehalfOfOidc(port);
-//
-//        return port;
-
-        JaxWsProxyFactoryBean jaxWsProxyFactoryBean = new JaxWsProxyFactoryBean();
-        jaxWsProxyFactoryBean.setServiceClass(portType);
-        jaxWsProxyFactoryBean.setAddress(Objects.requireNonNull(serviceUrl));
-        jaxWsProxyFactoryBean.getFeatures().add(new WSAddressingFeature());
-        SykefravaersoppfoelgingV1 port = (SykefravaersoppfoelgingV1) jaxWsProxyFactoryBean.create();
-        ((BindingProvider) port).getBinding().setHandlerChain(handlers);
-        Client client = ClientProxy.getClient(port);
-        Arrays.stream(interceptors).forEach(client.getOutInterceptors()::add);
-
+        SykefravaersoppfoelgingV1 port = new WsClient<SykefravaersoppfoelgingV1>().createPort(serviceUrl, portType, handlers, interceptors);
 
         STSClientConfig.configureRequestSamlTokenOnBehalfOfOidc(port);
         return port;
