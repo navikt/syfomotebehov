@@ -2,6 +2,9 @@ package no.nav.syfo.consumer.ws;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
+import no.nav.security.oidc.context.OIDCValidationContext;
+import no.nav.syfo.config.ws.SykefravaersoppfoelgingConfig;
+import no.nav.syfo.consumer.util.ws.OnBehalfOfOutInterceptor;
 import no.nav.syfo.domain.rest.NaermesteLeder;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentNaermesteLederListeSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentNaermesteLedersAnsattListeSikkerhetsbegrensning;
@@ -10,6 +13,9 @@ import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNae
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNaermesteLederListeResponse;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNaermesteLedersAnsattListeRequest;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNaermesteLedersAnsattListeResponse;
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.frontend.ClientProxy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -21,6 +27,7 @@ import static no.nav.syfo.mappers.WSAnsattMapper.wsAnsatt2AktorId;
 import static no.nav.syfo.mappers.WSNaermesteLederMapper.ws2naermesteLeder;
 import static no.nav.syfo.util.MapUtil.mapListe;
 import static no.nav.syfo.util.OIDCUtil.fnrFraOIDC;
+import static no.nav.syfo.util.OIDCUtil.tokenFraOIDC;
 
 @Component
 @Slf4j
@@ -28,6 +35,8 @@ public class SykefravaeroppfoelgingConsumer {
 
     private OIDCRequestContextHolder contextHolder;
     private SykefravaersoppfoelgingV1 sykefravaersoppfoelgingV1;
+    @Autowired
+    private SykefravaersoppfoelgingConfig sykefravaersoppfoelgingConfig;
 
     @Inject
     public SykefravaeroppfoelgingConsumer(final OIDCRequestContextHolder contextHolder,
@@ -38,13 +47,13 @@ public class SykefravaeroppfoelgingConsumer {
     }
 
     public List<String> hentAnsatteAktorId(String aktoerId) {
-        log.error("Henter ansatte for aktoerId {}", aktoerId);
+        OIDCValidationContext oidcValidationContext = new OIDCValidationContext();
+        String oidcToken = tokenFraOIDC(oidcValidationContext);
+
+        log.error("Henter ansatte for aktoerId {} med token {}", aktoerId, oidcToken);
         try {
-            WSHentNaermesteLedersAnsattListeResponse response = sykefravaersoppfoelgingV1
-                    .hentNaermesteLedersAnsattListe(new WSHentNaermesteLedersAnsattListeRequest()
-                            .withAktoerId(aktoerId));
-            log.error("hentet ansatte 1", response.getAnsattListe().get(0).getAktoerId());
-            log.error("hentet ansatte 2", mapListe(response.getAnsattListe(), wsAnsatt2AktorId).get(0));
+            WSHentNaermesteLedersAnsattListeResponse response = sykefravaersoppfoelgingConfig.hentNaermesteLedersAnsattListe(new WSHentNaermesteLedersAnsattListeRequest()
+                    .withAktoerId(aktoerId), oidcToken);
             return mapListe(response.getAnsattListe(), wsAnsatt2AktorId);
         } catch (HentNaermesteLedersAnsattListeSikkerhetsbegrensning e) {
             log.warn("{} fikk sikkerhetsbegrensning {} ved henting av ansatte for person {}", fnrFraOIDC(contextHolder), e.getFaultInfo().getFeilaarsak().toUpperCase(), aktoerId);
