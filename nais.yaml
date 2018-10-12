@@ -52,6 +52,10 @@ fasitResources:
     resourceType: credential
   - alias: syfoveilederoppgaver_system_v1
     resourceType: restservice
+  - alias: srvsyfo-tilgangskontroll
+    resourceType: credential
+  - alias: tilgangskontrollapi
+    resourceType: restservice
   - alias: isso-rp-user
     resourceType: credential
     propertyMap:

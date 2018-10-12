@@ -7,6 +7,7 @@ import no.nav.syfo.domain.rest.Historikk;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.service.HistorikkService;
 import no.nav.syfo.service.MotebehovService;
+import no.nav.syfo.service.VeilederTilgangService;
 import no.nav.syfo.util.Toggle;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +15,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.Pattern;
+import javax.ws.rs.ForbiddenException;
 import java.io.IOException;
 import java.util.List;
 
@@ -31,12 +33,16 @@ public class MotebehovVeilederController {
 
     private MotebehovService motebehovService;
 
+    private VeilederTilgangService veilederTilgangService;
+
     @Inject
     public MotebehovVeilederController(
             final HistorikkService historikkService,
-            final MotebehovService motebehovService) {
+            final MotebehovService motebehovService,
+            final VeilederTilgangService tilgangService) {
         this.historikkService = historikkService;
         this.motebehovService = motebehovService;
+        this.veilederTilgangService = tilgangService;
     }
 
     @ResponseBody
@@ -45,7 +51,11 @@ public class MotebehovVeilederController {
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public List<Motebehov> hentMotebehovListe(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
         if (Toggle.endepunkterForMotebehov) {
-            return motebehovService.hentMotebehovListe(Fnr.of(arbeidstakerFnr));
+            if(veilederTilgangService.sjekkVeiledersTilgangTilPerson(arbeidstakerFnr)) {
+                return motebehovService.hentMotebehovListe(Fnr.of(arbeidstakerFnr));
+            } else {
+                throw new ForbiddenException("Veilederen har ikke tilgang til denne personen");
+            }
         } else {
             log.info("Det ble gjort kall mot 'veileder/motebehov', men dette endepunktet er togglet av.");
             return emptyList();
@@ -58,7 +68,11 @@ public class MotebehovVeilederController {
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public List<Historikk> hentMotebehovHistorikk(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
         if (Toggle.endepunkterForMotebehov) {
-            return historikkService.hentHistorikkListe(Fnr.of(arbeidstakerFnr));
+            if(veilederTilgangService.sjekkVeiledersTilgangTilPerson(arbeidstakerFnr)) {
+                return historikkService.hentHistorikkListe(Fnr.of(arbeidstakerFnr));
+            } else {
+                throw new ForbiddenException("Veilederen har ikke tilgang til denne personen");
+            }
         } else {
             log.info("Det ble gjort kall mot 'veileder/historikk', men dette endepunktet er togglet av.");
             return emptyList();
