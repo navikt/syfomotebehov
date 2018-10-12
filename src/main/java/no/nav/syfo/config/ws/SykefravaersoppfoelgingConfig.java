@@ -20,7 +20,7 @@ public class SykefravaersoppfoelgingConfig {
     @Primary
     public SykefravaersoppfoelgingV1 sykefravaersoppfoelgingV1(@Value("${sykefravaersoppfoelging.v1.endpointurl}") String serviceUrl) {
         SykefravaersoppfoelgingV1 port = new WsClient<SykefravaersoppfoelgingV1>().createPort(serviceUrl, SykefravaersoppfoelgingV1.class, singletonList(new LogErrorHandler()));
-        STSClientConfig.configureRequestSamlTokenOnBehalfOfOidc(port);
+        STSClientConfig.configureRequestSamlToken(port);
         return port;
     }
 
