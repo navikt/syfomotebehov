@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.consumer.util.ws.LogErrorHandler;
 import no.nav.syfo.consumer.util.ws.OnBehalfOfOutInterceptor;
 import no.nav.syfo.consumer.util.ws.STSClientConfig;
-import no.nav.syfo.consumer.util.ws.WsOIDCClient;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentNaermesteLedersAnsattListeSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.SykefravaersoppfoelgingV1;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNaermesteLedersAnsattListeRequest;
@@ -42,8 +41,8 @@ public class SykefravaersoppfoelgingConfig {
     @Bean
     @ConditionalOnProperty(value = "mockSykefravaeroppfoelging_V1", havingValue = "false", matchIfMissing = true)
     @Primary
-    public SykefravaersoppfoelgingV1 sykefravaersoppfoelgingV1(@Value("${sykefravaersoppfoelging.v1.endpointurl}") String serviceUrl) {
-        SykefravaersoppfoelgingV1 port = createPort(serviceUrl, SykefravaersoppfoelgingV1.class, singletonList(new LogErrorHandler()));
+    public SykefravaersoppfoelgingV1 sykefravaersoppfoelgingV1() {
+        SykefravaersoppfoelgingV1 port = createPort(SykefravaersoppfoelgingV1.class, singletonList(new LogErrorHandler()));
         return port;
     }
 
@@ -53,31 +52,33 @@ public class SykefravaersoppfoelgingConfig {
 
     public SykefravaersoppfoelgingV1 proxy() {
         if (proxy == null) {
-            this.proxy = createPort(this.serviceUrl, SykefravaersoppfoelgingV1.class, singletonList(new LogErrorHandler()));
+            this.proxy = createPort( SykefravaersoppfoelgingV1.class, singletonList(new LogErrorHandler()));
         }
         return this.proxy;
     }
 
-    public SykefravaersoppfoelgingV1 createPort(String serviceUrl, Class<?> portType, List<Handler> handlers, PhaseInterceptor<? extends Message>... interceptors) {
+    public SykefravaersoppfoelgingV1 createPort(Class<?> portType, List<Handler> handlers, PhaseInterceptor<? extends Message>... interceptors) {
+//        JaxWsProxyFactoryBean jaxWsProxyFactoryBean = new JaxWsProxyFactoryBean();
+//        jaxWsProxyFactoryBean.setServiceClass(SykefravaersoppfoelgingV1.class);
+//        jaxWsProxyFactoryBean.setAddress(serviceUrl);
+//        SykefravaersoppfoelgingV1 port = (SykefravaersoppfoelgingV1) jaxWsProxyFactoryBean.create();
+//
+//        STSClientConfig.configureRequestSamlTokenOnBehalfOfOidc(port);
+//
+//        return port;
+
         JaxWsProxyFactoryBean jaxWsProxyFactoryBean = new JaxWsProxyFactoryBean();
-        jaxWsProxyFactoryBean.setServiceClass(SykefravaersoppfoelgingV1.class);
-        jaxWsProxyFactoryBean.setAddress(serviceUrl);
+        jaxWsProxyFactoryBean.setServiceClass(portType);
+        jaxWsProxyFactoryBean.setAddress(Objects.requireNonNull(serviceUrl));
+        jaxWsProxyFactoryBean.getFeatures().add(new WSAddressingFeature());
         SykefravaersoppfoelgingV1 port = (SykefravaersoppfoelgingV1) jaxWsProxyFactoryBean.create();
+        ((BindingProvider) port).getBinding().setHandlerChain(handlers);
+        Client client = ClientProxy.getClient(port);
+        Arrays.stream(interceptors).forEach(client.getOutInterceptors()::add);
+
 
         STSClientConfig.configureRequestSamlTokenOnBehalfOfOidc(port);
-
         return port;
-
-//        JaxWsProxyFactoryBean jaxWsProxyFactoryBean = new JaxWsProxyFactoryBean();
-//        jaxWsProxyFactoryBean.setServiceClass(portType);
-//        jaxWsProxyFactoryBean.setAddress(Objects.requireNonNull(serviceUrl));
-//        jaxWsProxyFactoryBean.getFeatures().add(new WSAddressingFeature());
-//        SykefravaersoppfoelgingV1 port = (SykefravaersoppfoelgingV1) jaxWsProxyFactoryBean.create();
-//        ((BindingProvider) port).getBinding().setHandlerChain(handlers);
-//        Client client = ClientProxy.getClient(port);
-//        Arrays.stream(interceptors).forEach(client.getOutInterceptors()::add);
-//        STSClientConfig.configureRequestSamlTokenOnBehalfOfOidc(port);
-//        return port;
     }
 
     public WSHentNaermesteLedersAnsattListeResponse hentNaermesteLedersAnsattListe(WSHentNaermesteLedersAnsattListeRequest request, String oidcToken) throws HentNaermesteLedersAnsattListeSikkerhetsbegrensning {

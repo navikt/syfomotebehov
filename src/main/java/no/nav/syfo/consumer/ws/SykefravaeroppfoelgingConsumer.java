@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.security.oidc.OIDCConstants;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.oidc.context.OIDCValidationContext;
+import no.nav.syfo.OIDCIssuer;
 import no.nav.syfo.config.ws.SykefravaersoppfoelgingConfig;
 import no.nav.syfo.domain.rest.NaermesteLeder;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentNaermesteLederListeSikkerhetsbegrensning;
@@ -47,7 +48,7 @@ public class SykefravaeroppfoelgingConsumer {
     public List<String> hentAnsatteAktorId(String aktoerId) {
         OIDCValidationContext oidcValidationContext = (OIDCValidationContext) this.contextHolder.getRequestAttribute(OIDCConstants.OIDC_VALIDATION_CONTEXT);
 
-        String oidcToken = tokenFraOIDC(oidcValidationContext);
+        String oidcToken = tokenFraOIDC(oidcValidationContext, OIDCIssuer.EKSTERN);
 
         try {
             WSHentNaermesteLedersAnsattListeResponse response = sykefravaersoppfoelgingConfig.hentNaermesteLedersAnsattListe(new WSHentNaermesteLedersAnsattListeRequest()
