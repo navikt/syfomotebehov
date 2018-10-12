@@ -48,13 +48,15 @@ public class OnBehalfOfOutInterceptor extends AbstractPhaseInterceptor<Message> 
     @Override
     public void handleMessage(Message message) throws Fault {
         logger.debug("looking up OnBehalfOfToken from requestcontext with key:" + REQUEST_CONTEXT_ONBEHALFOF_TOKEN);
-//        String token = (String) message.get(REQUEST_CONTEXT_ONBEHALFOF_TOKEN);
+        String token = (String) message.get(REQUEST_CONTEXT_ONBEHALFOF_TOKEN);
+        TokenType tokenType = (TokenType)message.get(REQUEST_CONTEXT_ONBEHALFOF_TOKEN_TYPE);
 
-
-        String token = OIDCUtil.tokenFraOIDC(new OIDCValidationContext());
-        TokenType tokenType = TokenType.OIDC;
+//
+//        String token = OIDCUtil.tokenFraOIDC(new OIDCValidationContext());
+//        TokenType tokenType = TokenType.OIDC;
 
         logger.info("OnBehalfOfToken {}", token);
+        logger.info("OnBehalfOfTokenType {}", tokenType.valueType);
 
         if ((token != null) && (tokenType != null)) {
             byte[] tokenBytes = token.getBytes();
