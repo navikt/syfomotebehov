@@ -1,8 +1,5 @@
 package no.nav.syfo.consumer.util.ws;
 
-import no.nav.security.oidc.context.OIDCRequestContextHolder;
-import no.nav.security.oidc.context.OIDCValidationContext;
-import no.nav.syfo.util.OIDCUtil;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -49,15 +46,7 @@ public class OnBehalfOfOutInterceptor extends AbstractPhaseInterceptor<Message> 
     public void handleMessage(Message message) throws Fault {
         logger.debug("looking up OnBehalfOfToken from requestcontext with key:" + REQUEST_CONTEXT_ONBEHALFOF_TOKEN);
         String token = (String) message.get(REQUEST_CONTEXT_ONBEHALFOF_TOKEN);
-        TokenType tokenType = (TokenType)message.get(REQUEST_CONTEXT_ONBEHALFOF_TOKEN_TYPE);
-
-//
-//        OIDCValidationContext oidcValidationContext = new OIDCValidationContext();
-//        String token = OIDCUtil.tokenFraOIDC(new OIDCValidationContext());
-//        TokenType tokenType = TokenType.OIDC;
-
-        logger.info("OnBehalfOfToken {}", token);
-        logger.info("OnBehalfOfTokenType {}", tokenType.valueType);
+        TokenType tokenType = (TokenType) message.get(REQUEST_CONTEXT_ONBEHALFOF_TOKEN_TYPE);
 
         if ((token != null) && (tokenType != null)) {
             byte[] tokenBytes = token.getBytes();
@@ -76,10 +65,10 @@ public class OnBehalfOfOutInterceptor extends AbstractPhaseInterceptor<Message> 
 
     private String wrapTokenForTransport(byte[] token, TokenType tokenType) {
         switch (tokenType) {
-        case OIDC:
-            return wrapWithBinarySecurityToken(token, tokenType.valueType);
-        default:
-            throw new RuntimeException("unsupported token type:" + tokenType);
+            case OIDC:
+                return wrapWithBinarySecurityToken(token, tokenType.valueType);
+            default:
+                throw new RuntimeException("unsupported token type:" + tokenType);
         }
     }
 

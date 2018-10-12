@@ -5,7 +5,6 @@ import no.nav.security.oidc.OIDCConstants;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.oidc.context.OIDCValidationContext;
 import no.nav.syfo.config.ws.SykefravaersoppfoelgingConfig;
-import no.nav.syfo.consumer.util.ws.OnBehalfOfOutInterceptor;
 import no.nav.syfo.domain.rest.NaermesteLeder;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentNaermesteLederListeSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentNaermesteLedersAnsattListeSikkerhetsbegrensning;
@@ -14,8 +13,6 @@ import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNae
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNaermesteLederListeResponse;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNaermesteLedersAnsattListeRequest;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNaermesteLedersAnsattListeResponse;
-import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.frontend.ClientProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -50,16 +47,8 @@ public class SykefravaeroppfoelgingConsumer {
     public List<String> hentAnsatteAktorId(String aktoerId) {
         OIDCValidationContext oidcValidationContext = (OIDCValidationContext) this.contextHolder.getRequestAttribute(OIDCConstants.OIDC_VALIDATION_CONTEXT);
 
-        log.info("JTRACE 1 token: ", this.contextHolder.getOIDCValidationContext().getToken("selvbetjening").getIdToken());
-        log.info("JTRACE 2 token: ", this.contextHolder.getOIDCValidationContext().hasTokenFor("selvbetjening"));
-        log.info("JTRACE 3 token: ", this.contextHolder.getOIDCValidationContext().hasValidToken());
-        log.info("JTRACE 4 token: ", oidcValidationContext.getToken("selvbetjening"));
-        log.info("JTRACE 5 token: ", oidcValidationContext.hasTokenFor("selvbetjening"));
-        log.info("JTRACE 6 token: ", oidcValidationContext.hasValidToken());
-
         String oidcToken = tokenFraOIDC(oidcValidationContext);
 
-        log.error("Henter ansatte for aktoerId {} med token {}", aktoerId, oidcToken);
         try {
             WSHentNaermesteLedersAnsattListeResponse response = sykefravaersoppfoelgingConfig.hentNaermesteLedersAnsattListe(new WSHentNaermesteLedersAnsattListeRequest()
                     .withAktoerId(aktoerId), oidcToken);

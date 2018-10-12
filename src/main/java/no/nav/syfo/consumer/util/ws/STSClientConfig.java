@@ -1,6 +1,5 @@
 package no.nav.syfo.consumer.util.ws;
 
-import no.nav.security.oidc.context.OIDCValidationContext;
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -17,8 +16,6 @@ import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.neethi.Policy;
 
 import java.util.HashMap;
-
-import static no.nav.syfo.util.OIDCUtil.tokenFraOIDC;
 
 public class STSClientConfig {
     public static final String STS_URL_KEY = "SECURITYTOKENSERVICE_URL";
@@ -70,13 +67,15 @@ public class STSClientConfig {
         setEndpointPolicyReference(client, policyReference);
     }
 
-    /** Creating custom STS client because the STS on Datapower requires KeyType as a child to RequestSecurityToken and
+    /**
+     * Creating custom STS client because the STS on Datapower requires KeyType as a child to RequestSecurityToken and
      * TokenType as a child to SecondaryParameters. Standard CXF client put both elements in SecondaryParameters. By
      * overriding the useSecondaryParameters method you can exactly specify the request in the
      * RequestSecurityTokenTemplate in the policy.
      *
      * @param bus
-     * @return */
+     * @return
+     */
     protected static STSClient createCustomSTSClient(Bus bus) {
         return new STSClientWSTrust13and14(bus);
     }
