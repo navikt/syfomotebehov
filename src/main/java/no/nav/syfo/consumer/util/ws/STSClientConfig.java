@@ -38,12 +38,7 @@ public class STSClientConfig {
     }
 
     public static <T> T configureRequestSamlTokenOnBehalfOfOidc(T port) {
-        OIDCValidationContext oidcValidationContext = new OIDCValidationContext();
-        String oidcToken = tokenFraOIDC(oidcValidationContext);
-
         Client client = ClientProxy.getClient(port);
-        client.getRequestContext().put(OnBehalfOfOutInterceptor.REQUEST_CONTEXT_ONBEHALFOF_TOKEN_TYPE, OnBehalfOfOutInterceptor.TokenType.OIDC);
-        client.getRequestContext().put(OnBehalfOfOutInterceptor.REQUEST_CONTEXT_ONBEHALFOF_TOKEN, oidcToken);
         // Add interceptor to exctract token from request context and add to STS
         // request as the OnbehalfOf element. Could use a callbackhandler instead if the oidc token
         // can be retrieved from the thread, i.e. Spring SecurityContext etc, leaving this to the implementer of
