@@ -1,5 +1,8 @@
 package no.nav.syfo.consumer.util.ws;
 
+import no.nav.security.oidc.context.OIDCRequestContextHolder;
+import no.nav.security.oidc.context.OIDCValidationContext;
+import no.nav.syfo.util.OIDCUtil;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -45,8 +48,13 @@ public class OnBehalfOfOutInterceptor extends AbstractPhaseInterceptor<Message> 
     @Override
     public void handleMessage(Message message) throws Fault {
         logger.debug("looking up OnBehalfOfToken from requestcontext with key:" + REQUEST_CONTEXT_ONBEHALFOF_TOKEN);
-        String token = (String) message.get(REQUEST_CONTEXT_ONBEHALFOF_TOKEN);
-        TokenType tokenType = (TokenType) message.get(REQUEST_CONTEXT_ONBEHALFOF_TOKEN_TYPE);
+//        String token = (String) message.get(REQUEST_CONTEXT_ONBEHALFOF_TOKEN);
+
+
+        String token = OIDCUtil.tokenFraOIDC(new OIDCValidationContext());
+        TokenType tokenType = TokenType.OIDC;
+
+        logger.info("OnBehalfOfToken {}", token);
 
         if ((token != null) && (tokenType != null)) {
             byte[] tokenBytes = token.getBytes();

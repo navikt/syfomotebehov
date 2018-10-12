@@ -7,6 +7,11 @@ import no.nav.syfo.domain.rest.Fnr;
 
 public class OIDCUtil {
 
+    public static String tokenFraOIDC(OIDCValidationContext contextHolder) {
+        return contextHolder.getToken("selvbetjening").getIdToken();
+
+    }
+
     public static Fnr fnrFraOIDC(OIDCRequestContextHolder contextHolder) {
         OIDCValidationContext context = (OIDCValidationContext) contextHolder
                 .getRequestAttribute(OIDCConstants.OIDC_VALIDATION_CONTEXT);
