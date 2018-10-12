@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.ws.rs.ForbiddenException;
 
 import static no.nav.syfo.util.OIDCUtil.fnrFraOIDC;
 
@@ -42,8 +43,12 @@ public class TilgangService {
         }
         String oppslaattAktoerId = aktoerConsumer.hentAktoerIdForFnr(fnr);
         String innloggetIdent = fnrFraOIDC(contextHolder).getFnr();
-        return !(sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetIdent, fnr)
-                || personConsumer.erBrukerKode6(oppslaattAktoerId));
+        try {
+            return !(sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetIdent, fnr)
+                    || personConsumer.erBrukerKode6(oppslaattAktoerId));
+        } catch (ForbiddenException e) {
+            return false;
+        }
     }
 
     private boolean sporOmNoenAndreEnnSegSelvEllerEgneAnsatteEllerLedere(String innloggetIdent, String oppslaattFnr) {
