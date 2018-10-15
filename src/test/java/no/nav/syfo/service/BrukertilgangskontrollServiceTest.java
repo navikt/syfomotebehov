@@ -1,7 +1,6 @@
 package no.nav.syfo.service;
 
 import com.nimbusds.jwt.SignedJWT;
-import no.nav.security.oidc.OIDCConstants;
 import no.nav.security.oidc.context.OIDCClaims;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.oidc.context.OIDCValidationContext;
@@ -10,8 +9,6 @@ import no.nav.security.spring.oidc.test.JwtTokenGenerator;
 import no.nav.syfo.consumer.ws.AktoerConsumer;
 import no.nav.syfo.consumer.ws.PersonConsumer;
 import no.nav.syfo.consumer.ws.SykefravaeroppfoelgingConsumer;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Diskresjonskoder;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
