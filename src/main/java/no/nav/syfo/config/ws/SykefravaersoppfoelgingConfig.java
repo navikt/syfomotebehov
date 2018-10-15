@@ -42,16 +42,6 @@ public class SykefravaersoppfoelgingConfig {
         return port;
     }
 
-    @SuppressWarnings("unchecked")
-    public SykefravaersoppfoelgingV1 sykefravaersoppfoelgingConfig() {
-        if (this.port == null) {
-            SykefravaersoppfoelgingV1 port = new WsClient<SykefravaersoppfoelgingV1>().createPort(serviceUrl, SykefravaersoppfoelgingV1.class, singletonList(new LogErrorHandler()));
-            STSClientConfig.configureRequestSamlTokenOnBehalfOfOidc(port);
-            return port;
-        }
-        return port;
-    }
-
     public WSHentNaermesteLedersAnsattListeResponse hentNaermesteLedersAnsattListe(WSHentNaermesteLedersAnsattListeRequest request, String OIDCToken) throws HentNaermesteLedersAnsattListeSikkerhetsbegrensning {
         leggTilOnBehalfOfOutInterceptorForOIDC(ClientProxy.getClient(port), OIDCToken);
 
@@ -64,7 +54,7 @@ public class SykefravaersoppfoelgingConfig {
         return port.hentNaermesteLederListe(request);
     }
 
-    private void leggTilOnBehalfOfOutInterceptorForOIDC( Client client, String OIDCToken) {
+    private void leggTilOnBehalfOfOutInterceptorForOIDC(Client client, String OIDCToken) {
         client.getRequestContext().put(OnBehalfOfOutInterceptor.REQUEST_CONTEXT_ONBEHALFOF_TOKEN_TYPE, OnBehalfOfOutInterceptor.TokenType.OIDC);
         client.getRequestContext().put(OnBehalfOfOutInterceptor.REQUEST_CONTEXT_ONBEHALFOF_TOKEN, OIDCToken);
     }

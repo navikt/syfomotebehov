@@ -5,7 +5,6 @@ import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.consumer.ws.AktoerConsumer;
 import no.nav.syfo.consumer.ws.PersonConsumer;
 import no.nav.syfo.consumer.ws.SykefravaeroppfoelgingConsumer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -15,16 +14,15 @@ import static no.nav.syfo.util.OIDCUtil.fnrFraOIDCEkstern;
 
 @Service
 @Slf4j
-public class TilgangBrukerService {
+public class BrukertilgangService {
 
-    private String dev;
     private OIDCRequestContextHolder contextHolder;
     private AktoerConsumer aktoerConsumer;
     private PersonConsumer personConsumer;
     private SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer;
 
     @Inject
-    public TilgangBrukerService(final OIDCRequestContextHolder contextHolder,
+    public BrukertilgangService(final OIDCRequestContextHolder contextHolder,
                                 final AktoerConsumer aktoerConsumer,
                                 final PersonConsumer personConsumer,
                                 final SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer

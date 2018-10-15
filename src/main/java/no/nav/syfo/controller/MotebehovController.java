@@ -9,7 +9,7 @@ import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.NyttMotebehov;
 import no.nav.syfo.service.MotebehovService;
-import no.nav.syfo.service.TilgangBrukerService;
+import no.nav.syfo.service.BrukertilgangService;
 import no.nav.syfo.util.Toggle;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,16 +35,16 @@ public class MotebehovController {
 
     private OIDCRequestContextHolder contextHolder;
     private MotebehovService motebehovService;
-    private TilgangBrukerService tilgangBrukerService;
+    private BrukertilgangService brukertilgangService;
 
     @Inject
     public MotebehovController(final OIDCRequestContextHolder contextHolder,
                                final MotebehovService motebehovService,
-                               final TilgangBrukerService tilgangBrukerService
+                               final BrukertilgangService brukertilgangService
     ) {
         this.contextHolder = contextHolder;
         this.motebehovService = motebehovService;
-        this.tilgangBrukerService = tilgangBrukerService;
+        this.brukertilgangService = brukertilgangService;
     }
 
     @ResponseBody
@@ -55,7 +55,7 @@ public class MotebehovController {
     ) {
         if (Toggle.endepunkterForMotebehov) {
             Fnr fnr = Fnr.of(arbeidstakerFnr);
-            if (!tilgangBrukerService.harTilgangTilOppslaattBruker(fnr.getFnr())) {
+            if (!brukertilgangService.harTilgangTilOppslaattBruker(fnr.getFnr())) {
                 throw new ForbiddenException();
             }
             if (!virksomhetsnummer.isEmpty()) {
@@ -72,7 +72,7 @@ public class MotebehovController {
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public void lagreMotebehov(@RequestBody @Valid NyttMotebehov lagreMotebehov) {
         if (Toggle.endepunkterForMotebehov) {
-            if (!tilgangBrukerService.harTilgangTilOppslaattBruker(lagreMotebehov.arbeidstakerFnr.getFnr())) {
+            if (!brukertilgangService.harTilgangTilOppslaattBruker(lagreMotebehov.arbeidstakerFnr.getFnr())) {
                 throw new ForbiddenException();
             }
             motebehovService.lagreMotebehov(fnrFraOIDC(), lagreMotebehov);
