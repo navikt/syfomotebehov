@@ -24,13 +24,11 @@ public class TilgangBrukerService {
     private SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer;
 
     @Inject
-    public TilgangBrukerService(@Value("${dev}") String dev,
-                                final OIDCRequestContextHolder contextHolder,
+    public TilgangBrukerService(final OIDCRequestContextHolder contextHolder,
                                 final AktoerConsumer aktoerConsumer,
                                 final PersonConsumer personConsumer,
                                 final SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer
     ) {
-        this.dev = dev;
         this.contextHolder = contextHolder;
         this.aktoerConsumer = aktoerConsumer;
         this.personConsumer = personConsumer;
@@ -38,9 +36,6 @@ public class TilgangBrukerService {
     }
 
     public boolean harTilgangTilOppslaattBruker(String fnr) {
-        if ("true".equals(dev)) {
-            return true;
-        }
         String oppslaattAktoerId = aktoerConsumer.hentAktoerIdForFnr(fnr);
         String innloggetIdent = fnrFraOIDCEkstern(contextHolder).getFnr();
         try {

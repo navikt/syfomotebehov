@@ -1,9 +1,13 @@
 package no.nav.syfo.mock;
 
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.*;
+import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.informasjon.WSAnsatt;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+
+import static java.util.Arrays.asList;
+import static no.nav.syfo.controller.MotebehovComponentTest.ARBEIDSTAKER_AKTORID;
 
 @Service
 @ConditionalOnProperty(value = "mockSykefravaeroppfoelging_V1", havingValue = "true")
@@ -31,7 +35,11 @@ public class SykefravaeroppfoelgingMock implements SykefravaersoppfoelgingV1 {
 
     @Override
     public WSHentNaermesteLedersAnsattListeResponse hentNaermesteLedersAnsattListe(WSHentNaermesteLedersAnsattListeRequest request) throws HentNaermesteLedersAnsattListeSikkerhetsbegrensning {
-        return null;
+        return new WSHentNaermesteLedersAnsattListeResponse()
+                .withAnsattListe(asList(
+                        new WSAnsatt()
+                            .withAktoerId(ARBEIDSTAKER_AKTORID)
+                ));
     }
 
     @Override

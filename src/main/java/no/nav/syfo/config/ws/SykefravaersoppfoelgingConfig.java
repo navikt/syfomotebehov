@@ -42,6 +42,16 @@ public class SykefravaersoppfoelgingConfig {
         return port;
     }
 
+    @SuppressWarnings("unchecked")
+    public SykefravaersoppfoelgingV1 sykefravaersoppfoelgingConfig() {
+        if (this.port == null) {
+            SykefravaersoppfoelgingV1 port = new WsClient<SykefravaersoppfoelgingV1>().createPort(serviceUrl, SykefravaersoppfoelgingV1.class, singletonList(new LogErrorHandler()));
+            STSClientConfig.configureRequestSamlTokenOnBehalfOfOidc(port);
+            return port;
+        }
+        return port;
+    }
+
     public WSHentNaermesteLedersAnsattListeResponse hentNaermesteLedersAnsattListe(WSHentNaermesteLedersAnsattListeRequest request, String OIDCToken) throws HentNaermesteLedersAnsattListeSikkerhetsbegrensning {
         leggTilOnBehalfOfOutInterceptorForOIDC(ClientProxy.getClient(port), OIDCToken);
 

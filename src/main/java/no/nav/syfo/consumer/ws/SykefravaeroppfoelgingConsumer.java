@@ -15,6 +15,7 @@ import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNae
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNaermesteLedersAnsattListeRequest;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentNaermesteLedersAnsattListeResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -32,25 +33,34 @@ import static no.nav.syfo.util.OIDCUtil.tokenFraOIDC;
 @Slf4j
 public class SykefravaeroppfoelgingConsumer {
 
+    @Value("${dev}")
+    private String dev;
     private OIDCRequestContextHolder contextHolder;
     private SykefravaersoppfoelgingV1 sykefravaersoppfoelgingV1;
-    @Autowired
     private SykefravaersoppfoelgingConfig sykefravaersoppfoelgingConfig;
 
     @Inject
     public SykefravaeroppfoelgingConsumer(final OIDCRequestContextHolder contextHolder,
-                                          final SykefravaersoppfoelgingV1 sykefravaersoppfoelgingV1
+                                          final SykefravaersoppfoelgingV1 sykefravaersoppfoelgingV1,
+                                          final SykefravaersoppfoelgingConfig sykefravaersoppfoelgingConfig
     ) {
         this.contextHolder = contextHolder;
         this.sykefravaersoppfoelgingV1 = sykefravaersoppfoelgingV1;
+        this.sykefravaersoppfoelgingConfig = sykefravaersoppfoelgingConfig;
     }
 
     public List<String> hentAnsatteAktorId(String aktoerId) {
         String oidcToken = tokenFraOIDC((OIDCValidationContext) this.contextHolder.getRequestAttribute(OIDCConstants.OIDC_VALIDATION_CONTEXT), OIDCIssuer.EKSTERN);
 
         try {
-            WSHentNaermesteLedersAnsattListeResponse response = sykefravaersoppfoelgingConfig.hentNaermesteLedersAnsattListe(new WSHentNaermesteLedersAnsattListeRequest()
-                    .withAktoerId(aktoerId), oidcToken);
+            WSHentNaermesteLedersAnsattListeRequest request = new WSHentNaermesteLedersAnsattListeRequest()
+                    .withAktoerId(aktoerId);
+            WSHentNaermesteLedersAnsattListeResponse response;
+            if ("true".equals(dev)) {
+                response = sykefravaersoppfoelgingV1.hentNaermesteLedersAnsattListe(request);
+            } else {
+                response = sykefravaersoppfoelgingConfig.hentNaermesteLedersAnsattListe(request, oidcToken);
+            }
             return mapListe(response.getAnsattListe(), wsAnsatt2AktorId);
         } catch (HentNaermesteLedersAnsattListeSikkerhetsbegrensning e) {
             log.warn("{} fikk sikkerhetsbegrensning {} ved henting av ansatte for person {}", fnrFraOIDCEkstern(contextHolder), e.getFaultInfo().getFeilaarsak().toUpperCase(), aktoerId);
@@ -67,10 +77,15 @@ public class SykefravaeroppfoelgingConsumer {
         String oidcToken = tokenFraOIDC((OIDCValidationContext) this.contextHolder.getRequestAttribute(OIDCConstants.OIDC_VALIDATION_CONTEXT), OIDCIssuer.EKSTERN);
 
         try {
-            log.error("Henter ledere for aktoerId", aktoerId);
-            WSHentNaermesteLederListeResponse response = sykefravaersoppfoelgingConfig.hentNaermesteLederListe(new WSHentNaermesteLederListeRequest()
+            WSHentNaermesteLederListeRequest request = new WSHentNaermesteLederListeRequest()
                     .withAktoerId(aktoerId)
-                    .withKunAktive(false), oidcToken);
+                    .withKunAktive(false);
+            WSHentNaermesteLederListeResponse response;
+            if ("true".equals(dev)) {
+                response = sykefravaersoppfoelgingV1.hentNaermesteLederListe(request);
+            } else {
+                response = sykefravaersoppfoelgingConfig.hentNaermesteLederListe(request, oidcToken);
+            }
             return mapListe(response.getNaermesteLederListe(), ws2naermesteLeder);
         } catch (HentNaermesteLederListeSikkerhetsbegrensning e) {
             log.warn("{} fikk sikkerhetsbegrensning {} ved henting av naermeste ledere for person {}", fnrFraOIDCEkstern(contextHolder), e.getFaultInfo().getFeilaarsak().toUpperCase(), aktoerId);

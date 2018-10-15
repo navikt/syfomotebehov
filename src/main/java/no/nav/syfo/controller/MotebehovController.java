@@ -72,11 +72,10 @@ public class MotebehovController {
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public void lagreMotebehov(@RequestBody @Valid NyttMotebehov lagreMotebehov) {
         if (Toggle.endepunkterForMotebehov) {
-            Fnr fnr = fnrFraOIDC();
-            if (!tilgangBrukerService.harTilgangTilOppslaattBruker(fnr.getFnr())) {
+            if (!tilgangBrukerService.harTilgangTilOppslaattBruker(lagreMotebehov.arbeidstakerFnr.getFnr())) {
                 throw new ForbiddenException();
             }
-            motebehovService.lagreMotebehov(fnr, lagreMotebehov);
+            motebehovService.lagreMotebehov(fnrFraOIDC(), lagreMotebehov);
         } else {
             log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");
         }
