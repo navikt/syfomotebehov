@@ -59,6 +59,7 @@ public class SykefravaeroppfoelgingConsumer {
                 response = sykefravaersoppfoelgingV1.hentNaermesteLedersAnsattListe(request);
             } else {
                 response = sykefravaersoppfoelgingConfig.hentNaermesteLedersAnsattListe(request, oidcToken);
+                log.error("JTRACE: Hentet ansatt {}", response.getAnsattListe().get(0).getAktoerId());
             }
             return mapListe(response.getAnsattListe(), wsAnsatt2AktorId);
         } catch (HentNaermesteLedersAnsattListeSikkerhetsbegrensning e) {
