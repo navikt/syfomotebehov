@@ -66,4 +66,31 @@ public class PersonConsumer implements InitializingBean {
         }
     }
 
+    public boolean erBrukerKode6(String aktoerId) {
+        return "6".equals(hentDiskresjonskodeForAktoer(aktoerId));
+    }
+
+    public String hentDiskresjonskodeForAktoer(String aktoerId) {
+        if (isBlank(aktoerId) || !aktoerId.matches("\\d{13}$")) {
+            log.error("Ugyldig format på aktoerId: " + aktoerId);
+            throw new IllegalArgumentException();
+        }
+        try {
+            Person person = personV3.hentPerson(new HentPersonRequest()
+                    .withAktoer(new AktoerId()
+                            .withAktoerId(aktoerId)))
+                    .getPerson();
+            return person.getDiskresjonskode().getValue();
+        } catch (HentPersonSikkerhetsbegrensning e) {
+            log.error("Fikk sikkerhetsbegrensing ved oppslag med aktoerId: " + aktoerId);
+            throw new ForbiddenException();
+        } catch (HentPersonPersonIkkeFunnet e) {
+            log.error("Fant ikke person med aktoerId: " + aktoerId);
+            throw new RuntimeException();
+        } catch (RuntimeException e) {
+            log.error("Fikk RuntimeException mot TPS med ved oppslag av aktoerId: " + aktoerId);
+            return "";
+        }
+    }
+
 }
