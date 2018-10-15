@@ -10,6 +10,7 @@ import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.NyttMotebehov;
 import no.nav.syfo.service.MotebehovService;
 import no.nav.syfo.service.BrukertilgangService;
+import no.nav.syfo.util.OIDCUtil;
 import no.nav.syfo.util.Toggle;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +25,7 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static no.nav.syfo.OIDCIssuer.EKSTERN;
+import static no.nav.syfo.util.OIDCUtil.fnrFraOIDCEkstern;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -55,9 +57,8 @@ public class MotebehovController {
     ) {
         if (Toggle.endepunkterForMotebehov) {
             Fnr fnr = Fnr.of(arbeidstakerFnr);
-            if (!brukertilgangService.harTilgangTilOppslaattBruker(fnr.getFnr())) {
-                throw new ForbiddenException();
-            }
+            brukertilgangService.sjekkTilgangTilOppslaattBruker(fnr.getFnr());
+
             if (!virksomhetsnummer.isEmpty()) {
                 return motebehovService.hentMotebehovListe(fnr, virksomhetsnummer);
             }
@@ -72,9 +73,8 @@ public class MotebehovController {
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public void lagreMotebehov(@RequestBody @Valid NyttMotebehov lagreMotebehov) {
         if (Toggle.endepunkterForMotebehov) {
-            if (!brukertilgangService.harTilgangTilOppslaattBruker(lagreMotebehov.arbeidstakerFnr.getFnr())) {
-                throw new ForbiddenException();
-            }
+            brukertilgangService.sjekkTilgangTilOppslaattBruker(lagreMotebehov.arbeidstakerFnr.getFnr());
+
             motebehovService.lagreMotebehov(fnrFraOIDC(), lagreMotebehov);
         } else {
             log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");

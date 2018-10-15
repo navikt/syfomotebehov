@@ -62,6 +62,8 @@ public class PersonMock implements PersonV3 {
                                 .withFornavn("Sygve")
                                 .withEtternavn("Sykmeldt")
                         )
+                        .withDiskresjonskode(new Diskresjonskoder()
+                            .withValue(""))
                 );
     }
 }

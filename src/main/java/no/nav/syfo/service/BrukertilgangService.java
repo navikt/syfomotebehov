@@ -33,9 +33,15 @@ public class BrukertilgangService {
         this.sykefravaeroppfoelgingConsumer = sykefravaeroppfoelgingConsumer;
     }
 
-    public boolean harTilgangTilOppslaattBruker(String fnr) {
-        String oppslaattAktoerId = aktoerConsumer.hentAktoerIdForFnr(fnr);
+    public void sjekkTilgangTilOppslaattBruker(String oppslaattBruker) {
         String innloggetIdent = fnrFraOIDCEkstern(contextHolder).getFnr();
+        if (!harTilgangTilOppslaattBruker(innloggetIdent, oppslaattBruker)) {
+            throw new ForbiddenException();
+        }
+    }
+
+    public boolean harTilgangTilOppslaattBruker(String innloggetIdent, String fnr) {
+        String oppslaattAktoerId = aktoerConsumer.hentAktoerIdForFnr(fnr);
         try {
             return !(sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetIdent, fnr)
                     || personConsumer.erBrukerKode6(oppslaattAktoerId));
@@ -44,12 +50,12 @@ public class BrukertilgangService {
         }
     }
 
-    private boolean sporOmNoenAndreEnnSegSelvEllerEgneAnsatteEllerLedere(String innloggetIdent, String oppslaattFnr) {
+    public boolean sporOmNoenAndreEnnSegSelvEllerEgneAnsatteEllerLedere(String innloggetIdent, String oppslaattFnr) {
         return !(sporInnloggetBrukerOmSegSelv(innloggetIdent, oppslaattFnr) || sporInnloggetBrukerOmEnAnsatt(innloggetIdent, oppslaattFnr) || sporInnloggetBrukerOmEnLeder(innloggetIdent, oppslaattFnr));
     }
 
 
-    private boolean sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(String innloggetIdent, String oppslaattFnr) {
+    public boolean sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(String innloggetIdent, String oppslaattFnr) {
         return !(sporInnloggetBrukerOmSegSelv(innloggetIdent, oppslaattFnr) || sporInnloggetBrukerOmEnAnsatt(innloggetIdent, oppslaattFnr));
     }
 

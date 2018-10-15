@@ -80,7 +80,7 @@ public class PersonConsumer implements InitializingBean {
                     .withAktoer(new AktoerId()
                             .withAktoerId(aktoerId)))
                     .getPerson();
-            return person.getDiskresjonskode().getKodeverksRef();
+            return person.getDiskresjonskode().getValue();
         } catch (HentPersonSikkerhetsbegrensning e) {
             log.error("Fikk sikkerhetsbegrensing ved oppslag med aktoerId: " + aktoerId);
             throw new ForbiddenException();
