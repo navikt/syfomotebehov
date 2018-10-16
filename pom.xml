@@ -39,7 +39,7 @@
         <aktoer.version>1.0</aktoer.version>
         <nav-person.version>3.4.1</nav-person.version>
         <sykefravaersoppfoelgingv1-tjenestespesifikasjon.version>1.0.20</sykefravaersoppfoelgingv1-tjenestespesifikasjon.version>
-        <organisasjonenhet-v2-tjenestespesifikasjon.version>1.0.6</organisasjonenhet-v2-tjenestespesifikasjon.version>
+        <organisasjonenhet-v2-tjenestespesifikasjon.version>2.1.0</organisasjonenhet-v2-tjenestespesifikasjon.version>
         <postgresql.version>42.2.4</postgresql.version>
     </properties>
 
