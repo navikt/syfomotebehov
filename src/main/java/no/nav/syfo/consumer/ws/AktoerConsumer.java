@@ -36,7 +36,7 @@ public class AktoerConsumer implements InitializingBean {
 
     @Cacheable("aktoerid")
     public String hentAktoerIdForFnr(String fnr) {
-        log.info("JTRACE: hentAktoerIdForFnr");
+        log.info("JTRACE: hentAktoerIdForFnr med fnr {}", fnr);
         try {
             return aktoerV2.hentAktoerIdForIdent(new WSHentAktoerIdForIdentRequest()
                     .withIdent(fnr)
@@ -49,7 +49,7 @@ public class AktoerConsumer implements InitializingBean {
 
     @Cacheable("aktoerfnr")
     public String hentFnrForAktoerId(String aktoerId) {
-        log.info("JTRACE: hentFnrForAktoerId");
+        log.info("JTRACE: hentFnrForAktoerId med aktoerId {}", aktoerId);
         try {
             return aktoerV2.hentIdentForAktoerId(
                     new WSHentIdentForAktoerIdRequest()
