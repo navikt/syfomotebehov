@@ -8,6 +8,7 @@ import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.NyttMotebehov;
+import no.nav.syfo.service.BrukertilgangService;
 import no.nav.syfo.service.MotebehovService;
 import no.nav.syfo.util.Toggle;
 import org.springframework.web.bind.annotation.*;
@@ -33,12 +34,16 @@ public class MotebehovBrukerController {
 
     private OIDCRequestContextHolder contextHolder;
     private MotebehovService motebehovService;
+    private BrukertilgangService brukertilgangService;
 
     @Inject
-    public MotebehovBrukerController(final OIDCRequestContextHolder contextHolder,
-                                     final MotebehovService motebehovService) {
+    public MotebehovController(final OIDCRequestContextHolder contextHolder,
+                               final MotebehovService motebehovService,
+                               final BrukertilgangService brukertilgangService
+    ) {
         this.contextHolder = contextHolder;
         this.motebehovService = motebehovService;
+        this.brukertilgangService = brukertilgangService;
     }
 
     @ResponseBody
@@ -48,10 +53,13 @@ public class MotebehovBrukerController {
             @RequestParam(name = "virksomhetsnummer") String virksomhetsnummer
     ) {
         if (Toggle.endepunkterForMotebehov) {
+            Fnr fnr = Fnr.of(arbeidstakerFnr);
+            brukertilgangService.sjekkTilgangTilOppslaattBruker(fnr.getFnr());
+
             if (!virksomhetsnummer.isEmpty()) {
-                return motebehovService.hentMotebehovListe(Fnr.of(arbeidstakerFnr), virksomhetsnummer);
+                return motebehovService.hentMotebehovListe(fnr, virksomhetsnummer);
             }
-            return motebehovService.hentMotebehovListe(Fnr.of(arbeidstakerFnr));
+            return motebehovService.hentMotebehovListe(fnr);
         } else {
             log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");
             return emptyList();
@@ -62,6 +70,8 @@ public class MotebehovBrukerController {
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public void lagreMotebehov(@RequestBody @Valid NyttMotebehov lagreMotebehov) {
         if (Toggle.endepunkterForMotebehov) {
+            brukertilgangService.sjekkTilgangTilOppslaattBruker(lagreMotebehov.arbeidstakerFnr.getFnr());
+
             motebehovService.lagreMotebehov(fnrFraOIDC(), lagreMotebehov);
         } else {
             log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");

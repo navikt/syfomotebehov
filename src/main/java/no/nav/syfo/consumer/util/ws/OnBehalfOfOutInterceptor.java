@@ -65,10 +65,10 @@ public class OnBehalfOfOutInterceptor extends AbstractPhaseInterceptor<Message> 
 
     private String wrapTokenForTransport(byte[] token, TokenType tokenType) {
         switch (tokenType) {
-        case OIDC:
-            return wrapWithBinarySecurityToken(token, tokenType.valueType);
-        default:
-            throw new RuntimeException("unsupported token type:" + tokenType);
+            case OIDC:
+                return wrapWithBinarySecurityToken(token, tokenType.valueType);
+            default:
+                throw new RuntimeException("unsupported token type:" + tokenType);
         }
     }
 

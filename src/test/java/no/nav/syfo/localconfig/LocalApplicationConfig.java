@@ -5,7 +5,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
+
+import static java.util.Arrays.asList;
 
 @Configuration
 @Import(TokenGeneratorConfiguration.class)
@@ -23,7 +26,9 @@ public class LocalApplicationConfig {
     }
 
     @Bean
-    public RestTemplate restTemplate(){
-        return new RestTemplate();
+    public RestTemplate restTemplate(ClientHttpRequestInterceptor... interceptors) {
+        RestTemplate template = new RestTemplate();
+        template.setInterceptors(asList(interceptors));
+        return template;
     }
 }

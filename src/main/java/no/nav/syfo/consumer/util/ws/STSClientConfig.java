@@ -17,14 +17,14 @@ import org.apache.neethi.Policy;
 
 import java.util.HashMap;
 
-class STSClientConfig {
+public class STSClientConfig {
     public static final String STS_URL_KEY = "SECURITYTOKENSERVICE_URL";
     public static final String SERVICEUSER_USERNAME = "SRVSYFOMOTEBEHOV_USERNAME";
     public static final String SERVICEUSER_PASSWORD = "SRVSYFOMOTEBEHOV_PASSWORD";
 
     // Only use no transportbinding on localhost, should use the requestSamlPolicy.xml with transport binding https
     // when in production.
-    private static final String STS_REQUEST_SAML_POLICY = "classpath:policy/requestSamlPolicyNoTransportBinding.xml";
+    private static final String STS_REQUEST_SAML_POLICY = "classpath:policy/requestSamlPolicy.xml";
     private static final String STS_CLIENT_AUTHENTICATION_POLICY = "classpath:policy/untPolicy.xml";
 
     public static <T> T configureRequestSamlToken(T port) {
@@ -41,6 +41,7 @@ class STSClientConfig {
         // can be retrieved from the thread, i.e. Spring SecurityContext etc, leaving this to the implementer of
         // the application.
         client.getOutInterceptors().add(new OnBehalfOfOutInterceptor());
+
         // want to cache the token with the OnBehalfOfToken, not per proxy
         configureStsRequestSamlToken(client, false);
         return port;
@@ -66,13 +67,15 @@ class STSClientConfig {
         setEndpointPolicyReference(client, policyReference);
     }
 
-    /** Creating custom STS client because the STS on Datapower requires KeyType as a child to RequestSecurityToken and
+    /**
+     * Creating custom STS client because the STS on Datapower requires KeyType as a child to RequestSecurityToken and
      * TokenType as a child to SecondaryParameters. Standard CXF client put both elements in SecondaryParameters. By
      * overriding the useSecondaryParameters method you can exactly specify the request in the
      * RequestSecurityTokenTemplate in the policy.
      *
      * @param bus
-     * @return */
+     * @return
+     */
     protected static STSClient createCustomSTSClient(Bus bus) {
         return new STSClientWSTrust13and14(bus);
     }
