@@ -39,6 +39,7 @@
         <aktoer.version>1.0</aktoer.version>
         <nav-person.version>3.4.1</nav-person.version>
         <sykefravaersoppfoelgingv1-tjenestespesifikasjon.version>1.0.20</sykefravaersoppfoelgingv1-tjenestespesifikasjon.version>
+        <organisasjonenhet-v2-tjenestespesifikasjon.version>1.0.6</organisasjonenhet-v2-tjenestespesifikasjon.version>
         <postgresql.version>42.2.4</postgresql.version>
     </properties>
 
@@ -135,6 +136,11 @@
             <version>${sykefravaersoppfoelgingv1-tjenestespesifikasjon.version}</version>
         </dependency>
         <dependency>
+            <groupId>no.nav.sbl.dialogarena</groupId>
+            <artifactId>organisasjonenhet-v2-tjenestespesifikasjon</artifactId>
+            <version>${organisasjonenhet-v2-tjenestespesifikasjon.version}</version>
+        </dependency>
+        <dependency>
             <groupId>no.nav.security</groupId>
             <artifactId>oidc-spring-support</artifactId>
             <version>${oidc-spring-support.version}</version>
@@ -202,7 +208,18 @@
             <artifactId>flyway-core</artifactId>
             <version>${flyway-core.version}</version>
         </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-common</artifactId>
+            <version>2.26</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
+
+
 
     <build>
         <extensions>
