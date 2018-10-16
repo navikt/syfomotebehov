@@ -9,6 +9,7 @@ import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.NyttMotebehov;
 import no.nav.syfo.service.BrukertilgangService;
+import no.nav.syfo.service.GeografiskTilgangService;
 import no.nav.syfo.service.MotebehovService;
 import no.nav.syfo.util.Toggle;
 import org.springframework.web.bind.annotation.*;
@@ -18,11 +19,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
+import javax.ws.rs.ForbiddenException;
 import java.io.IOException;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static no.nav.syfo.OIDCIssuer.EKSTERN;
+import static no.nav.syfo.util.OIDCUtil.fnrFraOIDCEkstern;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -35,15 +38,17 @@ public class MotebehovBrukerController {
     private OIDCRequestContextHolder contextHolder;
     private MotebehovService motebehovService;
     private BrukertilgangService brukertilgangService;
+    private GeografiskTilgangService geografiskTilgangService;
 
     @Inject
     public MotebehovBrukerController(final OIDCRequestContextHolder contextHolder,
                                final MotebehovService motebehovService,
-                               final BrukertilgangService brukertilgangService
-    ) {
+                               final BrukertilgangService brukertilgangService,
+                               final GeografiskTilgangService geografiskTilgangService) {
         this.contextHolder = contextHolder;
         this.motebehovService = motebehovService;
         this.brukertilgangService = brukertilgangService;
+        this.geografiskTilgangService = geografiskTilgangService;
     }
 
     @ResponseBody
@@ -54,7 +59,8 @@ public class MotebehovBrukerController {
     ) {
         if (Toggle.endepunkterForMotebehov) {
             Fnr fnr = Fnr.of(arbeidstakerFnr);
-            brukertilgangService.sjekkTilgangTilOppslaattBruker(fnr.getFnr());
+
+            kastExceptionHvisIkkeTilgang(fnr.getFnr());
 
             if (!virksomhetsnummer.isEmpty()) {
                 return motebehovService.hentMotebehovListe(fnr, virksomhetsnummer);
@@ -70,7 +76,7 @@ public class MotebehovBrukerController {
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public void lagreMotebehov(@RequestBody @Valid NyttMotebehov lagreMotebehov) {
         if (Toggle.endepunkterForMotebehov) {
-            brukertilgangService.sjekkTilgangTilOppslaattBruker(lagreMotebehov.arbeidstakerFnr.getFnr());
+            kastExceptionHvisIkkeTilgang(lagreMotebehov.arbeidstakerFnr.getFnr());
 
             motebehovService.lagreMotebehov(fnrFraOIDC(), lagreMotebehov);
         } else {
@@ -84,6 +90,12 @@ public class MotebehovBrukerController {
         return Fnr.of(context.getClaims("selvbetjening").getClaimSet().getSubject());
     }
 
+    private void kastExceptionHvisIkkeTilgang(String fnr){
+        String innloggetIdent = fnrFraOIDCEkstern(contextHolder).getFnr();
+        if(!geografiskTilgangService.erBrukerTilhorendeMotebehovPilot(fnr) || !brukertilgangService.harTilgangTilOppslaattBruker(innloggetIdent, fnr)){
+            throw new ForbiddenException("Ikke tilgang");
+        }
+    }
 
     @ExceptionHandler({IllegalArgumentException.class, ConstraintViolationException.class})
     void handleBadRequests(HttpServletResponse response) throws IOException {
