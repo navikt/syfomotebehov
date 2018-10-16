@@ -39,6 +39,7 @@
         <aktoer.version>1.0</aktoer.version>
         <nav-person.version>3.4.1</nav-person.version>
         <sykefravaersoppfoelgingv1-tjenestespesifikasjon.version>1.0.20</sykefravaersoppfoelgingv1-tjenestespesifikasjon.version>
+        <organisasjonenhet-v2-tjenestespesifikasjon.version>2.1.0</organisasjonenhet-v2-tjenestespesifikasjon.version>
         <postgresql.version>42.2.4</postgresql.version>
     </properties>
 
@@ -133,6 +134,11 @@
             <groupId>no.nav.syfo.tjenester</groupId>
             <artifactId>sykefravaersoppfoelgingv1-tjenestespesifikasjon</artifactId>
             <version>${sykefravaersoppfoelgingv1-tjenestespesifikasjon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.sbl.dialogarena</groupId>
+            <artifactId>organisasjonenhet-v2-tjenestespesifikasjon</artifactId>
+            <version>${organisasjonenhet-v2-tjenestespesifikasjon.version}</version>
         </dependency>
         <dependency>
             <groupId>no.nav.security</groupId>
