@@ -33,13 +33,6 @@ public class BrukertilgangService {
         this.sykefravaeroppfoelgingConsumer = sykefravaeroppfoelgingConsumer;
     }
 
-    public void sjekkTilgangTilOppslaattBruker(String oppslaattBruker) {
-        String innloggetIdent = fnrFraOIDCEkstern(contextHolder).getFnr();
-        if (!harTilgangTilOppslaattBruker(innloggetIdent, oppslaattBruker)) {
-            throw new ForbiddenException();
-        }
-    }
-
     public boolean harTilgangTilOppslaattBruker(String innloggetIdent, String fnr) {
         String oppslaattAktoerId = aktoerConsumer.hentAktoerIdForFnr(fnr);
         try {
