@@ -30,14 +30,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @ProtectedWithClaims(issuer = EKSTERN, claimMap = {"acr=Level4"})
 @RequestMapping(value = "/api/motebehov")
-public class MotebehovController {
+public class MotebehovBrukerController {
 
     private OIDCRequestContextHolder contextHolder;
     private MotebehovService motebehovService;
     private BrukertilgangService brukertilgangService;
 
     @Inject
-    public MotebehovController(final OIDCRequestContextHolder contextHolder,
+    public MotebehovBrukerController(final OIDCRequestContextHolder contextHolder,
                                final MotebehovService motebehovService,
                                final BrukertilgangService brukertilgangService
     ) {

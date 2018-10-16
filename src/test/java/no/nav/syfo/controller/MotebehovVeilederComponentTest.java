@@ -12,16 +12,28 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.client.RestTemplate;
 
 import javax.inject.Inject;
 import java.util.List;
 
-import static no.nav.syfo.util.OidcTestHelper.loggInnBruker;
-import static no.nav.syfo.util.OidcTestHelper.loggUtAlle;
+import static no.nav.syfo.service.VeilederTilgangService.FNR;
+import static no.nav.syfo.service.VeilederTilgangService.TILGANG_TIL_BRUKER_PATH;
+import static no.nav.syfo.util.OidcTestHelper.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.test.web.client.ExpectedCount.manyTimes;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
 /**
  * Komponent / blackbox test av møtebehovsfunskjonaliteten - test at input til endepunktet (controlleren, for enkelhets skyld)
@@ -30,16 +42,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = LocalApplication.class)
 @DirtiesContext
-public class MotebehovComponentTest {
+public class MotebehovVeilederComponentTest {
 
     private static final String ARBEIDSTAKER_FNR = "12345678910";
-    public static final String ARBEIDSTAKER_AKTORID = AktoerMock.mockAktorId(ARBEIDSTAKER_FNR);
     private static final String LEDER_FNR = "10987654321";
-    public static final String LEDER_AKTORID = AktoerMock.mockAktorId(LEDER_FNR);
+    private static final String LEDER_AKTORID = AktoerMock.mockAktorId(LEDER_FNR);
     private static final String VIRKSOMHETSNUMMER = "1234";
+    private static final String VEILEDER_ID = "Z999999";
+    @Value("${tilgangskontrollapi.url}")
+    private String tilgangskontrollUrl;
 
     @Inject
     private MotebehovBrukerController motebehovController;
+
+    @Inject
+    private MotebehovVeilederController motebehovVeilederController;
 
     @Inject
     private OIDCRequestContextHolder oidcRequestContextHolder;
@@ -47,20 +64,29 @@ public class MotebehovComponentTest {
     @Inject
     private MotebehovDAO motebehovDAO;
 
+    @Inject
+    private RestTemplate restTemplate;
+
+    private MockRestServiceServer mockRestServiceServer;
+
     @Before
     public void setUp() {
-        loggInnBruker(oidcRequestContextHolder, LEDER_FNR);
         cleanDB();
+        this.mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build();
     }
 
     @After
     public void tearDown() {
+        // Verify all expectations met
+        mockRestServiceServer.verify();
         loggUtAlle(oidcRequestContextHolder);
         cleanDB();
     }
 
     @Test
-    public void lagreOgHentMotebehov() {
+    public void arbeidsgiverLagrerOgVeilederHenterMotebehov() {
+        // Nærmeste leder lagrer møtebehov
+        loggInnBruker(oidcRequestContextHolder, LEDER_FNR);
         final MotebehovSvar motebehovSvar = new MotebehovSvar()
                 .harMotebehov(true)
                 .friskmeldingForventning("Om en uke")
@@ -75,11 +101,13 @@ public class MotebehovComponentTest {
                         motebehovSvar
                 );
 
-        // Lagre
         motebehovController.lagreMotebehov(lagreMotebehov);
 
-        // Hent
-        List<Motebehov> motebehovListe = motebehovController.hentMotebehovListe(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
+        // Veileder henter møtebehov
+        loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
+        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, OK);
+
+        List<Motebehov> motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR);
         assertThat(motebehovListe).size().isOne();
 
         Motebehov motebehov = motebehovListe.get(0);
@@ -89,6 +117,20 @@ public class MotebehovComponentTest {
         assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(motebehovSvar);
     }
 
+
+    private void mockSvarFraSyfoTilgangskontroll(String fnr, HttpStatus status){
+        String uriString = fromHttpUrl(tilgangskontrollUrl)
+                .path(TILGANG_TIL_BRUKER_PATH)
+                .queryParam(FNR, fnr)
+                .toUriString();
+
+        String idToken = oidcRequestContextHolder.getOIDCValidationContext().getToken("intern").getIdToken();
+
+        mockRestServiceServer.expect(manyTimes(), requestTo(uriString))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(AUTHORIZATION, "Bearer " + idToken))
+                .andRespond(withStatus(status));
+    }
 
     private void cleanDB() {
         motebehovDAO.nullstillMotebehov(LEDER_AKTORID);
