@@ -31,7 +31,10 @@ public class GeografiskTilgangService {
 
     public List<String> hentBrukersNavKontorForGeografiskTilknytning(String fnr) {
         final String geografiskTilknytning = personConsumer.hentGeografiskTilknytning(fnr);
-        return organisasjonEnhetConsumer.finnNAVKontorForGT(geografiskTilknytning);
+        log.info("MOTEBEHOV-TRACE: geografiskTilknytning {}, fnr {}", geografiskTilknytning, fnr);
+        List<String> navKontor = organisasjonEnhetConsumer.finnNAVKontorForGT(geografiskTilknytning);
+        log.info("MOTEBEHOV-TRACE: navkontor {}, fnr {}", navKontor.get(0), fnr);
+        return navKontor;
     }
 
     public List<String> hentPilotKontorer() {
