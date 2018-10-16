@@ -37,7 +37,7 @@ public class MotebehovBrukerController {
     private BrukertilgangService brukertilgangService;
 
     @Inject
-    public MotebehovController(final OIDCRequestContextHolder contextHolder,
+    public MotebehovBrukerController(final OIDCRequestContextHolder contextHolder,
                                final MotebehovService motebehovService,
                                final BrukertilgangService brukertilgangService
     ) {
