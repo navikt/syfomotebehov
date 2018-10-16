@@ -27,6 +27,8 @@ toggle.enable:
   nullstill: true
   motebehov: true
 
+toggle.mvp.kontorer: "0330"
+
 no.nav.security.oidc:
   issuers: selvbetjening
   issuer:
@@ -38,11 +40,13 @@ aktoer.v2.endpointurl: "aktoerv2.url"
 sykefravaersoppfoelging.v1.endpointurl: "sykefravaeroppfoelgingv1.url"
 virksomhet:
   person.v3.endpointurl: "personv3.url"
+  organisasjonEnhet.v2.endpointurl: "organisasjonEnhetv2.url"
 
 fasit.environment.name: 'local'
 
 mockAktoer_V2: true
 mockPerson_V3: true
+mockOrganisasjonEnhet_V2: true
 mockSykefravaeroppfoelging_V1: true
 
 dev: true

@@ -21,7 +21,8 @@ public class PersonMock implements PersonV3 {
     @Override
     public HentGeografiskTilknytningResponse hentGeografiskTilknytning(HentGeografiskTilknytningRequest hentGeografiskTilknytningRequest) {
         return new HentGeografiskTilknytningResponse()
-                .withGeografiskTilknytning(new Kommune());
+                .withGeografiskTilknytning(new Kommune()
+                        .withGeografiskTilknytning("030109"));
     }
 
     @Override
@@ -63,7 +64,7 @@ public class PersonMock implements PersonV3 {
                                 .withEtternavn("Sykmeldt")
                         )
                         .withDiskresjonskode(new Diskresjonskoder()
-                            .withValue(""))
+                                .withValue(""))
                 );
     }
 }
