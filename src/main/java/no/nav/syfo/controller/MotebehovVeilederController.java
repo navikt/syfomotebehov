@@ -5,6 +5,7 @@ import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Historikk;
 import no.nav.syfo.domain.rest.Motebehov;
+import no.nav.syfo.service.GeografiskTilgangService;
 import no.nav.syfo.service.HistorikkService;
 import no.nav.syfo.service.MotebehovService;
 import no.nav.syfo.service.VeilederTilgangService;
@@ -36,14 +37,18 @@ public class MotebehovVeilederController {
 
     private VeilederTilgangService veilederTilgangService;
 
+    private GeografiskTilgangService geografiskTilgangService;
+
     @Inject
     public MotebehovVeilederController(
             final HistorikkService historikkService,
             final MotebehovService motebehovService,
-            final VeilederTilgangService tilgangService) {
+            final VeilederTilgangService tilgangService,
+            final GeografiskTilgangService geografiskTilgangService) {
         this.historikkService = historikkService;
         this.motebehovService = motebehovService;
         this.veilederTilgangService = tilgangService;
+        this.geografiskTilgangService = geografiskTilgangService;
     }
 
     @ResponseBody
@@ -52,6 +57,10 @@ public class MotebehovVeilederController {
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public List<Motebehov> hentMotebehovListe(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
         if (Toggle.endepunkterForMotebehov) {
+            if(!geografiskTilgangService.erBrukerTilhorendeMotebehovPilot(arbeidstakerFnr)){
+                log.info("Det ble gjort kall mot 'veileder/motebehov' men sykmeldt er ikke i et av pilotkontorene");
+                throw new ForbiddenException("Sykmeldt hører ikke til et av pilotkontorene");
+            }
             if(veilederTilgangService.sjekkVeiledersTilgangTilPerson(arbeidstakerFnr)) {
                 return motebehovService.hentMotebehovListe(Fnr.of(arbeidstakerFnr));
             } else {
@@ -69,6 +78,10 @@ public class MotebehovVeilederController {
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public List<Historikk> hentMotebehovHistorikk(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
         if (Toggle.endepunkterForMotebehov) {
+            if(!geografiskTilgangService.erBrukerTilhorendeMotebehovPilot(arbeidstakerFnr)){
+                log.info("Det ble gjort kall mot 'veileder/motebehov' men sykmeldt er ikke i et av pilotkontorene");
+                throw new ForbiddenException("Sykmeldt hører ikke til et av pilotkontorene");
+            }
             if(veilederTilgangService.sjekkVeiledersTilgangTilPerson(arbeidstakerFnr)) {
                 return historikkService.hentHistorikkListe(Fnr.of(arbeidstakerFnr));
             } else {
