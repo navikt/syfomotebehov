@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 import java.util.List;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.of;
@@ -42,12 +41,7 @@ public class OrganisasjonEnhetConsumer  implements InitializingBean {
     }
 
     public List<String> finnNAVKontorForGT(String geografiskTilknytning) {
-        if("030109".equals(geografiskTilknytning)){
-            return asList("0330");
-        } else{
-            return asList("0314");
-        }
-        /*try {
+        try {
             return of(organisasjonEnhetV2.finnNAVKontor(
                     new WSFinnNAVKontorRequest()
                             .withGeografiskTilknytning(
@@ -61,7 +55,7 @@ public class OrganisasjonEnhetConsumer  implements InitializingBean {
                 RuntimeException e) {
             log.info("Finner ikke NAV-kontor for geografisk tilknytning " + geografiskTilknytning, e);
             return emptyList();
-        }*/
+        }
     }
 
 }
