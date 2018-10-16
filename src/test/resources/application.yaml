@@ -45,6 +45,4 @@ syfoveilederoppgaver_system_v1.url: "https://app-q1.adeo.no/syfoveilederoppgaver
 syfoveilederoppgaver.systemapi.username: "dummy"
 syfoveilederoppgaver.systemapi.password: "test123"
 
-srvsyfo-tilgangskontroll.username: "dummy"
-srvsyfo-tilgangskontroll.password: "test123"
 tilgangskontrollapi.url: "https://www.ikke.no"
