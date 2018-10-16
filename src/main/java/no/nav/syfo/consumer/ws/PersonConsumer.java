@@ -42,6 +42,7 @@ public class PersonConsumer implements InitializingBean {
 
     @Cacheable("personnavn")
     public String hentNavnFraAktoerId(String aktoerId) {
+        log.info("JTRACE: hentNavnFraAktoerId med aktoerId {}", aktoerId);
         if (isBlank(aktoerId) || !aktoerId.matches("\\d{13}$")) {
             log.error("Ugyldig format på aktoerId: " + aktoerId);
             throw new IllegalArgumentException();

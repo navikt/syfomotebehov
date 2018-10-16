@@ -1,5 +1,6 @@
 package no.nav.syfo.service;
 
+import no.nav.syfo.consumer.ws.AktoerConsumer;
 import no.nav.syfo.consumer.ws.PersonConsumer;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Historikk;
@@ -22,17 +23,22 @@ public class HistorikkService {
     private final MotebehovService motebehovService;
     private final VeilederOppgaverService veilederOppgaverService;
     private final PersonConsumer personConsumer;
+    private final AktoerConsumer aktoerConsumer;
 
     @Inject
     public HistorikkService(final MotebehovService motebehovService,
                             final VeilederOppgaverService veilederOppgaverService,
+                            final AktoerConsumer aktoerConsumer,
                             final PersonConsumer personConsumer) {
         this.veilederOppgaverService = veilederOppgaverService;
         this.motebehovService = motebehovService;
         this.personConsumer = personConsumer;
+        this.aktoerConsumer = aktoerConsumer;
     }
 
     public List<Historikk> hentHistorikkListe(final Fnr arbeidstakerFnr) {
+        String person = personConsumer.hentNavnFraAktoerId(aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr()));
+        
         List<Motebehov> motebehovListe = motebehovService.hentMotebehovListe(arbeidstakerFnr);
 
         List<Historikk> utfoertHistorikk = veilederOppgaverService.get(arbeidstakerFnr.getFnr()).stream()
