@@ -42,7 +42,11 @@ public class OrganisasjonEnhetConsumer  implements InitializingBean {
     }
 
     public List<String> finnNAVKontorForGT(String geografiskTilknytning) {
-        return asList("0330");
+        if("030109".equals(geografiskTilknytning)){
+            return asList("0330");
+        } else{
+            return asList("0314");
+        }
         /*try {
             return of(organisasjonEnhetV2.finnNAVKontor(
                     new WSFinnNAVKontorRequest()

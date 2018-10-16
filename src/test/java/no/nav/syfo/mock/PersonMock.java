@@ -34,7 +34,7 @@ public class PersonMock implements PersonV3 {
     public HentGeografiskTilknytningResponse hentGeografiskTilknytning(HentGeografiskTilknytningRequest hentGeografiskTilknytningRequest) {
         return new HentGeografiskTilknytningResponse()
                 .withGeografiskTilknytning(new Kommune()
-                .withGeografiskTilknytning("Oslo"));
+                .withGeografiskTilknytning("030109"));
     }
 
     @Override
