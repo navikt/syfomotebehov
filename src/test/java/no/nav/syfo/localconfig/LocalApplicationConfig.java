@@ -1,9 +1,14 @@
 package no.nav.syfo.localconfig;
 
 import no.nav.security.spring.oidc.test.TokenGeneratorConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.web.client.RestTemplate;
+
+import static java.util.Arrays.asList;
 
 @Configuration
 @Import(TokenGeneratorConfiguration.class)
@@ -18,5 +23,12 @@ public class LocalApplicationConfig {
         System.setProperty("SECURITYTOKENSERVICE_URL", environment.getProperty("securitytokenservice.url"));
         System.setProperty("SRVSYFOMOTEBEHOV_USERNAME", environment.getProperty("srvsyfomotebehov.username"));
         System.setProperty("SRVSYFOMOTEBEHOV_PASSWORD", environment.getProperty("srvsyfomotebehov.password"));
+    }
+
+    @Bean
+    public RestTemplate restTemplate(ClientHttpRequestInterceptor... interceptors) {
+        RestTemplate template = new RestTemplate();
+        template.setInterceptors(asList(interceptors));
+        return template;
     }
 }
