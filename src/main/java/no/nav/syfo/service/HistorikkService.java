@@ -38,7 +38,7 @@ public class HistorikkService {
 
     public List<Historikk> hentHistorikkListe(final Fnr arbeidstakerFnr) {
         String person = personConsumer.hentNavnFraAktoerId(aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr()));
-        
+
         List<Motebehov> motebehovListe = motebehovService.hentMotebehovListe(arbeidstakerFnr);
 
         List<Historikk> utfoertHistorikk = veilederOppgaverService.get(arbeidstakerFnr.getFnr()).stream()

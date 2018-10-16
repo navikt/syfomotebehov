@@ -68,11 +68,7 @@ public class MotebehovVeilederController {
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public List<Historikk> hentMotebehovHistorikk(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
         if (Toggle.endepunkterForMotebehov) {
-            if(veilederTilgangService.sjekkVeiledersTilgangTilPerson(arbeidstakerFnr)) {
-                return historikkService.hentHistorikkListe(Fnr.of(arbeidstakerFnr));
-            } else {
-                throw new ForbiddenException("Veilederen har ikke tilgang til denne personen");
-            }
+            return historikkService.hentHistorikkListe(Fnr.of(arbeidstakerFnr));
         } else {
             log.info("Det ble gjort kall mot 'veileder/historikk', men dette endepunktet er togglet av.");
             return emptyList();
