@@ -9,6 +9,7 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personnavn;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,7 @@ import static org.apache.commons.lang3.text.WordUtils.capitalize;
 
 @Component
 @Slf4j
+@CacheConfig(cacheNames = "person")
 public class PersonConsumer implements InitializingBean {
 
     private static PersonConsumer instance;
