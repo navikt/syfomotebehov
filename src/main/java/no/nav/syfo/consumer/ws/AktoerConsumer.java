@@ -34,7 +34,7 @@ public class AktoerConsumer implements InitializingBean {
         this.aktoerV2 = aktoerV2;
     }
 
-    @Cacheable
+    @Cacheable("aktoerid")
     public String hentAktoerIdForFnr(String fnr) {
         try {
             return aktoerV2.hentAktoerIdForIdent(new WSHentAktoerIdForIdentRequest()
