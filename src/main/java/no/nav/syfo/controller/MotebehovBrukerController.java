@@ -18,12 +18,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
+import javax.ws.rs.ForbiddenException;
 import java.io.IOException;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static no.nav.syfo.OIDCIssuer.EKSTERN;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
@@ -88,6 +90,11 @@ public class MotebehovBrukerController {
     @ExceptionHandler({IllegalArgumentException.class, ConstraintViolationException.class})
     void handleBadRequests(HttpServletResponse response) throws IOException {
         response.sendError(BAD_REQUEST.value(), "Vi kunne ikke tolke inndataene :/");
+    }
+
+    @ExceptionHandler({ForbiddenException.class})
+    void handleForbiddenRequests(HttpServletResponse response) throws IOException {
+        response.sendError(FORBIDDEN.value(), "Handling er forbudt");
     }
 
 }
