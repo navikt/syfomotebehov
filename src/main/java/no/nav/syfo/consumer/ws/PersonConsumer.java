@@ -9,6 +9,7 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personnavn;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -39,6 +40,7 @@ public class PersonConsumer implements InitializingBean {
         this.personV3 = personV3;
     }
 
+    @Cacheable("personnavn")
     public String hentNavnFraAktoerId(String aktoerId) {
         if (isBlank(aktoerId) || !aktoerId.matches("\\d{13}$")) {
             log.error("Ugyldig format på aktoerId: " + aktoerId);
@@ -70,6 +72,7 @@ public class PersonConsumer implements InitializingBean {
         return "6".equals(hentDiskresjonskodeForAktoer(aktoerId));
     }
 
+    @Cacheable("persondiskresjonskode")
     public String hentDiskresjonskodeForAktoer(String aktoerId) {
         if (isBlank(aktoerId) || !aktoerId.matches("\\d{13}$")) {
             log.error("Ugyldig format på aktoerId: " + aktoerId);
