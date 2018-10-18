@@ -1,9 +1,11 @@
 package no.nav.syfo.service;
 
+import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.consumer.ws.AktoerConsumer;
 import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import no.nav.syfo.repository.domain.PMotebehov;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -22,6 +24,7 @@ import static no.nav.syfo.util.RestUtils.baseUrl;
  * Det er også nyttig å ha mappingen her (så lenge klassen er under en skjermlengde), slik at man ser den i sammenheng med stedet den blir brukt.
  */
 @Service
+@Slf4j
 public class MotebehovService {
 
     private final AktoerConsumer aktoerConsumer;
@@ -33,7 +36,9 @@ public class MotebehovService {
         this.motebehovDAO = motebehovDAO;
     }
 
+    @Cacheable("motebehovliste")
     public List<Motebehov> hentMotebehovListe(final Fnr arbeidstakerFnr) {
+        log.info("JTRACE: henter motebehovliste for arbeidstakerFnr {}", arbeidstakerFnr);
         final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
         return motebehovDAO.hentMotebehovListeForAktoer(arbeidstakerAktoerId)
                 .orElse(emptyList())
