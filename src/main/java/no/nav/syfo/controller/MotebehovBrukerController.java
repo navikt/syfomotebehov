@@ -27,6 +27,7 @@ import static java.util.Collections.emptyList;
 import static no.nav.syfo.OIDCIssuer.EKSTERN;
 import static no.nav.syfo.util.OIDCUtil.fnrFraOIDCEkstern;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
@@ -102,4 +103,8 @@ public class MotebehovBrukerController {
         response.sendError(BAD_REQUEST.value(), "Vi kunne ikke tolke inndataene :/");
     }
 
+    @ExceptionHandler({ForbiddenException.class})
+    void handleForbiddenRequests(HttpServletResponse response) throws IOException {
+        response.sendError(FORBIDDEN.value(), "Handling er forbudt");
+    }
 }
