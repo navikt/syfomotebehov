@@ -5,7 +5,6 @@ import no.nav.syfo.consumer.ws.AktoerConsumer;
 import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import no.nav.syfo.repository.domain.PMotebehov;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -20,7 +19,7 @@ import static no.nav.syfo.util.RestUtils.baseUrl;
 /**
  * MøtebehovService har ansvaret for å knytte sammen og oversette mellom REST-grensesnittet, andre tjenester (aktør-registeret)
  * og database-koblingen, slik at de ikke trenger å vite noe om hverandre. (Low coupling - high cohesion)
- *
+ * <p>
  * Det er også nyttig å ha mappingen her (så lenge klassen er under en skjermlengde), slik at man ser den i sammenheng med stedet den blir brukt.
  */
 @Service
@@ -35,10 +34,8 @@ public class MotebehovService {
         this.aktoerConsumer = aktoerConsumer;
         this.motebehovDAO = motebehovDAO;
     }
-
-    @Cacheable("motebehovliste")
+    
     public List<Motebehov> hentMotebehovListe(final Fnr arbeidstakerFnr) {
-        log.info("JTRACE: henter motebehovliste for arbeidstakerFnr {}", arbeidstakerFnr);
         final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
         return motebehovDAO.hentMotebehovListeForAktoer(arbeidstakerAktoerId)
                 .orElse(emptyList())
