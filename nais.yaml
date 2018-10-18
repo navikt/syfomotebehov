@@ -73,7 +73,7 @@ fasitResources:
     resourceType: baseurl
     propertyMap:
       url: NO_NAV_SECURITY_OIDC_ISSUER_INTERN_DISCOVERYURL
-  - alias: syfomotebehovDB
+  - alias: syfomotebehovDB_PG
     resourceType: datasource
     propertyMap:
       url: SPRING_DATASOURCE_URL
