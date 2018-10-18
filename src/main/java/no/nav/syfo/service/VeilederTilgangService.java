@@ -1,6 +1,7 @@
 package no.nav.syfo.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -27,6 +28,7 @@ public class VeilederTilgangService {
         this.template = template;
     }
 
+    @Cacheable("veiledertilgangperson")
     public boolean sjekkVeiledersTilgangTilPerson(String fnr) {
         URI tilgangTilBrukerUriMedFnr = tilgangTilBrukerUriTemplate.build(singletonMap(FNR, fnr));
         try {
