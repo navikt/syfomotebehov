@@ -31,6 +31,6 @@ spring:
     min-pool-size: 8
   cache:
     ehcache:
-      config: ehcache.xml
+      config: classpath:ehcache.xml
 
 dev: false
