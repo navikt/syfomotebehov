@@ -7,10 +7,12 @@ import no.nav.security.oidc.context.OIDCValidationContext;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Motebehov;
+import no.nav.syfo.domain.rest.MotebehovSvar;
 import no.nav.syfo.domain.rest.NyttMotebehov;
 import no.nav.syfo.service.BrukertilgangService;
 import no.nav.syfo.service.GeografiskTilgangService;
 import no.nav.syfo.service.MotebehovService;
+import no.nav.syfo.util.Metrikk;
 import no.nav.syfo.util.Toggle;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,16 +39,21 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class MotebehovBrukerController {
 
     private OIDCRequestContextHolder contextHolder;
+    private Metrikk metrikk;
     private MotebehovService motebehovService;
     private BrukertilgangService brukertilgangService;
     private GeografiskTilgangService geografiskTilgangService;
 
     @Inject
-    public MotebehovBrukerController(final OIDCRequestContextHolder contextHolder,
-                               final MotebehovService motebehovService,
-                               final BrukertilgangService brukertilgangService,
-                               final GeografiskTilgangService geografiskTilgangService) {
+    public MotebehovBrukerController(
+            final OIDCRequestContextHolder contextHolder,
+            final Metrikk metrikk,
+            final MotebehovService motebehovService,
+            final BrukertilgangService brukertilgangService,
+            final GeografiskTilgangService geografiskTilgangService
+    ) {
         this.contextHolder = contextHolder;
+        this.metrikk = metrikk;
         this.motebehovService = motebehovService;
         this.brukertilgangService = brukertilgangService;
         this.geografiskTilgangService = geografiskTilgangService;
@@ -80,6 +87,8 @@ public class MotebehovBrukerController {
             kastExceptionHvisIkkeTilgang(lagreMotebehov.arbeidstakerFnr.getFnr());
 
             motebehovService.lagreMotebehov(fnrFraOIDC(), lagreMotebehov);
+            lagBesvarMotebehovMetrikk(lagreMotebehov.motebehovSvar);
+
         } else {
             log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");
         }
@@ -91,11 +100,20 @@ public class MotebehovBrukerController {
         return Fnr.of(context.getClaims("selvbetjening").getClaimSet().getSubject());
     }
 
+
     private void kastExceptionHvisIkkeTilgang(String fnr){
         String innloggetIdent = fnrFraOIDCEkstern(contextHolder).getFnr();
         boolean harTilgang = geografiskTilgangService.erBrukerTilhorendeMotebehovPilot(fnr) && brukertilgangService.harTilgangTilOppslaattBruker(innloggetIdent, fnr);
         if(!harTilgang){
             throw new ForbiddenException("Ikke tilgang");
+        }
+    }
+
+    private void lagBesvarMotebehovMetrikk(MotebehovSvar motebehovSvar) {
+        metrikk.tellMotebehovBesvart(motebehovSvar.harMotebehov);
+
+        if (!motebehovSvar.harMotebehov) {
+            metrikk.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring.length());
         }
     }
 
