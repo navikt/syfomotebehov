@@ -29,8 +29,6 @@ public class SykefravaersoppfoelgingConfig {
     @Value("${sykefravaersoppfoelging.v1.endpointurl}")
     protected String serviceUrl;
 
-    private SykefravaersoppfoelgingV1 port;
-
     @SuppressWarnings("unchecked")
     @Bean
     @ConditionalOnProperty(value = "mockSykefravaeroppfoelging_V1", havingValue = "false", matchIfMissing = true)
@@ -38,17 +36,25 @@ public class SykefravaersoppfoelgingConfig {
     public SykefravaersoppfoelgingV1 sykefravaersoppfoelgingV1() {
         SykefravaersoppfoelgingV1 port = new WsClient<SykefravaersoppfoelgingV1>().createPort(serviceUrl, SykefravaersoppfoelgingV1.class, singletonList(new LogErrorHandler()));
         STSClientConfig.configureRequestSamlTokenOnBehalfOfOidc(port);
-        this.port = port;
+        return port;
+    }
+
+    @SuppressWarnings("unchecked")
+    private SykefravaersoppfoelgingV1 sykefravaersoppfoelgingConfig() {
+        SykefravaersoppfoelgingV1 port = new WsClient<SykefravaersoppfoelgingV1>().createPort(serviceUrl, SykefravaersoppfoelgingV1.class, singletonList(new LogErrorHandler()));
+        STSClientConfig.configureRequestSamlTokenOnBehalfOfOidc(port);
         return port;
     }
 
     public WSHentNaermesteLedersAnsattListeResponse hentNaermesteLedersAnsattListe(WSHentNaermesteLedersAnsattListeRequest request, String OIDCToken) throws HentNaermesteLedersAnsattListeSikkerhetsbegrensning {
+        SykefravaersoppfoelgingV1 port = sykefravaersoppfoelgingConfig();
         leggTilOnBehalfOfOutInterceptorForOIDC(ClientProxy.getClient(port), OIDCToken);
 
         return port.hentNaermesteLedersAnsattListe(request);
     }
 
     public WSHentNaermesteLederListeResponse hentNaermesteLederListe(WSHentNaermesteLederListeRequest request, String OIDCToken) throws HentNaermesteLederListeSikkerhetsbegrensning {
+        SykefravaersoppfoelgingV1 port = sykefravaersoppfoelgingConfig();
         leggTilOnBehalfOfOutInterceptorForOIDC(ClientProxy.getClient(port), OIDCToken);
 
         return port.hentNaermesteLederListe(request);
