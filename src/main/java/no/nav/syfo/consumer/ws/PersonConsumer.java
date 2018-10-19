@@ -1,12 +1,9 @@
 package no.nav.syfo.consumer.ws;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonPersonIkkeFunnet;
-import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonSikkerhetsbegrensning;
-import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.AktoerId;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personnavn;
+import no.nav.tjeneste.virksomhet.person.v3.binding.*;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.*;
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningRequest;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cache.annotation.Cacheable;
@@ -93,6 +90,20 @@ public class PersonConsumer implements InitializingBean {
         } catch (RuntimeException e) {
             log.error("Fikk RuntimeException mot TPS med ved oppslag av aktoerId: " + aktoerId);
             return "";
+        }
+    }
+
+    @Cacheable("persongeografisk")
+    public String hentGeografiskTilknytning(String fnr) {
+        try {
+            GeografiskTilknytning geografiskTilknytning = personV3.hentGeografiskTilknytning(
+                    new HentGeografiskTilknytningRequest()
+                            .withAktoer(new PersonIdent().withIdent(new NorskIdent().withIdent(fnr))))
+                    .getGeografiskTilknytning();
+            return geografiskTilknytning.getGeografiskTilknytning();
+        } catch (HentGeografiskTilknytningSikkerhetsbegrensing | HentGeografiskTilknytningPersonIkkeFunnet e) {
+            log.error("Feil ved henting av geografisk tilknytning", e);
+            throw new RuntimeException("Feil ved henting av geografisk tilknytning", e);
         }
     }
 
