@@ -6,7 +6,6 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(fluent = true, chain = true)
-@EqualsAndHashCode
 public class MotebehovSvar {
     public boolean harMotebehov;
     public String friskmeldingForventning;

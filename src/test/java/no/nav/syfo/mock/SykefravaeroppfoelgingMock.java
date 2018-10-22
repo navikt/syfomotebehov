@@ -2,6 +2,8 @@ package no.nav.syfo.mock;
 
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.*;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.informasjon.WSAnsatt;
+import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.informasjon.WSNaermesteLeder;
+import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.informasjon.WSNaermesteLederStatus;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -44,7 +46,29 @@ public class SykefravaeroppfoelgingMock implements SykefravaersoppfoelgingV1 {
 
     @Override
     public WSHentNaermesteLederListeResponse hentNaermesteLederListe(WSHentNaermesteLederListeRequest request) throws HentNaermesteLederListeSikkerhetsbegrensning {
-        return null;
+        return new WSHentNaermesteLederListeResponse()
+                .withNaermesteLederListe(asList(
+                        new WSNaermesteLeder()
+                                .withNaermesteLederId(1111L)
+                                .withNaermesteLederAktoerId("1000000000001")
+                                .withNaermesteLederStatus(new WSNaermesteLederStatus()
+                                        .withErAktiv(true)
+                                )
+                                .withNavn("Arbeidsgiver 1")
+                                .withOrgnummer("1234")
+                                .withEpost("test@nav.no")
+                                .withMobil("11223344"),
+                        new WSNaermesteLeder()
+                                .withNaermesteLederId(2222L)
+                                .withNaermesteLederAktoerId("1000000000002")
+                                .withNaermesteLederStatus(new WSNaermesteLederStatus()
+                                        .withErAktiv(true)
+                                )
+                                .withNavn("Arbeidsgiver 2")
+                                .withOrgnummer("2345")
+                                .withEpost("test@nav.no")
+                                .withMobil("11223344")
+                ));
     }
 
     @Override

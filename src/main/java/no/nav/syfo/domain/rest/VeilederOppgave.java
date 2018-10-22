@@ -10,7 +10,6 @@ import java.time.Month;
 
 @Data
 @Accessors(fluent = true)
-@EqualsAndHashCode
 public class VeilederOppgave {
 
     public long id;
