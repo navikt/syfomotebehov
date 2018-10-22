@@ -6,7 +6,6 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(fluent = true)
-@EqualsAndHashCode
 public class NaermesteLeder {
     public long naermesteLederId;
     public String naermesteLederAktoerId;

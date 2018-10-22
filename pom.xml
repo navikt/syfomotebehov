@@ -37,8 +37,10 @@
         <cxf.version>3.2.0</cxf.version>
         <oidc-spring-support.version>0.2.4</oidc-spring-support.version>
         <aktoer.version>1.0</aktoer.version>
+        <brukeroppgavev1-tjenestespesifikasjon.version>1.0.1</brukeroppgavev1-tjenestespesifikasjon.version>
         <nav-person.version>3.4.1</nav-person.version>
         <sykefravaersoppfoelgingv1-tjenestespesifikasjon.version>1.0.20</sykefravaersoppfoelgingv1-tjenestespesifikasjon.version>
+        <organisasjonv4-tjenestespesifikasjon.version>1.0.1</organisasjonv4-tjenestespesifikasjon.version>
         <organisasjonenhet-v2-tjenestespesifikasjon.version>2.1.0</organisasjonenhet-v2-tjenestespesifikasjon.version>
         <postgresql.version>42.2.4</postgresql.version>
     </properties>
@@ -125,6 +127,13 @@
             <artifactId>aktoer-v2</artifactId>
             <version>${aktoer.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>no.nav.syfo.tjenester</groupId>
+            <artifactId>brukeroppgavev1-tjenestespesifikasjon</artifactId>
+            <version>${brukeroppgavev1-tjenestespesifikasjon.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>no.nav.tjenester</groupId>
             <artifactId>nav-person-v3-tjenestespesifikasjon</artifactId>
@@ -134,6 +143,11 @@
             <groupId>no.nav.syfo.tjenester</groupId>
             <artifactId>sykefravaersoppfoelgingv1-tjenestespesifikasjon</artifactId>
             <version>${sykefravaersoppfoelgingv1-tjenestespesifikasjon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.sbl.dialogarena</groupId>
+            <artifactId>organisasjonv4-tjenestespesifikasjon</artifactId>
+            <version>${organisasjonv4-tjenestespesifikasjon.version}</version>
         </dependency>
         <dependency>
             <groupId>no.nav.sbl.dialogarena</groupId>
