@@ -8,8 +8,10 @@ import no.nav.syfo.domain.rest.Fnr;
 
 public class OIDCUtil {
 
-    public static String tokenFraOIDC(OIDCValidationContext contextHolder, String issuer) {
-        return contextHolder.getToken(issuer).getIdToken();
+    public static String tokenFraOIDC(OIDCRequestContextHolder contextHolder, String issuer) {
+        OIDCValidationContext context = (OIDCValidationContext) contextHolder
+                .getRequestAttribute(OIDCConstants.OIDC_VALIDATION_CONTEXT);
+        return context.getToken(issuer).getIdToken();
     }
 
     public static Fnr fnrFraOIDCEkstern(OIDCRequestContextHolder contextHolder) {

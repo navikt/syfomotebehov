@@ -44,6 +44,10 @@ fasitResources:
     resourceType: webserviceendpoint
   - alias: virksomhet:OrganisasjonEnhet_v2
     resourceType: webserviceendpoint
+  - alias: Brukeroppgave_v1
+    resourceType: webserviceendpoint
+  - alias: virksomhet:Organisasjon_v4
+    resourceType: webserviceendpoint
   - alias: syfomotebehov.properties
     resourceType: applicationproperties
   - alias: srvsyfomotebehov

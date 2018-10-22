@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 
 @Data
 @Accessors(fluent = true, chain = true)
-@EqualsAndHashCode
 public class Historikk {
     public String opprettetAv;
     public String tekst;
