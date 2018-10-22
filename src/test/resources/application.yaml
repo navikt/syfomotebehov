@@ -48,6 +48,7 @@ mockAktoer_V2: true
 mockPerson_V3: true
 mockOrganisasjonEnhet_V2: true
 mockSykefravaeroppfoelging_V1: true
+mockBrukeroppgave_V1: true
 
 dev: true
 
