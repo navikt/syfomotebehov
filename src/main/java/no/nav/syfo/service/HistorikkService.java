@@ -43,7 +43,15 @@ public class HistorikkService {
 
     public List<Historikk> hentHistorikkListe(final Fnr arbeidstakerFnr) {
         List<Motebehov> motebehovListe = motebehovService.hentMotebehovListe(arbeidstakerFnr);
-        List<Brukeroppgave> brukeroppgaver = brukeroppgaveConsumer.hentBrukerOppgaver(aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr()));
+
+        List<Historikk> svarMottattMotebehovHistorikk = brukeroppgaveConsumer.hentBrukerOppgaver(aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr()))
+                .stream()
+                .filter(brukeroppgave -> brukeroppgave.oppgavetype.equals("NAERMESTE_LEDER_SVAR_MOTEBEHOV"))
+                .map(brukeroppgave -> new Historikk()
+                        .tekst("Nærmeste leder har blitt varslet om å svare på møtebehov")
+                        .tidspunkt(brukeroppgave.opprettetTidspunkt())
+                )
+                .collect(toList());
 
         List<Historikk> utfoertHistorikk = veilederOppgaverService.get(arbeidstakerFnr.getFnr()).stream()
                 .filter(veilederOppgave -> veilederOppgave.type.equals("MOTEBEHOV_MOTTATT") && veilederOppgave.status.equals("FERDIG"))
@@ -63,7 +71,7 @@ public class HistorikkService {
                 .orElse(empty())
                 .collect(toList()))
                 .orElse(new ArrayList<>());
-        return concat(opprettetHistorikk.stream(), utfoertHistorikk.stream()).collect(toList());
+        return concat(concat(opprettetHistorikk.stream(), utfoertHistorikk.stream()), svarMottattMotebehovHistorikk.stream()).collect(toList());
     }
 
 }
