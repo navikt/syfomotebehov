@@ -38,6 +38,7 @@ no.nav.security.oidc:
 
 aktoer.v2.endpointurl: "aktoerv2.url"
 sykefravaersoppfoelging.v1.endpointurl: "sykefravaeroppfoelgingv1.url"
+brukeroppgave.v1.endpointurl: "brukeroppgavev1.url"
 virksomhet:
   person.v3.endpointurl: "personv3.url"
   organisasjonEnhet.v2.endpointurl: "organisasjonEnhetv2.url"
