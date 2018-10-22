@@ -7,7 +7,7 @@ import no.nav.tjeneste.virksomhet.aktoer.v2.HentIdentForAktoerIdPersonIkkeFunnet
 import no.nav.tjeneste.virksomhet.aktoer.v2.meldinger.WSHentAktoerIdForIdentRequest;
 import no.nav.tjeneste.virksomhet.aktoer.v2.meldinger.WSHentIdentForAktoerIdRequest;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.cache.annotation.Cacheable;
+//import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -34,7 +34,7 @@ public class AktoerConsumer implements InitializingBean {
         this.aktoerV2 = aktoerV2;
     }
 
-    @Cacheable("aktoerid")
+//    @Cacheable("aktoerid")
     public String hentAktoerIdForFnr(String fnr) {
         try {
             return aktoerV2.hentAktoerIdForIdent(new WSHentAktoerIdForIdentRequest()
@@ -46,7 +46,7 @@ public class AktoerConsumer implements InitializingBean {
         }
     }
 
-    @Cacheable("aktoerfnr")
+//    @Cacheable("aktoerfnr")
     public String hentFnrForAktoerId(String aktoerId) {
         try {
             return aktoerV2.hentIdentForAktoerId(

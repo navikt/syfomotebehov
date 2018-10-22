@@ -9,7 +9,7 @@ import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.WSOrganisasjo
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.meldinger.WSFinnNAVKontorRequest;
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.meldinger.WSFinnNAVKontorResponse;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.cache.annotation.Cacheable;
+//import org.springframework.cachecache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -41,7 +41,7 @@ public class OrganisasjonEnhetConsumer implements InitializingBean {
         this.organisasjonEnhetV2 = organisasjonEnhetV2;
     }
 
-    @Cacheable("orgnkontorgeografisk")
+//    @Cacheable("orgnkontorgeografisk")
     public List<String> finnNAVKontorForGT(String geografiskTilknytning) {
         try {
             return of(organisasjonEnhetV2.finnNAVKontor(
