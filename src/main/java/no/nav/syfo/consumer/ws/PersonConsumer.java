@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 import javax.ws.rs.ForbiddenException;
 
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.text.WordUtils.capitalize;
 
@@ -80,7 +81,7 @@ public class PersonConsumer implements InitializingBean {
                     .withAktoer(new AktoerId()
                             .withAktoerId(aktoerId)))
                     .getPerson();
-            return person.getDiskresjonskode().getValue();
+            return ofNullable(person.getDiskresjonskode()).map(Diskresjonskoder::getValue).orElse("");
         } catch (HentPersonSikkerhetsbegrensning e) {
             log.error("Fikk sikkerhetsbegrensing ved oppslag med aktoerId: " + aktoerId);
             throw new ForbiddenException();
