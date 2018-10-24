@@ -50,8 +50,8 @@ public class SykefravaeroppfoelgingConsumer {
     }
 
     @Cacheable("syfoansatte")
-    public List<String> hentAnsatteAktorId(String aktoerId) {
-        String oidcToken = tokenFraOIDC((OIDCValidationContext) this.contextHolder.getRequestAttribute(OIDCConstants.OIDC_VALIDATION_CONTEXT), OIDCIssuer.EKSTERN);
+    public List<String> hentAnsatteAktorId(String aktoerId, String oidcIssuer) {
+        String oidcToken = tokenFraOIDC((OIDCValidationContext) this.contextHolder.getRequestAttribute(OIDCConstants.OIDC_VALIDATION_CONTEXT), oidcIssuer);
 
         try {
             WSHentNaermesteLedersAnsattListeRequest request = new WSHentNaermesteLedersAnsattListeRequest()
@@ -75,8 +75,8 @@ public class SykefravaeroppfoelgingConsumer {
     }
 
     @Cacheable("syfoledere")
-    public List<NaermesteLeder> hentNaermesteLedere(String aktoerId) {
-        String oidcToken = tokenFraOIDC((OIDCValidationContext) this.contextHolder.getRequestAttribute(OIDCConstants.OIDC_VALIDATION_CONTEXT), OIDCIssuer.EKSTERN);
+    public List<NaermesteLeder> hentNaermesteLedere(String aktoerId, String oidcIssuer) {
+        String oidcToken = tokenFraOIDC((OIDCValidationContext) this.contextHolder.getRequestAttribute(OIDCConstants.OIDC_VALIDATION_CONTEXT), oidcIssuer);
 
         try {
             WSHentNaermesteLederListeRequest request = new WSHentNaermesteLederListeRequest()
@@ -100,8 +100,8 @@ public class SykefravaeroppfoelgingConsumer {
         }
     }
 
-    public List<String> hentNaermesteLederAktoerIdListe(String aktoerId) {
-        return hentNaermesteLedere(aktoerId).stream()
+    public List<String> hentNaermesteLederAktoerIdListe(String aktoerId, String oidcIssuer) {
+        return hentNaermesteLedere(aktoerId, oidcIssuer).stream()
                 .map(ansatt -> ansatt.naermesteLederAktoerId)
                 .collect(toList());
     }

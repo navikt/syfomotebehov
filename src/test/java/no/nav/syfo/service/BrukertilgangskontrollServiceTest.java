@@ -6,6 +6,7 @@ import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.oidc.context.OIDCValidationContext;
 import no.nav.security.oidc.context.TokenContext;
 import no.nav.security.spring.oidc.test.JwtTokenGenerator;
+import no.nav.syfo.OIDCIssuer;
 import no.nav.syfo.consumer.ws.AktoerConsumer;
 import no.nav.syfo.consumer.ws.PersonConsumer;
 import no.nav.syfo.consumer.ws.SykefravaeroppfoelgingConsumer;
@@ -57,7 +58,7 @@ public class BrukertilgangskontrollServiceTest {
 
     @Test
     public void harTilgangTilOppslaattBrukerGirFalseNaarOppslaattBrukerErKode6() {
-        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID)).thenReturn(asList(
+        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
                 SPOR_OM_AKTOERID
         ));
         when(personConsumer.erBrukerKode6(SPOR_OM_AKTOERID)).thenReturn(true);
@@ -74,7 +75,7 @@ public class BrukertilgangskontrollServiceTest {
 
     @Test
     public void harTilgangTilOppslaattBrukerGirTrueNaarManSporOmEnAnsatt() {
-        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID)).thenReturn(asList(
+        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
                 SPOR_OM_AKTOERID
         ));
         boolean tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR);
@@ -83,7 +84,7 @@ public class BrukertilgangskontrollServiceTest {
 
     @Test
     public void harTilgangTilOppslaattBrukerGirFalseNaarManSporOmEnSomIkkeErSegSelvOgIkkeAnsatt() {
-        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID)).thenReturn(asList(
+        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
 
         ));
         boolean tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR);
@@ -98,7 +99,7 @@ public class BrukertilgangskontrollServiceTest {
 
     @Test
     public void sporOmNoenAndreEnnSegSelvGirFalseNaarManSporOmEnAnsatt() {
-        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID)).thenReturn(asList(
+        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
                 SPOR_OM_AKTOERID
         ));
         boolean tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, SPOR_OM_FNR);
@@ -107,7 +108,7 @@ public class BrukertilgangskontrollServiceTest {
 
     @Test
     public void sporOmNoenAndreEnnSegSelvGirTrueNaarManSporOmEnSomIkkeErSegSelvOgIkkeAnsatt() {
-        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID)).thenReturn(asList(
+        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
 
         ));
         boolean tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, SPOR_OM_FNR);
@@ -123,7 +124,7 @@ public class BrukertilgangskontrollServiceTest {
 
     @Test
     public void sporOmNoenAndreEnnSegSelvEllerEgneAnsatteEllerLedereGirFalseNaarManSporOmEnAnsatt() {
-        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID)).thenReturn(asList(
+        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
                 SPOR_OM_AKTOERID
         ));
         boolean tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatteEllerLedere(INNLOGGET_FNR, SPOR_OM_FNR);
@@ -132,10 +133,10 @@ public class BrukertilgangskontrollServiceTest {
 
     @Test
     public void sporOmNoenAndreEnnSegSelvEllerEgneAnsatteEllerLedereGirFalseNaarManSporOmEnLeder() {
-        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID)).thenReturn(asList(
+        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
 
         ));
-        when(sykefravaeroppfoelgingConsumer.hentNaermesteLederAktoerIdListe(INNLOGGET_AKTOERID)).thenReturn(asList(
+        when(sykefravaeroppfoelgingConsumer.hentNaermesteLederAktoerIdListe(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
                 SPOR_OM_AKTOERID
         ));
         boolean tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatteEllerLedere(INNLOGGET_FNR, SPOR_OM_FNR);
@@ -144,10 +145,10 @@ public class BrukertilgangskontrollServiceTest {
 
     @Test
     public void sporOmNoenAndreEnnSegSelvEllerEgneAnsatteEllerLedereGirTrueNaarManSporOmEnSomIkkeErSegSelvOgIkkeAnsatt() {
-        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID)).thenReturn(asList(
+        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
 
         ));
-        when(sykefravaeroppfoelgingConsumer.hentNaermesteLederAktoerIdListe(INNLOGGET_AKTOERID)).thenReturn(asList(
+        when(sykefravaeroppfoelgingConsumer.hentNaermesteLederAktoerIdListe(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
 
         ));
         boolean tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatteEllerLedere(INNLOGGET_FNR, SPOR_OM_FNR);

@@ -2,6 +2,7 @@ package no.nav.syfo.service;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
+import no.nav.syfo.OIDCIssuer;
 import no.nav.syfo.consumer.ws.AktoerConsumer;
 import no.nav.syfo.consumer.ws.PersonConsumer;
 import no.nav.syfo.consumer.ws.SykefravaeroppfoelgingConsumer;
@@ -55,7 +56,7 @@ public class BrukertilgangService {
     private boolean sporInnloggetBrukerOmEnAnsatt(String innloggetIdent, String oppslaattFnr) {
         String innloggetAktoerId = aktoerConsumer.hentAktoerIdForFnr(innloggetIdent);
         String oppslaattAktoerId = aktoerConsumer.hentAktoerIdForFnr(oppslaattFnr);
-        return sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(innloggetAktoerId)
+        return sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(innloggetAktoerId, OIDCIssuer.EKSTERN)
                 .stream()
                 .anyMatch(oppslaattAktoerId::equals);
     }
@@ -63,7 +64,7 @@ public class BrukertilgangService {
     private boolean sporInnloggetBrukerOmEnLeder(String innloggetIdent, String oppslaattFnr) {
         String innloggetAktoerId = aktoerConsumer.hentAktoerIdForFnr(innloggetIdent);
         String oppslaattAktoerId = aktoerConsumer.hentAktoerIdForFnr(oppslaattFnr);
-        return sykefravaeroppfoelgingConsumer.hentNaermesteLederAktoerIdListe(innloggetAktoerId)
+        return sykefravaeroppfoelgingConsumer.hentNaermesteLederAktoerIdListe(innloggetAktoerId, OIDCIssuer.EKSTERN)
                 .stream()
                 .anyMatch(oppslaattAktoerId::equals);
     }
