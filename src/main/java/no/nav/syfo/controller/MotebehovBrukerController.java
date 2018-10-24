@@ -1,9 +1,7 @@
 package no.nav.syfo.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.security.oidc.OIDCConstants;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
-import no.nav.security.oidc.context.OIDCValidationContext;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Motebehov;
@@ -86,7 +84,7 @@ public class MotebehovBrukerController {
         if (Toggle.endepunkterForMotebehov) {
             kastExceptionHvisIkkeTilgang(lagreMotebehov.arbeidstakerFnr.getFnr());
 
-            motebehovService.lagreMotebehov(fnrFraOIDC(), lagreMotebehov);
+            motebehovService.lagreMotebehov(fnrFraOIDCEkstern(contextHolder), lagreMotebehov);
             lagBesvarMotebehovMetrikk(lagreMotebehov.motebehovSvar);
 
         } else {
@@ -94,17 +92,10 @@ public class MotebehovBrukerController {
         }
     }
 
-    private Fnr fnrFraOIDC() {
-        OIDCValidationContext context = (OIDCValidationContext) contextHolder
-                .getRequestAttribute(OIDCConstants.OIDC_VALIDATION_CONTEXT);
-        return Fnr.of(context.getClaims("selvbetjening").getClaimSet().getSubject());
-    }
-
-
-    private void kastExceptionHvisIkkeTilgang(String fnr){
+    private void kastExceptionHvisIkkeTilgang(String fnr) {
         String innloggetIdent = fnrFraOIDCEkstern(contextHolder).getFnr();
         boolean harTilgang = geografiskTilgangService.erBrukerTilhorendeMotebehovPilot(fnr) && brukertilgangService.harTilgangTilOppslaattBruker(innloggetIdent, fnr);
-        if(!harTilgang){
+        if (!harTilgang) {
             throw new ForbiddenException("Ikke tilgang");
         }
     }
