@@ -60,7 +60,7 @@ public class PersonConsumer implements InitializingBean {
             log.error("Fant ikke person med aktoerId: " + aktoerId);
             throw new RuntimeException();
         } catch (RuntimeException e) {
-            log.error("Fikk RuntimeException mot TPS med ved oppslag av aktoerId: " + aktoerId);
+            log.error("Fikk RuntimeException mot TPS for navn ved oppslag av aktoerId: " + aktoerId);
             return "";
         }
     }
@@ -88,7 +88,7 @@ public class PersonConsumer implements InitializingBean {
             log.error("Fant ikke person med aktoerId: " + aktoerId);
             throw new RuntimeException();
         } catch (RuntimeException e) {
-            log.error("Fikk RuntimeException mot TPS med ved oppslag av aktoerId: " + aktoerId);
+            log.error("Fikk RuntimeException mot TPS for diskresjonskode ved oppslag av aktoerId: " + aktoerId);
             return "";
         }
     }
