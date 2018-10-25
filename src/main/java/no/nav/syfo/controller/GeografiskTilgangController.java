@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.service.GeografiskTilgangService;
 import no.nav.syfo.util.Toggle;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
@@ -15,6 +16,7 @@ import java.io.IOException;
 
 import static no.nav.syfo.OIDCIssuer.INTERN;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
@@ -30,21 +32,22 @@ public class GeografiskTilgangController {
         this.geografiskTilgangService = geografiskTilgangService;
     }
 
+    @ResponseBody
     @ProtectedWithClaims(issuer = INTERN, claimMap = {"sub=srvsyfoservice"})
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public Response hentGeografiskTilgang(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
+    public ResponseEntity hentGeografiskTilgang(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
         log.info("MOTEBEHOV-TRACE: Hent geografisk tilgang");
         if (Toggle.endepunkterForMotebehov) {
             if (geografiskTilgangService.erBrukerTilhorendeMotebehovPilot(arbeidstakerFnr)) {
                 log.info("MOTEBEHOV-TRACE: Hent geografisk tilgang. Har tilgang");
-                return Response.ok().build();
+                return new ResponseEntity(OK);
             } else {
                 log.info("MOTEBEHOV-TRACE: Hent geografisk tilgang. Ikke tilgang");
-                throw new ForbiddenException("Ikke tilgang");
+                return new ResponseEntity(FORBIDDEN);
             }
         } else {
             log.info("Det ble gjort kall mot 'geografisktilgang', men dette endepunktet er togglet av.");
-            throw new ForbiddenException("Ikke tilgang");
+            return new ResponseEntity(FORBIDDEN);
         }
     }
 
