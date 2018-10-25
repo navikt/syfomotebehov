@@ -29,19 +29,19 @@ public class GeografiskTilgangController {
     @ResponseBody
     @ProtectedWithClaims(issuer = INTERN, claimMap = {"sub=srvsyfoservice"})
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public Response hentGeografiskTilgang(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
+    public String hentGeografiskTilgang(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
         log.info("MOTEBEHOV-TRACE: Hent geografisk tilgang");
         if (Toggle.endepunkterForMotebehov) {
             if (geografiskTilgangService.erBrukerTilhorendeMotebehovPilot(arbeidstakerFnr)) {
                 log.info("MOTEBEHOV-TRACE: Hent geografisk tilgang. Har tilgang");
-                return Response.ok().build();
+                return "true";
             } else {
                 log.info("MOTEBEHOV-TRACE: Hent geografisk tilgang. Ikke tilgang");
-                return Response.status(Response.Status.FORBIDDEN).build();
+                return "false";
             }
         } else {
             log.info("Det ble gjort kall mot 'geografisktilgang', men dette endepunktet er togglet av.");
-            return Response.status(Response.Status.FORBIDDEN).build();
+            return "false";
         }
     }
 }
