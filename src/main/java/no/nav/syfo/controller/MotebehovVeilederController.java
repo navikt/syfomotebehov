@@ -2,7 +2,6 @@ package no.nav.syfo.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
-import no.nav.security.spring.oidc.validation.api.Unprotected;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Historikk;
 import no.nav.syfo.domain.rest.Motebehov;
@@ -69,11 +68,11 @@ public class MotebehovVeilederController {
 
     @ResponseBody
     @RequestMapping(value = "/historikk")
-    @Unprotected
+    @ProtectedWithClaims(issuer = INTERN)
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public List<Historikk> hentMotebehovHistorikk(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
         if (Toggle.endepunkterForMotebehov) {
-            //kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
+            kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
 
             return historikkService.hentHistorikkListe(Fnr.of(arbeidstakerFnr));
         } else {
