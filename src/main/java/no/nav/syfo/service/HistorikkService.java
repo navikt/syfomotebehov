@@ -48,10 +48,20 @@ public class HistorikkService {
     public List<Historikk> hentHistorikkListe(final Fnr arbeidstakerFnr) {
         String fnr = arbeidstakerFnr.getFnr();
 
+        List<Historikk> nlVarsel = hentNLMotebehovVarselHistorikk(fnr);
+        log.info("Skriver ut NL varsler");
+        for (Historikk historikk : nlVarsel) {
+            log.info("Varsel: " + historikk.tekst());
+        }
+
         List<Historikk> historikkListe = hentOpprettetMotebehov(arbeidstakerFnr);
         historikkListe.addAll(hentLesteMotebehovHistorikk(fnr));
-        historikkListe.addAll(hentNLMotebehovVarselHistorikk(fnr));
+        historikkListe.addAll(nlVarsel);
 
+        log.info("Skriver ut all motebehov historikk");
+        for (Historikk historikk : historikkListe) {
+            log.info("Historikk: " + historikk.tekst());
+        }
         return historikkListe;
     }
 
@@ -68,10 +78,10 @@ public class HistorikkService {
     }
 
     private List<Historikk> hentNLMotebehovVarselHistorikk(String sykmeldtFnr) {
+        log.info("hentNLMotebehovVarselHistorikk()");
         try {
             String aktorId = aktoerConsumer.hentFnrForAktoerId(sykmeldtFnr);
             List<NaermesteLeder> naermesteLedere = sykefravaeroppfoelgingConsumer.hentNaermesteLedere(aktorId, OIDCIssuer.INTERN);
-
             Function<NaermesteLeder, Stream<Historikk>> tilHistorikk = naermesteLeder ->
                     brukeroppgaveConsumer.hentBrukerOppgaver(naermesteLeder.naermesteLederAktoerId())
                             .stream()
