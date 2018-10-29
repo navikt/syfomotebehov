@@ -72,6 +72,7 @@ public class HistorikkService {
         try {
             String aktorId = aktoerConsumer.hentFnrForAktoerId(sykmeldtFnr);
             List<NaermesteLeder> naermesteLedere = sykefravaeroppfoelgingConsumer.hentNaermesteLedere(aktorId, OIDCIssuer.INTERN);
+            log.info("Antall NL: " + naermesteLedere.size());
             for (NaermesteLeder nl : naermesteLedere) {
                 log.info("NL: " + nl.navn() + " " + nl.naermesteLederAktoerId() + " " + nl.orgnummer());
                 List<Brukeroppgave> nlOppgaver = brukeroppgaveConsumer.hentBrukerOppgaver(nl.naermesteLederAktoerId());
