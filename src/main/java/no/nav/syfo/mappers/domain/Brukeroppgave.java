@@ -1,4 +1,4 @@
-package no.nav.syfo.domain.rest;
+package no.nav.syfo.mappers.domain;
 
 import lombok.Data;
 import lombok.experimental.Accessors;

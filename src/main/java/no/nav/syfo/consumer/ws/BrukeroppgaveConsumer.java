@@ -2,7 +2,7 @@ package no.nav.syfo.consumer.ws;
 
 import lombok.extern.slf4j.Slf4j;
 
-import no.nav.syfo.domain.rest.Brukeroppgave;
+import no.nav.syfo.mappers.domain.Brukeroppgave;
 import no.nav.tjeneste.domene.digisyfo.brukeroppgave.v1.BrukeroppgaveV1;
 import no.nav.tjeneste.domene.digisyfo.brukeroppgave.v1.informasjon.WSBrukeroppgave;
 import no.nav.tjeneste.domene.digisyfo.brukeroppgave.v1.meldinger.WSHentBrukeroppgaveListeRequest;
