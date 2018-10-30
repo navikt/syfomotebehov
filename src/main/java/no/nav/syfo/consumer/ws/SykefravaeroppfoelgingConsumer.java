@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.config.ws.SykefravaersoppfoelgingConfig;
 import no.nav.syfo.domain.rest.NaermesteLeder;
+import no.nav.syfo.mappers.domain.Hendelse;
+import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentHendelseListeSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentNaermesteLederListeSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentNaermesteLedersAnsattListeSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.SykefravaersoppfoelgingV1;
@@ -19,6 +21,7 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 import static no.nav.syfo.mappers.WSAnsattMapper.wsAnsatt2AktorId;
 import static no.nav.syfo.mappers.WSNaermesteLederMapper.ws2naermesteLeder;
+import static no.nav.syfo.mappers.WSHendelseMapper.ws2Hendelse;
 import static no.nav.syfo.util.MapUtil.mapListe;
 import static no.nav.syfo.util.OIDCUtil.tokenFraOIDC;
 
@@ -44,8 +47,6 @@ public class SykefravaeroppfoelgingConsumer {
 
     @Cacheable("syfoansatte")
     public List<String> hentAnsatteAktorId(String aktoerId, String oidcIssuer) {
-        String oidcToken = tokenFraOIDC(this.contextHolder, oidcIssuer);
-
         try {
             WSHentNaermesteLedersAnsattListeRequest request = new WSHentNaermesteLedersAnsattListeRequest()
                     .withAktoerId(aktoerId);
@@ -53,6 +54,7 @@ public class SykefravaeroppfoelgingConsumer {
             if ("true".equals(dev)) {
                 response = sykefravaersoppfoelgingV1.hentNaermesteLedersAnsattListe(request);
             } else {
+                String oidcToken = tokenFraOIDC(this.contextHolder, oidcIssuer);
                 response = sykefravaersoppfoelgingConfig.hentNaermesteLedersAnsattListe(request, oidcToken);
             }
             return mapListe(response.getAnsattListe(), wsAnsatt2AktorId);
@@ -96,5 +98,28 @@ public class SykefravaeroppfoelgingConsumer {
         return hentNaermesteLedere(aktoerId, oidcIssuer).stream()
                 .map(ansatt -> ansatt.naermesteLederAktoerId)
                 .collect(toList());
+    }
+
+    public List<Hendelse> hentHendelserForSykmeldt(String aktoerId, String oidcIssuer) {
+        try {
+            WSHentHendelseListeRequest request = new WSHentHendelseListeRequest()
+                    .withAktoerId(aktoerId);
+            WSHentHendelseListeResponse response;
+            if ("true".equals(dev)) {
+                response = sykefravaersoppfoelgingV1.hentHendelseListe(request);
+            } else {
+                String oidcToken = tokenFraOIDC(this.contextHolder, oidcIssuer);
+                response = sykefravaersoppfoelgingConfig.hentHendelseListe(request, oidcToken);
+            }
+            return mapListe(response.getHendelseListe(), ws2Hendelse);
+        } catch (HentHendelseListeSikkerhetsbegrensning e) {
+            log.warn("Fikk sikkerhetsbegrensning {} ved henting av hendelseliste for person {}", e.getFaultInfo().getFeilaarsak().toUpperCase(), aktoerId);
+            throw new ForbiddenException();
+        } catch (RuntimeException e) {
+            log.error("Fikk Runtimefeil ved henting av naermeste ledere for person {}" +
+                    "Antar dette er tilgang nektet fra modig-security, og kaster ForbiddenException videre.", aktoerId, e);
+            //TODO RuntimeException når SyfoService kaster sikkerhetsbegrensing riktig igjen
+            throw new ForbiddenException();
+        }
     }
 }

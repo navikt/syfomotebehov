@@ -5,10 +5,7 @@ import no.nav.syfo.consumer.util.ws.LogErrorHandler;
 import no.nav.syfo.consumer.util.ws.OnBehalfOfOutInterceptor;
 import no.nav.syfo.consumer.util.ws.STSClientConfig;
 import no.nav.syfo.consumer.util.ws.WsClient;
-import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentNaermesteLederListeSikkerhetsbegrensning;
-import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentNaermesteLederSikkerhetsbegrensning;
-import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentNaermesteLedersAnsattListeSikkerhetsbegrensning;
-import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.SykefravaersoppfoelgingV1;
+import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.*;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.*;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
@@ -53,6 +50,11 @@ public class SykefravaersoppfoelgingConfig {
     public WSHentNaermesteLederListeResponse hentNaermesteLederListe(WSHentNaermesteLederListeRequest request, String OIDCToken) throws HentNaermesteLederListeSikkerhetsbegrensning {
         leggTilOnBehalfOfOutInterceptorForOIDC(ClientProxy.getClient(port), OIDCToken);
         return port.hentNaermesteLederListe(request);
+    }
+
+    public WSHentHendelseListeResponse hentHendelseListe(WSHentHendelseListeRequest request, String OIDCToken) throws HentHendelseListeSikkerhetsbegrensning {
+        leggTilOnBehalfOfOutInterceptorForOIDC(ClientProxy.getClient(port), OIDCToken);
+        return port.hentHendelseListe(request);
     }
 
     private void leggTilOnBehalfOfOutInterceptorForOIDC(Client client, String OIDCToken) {
