@@ -7,10 +7,14 @@ import no.nav.syfo.util.Toggle;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Pattern;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 
 import static no.nav.syfo.OIDCIssuer.INTERN;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
@@ -29,19 +33,24 @@ public class GeografiskTilgangController {
     @ResponseBody
     @ProtectedWithClaims(issuer = INTERN, claimMap = {"sub=srvsyfoservice"})
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public String hentGeografiskTilgang(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
+    public Response hentGeografiskTilgang(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
         log.info("MOTEBEHOV-TRACE: Hent geografisk tilgang");
         if (Toggle.endepunkterForMotebehov) {
             if (geografiskTilgangService.erBrukerTilhorendeMotebehovPilot(arbeidstakerFnr)) {
                 log.info("MOTEBEHOV-TRACE: Hent geografisk tilgang. Har tilgang");
-                return "true";
+                return Response.ok().build();
             } else {
                 log.info("MOTEBEHOV-TRACE: Hent geografisk tilgang. Ikke tilgang");
-                return "false";
+                throw new ForbiddenException("Ikke tilgang");
             }
         } else {
             log.info("Det ble gjort kall mot 'geografisktilgang', men dette endepunktet er togglet av.");
-            return "false";
+            throw new ForbiddenException("Ikke tilgang");
         }
+    }
+
+    @ExceptionHandler({ForbiddenException.class})
+    void handleForbiddenRequests(HttpServletResponse response) throws IOException {
+        response.sendError(FORBIDDEN.value(), "Handling er forbudt");
     }
 }
