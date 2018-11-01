@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.OIDCIssuer;
 import no.nav.syfo.consumer.ws.*;
 import no.nav.syfo.domain.rest.*;
+import no.nav.syfo.mappers.domain.Brukeroppgave;
 import no.nav.syfo.mappers.domain.Hendelse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -73,14 +74,28 @@ public class HistorikkService {
             String aktorId = aktoerConsumer.hentAktoerIdForFnr(sykmeldtFnr);
             List<NaermesteLeder> naermesteLedere = sykefravaeroppfoelgingConsumer.hentNaermesteLedere(aktorId, OIDCIssuer.INTERN);
             List<Hendelse> sykmeldtHendelser = sykefravaeroppfoelgingConsumer.hentHendelserForSykmeldt(aktorId, OIDCIssuer.INTERN);
+            List<Brukeroppgave> nlBrukeroppgaver = new ArrayList<>();
+
+            for (NaermesteLeder naermesteLeder : naermesteLedere) {
+                log.info("NL: " + naermesteLeder.naermesteLederAktoerId() + " | " + naermesteLeder.orgnummer() + " | " + naermesteLeder.navn());
+                nlBrukeroppgaver.addAll(brukeroppgaveConsumer.hentBrukerOppgaver(naermesteLeder.naermesteLederAktoerId()));
+            }
+
+            for (Hendelse hendelse : sykmeldtHendelser) {
+                log.info("H: " + hendelse.hendelseId() + " | " + hendelse.type() + " | " + hendelse.aktorId());
+            }
+
+            for (Brukeroppgave bo : nlBrukeroppgaver) {
+                log.info("BO: " + bo.ressursId() + " | " + bo.ident());
+            }
 
             Function<NaermesteLeder, Stream<Historikk>> tilHistorikk = naermesteLeder ->
                     brukeroppgaveConsumer.hentBrukerOppgaver(naermesteLeder.naermesteLederAktoerId())
                             .stream()
-                            .filter(brukeroppgave -> brukeroppgave.oppgavetype.equals("NAERMESTE_LEDER_SVAR_MOTEBEHOV")
+                            .filter(brukeroppgave -> (brukeroppgave.oppgavetype.equals("NAERMESTE_LEDER_SVAR_MOTEBEHOV")
                                     && sykmeldtHendelser
                                             .stream()
-                                            .anyMatch(hendelse -> hendelse.hendelseId() == Long.parseLong(brukeroppgave.ressursId()))
+                                            .anyMatch(hendelse -> hendelse.hendelseId() == Long.parseLong(brukeroppgave.ressursId())))
                             )
                             .map(brukeroppgave -> new Historikk()
                                     .tekst("Varsel om svar på motebehov har blitt sendt til nærmeste leder i bedrift "

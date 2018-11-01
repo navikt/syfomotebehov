@@ -6,11 +6,9 @@ import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.informasjon.WSHende
 import java.util.function.Function;
 
 public class WSHendelseMapper {
-    public static Function<WSHendelse, Hendelse> ws2Hendelse = wsHendelse -> {
-        return new Hendelse()
-                .hendelseId(wsHendelse.getId())
-                .tidspunkt(wsHendelse.getTidspunkt())
-                .type(wsHendelse.getType())
-                .aktorId(wsHendelse.getAktoerId());
-    };
+    public static Function<WSHendelse, Hendelse> ws2Hendelse = wsHendelse -> new Hendelse()
+            .hendelseId(wsHendelse.getId())
+            .tidspunkt(wsHendelse.getTidspunkt())
+            .type(wsHendelse.getType())
+            .aktorId(wsHendelse.getAktoerId());
 }
