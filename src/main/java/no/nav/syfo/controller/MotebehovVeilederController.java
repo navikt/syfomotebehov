@@ -55,7 +55,7 @@ public class MotebehovVeilederController {
     @RequestMapping(value = "/motebehov")
     @ProtectedWithClaims(issuer = INTERN)
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    @CrossOrigin(allowCredentials = "true", origins = "https://modiasyfofront-q1.nais.preprod.local")
+    @CrossOrigin
     public List<Motebehov> hentMotebehovListe(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
         if (Toggle.endepunkterForMotebehov) {
             kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
