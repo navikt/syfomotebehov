@@ -51,10 +51,10 @@ public class MotebehovService {
                 .collect(toList());
     }
 
-    public UUID lagreMotebehov(Fnr innloggetFNR, final NyttMotebehov lagreMotebehov) {
+    public UUID lagreMotebehov(Fnr innloggetFNR, final NyttMotebehov nyttMotebehov) {
         final String innloggetBrukerAktoerId = aktoerConsumer.hentAktoerIdForFnr(innloggetFNR.getFnr());
-        final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(lagreMotebehov.arbeidstakerFnr.getFnr());
-        final PMotebehov motebehov = mapLagreMotebehovToPMotebehov(innloggetBrukerAktoerId, arbeidstakerAktoerId, lagreMotebehov);
+        final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(nyttMotebehov.arbeidstakerFnr.getFnr());
+        final PMotebehov motebehov = mapNyttMotebehovToPMotebehov(innloggetBrukerAktoerId, arbeidstakerAktoerId, nyttMotebehov);
 
         return motebehovDAO.create(motebehov);
     }
@@ -69,16 +69,16 @@ public class MotebehovService {
                 .collect(toList());
     }
 
-    private PMotebehov mapLagreMotebehovToPMotebehov(String innloggetAktoerId, String arbeidstakerAktoerId, NyttMotebehov lagreMotebehov) {
+    private PMotebehov mapNyttMotebehovToPMotebehov(String innloggetAktoerId, String arbeidstakerAktoerId, NyttMotebehov nyttMotebehov) {
         return new PMotebehov()
                 .opprettetAv(innloggetAktoerId)
                 .aktoerId(arbeidstakerAktoerId)
-                .virksomhetsnummer(lagreMotebehov.virksomhetsnummer)
-                .harMotebehov(lagreMotebehov.motebehovSvar().harMotebehov)
-                .friskmeldingForventning(lagreMotebehov.motebehovSvar().friskmeldingForventning)
-                .tiltak(lagreMotebehov.motebehovSvar().tiltak)
-                .tiltakResultat(lagreMotebehov.motebehovSvar().tiltakResultat)
-                .forklaring(lagreMotebehov.motebehovSvar().forklaring);
+                .virksomhetsnummer(nyttMotebehov.virksomhetsnummer)
+                .harMotebehov(nyttMotebehov.motebehovSvar().harMotebehov)
+                .friskmeldingForventning(nyttMotebehov.motebehovSvar().friskmeldingForventning)
+                .tiltak(nyttMotebehov.motebehovSvar().tiltak)
+                .tiltakResultat(nyttMotebehov.motebehovSvar().tiltakResultat)
+                .forklaring(nyttMotebehov.motebehovSvar().forklaring);
     }
 
     private Motebehov mapPMotebehovToMotebehov(Fnr arbeidstakerFnr, PMotebehov pMotebehov) {

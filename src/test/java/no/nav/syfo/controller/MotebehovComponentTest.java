@@ -68,7 +68,7 @@ public class MotebehovComponentTest {
                 .tiltakResultat("Kommer seg fremover")
                 .forklaring("");
 
-        final NyttMotebehov lagreMotebehov = new NyttMotebehov()
+        final NyttMotebehov nyttMotebehov = new NyttMotebehov()
                 .arbeidstakerFnr(Fnr.of(ARBEIDSTAKER_FNR))
                 .virksomhetsnummer(VIRKSOMHETSNUMMER)
                 .motebehovSvar(
@@ -76,7 +76,7 @@ public class MotebehovComponentTest {
                 );
 
         // Lagre
-        motebehovController.lagreMotebehov(lagreMotebehov);
+        motebehovController.lagreMotebehov(nyttMotebehov);
 
         // Hent
         List<Motebehov> motebehovListe = motebehovController.hentMotebehovListe(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);

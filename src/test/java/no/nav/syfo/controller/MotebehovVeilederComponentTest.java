@@ -94,14 +94,14 @@ public class MotebehovVeilederComponentTest {
                 .tiltakResultat("Kommer seg fremover")
                 .forklaring("");
 
-        final NyttMotebehov lagreMotebehov = new NyttMotebehov()
+        final NyttMotebehov nyttMotebehov = new NyttMotebehov()
                 .arbeidstakerFnr(Fnr.of(ARBEIDSTAKER_FNR))
                 .virksomhetsnummer(VIRKSOMHETSNUMMER)
                 .motebehovSvar(
                         motebehovSvar
                 );
 
-        motebehovController.lagreMotebehov(lagreMotebehov);
+        motebehovController.lagreMotebehov(nyttMotebehov);
 
         // Veileder henter møtebehov
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
