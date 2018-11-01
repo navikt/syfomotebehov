@@ -74,20 +74,14 @@ public class HistorikkService {
             String aktorId = aktoerConsumer.hentAktoerIdForFnr(sykmeldtFnr);
             List<NaermesteLeder> naermesteLedere = sykefravaeroppfoelgingConsumer.hentNaermesteLedere(aktorId, OIDCIssuer.INTERN);
             List<Hendelse> sykmeldtHendelser = sykefravaeroppfoelgingConsumer.hentHendelserForSykmeldt(aktorId, OIDCIssuer.INTERN);
-            List<Brukeroppgave> nlBrukeroppgaver = new ArrayList<>();
 
-            for (NaermesteLeder naermesteLeder : naermesteLedere) {
-                log.info("NL: " + naermesteLeder.naermesteLederAktoerId() + " | " + naermesteLeder.orgnummer() + " | " + naermesteLeder.navn());
-                nlBrukeroppgaver.addAll(brukeroppgaveConsumer.hentBrukerOppgaver(naermesteLeder.naermesteLederAktoerId()));
-            }
+            log.info("HENDELSER");
 
             for (Hendelse hendelse : sykmeldtHendelser) {
-                log.info("H: " + hendelse.hendelseId() + " | " + hendelse.type() + " | " + hendelse.aktorId());
+                log.info("H: " + hendelse.hendelseId() + " | " + hendelse.type() + " | " + hendelse.tidspunkt() + " | " + hendelse.aktorId());
             }
 
-            for (Brukeroppgave bo : nlBrukeroppgaver) {
-                log.info("BO: " + bo.ressursId() + " | " + bo.ident());
-            }
+            log.info(":::::::::::");
 
             Function<NaermesteLeder, Stream<Historikk>> tilHistorikk = naermesteLeder ->
                     brukeroppgaveConsumer.hentBrukerOppgaver(naermesteLeder.naermesteLederAktoerId())
