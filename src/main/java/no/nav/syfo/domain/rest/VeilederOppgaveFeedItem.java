@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 
 @Data
 @Accessors(fluent = true)
-@EqualsAndHashCode
 public class VeilederOppgaveFeedItem {
     public String uuid;
     public String type;

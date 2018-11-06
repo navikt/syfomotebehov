@@ -38,16 +38,20 @@ no.nav.security.oidc:
 
 aktoer.v2.endpointurl: "aktoerv2.url"
 sykefravaersoppfoelging.v1.endpointurl: "sykefravaeroppfoelgingv1.url"
+brukeroppgave.v1.endpointurl: "brukeroppgavev1.url"
 virksomhet:
   person.v3.endpointurl: "personv3.url"
   organisasjonEnhet.v2.endpointurl: "organisasjonEnhetv2.url"
+  organisasjon.v4.endpointurl: "organisasjonv4.url"
 
 fasit.environment.name: 'local'
 
 mockAktoer_V2: true
 mockPerson_V3: true
 mockOrganisasjonEnhet_V2: true
+mockOrganisasjon_V4: true
 mockSykefravaeroppfoelging_V1: true
+mockBrukeroppgave_V1: true
 
 dev: true
 

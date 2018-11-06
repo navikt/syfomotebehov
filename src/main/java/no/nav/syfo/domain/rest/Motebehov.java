@@ -9,7 +9,6 @@ import java.util.UUID;
 
 @Data
 @Accessors(fluent = true, chain = true)
-@EqualsAndHashCode
 public class Motebehov {
     public UUID id;
     public LocalDateTime opprettetDato;

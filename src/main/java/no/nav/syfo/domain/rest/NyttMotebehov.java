@@ -10,7 +10,6 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @Accessors(fluent = true, chain = true)
-@EqualsAndHashCode
 public class NyttMotebehov {
 
     @Valid

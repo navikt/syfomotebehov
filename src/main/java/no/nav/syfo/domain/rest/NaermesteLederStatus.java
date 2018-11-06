@@ -9,7 +9,6 @@ import java.time.LocalDate;
 
 @Data
 @Accessors(fluent = true)
-@EqualsAndHashCode
 public class NaermesteLederStatus {
     public boolean erAktiv;
     public LocalDate aktivFom;
