@@ -1,6 +1,8 @@
 package no.nav.syfo.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.security.oidc.context.OIDCRequestContextHolder;
+import no.nav.security.spring.oidc.validation.api.Protected;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Historikk;
@@ -30,6 +32,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequestMapping(value = "/api/veileder")
 public class MotebehovVeilederController {
+
+    private OIDCRequestContextHolder contextHolder;
 
     private HistorikkService historikkService;
 
