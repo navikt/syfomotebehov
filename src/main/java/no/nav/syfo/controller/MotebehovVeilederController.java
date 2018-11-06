@@ -32,8 +32,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping(value = "/api/veileder")
 public class MotebehovVeilederController {
 
-    private OIDCRequestContextHolder contextHolder;
-
     private HistorikkService historikkService;
 
     private MotebehovService motebehovService;
@@ -44,12 +42,10 @@ public class MotebehovVeilederController {
 
     @Inject
     public MotebehovVeilederController(
-            final OIDCRequestContextHolder contextHolder,
             final HistorikkService historikkService,
             final MotebehovService motebehovService,
             final VeilederTilgangService tilgangService,
             final GeografiskTilgangService geografiskTilgangService) {
-        this.contextHolder = contextHolder;
         this.historikkService = historikkService;
         this.motebehovService = motebehovService;
         this.veilederTilgangService = tilgangService;
