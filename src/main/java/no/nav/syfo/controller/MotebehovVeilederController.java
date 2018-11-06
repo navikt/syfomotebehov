@@ -2,7 +2,6 @@ package no.nav.syfo.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
-import no.nav.security.spring.oidc.validation.api.Protected;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Historikk;
@@ -45,10 +44,12 @@ public class MotebehovVeilederController {
 
     @Inject
     public MotebehovVeilederController(
+            final OIDCRequestContextHolder contextHolder,
             final HistorikkService historikkService,
             final MotebehovService motebehovService,
             final VeilederTilgangService tilgangService,
             final GeografiskTilgangService geografiskTilgangService) {
+        this.contextHolder = contextHolder;
         this.historikkService = historikkService;
         this.motebehovService = motebehovService;
         this.veilederTilgangService = tilgangService;
