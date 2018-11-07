@@ -101,10 +101,16 @@ public class PersonConsumer implements InitializingBean {
                     new HentGeografiskTilknytningRequest()
                             .withAktoer(new PersonIdent().withIdent(new NorskIdent().withIdent(fnr))))
                     .getGeografiskTilknytning();
-            return geografiskTilknytning.getGeografiskTilknytning();
-        } catch (HentGeografiskTilknytningSikkerhetsbegrensing | HentGeografiskTilknytningPersonIkkeFunnet e) {
-            log.error("Feil ved henting av geografisk tilknytning", e);
-            throw new RuntimeException("Feil ved henting av geografisk tilknytning", e);
+            return ofNullable(geografiskTilknytning).map(GeografiskTilknytning::getGeografiskTilknytning).orElse("");
+        } catch (HentGeografiskTilknytningSikkerhetsbegrensing e) {
+            log.error("Fikk sikkerhetsbegrensing ved henting av geografiskTilknytning");
+            throw new ForbiddenException();
+        } catch (HentGeografiskTilknytningPersonIkkeFunnet e) {
+            log.error("Fant ikke person ved henting av geografiskTilknytning");
+            throw new RuntimeException();
+        } catch (RuntimeException e){
+            log.error("Fikk RuntimeException mote TPS for diskresjonskode ved henting av geografiskTilknytning");
+            return "";
         }
     }
 

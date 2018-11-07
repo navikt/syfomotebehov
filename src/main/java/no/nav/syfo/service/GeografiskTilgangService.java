@@ -31,6 +31,9 @@ public class GeografiskTilgangService {
 
     public List<String> hentBrukersNavKontorForGeografiskTilknytning(String fnr) {
         final String geografiskTilknytning = personConsumer.hentGeografiskTilknytning(fnr);
+        if ("".equals(geografiskTilknytning)){
+            return emptyList();
+        }
         return organisasjonEnhetConsumer.finnNAVKontorForGT(geografiskTilknytning);
     }
 
