@@ -79,6 +79,13 @@ public class GeografiskTilgangComponentTest {
         geografiskTilgangController.hentGeografiskTilgang(BRUKER_FNR);
     }
 
+    @Test(expected = ForbiddenException.class)
+    public void hentGeografiskTilgangGeografiskTilknytningErNull() {
+        mockGeografiskTilknytningErNull();
+
+        geografiskTilgangController.hentGeografiskTilgang(BRUKER_FNR);
+    }
+
     private void mockHentPilotkontorFraOrganisasjonEnhet() {
         try {
             when(personV3Mock.hentGeografiskTilknytning(any())).thenReturn(new HentGeografiskTilknytningResponse()
@@ -107,6 +114,15 @@ public class GeografiskTilgangComponentTest {
                             .withEnhetNavn("Bjerke")
                             .withStatus(WSEnhetsstatus.AKTIV)));
         } catch (HentGeografiskTilknytningPersonIkkeFunnet | HentGeografiskTilknytningSikkerhetsbegrensing | FinnNAVKontorUgyldigInput e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void mockGeografiskTilknytningErNull() {
+        try {
+            when(personV3Mock.hentGeografiskTilknytning(any())).thenReturn(new HentGeografiskTilknytningResponse()
+                    .withGeografiskTilknytning(null));
+        } catch (HentGeografiskTilknytningPersonIkkeFunnet | HentGeografiskTilknytningSikkerhetsbegrensing e) {
             throw new RuntimeException(e);
         }
     }
