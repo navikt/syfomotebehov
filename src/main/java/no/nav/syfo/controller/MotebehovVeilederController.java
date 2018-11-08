@@ -59,6 +59,10 @@ public class MotebehovVeilederController {
         if (Toggle.endepunkterForMotebehov) {
             kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
 
+            if (!geografiskTilgangService.erBrukerTilhorendeMotebehovPilot(arbeidstakerFnr)) {
+                return emptyList();
+            }
+
             return motebehovService.hentMotebehovListe(Fnr.of(arbeidstakerFnr));
         } else {
             log.info("Det ble gjort kall mot 'veileder/motebehov', men dette endepunktet er togglet av.");
@@ -74,6 +78,10 @@ public class MotebehovVeilederController {
         if (Toggle.endepunkterForMotebehov) {
             kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
 
+            if (!geografiskTilgangService.erBrukerTilhorendeMotebehovPilot(arbeidstakerFnr)) {
+                return emptyList();
+            }
+
             return historikkService.hentHistorikkListe(Fnr.of(arbeidstakerFnr));
         } else {
             log.info("Det ble gjort kall mot 'veileder/historikk', men dette endepunktet er togglet av.");
@@ -82,8 +90,7 @@ public class MotebehovVeilederController {
     }
 
     private void kastExceptionHvisIkkeTilgang(String fnr) {
-        boolean harTilgang = geografiskTilgangService.erBrukerTilhorendeMotebehovPilot(fnr) && veilederTilgangService.sjekkVeiledersTilgangTilPerson(fnr);
-        if (!harTilgang) {
+        if (!veilederTilgangService.sjekkVeiledersTilgangTilPerson(fnr)) {
             throw new ForbiddenException("Veilederen har ikke tilgang til denne personen");
         }
     }
