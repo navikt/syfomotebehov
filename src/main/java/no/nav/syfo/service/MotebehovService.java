@@ -1,7 +1,9 @@
 package no.nav.syfo.service;
 
-import no.nav.syfo.consumer.ws.AktoerConsumer;
+import lombok.extern.slf4j.Slf4j;
+import no.nav.syfo.consumer.ws.*;
 import no.nav.syfo.domain.rest.*;
+import no.nav.syfo.mappers.domain.Enhet;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import no.nav.syfo.repository.domain.PMotebehov;
 import org.springframework.stereotype.Service;
@@ -22,14 +24,28 @@ import static no.nav.syfo.util.RestUtils.baseUrl;
  * Det er også nyttig å ha mappingen her (så lenge klassen er under en skjermlengde), slik at man ser den i sammenheng med stedet den blir brukt.
  */
 @Service
+@Slf4j
 public class MotebehovService {
 
     private final AktoerConsumer aktoerConsumer;
+    private final ArbeidsfordelingConsumer arbeidsfordelingConsumer;
+    private final PersonConsumer personConsumer;
+    private final EgenAnsattConsumer egenAnsattConsumer;
+    private final OrganisasjonEnhetConsumer organisasjonEnhetConsumer;
     private final MotebehovDAO motebehovDAO;
 
     @Inject
-    public MotebehovService(final AktoerConsumer aktoerConsumer, final MotebehovDAO motebehovDAO) {
+    public MotebehovService(final AktoerConsumer aktoerConsumer,
+                            final ArbeidsfordelingConsumer arbeidsfordelingConsumer,
+                            final PersonConsumer personConsumer,
+                            final EgenAnsattConsumer egenAnsattConsumer,
+                            final OrganisasjonEnhetConsumer organisasjonEnhetConsumer,
+                            final MotebehovDAO motebehovDAO) {
         this.aktoerConsumer = aktoerConsumer;
+        this.arbeidsfordelingConsumer = arbeidsfordelingConsumer;
+        this.personConsumer = personConsumer;
+        this.egenAnsattConsumer = egenAnsattConsumer;
+        this.organisasjonEnhetConsumer = organisasjonEnhetConsumer;
         this.motebehovDAO = motebehovDAO;
     }
 
@@ -54,7 +70,8 @@ public class MotebehovService {
     public UUID lagreMotebehov(Fnr innloggetFNR, Fnr arbeidstakerFnr, final NyttMotebehov nyttMotebehov) {
         final String innloggetBrukerAktoerId = aktoerConsumer.hentAktoerIdForFnr(innloggetFNR.getFnr());
         final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
-        final PMotebehov motebehov = mapNyttMotebehovToPMotebehov(innloggetBrukerAktoerId, arbeidstakerAktoerId, nyttMotebehov);
+        final String arbeidstakerBehandlendeEnhet = finnArbeidstakersBehandlendeEnhet(arbeidstakerFnr.getFnr());
+        final PMotebehov motebehov = mapNyttMotebehovToPMotebehov(innloggetBrukerAktoerId, arbeidstakerAktoerId, arbeidstakerBehandlendeEnhet, nyttMotebehov);
 
         return motebehovDAO.create(motebehov);
     }
@@ -69,7 +86,7 @@ public class MotebehovService {
                 .collect(toList());
     }
 
-    private PMotebehov mapNyttMotebehovToPMotebehov(String innloggetAktoerId, String arbeidstakerAktoerId, NyttMotebehov nyttMotebehov) {
+    private PMotebehov mapNyttMotebehovToPMotebehov(String innloggetAktoerId, String arbeidstakerAktoerId, String tildeltEnhet, NyttMotebehov nyttMotebehov) {
         return new PMotebehov()
                 .opprettetAv(innloggetAktoerId)
                 .aktoerId(arbeidstakerAktoerId)
@@ -78,7 +95,8 @@ public class MotebehovService {
                 .friskmeldingForventning(nyttMotebehov.motebehovSvar().friskmeldingForventning)
                 .tiltak(nyttMotebehov.motebehovSvar().tiltak)
                 .tiltakResultat(nyttMotebehov.motebehovSvar().tiltakResultat)
-                .forklaring(nyttMotebehov.motebehovSvar().forklaring);
+                .forklaring(nyttMotebehov.motebehovSvar().forklaring)
+                .tildeltEnhet(tildeltEnhet);
     }
 
     private Motebehov mapPMotebehovToMotebehov(Fnr arbeidstakerFnr, PMotebehov pMotebehov) {
@@ -94,18 +112,34 @@ public class MotebehovService {
                         .tiltakResultat(pMotebehov.tiltakResultat)
                         .harMotebehov(pMotebehov.harMotebehov)
                         .forklaring(pMotebehov.forklaring)
-                );
+                )
+                .tildeltEnhet(pMotebehov.tildeltEnhet);
     }
 
     private VeilederOppgaveFeedItem mapPMotebehovToVeilederOppgaveFeedItem(PMotebehov motebehov, String fnr) {
         return new VeilederOppgaveFeedItem()
                 .uuid(motebehov.uuid.toString())
+                .tildeltEnhet(motebehov.tildeltEnhet)
                 .fnr(fnr)
                 .lenke(baseUrl() + "/sykefravaer/" + fnr + "/motebehov/")
                 .type(VeilederOppgaveFeedItem.FeedHendelseType.MOTEBEHOV_MOTTATT.toString())
                 .created(motebehov.opprettetDato)
                 .status("IKKE_STARTET")
                 .virksomhetsnummer(motebehov.virksomhetsnummer);
+    }
+
+    private String finnArbeidstakersBehandlendeEnhet(String arbeidstakerFnr) {
+        String geografiskTilknytning = personConsumer.hentGeografiskTilknytning(arbeidstakerFnr);
+        if ("".equals(geografiskTilknytning)) {
+            log.error("Klarte ikke hente geografisk tilknytning på sykmeldt");
+            throw new RuntimeException();
+        }
+        Enhet enhet = arbeidsfordelingConsumer.finnAktivBehandlendeEnhet(geografiskTilknytning);
+        if (egenAnsattConsumer.erEgenAnsatt(arbeidstakerFnr)) {
+            Enhet overordnetEnhet = organisasjonEnhetConsumer.finnSetteKontor(enhet.enhetId()).orElse(enhet);
+            return overordnetEnhet.enhetId();
+        }
+        return enhet.enhetId();
     }
 
 }
