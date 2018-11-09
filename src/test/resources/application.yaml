@@ -52,6 +52,7 @@ mockOrganisasjonEnhet_V2: true
 mockOrganisasjon_V4: true
 mockSykefravaeroppfoelging_V1: true
 mockBrukeroppgave_V1: true
+mockArbeidsfordeling_V1: true
 
 dev: true
 
