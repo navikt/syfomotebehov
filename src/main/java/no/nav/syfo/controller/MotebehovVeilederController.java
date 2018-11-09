@@ -55,7 +55,9 @@ public class MotebehovVeilederController {
     @RequestMapping(value = "/motebehov")
     @ProtectedWithClaims(issuer = INTERN)
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public List<Motebehov> hentMotebehovListe(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
+    public List<Motebehov> hentMotebehovListe(
+            @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr
+    ) {
         if (Toggle.endepunkterForMotebehov) {
             kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
 
@@ -70,7 +72,9 @@ public class MotebehovVeilederController {
     @RequestMapping(value = "/historikk")
     @ProtectedWithClaims(issuer = INTERN)
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public List<Historikk> hentMotebehovHistorikk(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
+    public List<Historikk> hentMotebehovHistorikk(
+            @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr
+    ) {
         if (Toggle.endepunkterForMotebehov) {
             kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
 

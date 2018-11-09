@@ -80,7 +80,9 @@ public class MotebehovBrukerController {
 
     @ResponseBody
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public void lagreMotebehov(@RequestBody @Valid NyttMotebehov nyttMotebehov) {
+    public void lagreMotebehov(
+            @RequestBody @Valid NyttMotebehov nyttMotebehov
+    ) {
         if (Toggle.endepunkterForMotebehov) {
             kastExceptionHvisIkkeTilgang(nyttMotebehov.arbeidstakerFnr.getFnr());
 

@@ -26,14 +26,17 @@ public class GeografiskTilgangController {
 
     @Inject
     public GeografiskTilgangController(
-            final GeografiskTilgangService geografiskTilgangService) {
+            final GeografiskTilgangService geografiskTilgangService
+    ) {
         this.geografiskTilgangService = geografiskTilgangService;
     }
 
     @ResponseBody
     @ProtectedWithClaims(issuer = INTERN, claimMap = {"sub=srvsyfoservice"})
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public Response hentGeografiskTilgang(@RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr) {
+    public Response hentGeografiskTilgang(
+            @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr
+    ) {
         if (Toggle.endepunkterForMotebehov) {
             if (geografiskTilgangService.erBrukerTilhorendeMotebehovPilot(arbeidstakerFnr)) {
                 return Response.ok().build();

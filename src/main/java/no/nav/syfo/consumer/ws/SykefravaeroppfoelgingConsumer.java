@@ -20,8 +20,8 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static no.nav.syfo.mappers.WSAnsattMapper.wsAnsatt2AktorId;
-import static no.nav.syfo.mappers.WSNaermesteLederMapper.ws2naermesteLeder;
 import static no.nav.syfo.mappers.WSHendelseMapper.ws2Hendelse;
+import static no.nav.syfo.mappers.WSNaermesteLederMapper.ws2naermesteLeder;
 import static no.nav.syfo.util.MapUtil.mapListe;
 import static no.nav.syfo.util.OIDCUtil.tokenFraOIDC;
 
@@ -36,9 +36,10 @@ public class SykefravaeroppfoelgingConsumer {
     private SykefravaersoppfoelgingConfig sykefravaersoppfoelgingConfig;
 
     @Inject
-    public SykefravaeroppfoelgingConsumer(final OIDCRequestContextHolder contextHolder,
-                                          final SykefravaersoppfoelgingV1 sykefravaersoppfoelgingV1,
-                                          final SykefravaersoppfoelgingConfig sykefravaersoppfoelgingConfig
+    public SykefravaeroppfoelgingConsumer(
+            final OIDCRequestContextHolder contextHolder,
+            final SykefravaersoppfoelgingV1 sykefravaersoppfoelgingV1,
+            final SykefravaersoppfoelgingConfig sykefravaersoppfoelgingConfig
     ) {
         this.contextHolder = contextHolder;
         this.sykefravaersoppfoelgingV1 = sykefravaersoppfoelgingV1;

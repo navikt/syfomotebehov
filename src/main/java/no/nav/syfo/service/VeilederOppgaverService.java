@@ -31,7 +31,8 @@ public class VeilederOppgaverService {
             @Value("${syfoveilederoppgaver_system_v1.url}") String syfoveilederoppgaverUrl,
             @Value("${syfoveilederoppgaver.systemapi.username}") String credUsername,
             @Value("${syfoveilederoppgaver.systemapi.password}") String credPassword,
-            RestTemplate restTemplate) {
+            RestTemplate restTemplate
+    ) {
         this.restTemplate = restTemplate;
         this.syfoveilederoppgaverUrl = syfoveilederoppgaverUrl;
         this.credUsername = credUsername;

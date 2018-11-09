@@ -30,12 +30,18 @@ public class OrganisasjonConsumer implements InitializingBean {
     private final OrganisasjonV4 organisasjonV4;
 
     @Override
-    public void afterPropertiesSet() { instance = this; }
+    public void afterPropertiesSet() {
+        instance = this;
+    }
 
-    public static OrganisasjonConsumer organisasjonConsumer() { return instance; }
+    public static OrganisasjonConsumer organisasjonConsumer() {
+        return instance;
+    }
 
     @Inject
-    public OrganisasjonConsumer(OrganisasjonV4 organisasjonV4) { this.organisasjonV4 = organisasjonV4; }
+    public OrganisasjonConsumer(OrganisasjonV4 organisasjonV4) {
+        this.organisasjonV4 = organisasjonV4;
+    }
 
 
     public String hentBedriftnavn(String orgnr) {
@@ -72,7 +78,7 @@ public class OrganisasjonConsumer implements InitializingBean {
                 .orElseThrow(() -> {
                     log.warn("Kunne ikke hente organisasjon for {}", orgnr);
                     return new RuntimeException();
-        });
+                });
     }
 
     private Predicate<WSOrganisasjonsnavn> finnesIPeriode(LocalDate dato) {

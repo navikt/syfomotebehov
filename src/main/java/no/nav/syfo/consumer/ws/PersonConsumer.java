@@ -108,7 +108,7 @@ public class PersonConsumer implements InitializingBean {
         } catch (HentGeografiskTilknytningPersonIkkeFunnet e) {
             log.error("Fant ikke person ved henting av geografiskTilknytning");
             throw new RuntimeException();
-        } catch (RuntimeException e){
+        } catch (RuntimeException e) {
             log.error("Fikk RuntimeException mote TPS for diskresjonskode ved henting av geografiskTilknytning");
             return "";
         }

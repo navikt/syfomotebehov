@@ -7,7 +7,7 @@ import javax.validation.constraints.Pattern;
 
 @Value(staticConstructor = "of")
 public class Fnr {
-    
+
     @NotEmpty
     @Pattern(regexp = "^[0-9]{11}$")
     String fnr;

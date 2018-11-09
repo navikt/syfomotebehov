@@ -3,7 +3,10 @@ package no.nav.syfo.service;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.OIDCIssuer;
 import no.nav.syfo.consumer.ws.*;
-import no.nav.syfo.domain.rest.*;
+import no.nav.syfo.domain.rest.Fnr;
+import no.nav.syfo.domain.rest.Historikk;
+import no.nav.syfo.domain.rest.Motebehov;
+import no.nav.syfo.domain.rest.NaermesteLeder;
 import no.nav.syfo.mappers.domain.Hendelse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -30,13 +33,15 @@ public class HistorikkService {
     private final OrganisasjonConsumer organisasjonConsumer;
 
     @Inject
-    public HistorikkService(final MotebehovService motebehovService,
-                            final VeilederOppgaverService veilederOppgaverService,
-                            final PersonConsumer personConsumer,
-                            final BrukeroppgaveConsumer brukeroppgaveConsumer,
-                            final AktoerConsumer aktoerConsumer,
-                            final SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer,
-                            final OrganisasjonConsumer organisasjonConsumer) {
+    public HistorikkService(
+            final MotebehovService motebehovService,
+            final VeilederOppgaverService veilederOppgaverService,
+            final PersonConsumer personConsumer,
+            final BrukeroppgaveConsumer brukeroppgaveConsumer,
+            final AktoerConsumer aktoerConsumer,
+            final SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer,
+            final OrganisasjonConsumer organisasjonConsumer
+    ) {
         this.veilederOppgaverService = veilederOppgaverService;
         this.motebehovService = motebehovService;
         this.personConsumer = personConsumer;
@@ -79,8 +84,8 @@ public class HistorikkService {
                             .stream()
                             .filter(brukeroppgave -> brukeroppgave.oppgavetype.equals("NAERMESTE_LEDER_SVAR_MOTEBEHOV")
                                     && sykmeldtHendelser
-                                            .stream()
-                                            .anyMatch(hendelse -> hendelse.hendelseId() == Long.parseLong(brukeroppgave.ressursId()))
+                                    .stream()
+                                    .anyMatch(hendelse -> hendelse.hendelseId() == Long.parseLong(brukeroppgave.ressursId()))
                             )
                             .map(brukeroppgave -> new Historikk()
                                     .tekst("Varsel om svar på motebehov har blitt sendt til nærmeste leder i bedrift "
@@ -97,7 +102,7 @@ public class HistorikkService {
             return new ArrayList<>();
         }
     }
-    
+
     private List<Historikk> hentLesteMotebehovHistorikk(String sykmeldtFnr) {
         try {
             return veilederOppgaverService.get(sykmeldtFnr)

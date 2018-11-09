@@ -18,7 +18,7 @@ import static no.nav.syfo.util.RestUtils.baseUrl;
 /**
  * MøtebehovService har ansvaret for å knytte sammen og oversette mellom REST-grensesnittet, andre tjenester (aktør-registeret)
  * og database-koblingen, slik at de ikke trenger å vite noe om hverandre. (Low coupling - high cohesion)
- *
+ * <p>
  * Det er også nyttig å ha mappingen her (så lenge klassen er under en skjermlengde), slik at man ser den i sammenheng med stedet den blir brukt.
  */
 @Service

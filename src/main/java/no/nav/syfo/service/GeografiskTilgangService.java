@@ -4,7 +4,6 @@ package no.nav.syfo.service;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.consumer.ws.OrganisasjonEnhetConsumer;
 import no.nav.syfo.consumer.ws.PersonConsumer;
-import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.util.Toggle;
 import org.springframework.stereotype.Service;
 
@@ -23,15 +22,17 @@ public class GeografiskTilgangService {
     private final OrganisasjonEnhetConsumer organisasjonEnhetConsumer;
 
     @Inject
-    public GeografiskTilgangService(final PersonConsumer personConsumer,
-                                    final OrganisasjonEnhetConsumer organisasjonEnhetConsumer){
+    public GeografiskTilgangService(
+            final PersonConsumer personConsumer,
+            final OrganisasjonEnhetConsumer organisasjonEnhetConsumer
+    ) {
         this.personConsumer = personConsumer;
         this.organisasjonEnhetConsumer = organisasjonEnhetConsumer;
     }
 
     public List<String> hentBrukersNavKontorForGeografiskTilknytning(String fnr) {
         final String geografiskTilknytning = personConsumer.hentGeografiskTilknytning(fnr);
-        if ("".equals(geografiskTilknytning)){
+        if ("".equals(geografiskTilknytning)) {
             return emptyList();
         }
         return organisasjonEnhetConsumer.finnNAVKontorForGT(geografiskTilknytning);

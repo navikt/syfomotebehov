@@ -21,7 +21,9 @@ public class VeilederTilgangService {
     private final RestTemplate template;
     private final UriComponentsBuilder tilgangTilBrukerUriTemplate;
 
-    public VeilederTilgangService(@Value("${tilgangskontrollapi.url}") String tilgangskontrollUrl, RestTemplate template) {
+    public VeilederTilgangService(
+            @Value("${tilgangskontrollapi.url}") String tilgangskontrollUrl, RestTemplate template
+    ) {
         tilgangTilBrukerUriTemplate = fromHttpUrl(tilgangskontrollUrl)
                 .path(TILGANG_TIL_BRUKER_PATH)
                 .queryParam(FNR, FNR_PLACEHOLDER);
@@ -34,8 +36,8 @@ public class VeilederTilgangService {
         try {
             template.getForObject(tilgangTilBrukerUriMedFnr, Object.class);
             return true;
-        } catch (HttpClientErrorException e){
-            if(e.getRawStatusCode() == 403){
+        } catch (HttpClientErrorException e) {
+            if (e.getRawStatusCode() == 403) {
                 return false;
             } else {
                 throw e;
