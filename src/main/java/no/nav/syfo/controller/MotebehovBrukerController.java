@@ -12,6 +12,7 @@ import no.nav.syfo.service.GeografiskTilgangService;
 import no.nav.syfo.service.MotebehovService;
 import no.nav.syfo.util.Metrikk;
 import no.nav.syfo.util.Toggle;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
@@ -64,7 +65,7 @@ public class MotebehovBrukerController {
             @RequestParam(name = "virksomhetsnummer") String virksomhetsnummer
     ) {
         if (Toggle.endepunkterForMotebehov) {
-            Fnr fnr = arbeidstakerFnr.isEmpty() ? fnrFraOIDCEkstern(contextHolder) : Fnr.of(arbeidstakerFnr);
+            Fnr fnr = StringUtils.isEmpty(arbeidstakerFnr) ? fnrFraOIDCEkstern(contextHolder) : Fnr.of(arbeidstakerFnr);
 
             kastExceptionHvisIkkeTilgang(fnr.getFnr());
 
@@ -84,9 +85,11 @@ public class MotebehovBrukerController {
             @RequestBody @Valid NyttMotebehov nyttMotebehov
     ) {
         if (Toggle.endepunkterForMotebehov) {
-            kastExceptionHvisIkkeTilgang(nyttMotebehov.arbeidstakerFnr.getFnr());
+            Fnr fnr = StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr) ? fnrFraOIDCEkstern(contextHolder) : Fnr.of(nyttMotebehov.arbeidstakerFnr);
 
-            motebehovService.lagreMotebehov(fnrFraOIDCEkstern(contextHolder), nyttMotebehov);
+            kastExceptionHvisIkkeTilgang(fnr.getFnr());
+
+            motebehovService.lagreMotebehov(fnrFraOIDCEkstern(contextHolder), fnr, nyttMotebehov);
             lagBesvarMotebehovMetrikk(nyttMotebehov.motebehovSvar);
 
         } else {

@@ -51,9 +51,9 @@ public class MotebehovService {
                 .collect(toList());
     }
 
-    public UUID lagreMotebehov(Fnr innloggetFNR, final NyttMotebehov nyttMotebehov) {
+    public UUID lagreMotebehov(Fnr innloggetFNR, Fnr arbeidstakerFnr, final NyttMotebehov nyttMotebehov) {
         final String innloggetBrukerAktoerId = aktoerConsumer.hentAktoerIdForFnr(innloggetFNR.getFnr());
-        final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(nyttMotebehov.arbeidstakerFnr.getFnr());
+        final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
         final PMotebehov motebehov = mapNyttMotebehovToPMotebehov(innloggetBrukerAktoerId, arbeidstakerAktoerId, nyttMotebehov);
 
         return motebehovDAO.create(motebehov);

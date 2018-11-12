@@ -95,7 +95,7 @@ public class MotebehovVeilederComponentTest {
                 .forklaring("");
 
         final NyttMotebehov nyttMotebehov = new NyttMotebehov()
-                .arbeidstakerFnr(Fnr.of(ARBEIDSTAKER_FNR))
+                .arbeidstakerFnr(ARBEIDSTAKER_FNR)
                 .virksomhetsnummer(VIRKSOMHETSNUMMER)
                 .motebehovSvar(
                         motebehovSvar
