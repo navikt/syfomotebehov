@@ -64,7 +64,7 @@ public class MotebehovBrukerController {
             @RequestParam(name = "virksomhetsnummer") String virksomhetsnummer
     ) {
         if (Toggle.endepunkterForMotebehov) {
-            Fnr fnr = Fnr.of(arbeidstakerFnr);
+            Fnr fnr = arbeidstakerFnr.isEmpty() ? fnrFraOIDCEkstern(contextHolder) : Fnr.of(arbeidstakerFnr);
 
             kastExceptionHvisIkkeTilgang(fnr.getFnr());
 
