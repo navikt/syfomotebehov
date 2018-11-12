@@ -98,7 +98,7 @@ public class HistorikkService {
                     .flatMap(tilHistorikk)
                     .collect(toList());
         } catch (RuntimeException e) {
-            log.error("Klarte ikke hente ut varselhistorikk på nestleders møtebehov");
+            log.error("Klarte ikke hente ut varselhistorikk på nærmeste leders møtebehov");
             return new ArrayList<>();
         }
     }
