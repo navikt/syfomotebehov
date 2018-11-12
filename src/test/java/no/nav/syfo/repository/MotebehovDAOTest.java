@@ -39,7 +39,8 @@ public class MotebehovDAOTest {
             .tiltak(TILTAK)
             .tiltakResultat("Mindre smerter")
             .harMotebehov(true)
-            .forklaring("Megling");
+            .forklaring("Megling")
+            .tildeltEnhet("0330");
 
     @Inject
     private JdbcTemplate jdbcTemplate;
@@ -55,7 +56,7 @@ public class MotebehovDAOTest {
     @Test
     public void hentMotebehovListeForAktoer() throws Exception {
         jdbcTemplate.update("INSERT INTO MOTEBEHOV VALUES('bae778f2-a085-11e8-98d0-529269fb1459', '2018-03-07 15:10:50.112000', '" + ARBEIDSGIVER_AKTOERID + "', '" + SYKMELDT_AKTOERID + "', '" + VIRKSOMHETSNUMMER + "', 'Snart', '" + TILTAK + "', " +
-                "'Mindre smerter', '1', 'Megling')");
+                "'Mindre smerter', '1', 'Megling', '0330')");
         List<PMotebehov> motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(SYKMELDT_AKTOERID).orElseThrow(Exception::new);
 
         assertThat(motebehovListe.size()).isEqualTo(1);
@@ -69,6 +70,7 @@ public class MotebehovDAOTest {
         assertThat(motebehovFraDb.tiltakResultat).isEqualTo(MOTEBEHOV_1.tiltakResultat);
         assertThat(motebehovFraDb.harMotebehov).isTrue();
         assertThat(motebehovFraDb.forklaring).isEqualTo(MOTEBEHOV_1.forklaring);
+        assertThat(motebehovFraDb.tildeltEnhet).isEqualTo(MOTEBEHOV_1.tildeltEnhet);
 
     }
 

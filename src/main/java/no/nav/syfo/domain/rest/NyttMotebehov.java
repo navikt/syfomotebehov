@@ -17,4 +17,6 @@ public class NyttMotebehov {
 
     @NotNull
     public MotebehovSvar motebehovSvar;
+
+    public String tildeltEnhet;
 }
