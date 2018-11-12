@@ -37,6 +37,7 @@ public class MotebehovComponentTest {
     private static final String LEDER_FNR = "10987654321";
     public static final String LEDER_AKTORID = AktoerMock.mockAktorId(LEDER_FNR);
     private static final String VIRKSOMHETSNUMMER = "1234";
+    private static final String TILDELT_ENHET = "0330";
 
     @Inject
     private MotebehovBrukerController motebehovController;
@@ -73,7 +74,8 @@ public class MotebehovComponentTest {
                 .virksomhetsnummer(VIRKSOMHETSNUMMER)
                 .motebehovSvar(
                         motebehovSvar
-                );
+                )
+                .tildeltEnhet(TILDELT_ENHET);
 
         // Lagre
         motebehovController.lagreMotebehov(nyttMotebehov);
