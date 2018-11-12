@@ -110,7 +110,7 @@ public class HistorikkService {
                     .filter(veilederOppgave -> veilederOppgave.type.equals("MOTEBEHOV_MOTTATT") && veilederOppgave.status.equals("FERDIG"))
                     .map(veilederOppgave -> new Historikk()
                             .tekst("Møtebehovet ble lest av " + veilederOppgave.sistEndretAv + ".")
-                            .tidspunkt(veilederOppgave.getSistEndret())
+                            .tidspunkt(veilederOppgave.getSistEndretAsLocalDateTime())
                     )
                     .collect(toList());
         } catch (RestClientException e) {

@@ -18,8 +18,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static java.time.LocalDateTime.now;
+import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.UUID.fromString;
+import static java.util.stream.Collectors.toList;
 import static no.nav.syfo.repository.DbUtil.convert;
 import static no.nav.syfo.repository.DbUtil.sanitizeUserInput;
 
@@ -97,22 +99,24 @@ public class MotebehovDAO {
     }
 
     public int nullstillMotebehov(String aktoerId) {
-        List<Long> motebehovIder = namedParameterJdbcTemplate.query(
-                "SELECT motebehov_uuid FROM MOTEBEHOV WHERE (aktoer_id = :aktoerId)",
+        if (hentMotebehovListeForAktoer(aktoerId).isPresent()) {
+            List<UUID> motebehovIder = ofNullable(hentMotebehovListeForAktoer(aktoerId)
+                    .get()
+                    .stream()
+                    .map(PMotebehov::uuid)
+                    .collect(toList())).orElse(emptyList());
 
-                new MapSqlParameterSource()
-                        .addValue("aktoerId", aktoerId),
+            int antallMotebehovSlettet = namedParameterJdbcTemplate.update(
+                    "DELETE FROM MOTEBEHOV WHERE motebehov_uuid IN (:motebehovIder)",
 
-                (row, rowNum) -> row.getLong("motebehov_uuid"));
+                    new MapSqlParameterSource()
+                            .addValue("motebehovIder", motebehovIder));
 
-        int antallMotebehovSlettet = namedParameterJdbcTemplate.update(
-                "DELETE FROM MOTEBEHOV WHERE motebehov_uuid IN (:motebehovIder)",
+            log.info("Slettet {} møtebehov på aktør: {}", antallMotebehovSlettet, aktoerId);
 
-                new MapSqlParameterSource()
-                        .addValue("motebehovIder", motebehovIder));
-
-        log.info("Slettet {} møtebehov på aktør: {}", antallMotebehovSlettet, aktoerId);
-
-        return antallMotebehovSlettet;
+            return antallMotebehovSlettet;
+        } else {
+            return 0;
+        }
     }
 }

@@ -2,6 +2,7 @@ package no.nav.syfo.mock;
 
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.*;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.informasjon.WSAnsatt;
+import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.informasjon.WSHendelse;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.informasjon.WSNaermesteLeder;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.informasjon.WSNaermesteLederStatus;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.*;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import static java.util.Arrays.asList;
 import static no.nav.syfo.controller.MotebehovComponentTest.ARBEIDSTAKER_AKTORID;
+import static no.nav.syfo.controller.MotebehovComponentTest.LEDER_AKTORID;
 
 @Service
 @ConditionalOnProperty(value = "mockSykefravaeroppfoelging_V1", havingValue = "true")
@@ -40,7 +42,7 @@ public class SykefravaeroppfoelgingMock implements SykefravaersoppfoelgingV1 {
         return new WSHentNaermesteLedersAnsattListeResponse()
                 .withAnsattListe(asList(
                         new WSAnsatt()
-                            .withAktoerId(ARBEIDSTAKER_AKTORID)
+                                .withAktoerId(ARBEIDSTAKER_AKTORID)
                 ));
     }
 
@@ -57,16 +59,6 @@ public class SykefravaeroppfoelgingMock implements SykefravaersoppfoelgingV1 {
                                 .withNavn("Arbeidsgiver 1")
                                 .withOrgnummer("1234")
                                 .withEpost("test@nav.no")
-                                .withMobil("11223344"),
-                        new WSNaermesteLeder()
-                                .withNaermesteLederId(2222L)
-                                .withNaermesteLederAktoerId("1000000000002")
-                                .withNaermesteLederStatus(new WSNaermesteLederStatus()
-                                        .withErAktiv(true)
-                                )
-                                .withNavn("Arbeidsgiver 2")
-                                .withOrgnummer("2345")
-                                .withEpost("test@nav.no")
                                 .withMobil("11223344")
                 ));
     }
@@ -78,7 +70,13 @@ public class SykefravaeroppfoelgingMock implements SykefravaersoppfoelgingV1 {
 
     @Override
     public WSHentHendelseListeResponse hentHendelseListe(WSHentHendelseListeRequest request) throws HentHendelseListeSikkerhetsbegrensning {
-        return null;
+        return new WSHentHendelseListeResponse()
+                .withHendelseListe(
+                        new WSHendelse()
+                                .withAktoerId(LEDER_AKTORID)
+                                .withId(1L)
+                                .withType("NAERMESTE_LEDER_SVAR_MOTEBEHOV")
+                );
     }
 
 }
