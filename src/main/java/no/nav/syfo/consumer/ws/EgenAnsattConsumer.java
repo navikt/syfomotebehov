@@ -30,7 +30,7 @@ public class EgenAnsattConsumer implements InitializingBean {
                     .withIdent(fnr)
             ).isEgenAnsatt();
         } catch (RuntimeException e) {
-            log.error("Klarte sjekke egenansatt status på sykmeldt");
+            log.error("Klarte ikke hente egenansatt status på sykmeldt");
             throw e;
         }
     }
