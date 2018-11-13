@@ -44,7 +44,10 @@ public class ArbeidsfordelingConsumer implements InitializingBean {
                     .filter(wsOrganisasjonsenhet -> AKTIV.equals(wsOrganisasjonsenhet.getStatus()))
                     .map(wsOrganisasjonsenhet -> new Enhet().enhetId(wsOrganisasjonsenhet.getEnhetId()).navn(wsOrganisasjonsenhet.getEnhetNavn()))
                     .findFirst()
-                    .orElse(new Enhet().enhetId("").navn(""));
+                    .orElse(new Enhet()
+                            .enhetId(geografiskTilknytning)
+                            .navn(geografiskTilknytning)
+                    );
         } catch (FinnBehandlendeEnhetListeUgyldigInput e) {
             log.error("Feil ved henting av brukers forvaltningsenhet med geografiskTilknytning: " + geografiskTilknytning);
             throw new RuntimeException("Feil ved henting av brukers forvaltningsenhet", e);
