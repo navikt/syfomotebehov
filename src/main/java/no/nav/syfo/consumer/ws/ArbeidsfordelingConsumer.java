@@ -32,7 +32,6 @@ public class ArbeidsfordelingConsumer implements InitializingBean {
     public ArbeidsfordelingConsumer(ArbeidsfordelingV1 arbeidsfordelingV1) { this.arbeidsfordelingV1 = arbeidsfordelingV1; }
 
     public Enhet finnAktivBehandlendeEnhet(String geografiskTilknytning) {
-
         try {
             return arbeidsfordelingV1.finnBehandlendeEnhetListe(
                     new WSFinnBehandlendeEnhetListeRequest()
