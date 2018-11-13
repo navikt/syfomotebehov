@@ -43,6 +43,8 @@ virksomhet:
   person.v3.endpointurl: "personv3.url"
   organisasjonEnhet.v2.endpointurl: "organisasjonEnhetv2.url"
   organisasjon.v4.endpointurl: "organisasjonv4.url"
+  arbeidsfordeling.v1.endpointurl: "arbeidsfordelingv1.url"
+  egenansatt.v1.endpointurl: "egenansattv1.url"
 
 fasit.environment.name: 'local'
 
@@ -53,6 +55,7 @@ mockOrganisasjon_V4: true
 mockSykefravaeroppfoelging_V1: true
 mockBrukeroppgave_V1: true
 mockArbeidsfordeling_V1: true
+mockEgenAnsatt_V1: true
 
 dev: true
 

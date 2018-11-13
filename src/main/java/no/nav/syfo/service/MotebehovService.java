@@ -1,8 +1,6 @@
 package no.nav.syfo.service;
 
-import no.nav.syfo.consumer.ws.AktoerConsumer;
-import no.nav.syfo.consumer.ws.ArbeidsfordelingConsumer;
-import no.nav.syfo.consumer.ws.PersonConsumer;
+import no.nav.syfo.consumer.ws.*;
 import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.mappers.domain.Enhet;
 import no.nav.syfo.repository.dao.MotebehovDAO;
@@ -30,16 +28,22 @@ public class MotebehovService {
     private final AktoerConsumer aktoerConsumer;
     private final ArbeidsfordelingConsumer arbeidsfordelingConsumer;
     private final PersonConsumer personConsumer;
+    private final EgenAnsattConsumer egenAnsattConsumer;
+    private final OrganisasjonEnhetConsumer organisasjonEnhetConsumer;
     private final MotebehovDAO motebehovDAO;
 
     @Inject
     public MotebehovService(final AktoerConsumer aktoerConsumer,
                             final ArbeidsfordelingConsumer arbeidsfordelingConsumer,
                             final PersonConsumer personConsumer,
+                            final EgenAnsattConsumer egenAnsattConsumer,
+                            final OrganisasjonEnhetConsumer organisasjonEnhetConsumer,
                             final MotebehovDAO motebehovDAO) {
         this.aktoerConsumer = aktoerConsumer;
         this.arbeidsfordelingConsumer = arbeidsfordelingConsumer;
         this.personConsumer = personConsumer;
+        this.egenAnsattConsumer = egenAnsattConsumer;
+        this.organisasjonEnhetConsumer = organisasjonEnhetConsumer;
         this.motebehovDAO = motebehovDAO;
     }
 
@@ -64,8 +68,7 @@ public class MotebehovService {
     public UUID lagreMotebehov(Fnr innloggetFNR, Fnr arbeidstakerFnr, final NyttMotebehov nyttMotebehov) {
         final String innloggetBrukerAktoerId = aktoerConsumer.hentAktoerIdForFnr(innloggetFNR.getFnr());
         final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
-        final String arbeidstakerGeografiskTilknytning = personConsumer.hentGeografiskTilknytning(arbeidstakerFnr.getFnr());
-        final Enhet arbeidstakerBehandlendeEnhet = arbeidsfordelingConsumer.finnAktivBehandlendeEnhet(arbeidstakerGeografiskTilknytning);
+        final String arbeidstakerBehandlendeEnhet = finnArbeidstakersBehandlendeEnhet(arbeidstakerFnr.getFnr());
         final PMotebehov motebehov = mapNyttMotebehovToPMotebehov(innloggetBrukerAktoerId, arbeidstakerAktoerId, arbeidstakerBehandlendeEnhet, nyttMotebehov);
 
         return motebehovDAO.create(motebehov);
@@ -81,7 +84,7 @@ public class MotebehovService {
                 .collect(toList());
     }
 
-    private PMotebehov mapNyttMotebehovToPMotebehov(String innloggetAktoerId, String arbeidstakerAktoerId, Enhet tildeltEnhet, NyttMotebehov nyttMotebehov) {
+    private PMotebehov mapNyttMotebehovToPMotebehov(String innloggetAktoerId, String arbeidstakerAktoerId, String tildeltEnhet, NyttMotebehov nyttMotebehov) {
         return new PMotebehov()
                 .opprettetAv(innloggetAktoerId)
                 .aktoerId(arbeidstakerAktoerId)
@@ -91,7 +94,7 @@ public class MotebehovService {
                 .tiltak(nyttMotebehov.motebehovSvar().tiltak)
                 .tiltakResultat(nyttMotebehov.motebehovSvar().tiltakResultat)
                 .forklaring(nyttMotebehov.motebehovSvar().forklaring)
-                .tildeltEnhet(tildeltEnhet.enhetId());
+                .tildeltEnhet(tildeltEnhet);
     }
 
     private Motebehov mapPMotebehovToMotebehov(Fnr arbeidstakerFnr, PMotebehov pMotebehov) {
@@ -121,6 +124,16 @@ public class MotebehovService {
                 .created(motebehov.opprettetDato)
                 .status("IKKE_STARTET")
                 .virksomhetsnummer(motebehov.virksomhetsnummer);
+    }
+
+    private String finnArbeidstakersBehandlendeEnhet(String arbeidstakerFnr) {
+        String geografiskTilknytning = personConsumer.hentGeografiskTilknytning(arbeidstakerFnr);
+        Enhet enhet = arbeidsfordelingConsumer.finnAktivBehandlendeEnhet(geografiskTilknytning);
+        if (egenAnsattConsumer.erEgenAnsatt(arbeidstakerFnr)) {
+            Enhet overordnetEnhet = organisasjonEnhetConsumer.finnSetteKontor(enhet.enhetId()).orElse(enhet);
+            return overordnetEnhet.enhetId();
+        }
+        return enhet.enhetId();
     }
 
 }
