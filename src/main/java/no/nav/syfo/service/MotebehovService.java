@@ -1,5 +1,6 @@
 package no.nav.syfo.service;
 
+import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.consumer.ws.*;
 import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.mappers.domain.Enhet;
@@ -23,6 +24,7 @@ import static no.nav.syfo.util.RestUtils.baseUrl;
  * Det er også nyttig å ha mappingen her (så lenge klassen er under en skjermlengde), slik at man ser den i sammenheng med stedet den blir brukt.
  */
 @Service
+@Slf4j
 public class MotebehovService {
 
     private final AktoerConsumer aktoerConsumer;
@@ -128,6 +130,10 @@ public class MotebehovService {
 
     private String finnArbeidstakersBehandlendeEnhet(String arbeidstakerFnr) {
         String geografiskTilknytning = personConsumer.hentGeografiskTilknytning(arbeidstakerFnr);
+        if ("".equals(geografiskTilknytning)) {
+            log.error("Klarte ikke hente geografisk tilknytning på sykmeldt");
+            throw new RuntimeException();
+        }
         Enhet enhet = arbeidsfordelingConsumer.finnAktivBehandlendeEnhet(geografiskTilknytning);
         if (egenAnsattConsumer.erEgenAnsatt(arbeidstakerFnr)) {
             Enhet overordnetEnhet = organisasjonEnhetConsumer.finnSetteKontor(enhet.enhetId()).orElse(enhet);

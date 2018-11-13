@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 
+import static no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.WSEnhetsstatus.AKTIV;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.of;
@@ -55,7 +56,7 @@ public class OrganisasjonEnhetConsumer implements InitializingBean {
                                     new WSGeografi()
                                             .withValue(geografiskTilknytning))))
                     .map(WSFinnNAVKontorResponse::getNAVKontor)
-                    .filter(wsOrganisasjonsenhet -> WSEnhetsstatus.AKTIV.equals(wsOrganisasjonsenhet.getStatus()))
+                    .filter(wsOrganisasjonsenhet -> AKTIV.equals(wsOrganisasjonsenhet.getStatus()))
                     .map(WSOrganisasjonsenhet::getEnhetId)
                     .collect(toList());
         } catch (FinnNAVKontorUgyldigInput |
@@ -71,7 +72,7 @@ public class OrganisasjonEnhetConsumer implements InitializingBean {
                     .withEnhetId(enhet).withEnhetRelasjonstype(new WSEnhetRelasjonstyper().withValue("HABILITET")))
                     .getOverordnetEnhetListe()
                     .stream()
-                    .filter(wsOrganisasjonsenhet -> WSEnhetsstatus.AKTIV.equals(wsOrganisasjonsenhet.getStatus()))
+                    .filter(wsOrganisasjonsenhet -> AKTIV.equals(wsOrganisasjonsenhet.getStatus()))
                     .map(wsOrganisasjonsenhet -> new Enhet().enhetId(wsOrganisasjonsenhet.getEnhetId()).navn(wsOrganisasjonsenhet.getEnhetNavn()))
                     .findFirst();
         } catch (HentOverordnetEnhetListeEnhetIkkeFunnet e) {
