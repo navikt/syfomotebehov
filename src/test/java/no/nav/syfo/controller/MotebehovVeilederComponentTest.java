@@ -106,23 +106,7 @@ public class MotebehovVeilederComponentTest {
 
     @Test
     public void arbeidsgiverLagrerOgVeilederHenterMotebehov() {
-        // Nærmeste leder lagrer møtebehov
-        loggInnBruker(oidcRequestContextHolder, LEDER_FNR);
-        final MotebehovSvar motebehovSvar = new MotebehovSvar()
-                .harMotebehov(true)
-                .friskmeldingForventning("Om en uke")
-                .tiltak("Krykker")
-                .tiltakResultat("Kommer seg fremover")
-                .forklaring("");
-
-        final NyttMotebehov nyttMotebehov = new NyttMotebehov()
-                .arbeidstakerFnr(ARBEIDSTAKER_FNR)
-                .virksomhetsnummer(VIRKSOMHETSNUMMER)
-                .motebehovSvar(
-                        motebehovSvar
-                );
-
-        motebehovController.lagreMotebehov(nyttMotebehov);
+        NyttMotebehov nyttMotebehov = arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
         // Veileder henter møtebehov
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
@@ -135,28 +119,12 @@ public class MotebehovVeilederComponentTest {
         assertThat(motebehov.opprettetAv).isEqualTo(LEDER_AKTORID);
         assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR);
         assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER);
-        assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(motebehovSvar);
+        assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(nyttMotebehov.motebehovSvar);
     }
 
     @Test
     public void hentHistorikk() throws Exception {
-        // Nærmeste leder lagrer møtebehov
-        loggInnBruker(oidcRequestContextHolder, LEDER_FNR);
-        final MotebehovSvar motebehovSvar = new MotebehovSvar()
-                .harMotebehov(true)
-                .friskmeldingForventning("Om en uke")
-                .tiltak("Krykker")
-                .tiltakResultat("Kommer seg fremover")
-                .forklaring("");
-
-        final NyttMotebehov nyttMotebehov = new NyttMotebehov()
-                .arbeidstakerFnr(ARBEIDSTAKER_FNR)
-                .virksomhetsnummer(VIRKSOMHETSNUMMER)
-                .motebehovSvar(
-                        motebehovSvar
-                );
-
-        motebehovController.lagreMotebehov(nyttMotebehov);
+        arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
         mockSvarFraSyfoTilgangsKontrollOgVeilederoppgaver(ARBEIDSTAKER_FNR, OK);
@@ -179,6 +147,27 @@ public class MotebehovVeilederComponentTest {
         Historikk varselHistorikk = historikkListe.get(2);
         assertThat(varselHistorikk.tekst).isEqualTo(VARSEL_HISTORIKK_TEKST);
         assertThat(varselHistorikk.tidspunkt).isEqualTo(LocalDateTime.of(2018, 10, 10, 0, 0));
+    }
+
+    private NyttMotebehov arbeidsgiverLagrerMotebehov(String lederFnr, String arbeidstakerFnr, String virksomhetsnummer) {
+        loggInnBruker(oidcRequestContextHolder, lederFnr);
+        final MotebehovSvar motebehovSvar = new MotebehovSvar()
+                .harMotebehov(true)
+                .friskmeldingForventning("Om en uke")
+                .tiltak("Krykker")
+                .tiltakResultat("Kommer seg fremover")
+                .forklaring("");
+
+        final NyttMotebehov nyttMotebehov = new NyttMotebehov()
+                .arbeidstakerFnr(arbeidstakerFnr)
+                .virksomhetsnummer(virksomhetsnummer)
+                .motebehovSvar(
+                        motebehovSvar
+                );
+
+        motebehovController.lagreMotebehov(nyttMotebehov);
+
+        return nyttMotebehov;
     }
 
     private void mockSvarFraSyfoTilgangskontroll(String fnr, HttpStatus status) {
