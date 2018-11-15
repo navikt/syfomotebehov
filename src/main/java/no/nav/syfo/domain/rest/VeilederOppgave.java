@@ -24,14 +24,14 @@ public class VeilederOppgave {
     public String status;
     public String uuid;
 
-    public LocalDateTime getCreated() {
+    public LocalDateTime getCreatedAsLocalDateTime() {
         int year = Integer.parseInt(this.created.substring(0, 4));
         Month month = Month.of(Integer.parseInt(this.created.substring(5, 7)));
         int day = Integer.parseInt(this.created.substring(8, 10));
         return LocalDateTime.of(year, month, day, 0, 0);
     }
 
-    public LocalDateTime getSistEndret() {
+    public LocalDateTime getSistEndretAsLocalDateTime() {
         int year = Integer.parseInt(this.sistEndret.substring(0, 4));
         Month month = Month.of(Integer.parseInt(this.sistEndret.substring(5, 7)));
         int day = Integer.parseInt(this.sistEndret.substring(8, 10));

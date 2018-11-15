@@ -2,7 +2,9 @@ package no.nav.syfo.mock;
 
 import no.nav.tjeneste.domene.digisyfo.brukeroppgave.v1.BrukeroppgaveV1;
 import no.nav.tjeneste.domene.digisyfo.brukeroppgave.v1.informasjon.WSBrukeroppgave;
-import no.nav.tjeneste.domene.digisyfo.brukeroppgave.v1.meldinger.*;
+import no.nav.tjeneste.domene.digisyfo.brukeroppgave.v1.meldinger.WSHentBrukeroppgaveListeRequest;
+import no.nav.tjeneste.domene.digisyfo.brukeroppgave.v1.meldinger.WSHentBrukeroppgaveListeResponse;
+import no.nav.tjeneste.domene.digisyfo.brukeroppgave.v1.meldinger.WSSlettBrukeroppgaveRequest;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +17,9 @@ import java.util.UUID;
 public class BrukeroppgaveMock implements BrukeroppgaveV1 {
 
     @Override
-    public void ping() { return; }
+    public void ping() {
+        return;
+    }
 
     @Override
     public WSHentBrukeroppgaveListeResponse hentBrukeroppgaveListe(WSHentBrukeroppgaveListeRequest wsHentBrukeroppgaveListeRequest) {
@@ -24,19 +28,21 @@ public class BrukeroppgaveMock implements BrukeroppgaveV1 {
                         .withOppgaveUuid(UUID.randomUUID().toString())
                         .withOpprettettidspunkt(LocalDateTime.now())
                         .withOppgavetype("NAERMESTE_LEDER_LES_SYKMELDING")
-                        .withRessursId("sykmelding1")
+                        .withRessursId("1")
                         .withRessurseier("1"),
                 new WSBrukeroppgave()
                         .withOppgaveUuid(UUID.randomUUID().toString())
-                        .withOpprettettidspunkt(LocalDateTime.now().minusMinutes(2))
+                        .withOpprettettidspunkt(LocalDateTime.of(2018, 10, 10, 0, 0))
                         .withOppgavetype("NAERMESTE_LEDER_SVAR_MOTEBEHOV")
-                        .withRessursId("motebehov1")
+                        .withRessursId("1")
                         .withRessurseier("1")
                 )
         );
     }
 
     @Override
-    public void slettBrukeroppgave(WSSlettBrukeroppgaveRequest wsSlettBrukeroppgaveRequest) { return; }
+    public void slettBrukeroppgave(WSSlettBrukeroppgaveRequest wsSlettBrukeroppgaveRequest) {
+        return;
+    }
 
 }
