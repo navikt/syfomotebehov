@@ -15,4 +15,5 @@ public class Motebehov {
     public Fnr arbeidstakerFnr;
     public String virksomhetsnummer;
     public MotebehovSvar motebehovSvar;
+    public String tildeltEnhet;
 }

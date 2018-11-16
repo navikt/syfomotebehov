@@ -1,0 +1,2 @@
+ALTER TABLE MOTEBEHOV
+ADD tildelt_enhet VARCHAR(10)

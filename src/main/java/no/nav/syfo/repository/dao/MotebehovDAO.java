@@ -60,7 +60,8 @@ public class MotebehovDAO {
                 ":tiltak, " +
                 ":tiltak_resultat, " +
                 ":har_motebehov, " +
-                ":forklaring" +
+                ":forklaring," +
+                ":tildelt_enhet" +
                 ")";
 
         MapSqlParameterSource mapLagreSql = new MapSqlParameterSource()
@@ -73,7 +74,8 @@ public class MotebehovDAO {
                 .addValue("tiltak", new SqlLobValue(sanitizeUserInput(motebehov.tiltak)), Types.CLOB)
                 .addValue("tiltak_resultat", new SqlLobValue(sanitizeUserInput(motebehov.tiltakResultat)), Types.CLOB)
                 .addValue("har_motebehov", motebehov.harMotebehov)
-                .addValue("forklaring", new SqlLobValue(sanitizeUserInput(motebehov.forklaring)), Types.CLOB);
+                .addValue("forklaring", new SqlLobValue(sanitizeUserInput(motebehov.forklaring)), Types.CLOB)
+                .addValue("tildelt_enhet", motebehov.tildeltEnhet);
 
         namedParameterJdbcTemplate.update(lagreSql, mapLagreSql);
 
@@ -95,7 +97,8 @@ public class MotebehovDAO {
                 .tiltak(rs.getString("tiltak"))
                 .tiltakResultat(rs.getString("tiltak_resultat"))
                 .harMotebehov(rs.getBoolean("har_motebehov"))
-                .forklaring(rs.getString("forklaring"));
+                .forklaring(rs.getString("forklaring"))
+                .tildeltEnhet(rs.getString("tildelt_enhet"));
     }
 
     public int nullstillMotebehov(String aktoerId) {

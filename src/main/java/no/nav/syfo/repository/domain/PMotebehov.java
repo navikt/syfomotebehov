@@ -20,4 +20,5 @@ public class PMotebehov {
     public String tiltakResultat;
     public boolean harMotebehov;
     public String forklaring;
+    public String tildeltEnhet;
 }
