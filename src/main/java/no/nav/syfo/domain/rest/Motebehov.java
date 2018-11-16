@@ -11,6 +11,7 @@ import java.util.UUID;
 public class Motebehov {
     public UUID id;
     public LocalDateTime opprettetDato;
+    public String aktorId;
     public String opprettetAv;
     public Fnr arbeidstakerFnr;
     public String virksomhetsnummer;

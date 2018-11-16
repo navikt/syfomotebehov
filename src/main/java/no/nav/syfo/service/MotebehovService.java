@@ -103,6 +103,7 @@ public class MotebehovService {
         return new Motebehov()
                 .id(pMotebehov.uuid)
                 .opprettetDato(pMotebehov.opprettetDato)
+                .aktorId(pMotebehov.aktoerId)
                 .opprettetAv(pMotebehov.opprettetAv)
                 .arbeidstakerFnr(arbeidstakerFnr)
                 .virksomhetsnummer(pMotebehov.virksomhetsnummer)
