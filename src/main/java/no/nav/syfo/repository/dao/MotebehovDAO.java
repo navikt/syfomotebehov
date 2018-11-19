@@ -48,6 +48,10 @@ public class MotebehovDAO {
         return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE aktoer_id = ? AND OPPRETTET_AV = ?", getInnsendingRowMapper(), aktoerId, aktoerId));
     }
 
+    public Optional<List<PMotebehov>> hentMotebehovListeOpprettetAvLeder(String aktoerId, String virksomhetsnummer) {
+        return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE OPPRETTET_AV != ? AND VIRKSOMHETSNUMMER = ?", getInnsendingRowMapper(), aktoerId, virksomhetsnummer));
+    }
+
     public Optional<List<PMotebehov>> hentMotebehovListeForAktoerOgVirksomhetsnummer(String aktoerId, String virksomhetsnummer) {
         return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE aktoer_id = ? AND virksomhetsnummer = ?", getInnsendingRowMapper(), aktoerId, virksomhetsnummer));
     }

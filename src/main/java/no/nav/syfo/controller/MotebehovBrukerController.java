@@ -70,7 +70,7 @@ public class MotebehovBrukerController {
             kastExceptionHvisIkkeTilgang(fnr.getFnr());
 
             if (!virksomhetsnummer.isEmpty()) {
-                return motebehovService.hentMotebehovListe(fnr, virksomhetsnummer);
+                return motebehovService.hentMotebehovListeOpprettetAvLeder(fnr, virksomhetsnummer);
             }
             return motebehovService.hentMotebehovListeForOgOpprettetAv(fnr);
         } else {
