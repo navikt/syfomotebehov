@@ -58,6 +58,15 @@ public class MotebehovService {
                 .collect(toList());
     }
 
+    public List<Motebehov> hentMotebehovListeForOgOpprettetAv(final Fnr arbeidstakerFnr) {
+        final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
+        return motebehovDAO.hentMotebehovListeForOgOpprettetAvAktoer(arbeidstakerAktoerId)
+                .orElse(emptyList())
+                .stream()
+                .map(dbMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov))
+                .collect(toList());
+    }
+
     public List<Motebehov> hentMotebehovListe(final Fnr arbeidstakerFnr, String virksomhetsnummer) {
         final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
         return motebehovDAO.hentMotebehovListeForAktoerOgVirksomhetsnummer(arbeidstakerAktoerId, virksomhetsnummer)

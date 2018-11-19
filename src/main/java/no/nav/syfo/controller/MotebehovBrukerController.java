@@ -72,7 +72,7 @@ public class MotebehovBrukerController {
             if (!virksomhetsnummer.isEmpty()) {
                 return motebehovService.hentMotebehovListe(fnr, virksomhetsnummer);
             }
-            return motebehovService.hentMotebehovListe(fnr);
+            return motebehovService.hentMotebehovListeForOgOpprettetAv(fnr);
         } else {
             log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");
             return emptyList();
