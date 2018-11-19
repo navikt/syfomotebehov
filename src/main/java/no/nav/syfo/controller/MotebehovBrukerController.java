@@ -70,9 +70,9 @@ public class MotebehovBrukerController {
             kastExceptionHvisIkkeTilgang(fnr.getFnr());
 
             if (!virksomhetsnummer.isEmpty()) {
-                return motebehovService.hentMotebehovListe(fnr, virksomhetsnummer);
+                return motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(fnr, virksomhetsnummer);
             }
-            return motebehovService.hentMotebehovListe(fnr);
+            return motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(fnr);
         } else {
             log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");
             return emptyList();
