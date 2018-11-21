@@ -1,6 +1,6 @@
 name: syfomotebehov
 image: "repo.adeo.no:5443/syfomotebehov"
-team: sykefravaer-veden
+team: teamsykefravr
 replicas:
   min: 1
   max: 2
