@@ -5,13 +5,11 @@ import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Motebehov;
-import no.nav.syfo.domain.rest.MotebehovSvar;
 import no.nav.syfo.domain.rest.NyttMotebehov;
 import no.nav.syfo.service.BrukertilgangService;
 import no.nav.syfo.service.GeografiskTilgangService;
 import no.nav.syfo.service.MotebehovService;
 import no.nav.syfo.util.Metrikk;
-import no.nav.syfo.util.Metrikk.BRUKER;
 import no.nav.syfo.util.Toggle;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -107,17 +105,7 @@ public class MotebehovBrukerController {
     }
 
     private void lagBesvarMotebehovMetrikk(NyttMotebehov nyttMotebehov) {
-        BRUKER bruker = StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr)
-                ? Metrikk.BRUKER.ARBEIDSTAKER
-                : Metrikk.BRUKER.ARBEIDSGIVER;
-        MotebehovSvar motebehovSvar = nyttMotebehov.motebehovSvar;
-        log.info("JTRACE 1 {}", bruker.name().toLowerCase());
-
-        metrikk.tellMotebehovBesvart(motebehovSvar.harMotebehov, bruker);
-
-        if (!motebehovSvar.harMotebehov) {
-            metrikk.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring.length(), bruker);
-        }
+        metrikk.tellMotebehovSvar(nyttMotebehov.motebehovSvar, StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr));
     }
 
     @ExceptionHandler({IllegalArgumentException.class, ConstraintViolationException.class})
