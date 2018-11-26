@@ -56,7 +56,7 @@ public class MotebehovVeilederComponentTest {
     private static final String VEILEDER_ID = "Z999999";
     private static final String NAVN = "Sygve Sykmeldt";
 
-    private static final String MOTEBEHOV_OPPRETTET_HISTORIKK_TEKST = "Møtebehovet ble opprettet av " + NAVN + ".";
+    private static final String MOTEBEHOV_OPPRETTET_HISTORIKK_TEKST = NAVN + " har svart på møtebehov";
     private static final String VEILEDEROPPGAVE_HISTORIKK_TEKST = "Møtebehovet ble lest av " + VEILEDER_ID + ".";
     private static final String VARSEL_HISTORIKK_TEKST = "Varsel om svar på motebehov har blitt sendt til nærmeste leder i bedrift NAV AS.";
     private static final String HISTORIKK_SIST_ENDRET = "2018-10-10";

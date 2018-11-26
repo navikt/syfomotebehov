@@ -68,7 +68,7 @@ public class HistorikkService {
                 motebehovListe,
                 motebehov -> new Historikk()
                         .opprettetAv(motebehov.opprettetAv)
-                        .tekst("Møtebehovet ble opprettet av " + personConsumer.hentNavnFraAktoerId(motebehov.opprettetAv()) + ".")
+                        .tekst(personConsumer.hentNavnFraAktoerId(motebehov.opprettetAv) + " har svart på møtebehov")
                         .tidspunkt(motebehov.opprettetDato)
         );
     }

@@ -159,10 +159,10 @@ public class HistorikkServiceTest {
         String historikkLesteMotebehovTekst = historikkForSykmeldt.get(2).tekst();
         String historikkVarselTilNLTekst = historikkForSykmeldt.get(3).tekst();
 
-        assertThat(historikkOpprettetMotebehovTekst1).contains("Møtebehovet ble opprettet av");
+        assertThat(historikkOpprettetMotebehovTekst1).contains(" har svart på møtebehov");
         assertThat(historikkOpprettetMotebehovTekst1).contains(NL3_NAVN);
 
-        assertThat(historikkOpprettetMotebehovTekst2).contains("Møtebehovet ble opprettet av");
+        assertThat(historikkOpprettetMotebehovTekst2).contains(" har svart på møtebehov");
         assertThat(historikkOpprettetMotebehovTekst2).contains(NL1_NAVN);
 
         assertThat(historikkLesteMotebehovTekst).contains("Møtebehovet ble lest av");
