@@ -32,6 +32,10 @@ public class HistorikkService {
     private final SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer;
     private final OrganisasjonConsumer organisasjonConsumer;
 
+    public static final String HAR_SVART_PAA_MOTEBEHOV = " har svart på møtebehov";
+    public static final String VARSEL_OM_MOTEBEHOV_SENDT_LEDER = "Varsel om svar på motebehov har blitt sendt til nærmeste leder i bedrift ";
+    public static final String MOTEBEHOVET_BLE_LEST_AV = "Møtebehovet ble lest av ";
+
     @Inject
     public HistorikkService(
             final MotebehovService motebehovService,
@@ -68,7 +72,7 @@ public class HistorikkService {
                 motebehovListe,
                 motebehov -> new Historikk()
                         .opprettetAv(motebehov.opprettetAv)
-                        .tekst("Møtebehovet ble opprettet av " + personConsumer.hentNavnFraAktoerId(motebehov.opprettetAv()) + ".")
+                        .tekst(personConsumer.hentNavnFraAktoerId(motebehov.opprettetAv) + HAR_SVART_PAA_MOTEBEHOV)
                         .tidspunkt(motebehov.opprettetDato)
         );
     }
@@ -88,8 +92,7 @@ public class HistorikkService {
                                     .anyMatch(hendelse -> hendelse.hendelseId() == Long.parseLong(brukeroppgave.ressursId()))
                             )
                             .map(brukeroppgave -> new Historikk()
-                                    .tekst("Varsel om svar på motebehov har blitt sendt til nærmeste leder i bedrift "
-                                            + organisasjonConsumer.hentBedriftnavn(naermesteLeder.orgnummer()) + '.')
+                                    .tekst(VARSEL_OM_MOTEBEHOV_SENDT_LEDER + organisasjonConsumer.hentBedriftnavn(naermesteLeder.orgnummer()))
                                     .tidspunkt(brukeroppgave.opprettetTidspunkt())
                             );
 
@@ -109,7 +112,7 @@ public class HistorikkService {
                     .stream()
                     .filter(veilederOppgave -> veilederOppgave.type.equals("MOTEBEHOV_MOTTATT") && veilederOppgave.status.equals("FERDIG"))
                     .map(veilederOppgave -> new Historikk()
-                            .tekst("Møtebehovet ble lest av " + veilederOppgave.sistEndretAv + ".")
+                            .tekst(MOTEBEHOVET_BLE_LEST_AV + veilederOppgave.sistEndretAv)
                             .tidspunkt(veilederOppgave.getSistEndretAsLocalDateTime())
                     )
                     .collect(toList());

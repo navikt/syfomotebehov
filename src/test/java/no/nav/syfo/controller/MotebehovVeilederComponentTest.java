@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
+import static no.nav.syfo.service.HistorikkService.*;
 import static no.nav.syfo.service.VeilederTilgangService.FNR;
 import static no.nav.syfo.service.VeilederTilgangService.TILGANG_TIL_BRUKER_PATH;
 import static no.nav.syfo.util.AuthorizationFilterUtils.basicCredentials;
@@ -55,10 +56,7 @@ public class MotebehovVeilederComponentTest {
     private static final String VIRKSOMHETSNUMMER = "1234";
     private static final String VEILEDER_ID = "Z999999";
     private static final String NAVN = "Sygve Sykmeldt";
-
-    private static final String MOTEBEHOV_OPPRETTET_HISTORIKK_TEKST = "Møtebehovet ble opprettet av " + NAVN + ".";
-    private static final String VEILEDEROPPGAVE_HISTORIKK_TEKST = "Møtebehovet ble lest av " + VEILEDER_ID + ".";
-    private static final String VARSEL_HISTORIKK_TEKST = "Varsel om svar på motebehov har blitt sendt til nærmeste leder i bedrift NAV AS.";
+    private static final String BEDRIFT_NAVN = "NAV AS";
     private static final String HISTORIKK_SIST_ENDRET = "2018-10-10";
 
     @Value("${tilgangskontrollapi.url}")
@@ -137,15 +135,15 @@ public class MotebehovVeilederComponentTest {
 
         Historikk motebehovOpprettetHistorikk = historikkListe.get(0);
         assertThat(motebehovOpprettetHistorikk.opprettetAv).isEqualTo(LEDER_AKTORID);
-        assertThat(motebehovOpprettetHistorikk.tekst).isEqualTo(MOTEBEHOV_OPPRETTET_HISTORIKK_TEKST);
+        assertThat(motebehovOpprettetHistorikk.tekst).isEqualTo(NAVN + HAR_SVART_PAA_MOTEBEHOV);
         assertThat(motebehovOpprettetHistorikk.tidspunkt).isEqualTo(motebehov.opprettetDato);
 
         Historikk veilederOppgaveHistorikk = historikkListe.get(1);
-        assertThat(veilederOppgaveHistorikk.tekst).isEqualTo(VEILEDEROPPGAVE_HISTORIKK_TEKST);
+        assertThat(veilederOppgaveHistorikk.tekst).isEqualTo(MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID);
         assertThat(veilederOppgaveHistorikk.tidspunkt).isEqualTo(LocalDateTime.of(2018, 10, 10, 0, 0));
 
         Historikk varselHistorikk = historikkListe.get(2);
-        assertThat(varselHistorikk.tekst).isEqualTo(VARSEL_HISTORIKK_TEKST);
+        assertThat(varselHistorikk.tekst).isEqualTo(VARSEL_OM_MOTEBEHOV_SENDT_LEDER + BEDRIFT_NAVN);
         assertThat(varselHistorikk.tidspunkt).isEqualTo(LocalDateTime.of(2018, 10, 10, 0, 0));
     }
 

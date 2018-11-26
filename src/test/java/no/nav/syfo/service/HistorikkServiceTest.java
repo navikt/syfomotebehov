@@ -14,11 +14,12 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 
+import static java.time.LocalDateTime.now;
 import static java.util.Arrays.asList;
+import static no.nav.syfo.service.HistorikkService.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static java.time.LocalDateTime.now;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HistorikkServiceTest {
@@ -159,17 +160,13 @@ public class HistorikkServiceTest {
         String historikkLesteMotebehovTekst = historikkForSykmeldt.get(2).tekst();
         String historikkVarselTilNLTekst = historikkForSykmeldt.get(3).tekst();
 
-        assertThat(historikkOpprettetMotebehovTekst1).contains("Møtebehovet ble opprettet av");
-        assertThat(historikkOpprettetMotebehovTekst1).contains(NL3_NAVN);
+        assertThat(historikkOpprettetMotebehovTekst1).isEqualTo(NL3_NAVN + HAR_SVART_PAA_MOTEBEHOV);
 
-        assertThat(historikkOpprettetMotebehovTekst2).contains("Møtebehovet ble opprettet av");
-        assertThat(historikkOpprettetMotebehovTekst2).contains(NL1_NAVN);
+        assertThat(historikkOpprettetMotebehovTekst2).isEqualTo(NL1_NAVN + HAR_SVART_PAA_MOTEBEHOV);
 
-        assertThat(historikkLesteMotebehovTekst).contains("Møtebehovet ble lest av");
-        assertThat(historikkLesteMotebehovTekst).contains(Z_IDENT2);
+        assertThat(historikkLesteMotebehovTekst).isEqualTo(MOTEBEHOVET_BLE_LEST_AV + Z_IDENT2);
 
-        assertThat(historikkVarselTilNLTekst).contains("Varsel om svar");
-        assertThat(historikkVarselTilNLTekst).contains(ORGNAVN_2);
+        assertThat(historikkVarselTilNLTekst).isEqualTo(VARSEL_OM_MOTEBEHOV_SENDT_LEDER + ORGNAVN_2);
     }
 
 }
