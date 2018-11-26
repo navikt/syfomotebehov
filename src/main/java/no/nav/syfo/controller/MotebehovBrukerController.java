@@ -11,6 +11,7 @@ import no.nav.syfo.service.BrukertilgangService;
 import no.nav.syfo.service.GeografiskTilgangService;
 import no.nav.syfo.service.MotebehovService;
 import no.nav.syfo.util.Metrikk;
+import no.nav.syfo.util.Metrikk.BRUKER;
 import no.nav.syfo.util.Toggle;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -90,7 +91,7 @@ public class MotebehovBrukerController {
             kastExceptionHvisIkkeTilgang(fnr.getFnr());
 
             motebehovService.lagreMotebehov(fnrFraOIDCEkstern(contextHolder), fnr, nyttMotebehov);
-            lagBesvarMotebehovMetrikk(nyttMotebehov.motebehovSvar);
+            lagBesvarMotebehovMetrikk(nyttMotebehov);
 
         } else {
             log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");
@@ -105,11 +106,16 @@ public class MotebehovBrukerController {
         }
     }
 
-    private void lagBesvarMotebehovMetrikk(MotebehovSvar motebehovSvar) {
-        metrikk.tellMotebehovBesvart(motebehovSvar.harMotebehov);
+    private void lagBesvarMotebehovMetrikk(NyttMotebehov nyttMotebehov) {
+        BRUKER bruker = StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr)
+                ? Metrikk.BRUKER.ARBEIDSTAKER
+                : Metrikk.BRUKER.ARBEIDSGIVER;
+        MotebehovSvar motebehovSvar = nyttMotebehov.motebehovSvar;
+
+        metrikk.tellMotebehovBesvart(motebehovSvar.harMotebehov, bruker);
 
         if (!motebehovSvar.harMotebehov) {
-            metrikk.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring.length());
+            metrikk.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring.length(), bruker);
         }
     }
 
