@@ -23,22 +23,22 @@ public class Metrikk {
 
     public void tellMotebehovBesvart(boolean harMotebehov, BRUKER bruker) {
         registry.counter(
-                "syfomotebehov_motebehov_besvart",
+                "syfomotebehov_motebehov_besvart"
+                        .concat("_")
+                        .concat(bruker.name().toLowerCase()),
                 Tags.of(
                         "type", "info",
-                        "motebehov", harMotebehov ? "ja" : "nei",
-                        "bruker", bruker.name().toLowerCase()
+                        "motebehov", harMotebehov ? "ja" : "nei"
                 )
         ).increment();
     }
 
     public void tellMotebehovBesvartNeiAntallTegn(int antallTegnIForklaring, BRUKER bruker) {
         registry.counter(
-                "syfomotebehov_motebehov_besvart_nei_forklaring_lengde",
-                Tags.of(
-                        "type", "info",
-                        "bruker", bruker.name().toLowerCase()
-                )
+                "syfomotebehov_motebehov_besvart_nei_forklaring_lengde"
+                        .concat("_")
+                        .concat(bruker.name().toLowerCase()),
+                Tags.of("type", "info")
         ).increment(antallTegnIForklaring);
     }
 }
