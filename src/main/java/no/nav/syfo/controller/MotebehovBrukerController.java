@@ -111,6 +111,7 @@ public class MotebehovBrukerController {
                 ? Metrikk.BRUKER.ARBEIDSTAKER
                 : Metrikk.BRUKER.ARBEIDSGIVER;
         MotebehovSvar motebehovSvar = nyttMotebehov.motebehovSvar;
+        log.info("JTRACE 1 {}", bruker.name().toLowerCase());
 
         metrikk.tellMotebehovBesvart(motebehovSvar.harMotebehov, bruker);
 
