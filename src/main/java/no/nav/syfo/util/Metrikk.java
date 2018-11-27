@@ -32,4 +32,21 @@ public class Metrikk {
                 Tags.of("type", "info")
         ).increment(antallTegnIForklaring);
     }
+
+    public void tellMotebehovBesvartAT(boolean harMotebehov) {
+        registry.counter(
+                "syfomotebehov_motebehov_besvart_at",
+                Tags.of(
+                        "type", "info",
+                        "motebehov", harMotebehov ? "ja" : "nei"
+                )
+        ).increment();
+    }
+
+    public void tellMotebehovBesvartNeiAntallTegnAT(int antallTegnIForklaring) {
+        registry.counter(
+                "syfomotebehov_motebehov_nei_lengde_at",
+                Tags.of("type", "info")
+        ).increment(antallTegnIForklaring);
+    }
 }
