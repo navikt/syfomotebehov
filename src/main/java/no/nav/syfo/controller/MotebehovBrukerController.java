@@ -109,18 +109,19 @@ public class MotebehovBrukerController {
         tellMotebehovSvar(nyttMotebehov.motebehovSvar, StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr));
     }
 
-    public void tellMotebehovSvar(MotebehovSvar motebehovSvar, boolean erInnloggetBrukerAT) {
+    private void tellMotebehovSvar(MotebehovSvar motebehovSvar, boolean erInnloggetBrukerAT) {
+        log.info("JTRACE: erAT {}", erInnloggetBrukerAT);
         if (erInnloggetBrukerAT) {
-            metrikk.tellMotebehovBesvart(motebehovSvar.harMotebehov, "syfomotebehov_motebehov_besvart_at");
+            metrikk.tellMotebehovBesvartAT(motebehovSvar.harMotebehov);
         } else {
-            metrikk.tellMotebehovBesvart(motebehovSvar.harMotebehov, "syfomotebehov_motebehov_besvart_ag");
+            metrikk.tellMotebehovBesvart(motebehovSvar.harMotebehov);
         }
 
         if (!motebehovSvar.harMotebehov) {
             if (erInnloggetBrukerAT) {
-                metrikk.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring.length(), "syfomotebehov_motebehov_besvart_nei_forklaring_lengde_at");
+                metrikk.tellMotebehovBesvartNeiAntallTegnAT(motebehovSvar.forklaring.length());
             } else {
-                metrikk.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring.length(), "syfomotebehov_motebehov_besvart_nei_forklaring_lengde_ag");
+                metrikk.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring.length());
             }
         }
     }

@@ -16,9 +16,9 @@ public class Metrikk {
         this.registry = registry;
     }
 
-    public void tellMotebehovBesvart(boolean harMotebehov, String navn) {
+    public void tellMotebehovBesvart(boolean harMotebehov) {
         registry.counter(
-                navn,
+                "syfomotebehov_motebehov_besvart",
                 Tags.of(
                         "type", "info",
                         "motebehov", harMotebehov ? "ja" : "nei"
@@ -26,9 +26,26 @@ public class Metrikk {
         ).increment();
     }
 
-    public void tellMotebehovBesvartNeiAntallTegn(int antallTegnIForklaring, String navn) {
+    public void tellMotebehovBesvartNeiAntallTegn(int antallTegnIForklaring) {
         registry.counter(
-                navn,
+                "syfomotebehov_motebehov_besvart_nei_forklaring_lengde",
+                Tags.of("type", "info")
+        ).increment(antallTegnIForklaring);
+    }
+
+    public void tellMotebehovBesvartAT(boolean harMotebehov) {
+        registry.counter(
+                "syfomotebehov_motebehov_besvart_at",
+                Tags.of(
+                        "type", "info",
+                        "motebehov", harMotebehov ? "ja" : "nei"
+                )
+        ).increment();
+    }
+
+    public void tellMotebehovBesvartNeiAntallTegnAT(int antallTegnIForklaring) {
+        registry.counter(
+                "syfomotebehov_motebehov_besvart_nei_forklaring_lengde_at",
                 Tags.of("type", "info")
         ).increment(antallTegnIForklaring);
     }
