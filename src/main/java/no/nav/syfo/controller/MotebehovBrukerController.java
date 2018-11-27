@@ -5,6 +5,7 @@ import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Motebehov;
+import no.nav.syfo.domain.rest.MotebehovSvar;
 import no.nav.syfo.domain.rest.NyttMotebehov;
 import no.nav.syfo.service.BrukertilgangService;
 import no.nav.syfo.service.GeografiskTilgangService;
@@ -105,7 +106,23 @@ public class MotebehovBrukerController {
     }
 
     private void lagBesvarMotebehovMetrikk(NyttMotebehov nyttMotebehov) {
-        metrikk.tellMotebehovSvar(nyttMotebehov.motebehovSvar, StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr));
+        tellMotebehovSvar(nyttMotebehov.motebehovSvar, StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr));
+    }
+
+    public void tellMotebehovSvar(MotebehovSvar motebehovSvar, boolean erInnloggetBrukerAT) {
+        if (erInnloggetBrukerAT) {
+            metrikk.tellMotebehovBesvart(motebehovSvar.harMotebehov, "syfomotebehov_motebehov_besvart_at");
+        } else {
+            metrikk.tellMotebehovBesvart(motebehovSvar.harMotebehov, "syfomotebehov_motebehov_besvart_ag");
+        }
+
+        if (!motebehovSvar.harMotebehov) {
+            if (erInnloggetBrukerAT) {
+                metrikk.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring.length(), "syfomotebehov_motebehov_besvart_nei_forklaring_lengde_at");
+            } else {
+                metrikk.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring.length(), "syfomotebehov_motebehov_besvart_nei_forklaring_lengde_ag");
+            }
+        }
     }
 
     @ExceptionHandler({IllegalArgumentException.class, ConstraintViolationException.class})
