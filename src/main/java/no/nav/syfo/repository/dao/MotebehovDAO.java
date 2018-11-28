@@ -22,8 +22,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.UUID.fromString;
 import static java.util.stream.Collectors.toList;
-import static no.nav.syfo.repository.DbUtil.convert;
-import static no.nav.syfo.repository.DbUtil.sanitizeUserInput;
+import static no.nav.syfo.repository.DbUtil.*;
 
 @Service
 @Slf4j
@@ -41,19 +40,19 @@ public class MotebehovDAO {
     }
 
     public Optional<List<PMotebehov>> hentMotebehovListeForAktoer(String aktoerId) {
-        return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE aktoer_id = ?", getInnsendingRowMapper(), aktoerId));
+        return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE AKTOER_ID = ? AND OPPRETTET_DATO >= ?", getInnsendingRowMapper(), aktoerId, hentTidligsteDatoForGyldigMotebehovSvar()));
     }
 
     public Optional<List<PMotebehov>> hentMotebehovListeForOgOpprettetAvArbeidstaker(String arbeidstakerAktorId) {
-        return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE aktoer_id = ? AND OPPRETTET_AV = ?", getInnsendingRowMapper(), arbeidstakerAktorId, arbeidstakerAktorId));
+        return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE aktoer_id = ? AND OPPRETTET_AV = ? AND OPPRETTET_DATO >= ?", getInnsendingRowMapper(), arbeidstakerAktorId, arbeidstakerAktorId, hentTidligsteDatoForGyldigMotebehovSvar()));
     }
 
     public Optional<List<PMotebehov>> hentMotebehovListeForArbeidstakerOpprettetAvLeder(String arbeidstakerAktorId, String virksomhetsnummer) {
-        return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE aktoer_id = ? AND OPPRETTET_AV != ? AND VIRKSOMHETSNUMMER = ?", getInnsendingRowMapper(), arbeidstakerAktorId, arbeidstakerAktorId, virksomhetsnummer));
+        return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE aktoer_id = ? AND OPPRETTET_AV != ? AND VIRKSOMHETSNUMMER = ? AND OPPRETTET_DATO >= ?", getInnsendingRowMapper(), arbeidstakerAktorId, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar()));
     }
 
     public Optional<List<PMotebehov>> hentMotebehovListeForAktoerOgVirksomhetsnummer(String aktoerId, String virksomhetsnummer) {
-        return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE aktoer_id = ? AND virksomhetsnummer = ?", getInnsendingRowMapper(), aktoerId, virksomhetsnummer));
+        return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE aktoer_id = ? AND virksomhetsnummer = ? AND OPPRETTET_DATO >= ?", getInnsendingRowMapper(), aktoerId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar()));
     }
 
     public UUID create(final PMotebehov motebehov) {
