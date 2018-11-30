@@ -2,6 +2,7 @@ package no.nav.syfo.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
+import no.nav.syfo.domain.rest.BrukerPaaEnhet;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Historikk;
 import no.nav.syfo.domain.rest.Motebehov;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.syfo.OIDCIssuer.INTERN;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -52,9 +54,8 @@ public class MotebehovVeilederController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/motebehov")
     @ProtectedWithClaims(issuer = INTERN)
-    @GetMapping(produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/motebehov", produces = APPLICATION_JSON_VALUE)
     public List<Motebehov> hentMotebehovListe(
             @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr
     ) {
@@ -73,9 +74,8 @@ public class MotebehovVeilederController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/historikk")
     @ProtectedWithClaims(issuer = INTERN)
-    @GetMapping(produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/historikk", produces = APPLICATION_JSON_VALUE)
     public List<Historikk> hentMotebehovHistorikk(
             @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr
     ) {
@@ -92,6 +92,18 @@ public class MotebehovVeilederController {
             return emptyList();
         }
     }
+
+    @ResponseBody
+    @ProtectedWithClaims(issuer = INTERN)
+    @GetMapping(value = "/enhetsoversikt/{enhet}", produces = APPLICATION_JSON)
+    public List<BrukerPaaEnhet> hentSykmeldteMedMotebehovSvarPaaEnhet
+            (@PathVariable @Pattern(regexp = "\\d{4}$") String enhet) {
+        if (!veilederTilgangService.sjekkVeiledersTilgangTilEnhet(enhet))
+            throw new ForbiddenException("Innlogget bruker har ikke tilgang til følgende enhet: " + enhet);
+        return motebehovService.hentSykmeldteMedMotebehovPaaEnhet(enhet);
+    }
+
+
 
     private void kastExceptionHvisIkkeTilgang(String fnr) {
         if (!veilederTilgangService.sjekkVeiledersTilgangTilPerson(fnr)) {

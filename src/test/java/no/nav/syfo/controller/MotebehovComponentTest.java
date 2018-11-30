@@ -32,9 +32,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public class MotebehovComponentTest {
 
-    private static final String ARBEIDSTAKER_FNR = "12345678910";
+    private static final String ARBEIDSTAKER_FNR = "12345678912";
     public static final String ARBEIDSTAKER_AKTORID = AktoerMock.mockAktorId(ARBEIDSTAKER_FNR);
-    private static final String LEDER_FNR = "10987654321";
+    private static final String LEDER_FNR = "12987654321";
     public static final String LEDER_AKTORID = AktoerMock.mockAktorId(LEDER_FNR);
     private static final String VIRKSOMHETSNUMMER = "1234";
     private static final String TILDELT_ENHET = "0330";
