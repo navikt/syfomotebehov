@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.syfo.OIDCIssuer.INTERN;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -91,6 +92,17 @@ public class MotebehovVeilederController {
             log.info("Det ble gjort kall mot 'veileder/historikk', men dette endepunktet er togglet av.");
             return emptyList();
         }
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/enhetsoversikt")
+    @ProtectedWithClaims(issuer = INTERN)
+    @GetMapping(produces = APPLICATION_JSON)
+    public List<String> hentSykmeldteMedMotebehovSvarPaaEnhet
+            (@RequestParam(name = "enhet") @Pattern(regexp = "\\d{4}$") String enhet) {
+        if (!veilederTilgangService.sjekkVeiledersTilgangTilEnhet(enhet))
+            throw new ForbiddenException("Innlogget bruker har ikke tilgang til følgende enhet: " + enhet);
+        return motebehovService.hentSykmeldteMedMotebehovPaaEnhet(enhet);
     }
 
     private void kastExceptionHvisIkkeTilgang(String fnr) {

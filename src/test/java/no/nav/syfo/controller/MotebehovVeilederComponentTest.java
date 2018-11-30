@@ -25,8 +25,7 @@ import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static no.nav.syfo.service.HistorikkService.*;
-import static no.nav.syfo.service.VeilederTilgangService.FNR;
-import static no.nav.syfo.service.VeilederTilgangService.TILGANG_TIL_BRUKER_PATH;
+import static no.nav.syfo.service.VeilederTilgangService.*;
 import static no.nav.syfo.util.AuthorizationFilterUtils.basicCredentials;
 import static no.nav.syfo.util.OidcTestHelper.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,11 +48,12 @@ import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 @DirtiesContext
 public class MotebehovVeilederComponentTest {
 
-    private static final String ARBEIDSTAKER_FNR = "12345678910";
+    private static final String ARBEIDSTAKER_FNR = "12345678912";
     private static final String ARBEIDSTAKER_AKTOERID = AktoerMock.mockAktorId(ARBEIDSTAKER_FNR);
     private static final String LEDER_FNR = "10987654321";
     private static final String LEDER_AKTORID = AktoerMock.mockAktorId(LEDER_FNR);
     private static final String VIRKSOMHETSNUMMER = "1234";
+    private static final String NAV_ENHET = "0330";
     private static final String VEILEDER_ID = "Z999999";
     private static final String NAVN = "Sygve Sykmeldt";
     private static final String BEDRIFT_NAVN = "NAV AS";
@@ -121,6 +121,19 @@ public class MotebehovVeilederComponentTest {
     }
 
     @Test
+    public void hentSykmeldteMedMotebehovSvarPaaEnhet() throws Exception {
+        sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
+
+        loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
+        mockSvarFraSyfoTilgangsKontrollPaaEnhet(NAV_ENHET, OK);
+
+        List<String> sykmeldteMedMotebehovPaaEnhet = motebehovVeilederController.hentSykmeldteMedMotebehovSvarPaaEnhet(NAV_ENHET);
+        String sykmeldt = sykmeldteMedMotebehovPaaEnhet.get(0);
+
+        assertThat(sykmeldt).isEqualTo(ARBEIDSTAKER_FNR);
+    }
+
+    @Test
     public void hentHistorikk() throws Exception {
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
@@ -168,6 +181,28 @@ public class MotebehovVeilederComponentTest {
         return nyttMotebehov;
     }
 
+    private NyttMotebehov sykmeldtLagrerMotebehov(String sykmeldtFnr, String virksomhetsnummer) {
+        loggInnBruker(oidcRequestContextHolder, sykmeldtFnr);
+        final MotebehovSvar motebehovSvar = new MotebehovSvar()
+                .harMotebehov(true)
+                .friskmeldingForventning("Om noen uker")
+                .tiltak("Krykker")
+                .tiltakResultat("Kommer seg fremover")
+                .forklaring("");
+
+        final NyttMotebehov nyttMotebehov = new NyttMotebehov()
+                .arbeidstakerFnr(sykmeldtFnr)
+                .virksomhetsnummer(virksomhetsnummer)
+                .motebehovSvar(
+                        motebehovSvar
+                );
+
+        motebehovController.lagreMotebehov(nyttMotebehov);
+
+        return nyttMotebehov;
+    }
+
+
     private void mockSvarFraSyfoTilgangskontroll(String fnr, HttpStatus status) {
         String uriString = fromHttpUrl(tilgangskontrollUrl)
                 .path(TILGANG_TIL_BRUKER_PATH)
@@ -177,6 +212,20 @@ public class MotebehovVeilederComponentTest {
         String idToken = oidcRequestContextHolder.getOIDCValidationContext().getToken("intern").getIdToken();
 
         mockRestServiceServer.expect(manyTimes(), requestTo(uriString))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(AUTHORIZATION, "Bearer " + idToken))
+                .andRespond(withStatus(status));
+    }
+
+    private void mockSvarFraSyfoTilgangsKontrollPaaEnhet(String enhet, HttpStatus status) throws Exception {
+        String uriString = fromHttpUrl(tilgangskontrollUrl)
+                .path(TILGANG_TIL_ENHET_PATH)
+                .queryParam(ENHET, enhet)
+                .toUriString();
+
+        String idToken = oidcRequestContextHolder.getOIDCValidationContext().getToken("intern").getIdToken();
+
+        mockRestServiceServer.expect(once(), requestTo(uriString))
                 .andExpect(method(HttpMethod.GET))
                 .andExpect(header(AUTHORIZATION, "Bearer " + idToken))
                 .andRespond(withStatus(status));
@@ -200,7 +249,7 @@ public class MotebehovVeilederComponentTest {
                         .id(1L)
                         .type("MOTEBEHOV_MOTTATT")
                         .tildeltIdent(VEILEDER_ID)
-                        .tildeltEnhet("0330")
+                        .tildeltEnhet(NAV_ENHET)
                         .lenke("123")
                         .fnr(fnr)
                         .virksomhetsnummer(VIRKSOMHETSNUMMER)

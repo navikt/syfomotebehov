@@ -39,6 +39,10 @@ public class MotebehovDAO {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    public Optional<List<String>> hentAktorIdMedMotebehovForEnhet(String enhetId) {
+        return ofNullable(jdbcTemplate.query("SELECT DISTINCT AKTOER_ID FROM MOTEBEHOV WHERE TILDELT_ENHET = ? AND OPPRETTET_DATO >= ?", (rs, rowNum) -> rs.getString("aktoer_id"), enhetId, hentTidligsteDatoForGyldigMotebehovSvar()));
+    }
+
     public Optional<List<PMotebehov>> hentMotebehovListeForAktoer(String aktoerId) {
         return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE AKTOER_ID = ? AND OPPRETTET_DATO >= ?", getInnsendingRowMapper(), aktoerId, hentTidligsteDatoForGyldigMotebehovSvar()));
     }

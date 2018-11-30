@@ -49,6 +49,14 @@ public class MotebehovService {
         this.motebehovDAO = motebehovDAO;
     }
 
+    public List<String> hentSykmeldteMedMotebehovPaaEnhet(String enhetId) {
+        return motebehovDAO.hentAktorIdMedMotebehovForEnhet(enhetId)
+                .orElse(emptyList())
+                .stream()
+                .map(aktoerConsumer::hentFnrForAktoerId)
+                .collect(toList());
+    }
+
     public List<Motebehov> hentMotebehovListe(final Fnr arbeidstakerFnr) {
         final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
         return motebehovDAO.hentMotebehovListeForAktoer(arbeidstakerAktoerId)
@@ -57,16 +65,6 @@ public class MotebehovService {
                 .map(dbMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov))
                 .collect(toList());
     }
-
-    public List<Motebehov> hentMotebehovListe(final Fnr arbeidstakerFnr, String virksomhetsnummer) {
-        final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
-        return motebehovDAO.hentMotebehovListeForAktoerOgVirksomhetsnummer(arbeidstakerAktoerId, virksomhetsnummer)
-                .orElse(emptyList())
-                .stream()
-                .map(dbMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov))
-                .collect(toList());
-    }
-
     public List<Motebehov> hentMotebehovListeForOgOpprettetAvArbeidstaker(final Fnr arbeidstakerFnr) {
         final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
         return motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktoerId)
