@@ -3,9 +3,11 @@ package no.nav.syfo.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.LocalApplication;
+import no.nav.syfo.consumer.ws.PersonConsumer;
 import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.mock.AktoerMock;
 import no.nav.syfo.repository.dao.MotebehovDAO;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -145,10 +147,10 @@ public class MotebehovVeilederComponentTest {
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
         mockSvarFraSyfoTilgangsKontrollPaaEnhet(NAV_ENHET, OK);
 
-        List<String> sykmeldteMedMotebehovPaaEnhet = motebehovVeilederController.hentSykmeldteMedMotebehovSvarPaaEnhet(NAV_ENHET);
-        String sykmeldt = sykmeldteMedMotebehovPaaEnhet.get(0);
+        List<BrukerPaaEnhet> sykmeldteMedMotebehovPaaEnhet = motebehovVeilederController.hentSykmeldteMedMotebehovSvarPaaEnhet(NAV_ENHET);
+        BrukerPaaEnhet sykmeldt = sykmeldteMedMotebehovPaaEnhet.get(0);
 
-        assertThat(sykmeldt).isEqualTo(ARBEIDSTAKER_FNR);
+        assertThat(sykmeldt.fnr).isEqualTo(ARBEIDSTAKER_FNR);
     }
 
     @Test
