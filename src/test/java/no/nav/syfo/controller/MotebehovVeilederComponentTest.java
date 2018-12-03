@@ -121,6 +121,24 @@ public class MotebehovVeilederComponentTest {
     }
 
     @Test
+    public void sykmeldtLagrerOgVeilederHenterMotebehov() {
+        NyttMotebehov nyttMotebehov = sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
+
+        // Veileder henter møtebehov
+        loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
+        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, OK);
+
+        List<Motebehov> motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR);
+        assertThat(motebehovListe).size().isOne();
+
+        Motebehov motebehov = motebehovListe.get(0);
+        assertThat(motebehov.opprettetAv).isEqualTo(ARBEIDSTAKER_AKTOERID);
+        assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR);
+        assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER);
+        assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(nyttMotebehov.motebehovSvar);
+    }
+
+    @Test
     public void hentSykmeldteMedMotebehovSvarPaaEnhet() throws Exception {
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
