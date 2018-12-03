@@ -163,7 +163,7 @@ public class MotebehovService {
     }
 
     private boolean sykmeldtErDiskresjonsmerketEllerEgenAnsatt(String fnr) {
-        return personConsumer.erBrukerDiskresjonsMerket(aktoerConsumer.hentAktoerIdForFnr(fnr))
+        return personConsumer.erBrukerDiskresjonsmerket(aktoerConsumer.hentAktoerIdForFnr(fnr))
                 || egenAnsattConsumer.erEgenAnsatt(fnr);
     }
 
