@@ -2,6 +2,7 @@ package no.nav.syfo.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
+import no.nav.syfo.domain.rest.BrukerPaaEnhet;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Historikk;
 import no.nav.syfo.domain.rest.Motebehov;
@@ -11,6 +12,7 @@ import no.nav.syfo.service.MotebehovService;
 import no.nav.syfo.service.VeilederTilgangService;
 import no.nav.syfo.util.Toggle;
 import org.springframework.web.bind.annotation.*;
+import sun.corba.Bridge;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
@@ -21,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.syfo.OIDCIssuer.INTERN;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -98,12 +101,14 @@ public class MotebehovVeilederController {
     @RequestMapping(value = "/enhetsoversikt")
     @ProtectedWithClaims(issuer = INTERN)
     @GetMapping(produces = APPLICATION_JSON)
-    public List<String> hentSykmeldteMedMotebehovSvarPaaEnhet
+    public List<BrukerPaaEnhet> hentSykmeldteMedMotebehovSvarPaaEnhet
             (@RequestParam(name = "enhet") @Pattern(regexp = "\\d{4}$") String enhet) {
         if (!veilederTilgangService.sjekkVeiledersTilgangTilEnhet(enhet))
             throw new ForbiddenException("Innlogget bruker har ikke tilgang til følgende enhet: " + enhet);
         return motebehovService.hentSykmeldteMedMotebehovPaaEnhet(enhet);
     }
+
+
 
     private void kastExceptionHvisIkkeTilgang(String fnr) {
         if (!veilederTilgangService.sjekkVeiledersTilgangTilPerson(fnr)) {

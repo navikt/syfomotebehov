@@ -70,6 +70,11 @@ public class PersonConsumer implements InitializingBean {
         return "6".equals(hentDiskresjonskodeForAktoer(aktoerId));
     }
 
+    public boolean erBrukerDiskresjonsMerket(String aktoerId) {
+        String diskresjonsKode = hentDiskresjonskodeForAktoer(aktoerId);
+        return "6".equals(diskresjonsKode) || "7".equals(diskresjonsKode);
+    }
+
     @Cacheable("persondiskresjonskode")
     public String hentDiskresjonskodeForAktoer(String aktoerId) {
         if (isBlank(aktoerId) || !aktoerId.matches("\\d{13}$")) {

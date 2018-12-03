@@ -49,11 +49,14 @@ public class MotebehovService {
         this.motebehovDAO = motebehovDAO;
     }
 
-    public List<String> hentSykmeldteMedMotebehovPaaEnhet(String enhetId) {
+    public List<BrukerPaaEnhet> hentSykmeldteMedMotebehovPaaEnhet(String enhetId) {
         return motebehovDAO.hentAktorIdMedMotebehovForEnhet(enhetId)
                 .orElse(emptyList())
                 .stream()
                 .map(aktoerConsumer::hentFnrForAktoerId)
+                .map(sykmeldtFnr -> new BrukerPaaEnhet()
+                        .fnr(sykmeldtFnr)
+                        .skjermetEllerEgenAnsatt(sykmeldtErDiskresjonsmerketEllerEgenAnsatt(sykmeldtFnr)))
                 .collect(toList());
     }
 
@@ -157,6 +160,11 @@ public class MotebehovService {
             return overordnetEnhet.enhetId();
         }
         return enhet.enhetId();
+    }
+
+    private boolean sykmeldtErDiskresjonsmerketEllerEgenAnsatt(String fnr) {
+        return personConsumer.erBrukerDiskresjonsMerket(aktoerConsumer.hentAktoerIdForFnr(fnr))
+                || egenAnsattConsumer.erEgenAnsatt(fnr);
     }
 
 }
