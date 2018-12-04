@@ -12,7 +12,6 @@ import no.nav.syfo.service.MotebehovService;
 import no.nav.syfo.service.VeilederTilgangService;
 import no.nav.syfo.util.Toggle;
 import org.springframework.web.bind.annotation.*;
-import sun.corba.Bridge;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
@@ -23,7 +22,6 @@ import java.io.IOException;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.syfo.OIDCIssuer.INTERN;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
