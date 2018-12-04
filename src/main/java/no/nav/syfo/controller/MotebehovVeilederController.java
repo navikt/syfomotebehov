@@ -54,9 +54,8 @@ public class MotebehovVeilederController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/motebehov")
     @ProtectedWithClaims(issuer = INTERN)
-    @GetMapping(produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/motebehov", produces = APPLICATION_JSON_VALUE)
     public List<Motebehov> hentMotebehovListe(
             @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr
     ) {
@@ -75,9 +74,8 @@ public class MotebehovVeilederController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/historikk")
     @ProtectedWithClaims(issuer = INTERN)
-    @GetMapping(produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/historikk", produces = APPLICATION_JSON_VALUE)
     public List<Historikk> hentMotebehovHistorikk(
             @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr
     ) {
@@ -96,9 +94,8 @@ public class MotebehovVeilederController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/enhetsoversikt")
     @ProtectedWithClaims(issuer = INTERN)
-    @GetMapping(produces = APPLICATION_JSON)
+    @GetMapping(value = "/enhetsoversikt", produces = APPLICATION_JSON)
     public List<BrukerPaaEnhet> hentSykmeldteMedMotebehovSvarPaaEnhet
             (@RequestParam(name = "enhet") @Pattern(regexp = "\\d{4}$") String enhet) {
         if (!veilederTilgangService.sjekkVeiledersTilgangTilEnhet(enhet))
