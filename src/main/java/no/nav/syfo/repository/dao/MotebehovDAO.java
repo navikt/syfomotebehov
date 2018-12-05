@@ -1,7 +1,9 @@
 package no.nav.syfo.repository.dao;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.syfo.domain.rest.BrukerPaaEnhet;
 import no.nav.syfo.repository.domain.PMotebehov;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Bruker;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -41,7 +43,14 @@ public class MotebehovDAO {
 
     public Optional<List<String>> hentAktorIdMedMotebehovForEnhet(String enhetId) {
         log.info("Cut-off dato: " + hentTidligsteDatoForGyldigMotebehovSvar());
-        log.info("enhetId: " + enhetId);
+        List<BrukerPaaEnhet> bpe = ofNullable(jdbcTemplate.query("SELECT DISTINCT aktoer_id FROM motebehov WHERE tildelt_enhet = ? AND opprettet_dato >= ?", (rs, rowNum) -> rs.getString("aktoer_id"), enhetId, hentTidligsteDatoForGyldigMotebehovSvar()))
+        .orElse(emptyList())
+                .stream()
+                .map(sykmeldtFnr -> new BrukerPaaEnhet()
+                        .fnr(sykmeldtFnr)
+                        .skjermetEllerEgenAnsatt(false))
+                .collect(toList());
+        for (BrukerPaaEnhet b : bpe) log.info("Bruker (DAO): " + b.fnr());
         return ofNullable(jdbcTemplate.query("SELECT DISTINCT aktoer_id FROM motebehov WHERE tildelt_enhet = ? AND opprettet_dato >= ?", (rs, rowNum) -> rs.getString("aktoer_id"), enhetId, hentTidligsteDatoForGyldigMotebehovSvar()));
     }
 
