@@ -100,6 +100,8 @@ public class MotebehovVeilederController {
             (@RequestParam(name = "enhet") @Pattern(regexp = "\\d{4}$") String enhet) {
         if (!veilederTilgangService.sjekkVeiledersTilgangTilEnhet(enhet))
             throw new ForbiddenException("Innlogget bruker har ikke tilgang til følgende enhet: " + enhet);
+        List<BrukerPaaEnhet> bpe = motebehovService.hentSykmeldteMedMotebehovPaaEnhet(enhet);
+        for (BrukerPaaEnhet bp : bpe) log.info("Bruker fnr: " + bp.fnr());
         return motebehovService.hentSykmeldteMedMotebehovPaaEnhet(enhet);
     }
 

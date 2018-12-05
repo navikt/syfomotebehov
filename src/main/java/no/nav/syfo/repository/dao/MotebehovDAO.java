@@ -40,6 +40,8 @@ public class MotebehovDAO {
     }
 
     public Optional<List<String>> hentAktorIdMedMotebehovForEnhet(String enhetId) {
+        log.info("Cut-off dato: " + hentTidligsteDatoForGyldigMotebehovSvar());
+        log.info("enhetId: " + enhetId);
         return ofNullable(jdbcTemplate.query("SELECT DISTINCT aktoer_id FROM motebehov WHERE tildelt_enhet = ? AND opprettet_dato >= ?", (rs, rowNum) -> rs.getString("aktoer_id"), enhetId, hentTidligsteDatoForGyldigMotebehovSvar()));
     }
 
