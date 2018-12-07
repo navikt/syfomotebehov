@@ -31,7 +31,7 @@ public class EnhetController {
 
     @ResponseBody
     @ProtectedWithClaims(issuer = INTERN)
-    @GetMapping(value = "/{enhet}/motebehov/sykmeldte", produces = APPLICATION_JSON)
+    @GetMapping(value = "/{enhet}/motebehov/brukere", produces = APPLICATION_JSON)
     public List<BrukerPaaEnhet> hentSykmeldteMedMotebehovSvarPaaEnhet
             (@PathVariable @Pattern(regexp = "\\d{4}$") String enhet) {
         if (!veilederTilgangService.sjekkVeiledersTilgangTilEnhet(enhet))
