@@ -49,6 +49,17 @@ public class MotebehovService {
         this.motebehovDAO = motebehovDAO;
     }
 
+    public List<BrukerPaaEnhet> hentSykmeldteMedMotebehovPaaEnhet(String enhetId) {
+        return motebehovDAO.hentAktorIdMedMotebehovForEnhet(enhetId)
+                .orElse(emptyList())
+                .stream()
+                .map(aktoerConsumer::hentFnrForAktoerId)
+                .map(sykmeldtFnr -> new BrukerPaaEnhet()
+                        .fnr(sykmeldtFnr)
+                        .skjermetEllerEgenAnsatt(sykmeldtErDiskresjonsmerketEllerEgenAnsatt(sykmeldtFnr)))
+                .collect(toList());
+    }
+
     public List<Motebehov> hentMotebehovListe(final Fnr arbeidstakerFnr) {
         final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
         return motebehovDAO.hentMotebehovListeForAktoer(arbeidstakerAktoerId)
@@ -57,16 +68,6 @@ public class MotebehovService {
                 .map(dbMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov))
                 .collect(toList());
     }
-
-    public List<Motebehov> hentMotebehovListe(final Fnr arbeidstakerFnr, String virksomhetsnummer) {
-        final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
-        return motebehovDAO.hentMotebehovListeForAktoerOgVirksomhetsnummer(arbeidstakerAktoerId, virksomhetsnummer)
-                .orElse(emptyList())
-                .stream()
-                .map(dbMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov))
-                .collect(toList());
-    }
-
     public List<Motebehov> hentMotebehovListeForOgOpprettetAvArbeidstaker(final Fnr arbeidstakerFnr) {
         final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
         return motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktoerId)
@@ -159,6 +160,11 @@ public class MotebehovService {
             return overordnetEnhet.enhetId();
         }
         return enhet.enhetId();
+    }
+
+    private boolean sykmeldtErDiskresjonsmerketEllerEgenAnsatt(String fnr) {
+        return personConsumer.erBrukerDiskresjonsmerket(aktoerConsumer.hentAktoerIdForFnr(fnr))
+                || egenAnsattConsumer.erEgenAnsatt(fnr);
     }
 
 }

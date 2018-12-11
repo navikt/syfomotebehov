@@ -39,25 +39,29 @@ public class MotebehovDAO {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    public Optional<List<String>> hentAktorIdMedMotebehovForEnhet(String enhetId) {
+        return ofNullable(jdbcTemplate.query("SELECT DISTINCT aktoer_id FROM motebehov WHERE tildelt_enhet = ? AND opprettet_dato >= ?", (rs, rowNum) -> rs.getString("aktoer_id"), enhetId, hentTidligsteDatoForGyldigMotebehovSvar()));
+    }
+
     public Optional<List<PMotebehov>> hentMotebehovListeForAktoer(String aktoerId) {
-        return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE AKTOER_ID = ? AND OPPRETTET_DATO >= ?", getInnsendingRowMapper(), aktoerId, hentTidligsteDatoForGyldigMotebehovSvar()));
+        return ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_dato >= ?", getInnsendingRowMapper(), aktoerId, hentTidligsteDatoForGyldigMotebehovSvar()));
     }
 
     public Optional<List<PMotebehov>> hentMotebehovListeForOgOpprettetAvArbeidstaker(String arbeidstakerAktorId) {
-        return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE aktoer_id = ? AND OPPRETTET_AV = ? AND OPPRETTET_DATO >= ?", getInnsendingRowMapper(), arbeidstakerAktorId, arbeidstakerAktorId, hentTidligsteDatoForGyldigMotebehovSvar()));
+        return ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av = ? AND opprettet_dato >= ?", getInnsendingRowMapper(), arbeidstakerAktorId, arbeidstakerAktorId, hentTidligsteDatoForGyldigMotebehovSvar()));
     }
 
     public Optional<List<PMotebehov>> hentMotebehovListeForArbeidstakerOpprettetAvLeder(String arbeidstakerAktorId, String virksomhetsnummer) {
-        return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE aktoer_id = ? AND OPPRETTET_AV != ? AND VIRKSOMHETSNUMMER = ? AND OPPRETTET_DATO >= ?", getInnsendingRowMapper(), arbeidstakerAktorId, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar()));
+        return ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av != ? AND virksomhetsnummer = ? AND opprettet_dato >= ?", getInnsendingRowMapper(), arbeidstakerAktorId, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar()));
     }
 
     public Optional<List<PMotebehov>> hentMotebehovListeForAktoerOgVirksomhetsnummer(String aktoerId, String virksomhetsnummer) {
-        return ofNullable(jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE aktoer_id = ? AND virksomhetsnummer = ? AND OPPRETTET_DATO >= ?", getInnsendingRowMapper(), aktoerId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar()));
+        return ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND virksomhetsnummer = ? AND opprettet_dato >= ?", getInnsendingRowMapper(), aktoerId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar()));
     }
 
     public UUID create(final PMotebehov motebehov) {
         UUID uuid = UUID.randomUUID();
-        String lagreSql = "INSERT INTO MOTEBEHOV VALUES(" +
+        String lagreSql = "INSERT INTO motebehov VALUES(" +
                 ":uuid, " +
                 ":opprettet_dato, " +
                 ":opprettet_av, " +
@@ -90,7 +94,7 @@ public class MotebehovDAO {
     }
 
     public List<PMotebehov> finnMotebehovOpprettetSiden(LocalDateTime timestamp) {
-        return jdbcTemplate.query("SELECT * FROM MOTEBEHOV WHERE opprettet_dato > ?", getInnsendingRowMapper(), timestamp);
+        return jdbcTemplate.query("SELECT * FROM motebehov WHERE opprettet_dato > ?", getInnsendingRowMapper(), timestamp);
     }
 
     private static RowMapper<PMotebehov> getInnsendingRowMapper() {
@@ -117,7 +121,7 @@ public class MotebehovDAO {
                     .collect(toList())).orElse(emptyList());
 
             int antallMotebehovSlettet = namedParameterJdbcTemplate.update(
-                    "DELETE FROM MOTEBEHOV WHERE motebehov_uuid IN (:motebehovIder)",
+                    "DELETE FROM motebehov WHERE motebehov_uuid IN (:motebehovIder)",
 
                     new MapSqlParameterSource()
                             .addValue("motebehovIder", motebehovIder));
