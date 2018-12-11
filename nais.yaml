@@ -67,10 +67,6 @@ fasitResources:
     resourceType: restservice
   - alias: tilgangskontrollapi
     resourceType: restservice
-  - alias: isso-rp-user
-    resourceType: credential
-    propertyMap:
-      username: NO_NAV_SECURITY_OIDC_ISSUER_INTERN_ACCEPTEDAUDIENCE
   - alias: aad_b2c_clientid
     resourceType: credential
     propertyMap:
