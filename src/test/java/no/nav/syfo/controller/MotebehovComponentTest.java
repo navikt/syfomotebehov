@@ -5,7 +5,7 @@ import no.nav.syfo.LocalApplication;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.MotebehovSvar;
 import no.nav.syfo.repository.dao.MotebehovDAO;
-import no.nav.syfo.testhelper.UserTestHelper;
+import no.nav.syfo.testhelper.MotebehovGenerator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class MotebehovComponentTest {
     @Inject
     private MotebehovDAO motebehovDAO;
 
-    private UserTestHelper userTestHelper = new UserTestHelper();
+    private MotebehovGenerator motebehovGenerator = new MotebehovGenerator();
 
     @Before
     public void setUp() {
@@ -56,10 +56,10 @@ public class MotebehovComponentTest {
 
     @Test
     public void lagreOgHentMotebehov() {
-        final MotebehovSvar motebehovSvar = userTestHelper.hentMotebehovSvar(true);
+        final MotebehovSvar motebehovSvar = motebehovGenerator.lagMotebehovSvar(true);
 
         // Lagre
-        motebehovController.lagreMotebehov(userTestHelper.hentNyttMotebehovFraAT());
+        motebehovController.lagreMotebehov(motebehovGenerator.lagNyttMotebehovFraAT());
 
         // Hent
         List<Motebehov> motebehovListe = motebehovController.hentMotebehovListe(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);

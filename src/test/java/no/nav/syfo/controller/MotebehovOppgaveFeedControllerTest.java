@@ -4,7 +4,7 @@ import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.LocalApplication;
 import no.nav.syfo.domain.rest.VeilederOppgaveFeedItem;
 import no.nav.syfo.repository.dao.MotebehovDAO;
-import no.nav.syfo.testhelper.UserTestHelper;
+import no.nav.syfo.testhelper.MotebehovGenerator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class MotebehovOppgaveFeedControllerTest {
     @Inject
     private MotebehovDAO motebehovDAO;
 
-    private UserTestHelper userTestHelper = new UserTestHelper();
+    private MotebehovGenerator motebehovGenerator = new MotebehovGenerator();
 
     @Before
     public void setUp() {
@@ -54,7 +54,7 @@ public class MotebehovOppgaveFeedControllerTest {
 
     @Test
     public void opprettVeilederoppgaverFraMotebehovMedBehov() {
-        motebehovBrukerController.lagreMotebehov(userTestHelper.hentNyttMotebehovFraAT(true));
+        motebehovBrukerController.lagreMotebehov(motebehovGenerator.lagNyttMotebehovFraAT(true));
         List<VeilederOppgaveFeedItem> veilederOppgaveFeedItemListe = hentVeilederoppgaver();
 
         assertThat(veilederOppgaveFeedItemListe).size().isOne();
@@ -62,7 +62,7 @@ public class MotebehovOppgaveFeedControllerTest {
 
     @Test
     public void ikkeOpprettVeilederoppgaverFraMotebehovUtenBehov() {
-        motebehovBrukerController.lagreMotebehov(userTestHelper.hentNyttMotebehovFraAT(false));
+        motebehovBrukerController.lagreMotebehov(motebehovGenerator.lagNyttMotebehovFraAT(false));
         List<VeilederOppgaveFeedItem> veilederOppgaveFeedItemListe = hentVeilederoppgaver();
 
         assertThat(veilederOppgaveFeedItemListe).size().isZero();

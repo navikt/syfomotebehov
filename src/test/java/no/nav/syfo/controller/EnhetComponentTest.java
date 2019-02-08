@@ -6,6 +6,7 @@ import no.nav.syfo.domain.rest.BrukerPaaEnhet;
 import no.nav.syfo.domain.rest.MotebehovSvar;
 import no.nav.syfo.domain.rest.NyttMotebehov;
 import no.nav.syfo.repository.dao.MotebehovDAO;
+import no.nav.syfo.testhelper.MotebehovGenerator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,6 +60,8 @@ public class EnhetComponentTest {
     private MotebehovDAO motebehovDAO;
 
     private MockRestServiceServer mockRestServiceServer;
+
+    private MotebehovGenerator motebehovGenerator = new MotebehovGenerator();
 
     @Before
     public void setUp() {

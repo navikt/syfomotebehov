@@ -5,7 +5,7 @@ import no.nav.syfo.domain.rest.NyttMotebehov;
 
 import static no.nav.syfo.testhelper.UserConstants.*;
 
-public class UserTestHelper {
+public class MotebehovGenerator {
 
     private final MotebehovSvar motebehovSvar = new MotebehovSvar()
             .harMotebehov(true)
@@ -22,16 +22,16 @@ public class UserTestHelper {
             )
             .tildeltEnhet(NAV_ENHET);
 
-    public MotebehovSvar hentMotebehovSvar(boolean harBehov) {
+    public MotebehovSvar lagMotebehovSvar(boolean harBehov) {
         return motebehovSvar
                 .harMotebehov(harBehov);
     }
 
-    public NyttMotebehov hentNyttMotebehovFraAT() {
+    public NyttMotebehov lagNyttMotebehovFraAT() {
         return nyttMotebehovArbeidstaker;
     }
 
-    public NyttMotebehov hentNyttMotebehovFraAT(boolean harBehov) {
+    public NyttMotebehov lagNyttMotebehovFraAT(boolean harBehov) {
         MotebehovSvar svar = motebehovSvar.harMotebehov(harBehov);
         return nyttMotebehovArbeidstaker.motebehovSvar(svar);
     }
