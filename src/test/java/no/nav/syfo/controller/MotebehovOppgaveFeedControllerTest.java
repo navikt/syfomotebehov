@@ -2,10 +2,9 @@ package no.nav.syfo.controller;
 
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.LocalApplication;
-import no.nav.syfo.domain.rest.MotebehovSvar;
-import no.nav.syfo.domain.rest.NyttMotebehov;
 import no.nav.syfo.domain.rest.VeilederOppgaveFeedItem;
 import no.nav.syfo.repository.dao.MotebehovDAO;
+import no.nav.syfo.testhelper.UserTestHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,9 +16,10 @@ import javax.inject.Inject;
 import java.util.List;
 
 import static java.time.LocalDateTime.now;
-import static no.nav.syfo.controller.MotebehovComponentTest.*;
-import static no.nav.syfo.util.OidcTestHelper.loggInnBruker;
-import static no.nav.syfo.util.OidcTestHelper.loggUtAlle;
+import static no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker;
+import static no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle;
+import static no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID;
+import static no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -38,6 +38,7 @@ public class MotebehovOppgaveFeedControllerTest {
     @Inject
     private MotebehovDAO motebehovDAO;
 
+    private UserTestHelper userTestHelper = new UserTestHelper();
 
     @Before
     public void setUp() {
@@ -53,7 +54,7 @@ public class MotebehovOppgaveFeedControllerTest {
 
     @Test
     public void opprettVeilederoppgaverFraMotebehovMedBehov() {
-        motebehovBrukerController.lagreMotebehov(sykmeldtMotebehovSvar(true));
+        motebehovBrukerController.lagreMotebehov(userTestHelper.hentNyttMotebehovFraAT(true));
         List<VeilederOppgaveFeedItem> veilederOppgaveFeedItemListe = hentVeilederoppgaver();
 
         assertThat(veilederOppgaveFeedItemListe).size().isOne();
@@ -61,28 +62,10 @@ public class MotebehovOppgaveFeedControllerTest {
 
     @Test
     public void ikkeOpprettVeilederoppgaverFraMotebehovUtenBehov() {
-        motebehovBrukerController.lagreMotebehov(sykmeldtMotebehovSvar(false));
+        motebehovBrukerController.lagreMotebehov(userTestHelper.hentNyttMotebehovFraAT(false));
         List<VeilederOppgaveFeedItem> veilederOppgaveFeedItemListe = hentVeilederoppgaver();
 
         assertThat(veilederOppgaveFeedItemListe).size().isZero();
-    }
-
-    private NyttMotebehov sykmeldtMotebehovSvar(boolean harMotebehov) {
-        final MotebehovSvar motebehovSvar = new MotebehovSvar()
-                .harMotebehov(harMotebehov)
-                .friskmeldingForventning("Om en uke")
-                .tiltak("Krykker")
-                .tiltakResultat("Kommer seg fremover")
-                .forklaring("");
-
-        final NyttMotebehov nyttMotebehov = new NyttMotebehov()
-                .arbeidstakerFnr(ARBEIDSTAKER_FNR)
-                .virksomhetsnummer(VIRKSOMHETSNUMMER)
-                .motebehovSvar(
-                        motebehovSvar
-                )
-                .tildeltEnhet(TILDELT_ENHET);
-        return nyttMotebehov;
     }
 
     private List<VeilederOppgaveFeedItem> hentVeilederoppgaver() {

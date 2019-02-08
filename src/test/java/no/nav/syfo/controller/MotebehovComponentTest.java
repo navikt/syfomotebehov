@@ -2,12 +2,10 @@ package no.nav.syfo.controller;
 
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.LocalApplication;
-import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.MotebehovSvar;
-import no.nav.syfo.domain.rest.NyttMotebehov;
-import no.nav.syfo.mock.AktoerMock;
 import no.nav.syfo.repository.dao.MotebehovDAO;
+import no.nav.syfo.testhelper.UserTestHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,8 +17,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.inject.Inject;
 import java.util.List;
 
-import static no.nav.syfo.util.OidcTestHelper.loggInnBruker;
-import static no.nav.syfo.util.OidcTestHelper.loggUtAlle;
+import static no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker;
+import static no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle;
+import static no.nav.syfo.testhelper.UserConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -32,13 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public class MotebehovComponentTest {
 
-    public static final String ARBEIDSTAKER_FNR = "12345678912";
-    public static final String ARBEIDSTAKER_AKTORID = AktoerMock.mockAktorId(ARBEIDSTAKER_FNR);
-    public static final String LEDER_FNR = "12987654321";
-    public static final String LEDER_AKTORID = AktoerMock.mockAktorId(LEDER_FNR);
-    public static final String VIRKSOMHETSNUMMER = "1234";
-    public static final String TILDELT_ENHET = "0330";
-
     @Inject
     private MotebehovBrukerController motebehovController;
 
@@ -47,6 +39,8 @@ public class MotebehovComponentTest {
 
     @Inject
     private MotebehovDAO motebehovDAO;
+
+    private UserTestHelper userTestHelper = new UserTestHelper();
 
     @Before
     public void setUp() {
@@ -62,23 +56,10 @@ public class MotebehovComponentTest {
 
     @Test
     public void lagreOgHentMotebehov() {
-        final MotebehovSvar motebehovSvar = new MotebehovSvar()
-                .harMotebehov(true)
-                .friskmeldingForventning("Om en uke")
-                .tiltak("Krykker")
-                .tiltakResultat("Kommer seg fremover")
-                .forklaring("");
-
-        final NyttMotebehov nyttMotebehov = new NyttMotebehov()
-                .arbeidstakerFnr(ARBEIDSTAKER_FNR)
-                .virksomhetsnummer(VIRKSOMHETSNUMMER)
-                .motebehovSvar(
-                        motebehovSvar
-                )
-                .tildeltEnhet(TILDELT_ENHET);
+        final MotebehovSvar motebehovSvar = userTestHelper.hentMotebehovSvar(true);
 
         // Lagre
-        motebehovController.lagreMotebehov(nyttMotebehov);
+        motebehovController.lagreMotebehov(userTestHelper.hentNyttMotebehovFraAT());
 
         // Hent
         List<Motebehov> motebehovListe = motebehovController.hentMotebehovListe(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);

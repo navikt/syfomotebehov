@@ -10,8 +10,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import static java.util.Arrays.asList;
-import static no.nav.syfo.controller.MotebehovComponentTest.ARBEIDSTAKER_AKTORID;
-import static no.nav.syfo.controller.MotebehovComponentTest.LEDER_AKTORID;
+import static no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID;
+import static no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID;
 
 @Service
 @ConditionalOnProperty(value = "mockSykefravaeroppfoelging_V1", havingValue = "true")
