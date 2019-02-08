@@ -96,7 +96,7 @@ public class MotebehovService {
     }
 
     public List<VeilederOppgaveFeedItem> hentMotebehovListe(final String timestamp) {
-        return motebehovDAO.finnMotebehovOpprettetSiden(LocalDateTime.parse(timestamp))
+        return motebehovDAO.finnMotebehovMedBehovOpprettetSiden(LocalDateTime.parse(timestamp))
                 .stream()
                 .map(motebehov -> {
                     String fnr = aktoerConsumer.hentFnrForAktoerId(motebehov.aktoerId);

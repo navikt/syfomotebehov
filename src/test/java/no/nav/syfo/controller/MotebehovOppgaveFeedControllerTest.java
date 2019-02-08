@@ -2,55 +2,46 @@ package no.nav.syfo.controller;
 
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.LocalApplication;
-import no.nav.syfo.domain.rest.Fnr;
-import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.MotebehovSvar;
 import no.nav.syfo.domain.rest.NyttMotebehov;
-import no.nav.syfo.mock.AktoerMock;
+import no.nav.syfo.domain.rest.VeilederOppgaveFeedItem;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.inject.Inject;
 import java.util.List;
 
+import static java.time.LocalDateTime.now;
+import static no.nav.syfo.controller.MotebehovComponentTest.*;
 import static no.nav.syfo.util.OidcTestHelper.loggInnBruker;
 import static no.nav.syfo.util.OidcTestHelper.loggUtAlle;
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Komponent / blackbox test av møtebehovsfunskjonaliteten - test at input til endepunktet (controlleren, for enkelhets skyld)
- * lagres og hentes riktig fra minnedatabasen.
- */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = LocalApplication.class)
-@DirtiesContext
-public class MotebehovComponentTest {
-
-    public static final String ARBEIDSTAKER_FNR = "12345678912";
-    public static final String ARBEIDSTAKER_AKTORID = AktoerMock.mockAktorId(ARBEIDSTAKER_FNR);
-    public static final String LEDER_FNR = "12987654321";
-    public static final String LEDER_AKTORID = AktoerMock.mockAktorId(LEDER_FNR);
-    public static final String VIRKSOMHETSNUMMER = "1234";
-    public static final String TILDELT_ENHET = "0330";
+public class MotebehovOppgaveFeedControllerTest {
 
     @Inject
-    private MotebehovBrukerController motebehovController;
+    private MotebehovOppgaveFeedController motebehovOppgaveFeedController;
 
     @Inject
     private OIDCRequestContextHolder oidcRequestContextHolder;
 
     @Inject
+    private MotebehovBrukerController motebehovBrukerController;
+
+    @Inject
     private MotebehovDAO motebehovDAO;
+
 
     @Before
     public void setUp() {
-        loggInnBruker(oidcRequestContextHolder, LEDER_FNR);
+        loggInnBruker(oidcRequestContextHolder, ARBEIDSTAKER_FNR);
         cleanDB();
     }
 
@@ -61,9 +52,24 @@ public class MotebehovComponentTest {
     }
 
     @Test
-    public void lagreOgHentMotebehov() {
+    public void opprettVeilederoppgaverFraMotebehovMedBehov() {
+        motebehovBrukerController.lagreMotebehov(sykmeldtMotebehovSvar(true));
+        List<VeilederOppgaveFeedItem> veilederOppgaveFeedItemListe = hentVeilederoppgaver();
+
+        assertThat(veilederOppgaveFeedItemListe).size().isOne();
+    }
+
+    @Test
+    public void ikkeOpprettVeilederoppgaverFraMotebehovUtenBehov() {
+        motebehovBrukerController.lagreMotebehov(sykmeldtMotebehovSvar(false));
+        List<VeilederOppgaveFeedItem> veilederOppgaveFeedItemListe = hentVeilederoppgaver();
+
+        assertThat(veilederOppgaveFeedItemListe).size().isZero();
+    }
+
+    private NyttMotebehov sykmeldtMotebehovSvar(boolean harMotebehov) {
         final MotebehovSvar motebehovSvar = new MotebehovSvar()
-                .harMotebehov(true)
+                .harMotebehov(harMotebehov)
                 .friskmeldingForventning("Om en uke")
                 .tiltak("Krykker")
                 .tiltakResultat("Kommer seg fremover")
@@ -76,24 +82,17 @@ public class MotebehovComponentTest {
                         motebehovSvar
                 )
                 .tildeltEnhet(TILDELT_ENHET);
+        return nyttMotebehov;
+    }
 
-        // Lagre
-        motebehovController.lagreMotebehov(nyttMotebehov);
-
-        // Hent
-        List<Motebehov> motebehovListe = motebehovController.hentMotebehovListe(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
-        assertThat(motebehovListe).size().isOne();
-
-        Motebehov motebehov = motebehovListe.get(0);
-        assertThat(motebehov.opprettetAv).isEqualTo(LEDER_AKTORID);
-        assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR);
-        assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER);
-        assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(motebehovSvar);
+    private List<VeilederOppgaveFeedItem> hentVeilederoppgaver() {
+        String dato = now().minusDays(1).toString();
+        return motebehovOppgaveFeedController.hentMotebehovListe(dato);
     }
 
 
     private void cleanDB() {
-        motebehovDAO.nullstillMotebehov(LEDER_AKTORID);
+        motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID);
     }
 
 }
