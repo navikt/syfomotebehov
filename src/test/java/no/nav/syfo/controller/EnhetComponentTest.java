@@ -5,8 +5,8 @@ import no.nav.syfo.LocalApplication;
 import no.nav.syfo.domain.rest.BrukerPaaEnhet;
 import no.nav.syfo.domain.rest.MotebehovSvar;
 import no.nav.syfo.domain.rest.NyttMotebehov;
-import no.nav.syfo.mock.AktoerMock;
 import no.nav.syfo.repository.dao.MotebehovDAO;
+import no.nav.syfo.testhelper.MotebehovGenerator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,16 +25,13 @@ import java.util.List;
 
 import static no.nav.syfo.service.VeilederTilgangService.ENHET;
 import static no.nav.syfo.service.VeilederTilgangService.TILGANG_TIL_ENHET_PATH;
-import static no.nav.syfo.util.OidcTestHelper.loggInnBruker;
-import static no.nav.syfo.util.OidcTestHelper.loggInnVeileder;
+import static no.nav.syfo.testhelper.OidcTestHelper.*;
+import static no.nav.syfo.testhelper.UserConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.OK;
-import static no.nav.syfo.util.OidcTestHelper.*;
 import static org.springframework.test.web.client.ExpectedCount.once;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
@@ -43,12 +40,6 @@ import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 @SpringBootTest(classes = LocalApplication.class)
 @DirtiesContext
 public class EnhetComponentTest {
-
-    private static final String ARBEIDSTAKER_FNR = "12345678912";
-    private static final String ARBEIDSTAKER_AKTOERID = AktoerMock.mockAktorId(ARBEIDSTAKER_FNR);
-    private static final String VIRKSOMHETSNUMMER = "1234";
-    private static final String VEILEDER_ID = "Z999999";
-    private static final String NAV_ENHET = "0330";
 
     @Value("${tilgangskontrollapi.url}")
     private String tilgangskontrollUrl;
@@ -69,6 +60,8 @@ public class EnhetComponentTest {
     private MotebehovDAO motebehovDAO;
 
     private MockRestServiceServer mockRestServiceServer;
+
+    private MotebehovGenerator motebehovGenerator = new MotebehovGenerator();
 
     @Before
     public void setUp() {
@@ -131,6 +124,6 @@ public class EnhetComponentTest {
     }
 
     private void cleanDB() {
-        motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTOERID);
+        motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID);
     }
 }

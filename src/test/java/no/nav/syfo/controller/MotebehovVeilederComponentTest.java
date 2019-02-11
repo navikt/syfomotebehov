@@ -27,7 +27,7 @@ import static java.util.Collections.singletonList;
 import static no.nav.syfo.service.HistorikkService.*;
 import static no.nav.syfo.service.VeilederTilgangService.*;
 import static no.nav.syfo.util.AuthorizationFilterUtils.basicCredentials;
-import static no.nav.syfo.util.OidcTestHelper.*;
+import static no.nav.syfo.testhelper.OidcTestHelper.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.OK;

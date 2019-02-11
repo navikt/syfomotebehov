@@ -21,8 +21,8 @@ import javax.ws.rs.ForbiddenException;
 
 import static no.nav.syfo.service.VeilederTilgangService.FNR;
 import static no.nav.syfo.service.VeilederTilgangService.TILGANG_TIL_BRUKER_PATH;
-import static no.nav.syfo.util.OidcTestHelper.loggInnVeileder;
-import static no.nav.syfo.util.OidcTestHelper.loggUtAlle;
+import static no.nav.syfo.testhelper.OidcTestHelper.loggInnVeileder;
+import static no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.test.web.client.ExpectedCount.manyTimes;
