@@ -6,6 +6,7 @@ replicas:
   max: 2
   cpuThresholdPercentage: 90
 port: 8080
+webproxy: true
 healthcheck:
   liveness:
     path: /syfomotebehov/internal/isAlive
