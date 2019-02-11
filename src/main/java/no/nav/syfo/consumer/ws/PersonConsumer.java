@@ -22,6 +22,9 @@ public class PersonConsumer implements InitializingBean {
 
     private static PersonConsumer instance;
 
+    private static final String KODE6 = "SPSF";
+    private static final String KODE7 = "SPFO";
+
     private final PersonV3 personV3;
 
     @Override
@@ -67,12 +70,12 @@ public class PersonConsumer implements InitializingBean {
     }
 
     public boolean erBrukerKode6(String aktoerId) {
-        return "6".equals(hentDiskresjonskodeForAktoer(aktoerId));
+        return KODE6.equals(hentDiskresjonskodeForAktoer(aktoerId));
     }
 
     public boolean erBrukerDiskresjonsmerket(String aktoerId) {
         String diskresjonskode = hentDiskresjonskodeForAktoer(aktoerId);
-        return "6".equals(diskresjonskode) || "7".equals(diskresjonskode);
+        return KODE6.equals(diskresjonskode) || KODE7.equals(diskresjonskode);
     }
 
     @Cacheable("persondiskresjonskode")
