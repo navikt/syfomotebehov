@@ -23,8 +23,10 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.ForbiddenException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
 import static no.nav.syfo.OIDCIssuer.EKSTERN;
 import static no.nav.syfo.util.OIDCUtil.fnrFraOIDCEkstern;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -112,6 +114,9 @@ public class MotebehovBrukerController {
 
         if (!motebehovSvar.harMotebehov) {
             metrikk.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring.length(), erInnloggetBrukerArbeidstaker);
+        } else if (!StringUtils.isEmpty(motebehovSvar.forklaring)){
+            metrikk.tellMotebehovBesvartJaMedForklaringTegn(motebehovSvar.forklaring.length(), erInnloggetBrukerArbeidstaker);
+            metrikk.tellMotebehovBesvartJaMedForklaringAntall(erInnloggetBrukerArbeidstaker);
         }
     }
 

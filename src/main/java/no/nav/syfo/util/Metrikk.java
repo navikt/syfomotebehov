@@ -38,4 +38,24 @@ public class Metrikk {
                 Tags.of("type", "info")
         ).increment(antallTegnIForklaring);
     }
+
+    public void tellMotebehovBesvartJaMedForklaringTegn(int antallTegnIForklaring, boolean erInnloggetBrukerArbeidstaker) {
+        String navn = erInnloggetBrukerArbeidstaker
+                ? "syfomotebehov_motebehov_besvart_ja_forklaring_lengde_at"
+                : "syfomotebehov_motebehov_besvart_ja_forklaring_lengde_ag";
+        registry.counter(
+                navn,
+                Tags.of("type", "info")
+        ).increment(antallTegnIForklaring);
+    }
+
+    public void tellMotebehovBesvartJaMedForklaringAntall(boolean erInnloggetBrukerArbeidstaker) {
+        String navn = erInnloggetBrukerArbeidstaker
+                ? "syfomotebehov_motebehov_besvart_ja_forklaring_at"
+                : "syfomotebehov_motebehov_besvart_ja_forklaring_ag";
+        registry.counter(
+                navn,
+                Tags.of("type", "info")
+        ).increment();
+    }
 }
