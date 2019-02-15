@@ -2,7 +2,6 @@ package no.nav.syfo.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
-import no.nav.syfo.domain.rest.BrukerPaaEnhet;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Historikk;
 import no.nav.syfo.domain.rest.Motebehov;
@@ -22,7 +21,6 @@ import java.io.IOException;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.syfo.OIDCIssuer.INTERN;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.FORBIDDEN;

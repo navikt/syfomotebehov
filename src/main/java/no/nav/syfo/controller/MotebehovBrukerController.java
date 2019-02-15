@@ -23,10 +23,8 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.ForbiddenException;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 import static java.util.Collections.emptyList;
-import static java.util.Optional.ofNullable;
 import static no.nav.syfo.OIDCIssuer.EKSTERN;
 import static no.nav.syfo.util.OIDCUtil.fnrFraOIDCEkstern;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -129,5 +127,4 @@ public class MotebehovBrukerController {
     void handleForbiddenRequests(HttpServletResponse response) throws IOException {
         response.sendError(FORBIDDEN.value(), "Handling er forbudt");
     }
-
 }
