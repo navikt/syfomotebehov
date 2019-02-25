@@ -12,7 +12,7 @@ import javax.ws.rs.ForbiddenException;
 import java.util.List;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static no.nav.syfo.OIDCIssuer.INTERN;
+import static no.nav.syfo.OIDCIssuer.INTERN_AZURE_OIDC;
 
 @Slf4j
 @RestController
@@ -30,8 +30,9 @@ public class EnhetController {
     }
 
     @ResponseBody
-    @ProtectedWithClaims(issuer = INTERN)
+    @ProtectedWithClaims(issuer = INTERN_AZURE_OIDC)
     @GetMapping(value = "/{enhet}/motebehov/brukere", produces = APPLICATION_JSON)
+    @CrossOrigin(origins = "https://syfooversikt-q1.nais.preprod.local", allowCredentials = "true", allowedHeaders = {"Origin", "Content-Type", "Accept", "NAV_CSRF_PROTECTION"})
     public List<BrukerPaaEnhet> hentSykmeldteMedMotebehovSvarPaaEnhet
             (@PathVariable @Pattern(regexp = "\\d{4}$") String enhet) {
         if (!veilederTilgangService.sjekkVeiledersTilgangTilEnhet(enhet))
