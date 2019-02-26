@@ -35,8 +35,8 @@ public class EnhetController {
     @CrossOrigin(origins = "https://syfooversikt-q1.nais.preprod.local", allowCredentials = "true", allowedHeaders = {"Origin", "Content-Type", "Accept", "NAV_CSRF_PROTECTION"})
     public List<BrukerPaaEnhet> hentSykmeldteMedMotebehovSvarPaaEnhet
             (@PathVariable @Pattern(regexp = "\\d{4}$") String enhet) {
-        if (!veilederTilgangService.sjekkVeiledersTilgangTilEnhet(enhet))
-            throw new ForbiddenException("Innlogget bruker har ikke tilgang til følgende enhet: " + enhet);
+//        if (!veilederTilgangService.sjekkVeiledersTilgangTilEnhet(enhet))
+//            throw new ForbiddenException("Innlogget bruker har ikke tilgang til følgende enhet: " + enhet);
         return motebehovService.hentSykmeldteMedMotebehovPaaEnhet(enhet);
     }
 }
