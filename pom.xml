@@ -44,7 +44,6 @@
         <organisasjonenhet-v2-tjenestespesifikasjon.version>2.1.0</organisasjonenhet-v2-tjenestespesifikasjon.version>
         <arbeidsfordeling-v1-tjenestespesifikasjon.version>1.1.0</arbeidsfordeling-v1-tjenestespesifikasjon.version>
         <egenansatt-v1-tjenestespesifikasjon.version>1.0.1</egenansatt-v1-tjenestespesifikasjon.version>
-        <postgresql.version>42.2.4</postgresql.version>
     </properties>
 
     <dependencies>
