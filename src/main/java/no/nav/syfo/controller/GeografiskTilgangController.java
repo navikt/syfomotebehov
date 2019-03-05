@@ -38,7 +38,7 @@ public class GeografiskTilgangController {
             @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr
     ) {
         if (Toggle.endepunkterForMotebehov) {
-            if (geografiskTilgangService.erBrukerTilhorendeMotebehovPilot(arbeidstakerFnr)) {
+            if (geografiskTilgangService.erMotebehovTilgjengelig(arbeidstakerFnr)) {
                 return Response.ok().build();
             } else {
                 throw new ForbiddenException("Ikke tilgang");

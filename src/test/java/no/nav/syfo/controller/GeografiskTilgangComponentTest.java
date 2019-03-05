@@ -48,6 +48,7 @@ public class GeografiskTilgangComponentTest {
     public void setup() {
         Toggle.pilotKontorer = PILOTKONTOR;
         Toggle.endepunkterForMotebehov = true;
+        Toggle.enableMotebehovNasjonal = false;
 
         OrganisasjonEnhetConsumer organisasjonEnhetConsumer = new OrganisasjonEnhetConsumer(organisasjonEnhetV2Mock);
         PersonConsumer personConsumer = new PersonConsumer(personV3Mock);
@@ -57,7 +58,18 @@ public class GeografiskTilgangComponentTest {
 
     @Test
     public void hentGeografiskTilgang() {
+        Toggle.enableMotebehovNasjonal = true;
         mockHentPilotkontorFraOrganisasjonEnhet();
+
+        Response response = geografiskTilgangController.hentGeografiskTilgang(BRUKER_FNR);
+
+        assertThat(response.getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    public void harTilgangMedNasjonalLanseringUavhengigGeografiskTilgang() {
+        Toggle.enableMotebehovNasjonal = true;
+        mockHentIkkePilotkontorFraOrganisasjonEnhet();
 
         Response response = geografiskTilgangController.hentGeografiskTilgang(BRUKER_FNR);
 

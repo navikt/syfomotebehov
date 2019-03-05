@@ -60,7 +60,7 @@ public class MotebehovVeilederController {
         if (Toggle.endepunkterForMotebehov) {
             kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
 
-            if (!geografiskTilgangService.erBrukerTilhorendeMotebehovPilot(arbeidstakerFnr)) {
+            if (!geografiskTilgangService.erMotebehovTilgjengelig(arbeidstakerFnr)) {
                 return emptyList();
             }
 
@@ -80,7 +80,7 @@ public class MotebehovVeilederController {
         if (Toggle.endepunkterForMotebehov) {
             kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
 
-            if (!geografiskTilgangService.erBrukerTilhorendeMotebehovPilot(arbeidstakerFnr)) {
+            if (!geografiskTilgangService.erMotebehovTilgjengelig(arbeidstakerFnr)) {
                 return emptyList();
             }
 

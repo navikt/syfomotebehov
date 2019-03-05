@@ -44,14 +44,14 @@ public class GeografiskTilgangService {
                 .orElse(emptyList());
     }
 
-    public boolean erBrukerTilhorendeMotebehovPilot(String brukerFnr) {
+    private boolean erBrukerTilhorendeMotebehovPilot(String brukerFnr) {
         List<String> pilotKontorer = hentPilotKontorer();
         List<String> brukersNavkontorer = hentBrukersNavKontorForGeografiskTilknytning(brukerFnr);
 
         boolean erBrukerTilhorendeMotebehovPilot = brukersNavkontorer.stream().anyMatch(pilotKontorer::contains);
 
         // TODO: Fjern logging av typen MOTEBEHOV-TRACE etter verifisering av funksjonalitet i Prod.
-        log.info("MOTEBEHOV-TRACE: Toggle {}, pilotkontorer {}, brukerkontorer {}, erBrukerTilhorendeMotebehovPilot {}",
+        log.info("MOTEBEHOV-TRACE: Toggle {}, pilotkontorer {}, brukerkontorer {}, erMotebehovTilgjengelig {}",
                 Toggle.endepunkterForMotebehov,
                 Toggle.pilotKontorer,
                 String.join(", ", brukersNavkontorer),
@@ -59,5 +59,9 @@ public class GeografiskTilgangService {
         );
 
         return erBrukerTilhorendeMotebehovPilot;
+    }
+
+    public boolean erMotebehovTilgjengelig(String brukerFnr) {
+        return Toggle.enableMotebehovNasjonal || erBrukerTilhorendeMotebehovPilot(brukerFnr);
     }
 }
