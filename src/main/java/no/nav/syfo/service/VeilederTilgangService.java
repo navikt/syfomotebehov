@@ -1,7 +1,6 @@
 package no.nav.syfo.service;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -36,14 +35,12 @@ public class VeilederTilgangService {
                 .queryParam(ENHET, ENHET_PLACEHOLDER);
         this.template = template;
     }
-
-    @Cacheable("veiledertilgangperson")
+    
     public boolean sjekkVeiledersTilgangTilPerson(String fnr) {
         URI tilgangTilBrukerUriMedFnr = tilgangTilBrukerUriTemplate.build(singletonMap(FNR, fnr));
         return kallUriMedTemplate(tilgangTilBrukerUriMedFnr);
     }
 
-    @Cacheable("veiledertilgangenhet")
     public boolean sjekkVeiledersTilgangTilEnhet(String enhet) {
         URI tilgangTilEnhetUriMedFnr = tilgangTilEnhetUriTemplate.build(singletonMap(ENHET, enhet));
         return kallUriMedTemplate(tilgangTilEnhetUriMedFnr);
