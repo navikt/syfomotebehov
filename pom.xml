@@ -7,7 +7,7 @@
     <artifactId>syfomotebehov</artifactId>
     <packaging>jar</packaging>
     <version>1.1.0-SNAPSHOT</version>
-    <name>syfo motebehov</name>
+    <name>syfomotebehov</name>
 
     <prerequisites>
         <maven>3.3.9</maven>
@@ -36,28 +36,20 @@
         <lombok.version>1.16.22</lombok.version>
         <cxf.version>3.2.0</cxf.version>
         <oidc-spring-support.version>0.2.4</oidc-spring-support.version>
+
+        <!-- TJENESTER -->
         <aktoer.version>1.0</aktoer.version>
-        <brukeroppgavev1-tjenestespesifikasjon.version>1.0.1</brukeroppgavev1-tjenestespesifikasjon.version>
-        <nav-person.version>3.4.1</nav-person.version>
-        <sykefravaersoppfoelgingv1-tjenestespesifikasjon.version>1.0.20</sykefravaersoppfoelgingv1-tjenestespesifikasjon.version>
-        <organisasjonv4-tjenestespesifikasjon.version>1.0.1</organisasjonv4-tjenestespesifikasjon.version>
-        <organisasjonenhet-v2-tjenestespesifikasjon.version>2.1.0</organisasjonenhet-v2-tjenestespesifikasjon.version>
         <arbeidsfordeling-v1-tjenestespesifikasjon.version>1.1.0</arbeidsfordeling-v1-tjenestespesifikasjon.version>
+        <brukeroppgavev1-tjenestespesifikasjon.version>1.0.1</brukeroppgavev1-tjenestespesifikasjon.version>
         <egenansatt-v1-tjenestespesifikasjon.version>1.0.1</egenansatt-v1-tjenestespesifikasjon.version>
+        <nav-person.version>3.4.1</nav-person.version>
+        <organisasjonenhet-v2-tjenestespesifikasjon.version>2.1.0</organisasjonenhet-v2-tjenestespesifikasjon.version>
+        <organisasjonv4-tjenestespesifikasjon.version>1.0.1</organisasjonv4-tjenestespesifikasjon.version>
+        <sykefravaersoppfoelgingv1-tjenestespesifikasjon.version>1.0.20</sykefravaersoppfoelgingv1-tjenestespesifikasjon.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-            <version>${javax.inject.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-            <version>${javax.ws.rs.version}</version>
-        </dependency>
-
+        <!-- SPRING -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -67,23 +59,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
             <version>${spring-boot.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.bitbucket.b_c</groupId>
-            <artifactId>jose4j</artifactId>
-            <version>${jose4j.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
-            <version>${micrometer-registry-prometheus.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -96,45 +71,45 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>net.logstash.logback</groupId>
-            <artifactId>logstash-logback-encoder</artifactId>
-            <version>${logstash-logback-encoder.version}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jersey</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.5</version>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
-            <artifactId>owasp-java-html-sanitizer</artifactId>
-            <version>20171016.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-        </dependency>
-
+        <!-- SPRING: Cache -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
+            <artifactId>spring-boot-starter-cache</artifactId>
             <version>${spring-boot.version}</version>
-            <scope>test</scope>
+        </dependency>
+        <!-- SPRING: Database -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>${spring-boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jta-atomikos</artifactId>
+            <version>${spring-boot.version}</version>
         </dependency>
 
+        <!-- METRICS -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>${micrometer-registry-prometheus.version}</version>
+        </dependency>
+
+        <!-- NAV: TJENESTER -->
         <dependency>
             <groupId>no.nav.syfo.tjenester</groupId>
             <artifactId>aktoer-v2</artifactId>
             <version>${aktoer.version}</version>
         </dependency>
-
         <dependency>
             <groupId>no.nav.syfo.tjenester</groupId>
             <artifactId>brukeroppgavev1-tjenestespesifikasjon</artifactId>
             <version>${brukeroppgavev1-tjenestespesifikasjon.version}</version>
         </dependency>
-
         <dependency>
             <groupId>no.nav.tjenester</groupId>
             <artifactId>nav-person-v3-tjenestespesifikasjon</artifactId>
@@ -165,6 +140,8 @@
             <artifactId>egenAnsatt-v1-tjenestespesifikasjon</artifactId>
             <version>${egenansatt-v1-tjenestespesifikasjon.version}</version>
         </dependency>
+
+        <!-- OIDC -->
         <dependency>
             <groupId>no.nav.security</groupId>
             <artifactId>oidc-spring-support</artifactId>
@@ -204,36 +181,11 @@
             <version>${cxf.version}</version>
         </dependency>
 
-        <!-- Cache -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cache</artifactId>
-            <version>${spring-boot.version}</version>
-        </dependency>
-
-        <!-- Database -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <version>${spring-boot.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jta-atomikos</artifactId>
-            <version>${spring-boot.version}</version>
-        </dependency>
-
+        <!-- DATABASE -->
         <dependency>
             <groupId>com.oracle</groupId>
             <artifactId>ojdbc8</artifactId>
             <version>${ojdbc8.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${h2.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
@@ -242,13 +194,59 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jersey</artifactId>
+            <groupId>org.bitbucket.b_c</groupId>
+            <artifactId>jose4j</artifactId>
+            <version>${jose4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>${javax.inject.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>${javax.ws.rs.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>${logstash-logback-encoder.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
+            <artifactId>owasp-java-html-sanitizer</artifactId>
+            <version>20171016.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
         </dependency>
 
+        <!-- TEST -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring-boot.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-
-
 
     <build>
         <extensions>
