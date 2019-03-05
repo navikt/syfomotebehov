@@ -149,7 +149,7 @@ public class MotebehovVeilederComponentTest {
         Motebehov motebehov = motebehovListe.get(0);
 
         List<Historikk> historikkListe = motebehovVeilederController.hentMotebehovHistorikk(ARBEIDSTAKER_FNR);
-        assertThat(historikkListe).size().isEqualTo(3);
+        assertThat(historikkListe).size().isEqualTo(2);
 
         Historikk motebehovOpprettetHistorikk = historikkListe.get(0);
         assertThat(motebehovOpprettetHistorikk.opprettetAv).isEqualTo(LEDER_AKTORID);
@@ -159,10 +159,6 @@ public class MotebehovVeilederComponentTest {
         Historikk veilederOppgaveHistorikk = historikkListe.get(1);
         assertThat(veilederOppgaveHistorikk.tekst).isEqualTo(MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID);
         assertThat(veilederOppgaveHistorikk.tidspunkt).isEqualTo(LocalDateTime.of(2018, 10, 10, 0, 0));
-
-        Historikk varselHistorikk = historikkListe.get(2);
-        assertThat(varselHistorikk.tekst).isEqualTo(VARSEL_OM_MOTEBEHOV_SENDT_LEDER + BEDRIFT_NAVN);
-        assertThat(varselHistorikk.tidspunkt).isEqualTo(LocalDateTime.of(2018, 10, 10, 0, 0));
     }
 
     private NyttMotebehov arbeidsgiverLagrerMotebehov(String lederFnr, String arbeidstakerFnr, String virksomhetsnummer) {

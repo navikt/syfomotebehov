@@ -13,6 +13,7 @@ import org.springframework.web.client.RestClientException;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -60,7 +61,6 @@ public class HistorikkService {
 
         List<Historikk> historikkListe = hentOpprettetMotebehov(arbeidstakerFnr);
         historikkListe.addAll(hentLesteMotebehovHistorikk(fnr));
-        historikkListe.addAll(hentNLMotebehovVarselHistorikk(fnr));
 
         return historikkListe;
     }
@@ -77,6 +77,7 @@ public class HistorikkService {
         );
     }
 
+    // TODO: Implementer egen logikk for dokumentering av sendte varsler relatert til motebehov
     private List<Historikk> hentNLMotebehovVarselHistorikk(String sykmeldtFnr) {
         try {
             String aktorId = aktoerConsumer.hentAktoerIdForFnr(sykmeldtFnr);

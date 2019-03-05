@@ -1,10 +1,7 @@
 package no.nav.syfo.service;
 
-import no.nav.syfo.OIDCIssuer;
 import no.nav.syfo.consumer.ws.*;
 import no.nav.syfo.domain.rest.*;
-import no.nav.syfo.mappers.domain.Brukeroppgave;
-import no.nav.syfo.mappers.domain.Hendelse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,14 +21,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class HistorikkServiceTest {
 
-    @Mock
-    private AktoerConsumer aktoerConsumer;
-    @Mock
-    private BrukeroppgaveConsumer brukeroppgaveConsumer;
-    @Mock
-    private SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer;
-    @Mock
-    private OrganisasjonConsumer organisasjonConsumer;
     @Mock
     private PersonConsumer personConsumer;
     @Mock
@@ -70,62 +59,12 @@ public class HistorikkServiceTest {
 
     @Before
     public void setup() {
-        when(aktoerConsumer.hentAktoerIdForFnr(SM_FNR)).thenReturn(SM_AKTORID);
-        when(organisasjonConsumer.hentBedriftnavn(ORGNR_2)).thenReturn(ORGNAVN_2);
         when(personConsumer.hentNavnFraAktoerId(NL1_AKTORID)).thenReturn(NL1_NAVN);
         when(personConsumer.hentNavnFraAktoerId(NL3_AKTORID)).thenReturn(NL3_NAVN);
     }
 
     @Test
     public void hentHistorikkServiceSkalReturnereHistorikkAvForskjelligeTyper() {
-        when(sykefravaeroppfoelgingConsumer.hentNaermesteLedere(SM_AKTORID, OIDCIssuer.INTERN)).thenReturn(asList(
-                new NaermesteLeder()
-                        .naermesteLederId(1111L)
-                        .naermesteLederAktoerId(NL1_AKTORID)
-                        .orgnummer(ORGNR_1)
-                        .naermesteLederStatus(new NaermesteLederStatus()
-                                .erAktiv(true)
-                        ),
-                new NaermesteLeder()
-                        .naermesteLederId(2222L)
-                        .naermesteLederAktoerId(NL2_AKTORID)
-                        .orgnummer(ORGNR_2)
-                        .naermesteLederStatus(new NaermesteLederStatus()
-                                .erAktiv(true)
-                        ),
-                new NaermesteLeder()
-                        .naermesteLederId(3333L)
-                        .naermesteLederAktoerId(NL3_AKTORID)
-                        .orgnummer(ORGNR_3)
-                        .naermesteLederStatus(new NaermesteLederStatus()
-                                .erAktiv(true)
-                        )
-        ));
-        when(sykefravaeroppfoelgingConsumer.hentHendelserForSykmeldt(SM_AKTORID, OIDCIssuer.INTERN)).thenReturn(asList(
-                new Hendelse()
-                        .hendelseId(1)
-                        .tidspunkt(now())
-                        .type(SVAR_MOTEBEHOV)
-                        .aktorId(SM_AKTORID),
-                new Hendelse()
-                        .hendelseId(2)
-                        .tidspunkt(now())
-                        .type(AKTIVITETKRAV_VARSEL)
-                        .aktorId(SM_AKTORID)
-        ));
-        when(brukeroppgaveConsumer.hentBrukerOppgaver(NL1_AKTORID)).thenReturn(asList(
-                new Brukeroppgave()
-                        .ressursId("4")
-                        .oppgavetype(NAERMESTE_LEDER_SVAR_MOTEBEHOV),
-                new Brukeroppgave()
-                        .ressursId("2")
-                        .oppgavetype(NAERMESTE_LEDER_LES_SYKMELDING)
-        ));
-        when(brukeroppgaveConsumer.hentBrukerOppgaver(NL2_AKTORID)).thenReturn(asList(
-                new Brukeroppgave()
-                        .ressursId("1")
-                        .oppgavetype(NAERMESTE_LEDER_SVAR_MOTEBEHOV)
-        ));
         when(motebehovService.hentMotebehovListe(any(Fnr.class))).thenReturn(asList(
                 new Motebehov()
                         .opprettetAv(NL3_AKTORID)
@@ -153,20 +92,17 @@ public class HistorikkServiceTest {
         ));
         List<Historikk> historikkForSykmeldt = historikkService.hentHistorikkListe(Fnr.of(SM_FNR));
 
-        assertThat(historikkForSykmeldt.size()).isEqualTo(4);
+        assertThat(historikkForSykmeldt.size()).isEqualTo(3);
 
         String historikkOpprettetMotebehovTekst1 = historikkForSykmeldt.get(0).tekst();
         String historikkOpprettetMotebehovTekst2 = historikkForSykmeldt.get(1).tekst();
         String historikkLesteMotebehovTekst = historikkForSykmeldt.get(2).tekst();
-        String historikkVarselTilNLTekst = historikkForSykmeldt.get(3).tekst();
 
         assertThat(historikkOpprettetMotebehovTekst1).isEqualTo(NL3_NAVN + HAR_SVART_PAA_MOTEBEHOV);
 
         assertThat(historikkOpprettetMotebehovTekst2).isEqualTo(NL1_NAVN + HAR_SVART_PAA_MOTEBEHOV);
 
         assertThat(historikkLesteMotebehovTekst).isEqualTo(MOTEBEHOVET_BLE_LEST_AV + Z_IDENT2);
-
-        assertThat(historikkVarselTilNLTekst).isEqualTo(VARSEL_OM_MOTEBEHOV_SENDT_LEDER + ORGNAVN_2);
     }
 
 }
