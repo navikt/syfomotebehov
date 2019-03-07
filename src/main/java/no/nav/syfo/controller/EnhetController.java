@@ -12,7 +12,7 @@ import javax.ws.rs.ForbiddenException;
 import java.util.List;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static no.nav.syfo.OIDCIssuer.INTERN;
+import static no.nav.syfo.OIDCIssuer.AZURE;
 
 @Slf4j
 @RestController
@@ -30,7 +30,7 @@ public class EnhetController {
     }
 
     @ResponseBody
-    @ProtectedWithClaims(issuer = INTERN)
+    @ProtectedWithClaims(issuer = AZURE)
     @GetMapping(value = "/{enhet}/motebehov/brukere", produces = APPLICATION_JSON)
     public List<BrukerPaaEnhet> hentSykmeldteMedMotebehovSvarPaaEnhet
             (@PathVariable @Pattern(regexp = "\\d{4}$") String enhet) {

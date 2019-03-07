@@ -85,3 +85,8 @@ fasitResources:
       url: SPRING_DATASOURCE_URL
       username: SPRING_DATASOURCE_USERNAME
       password: SPRING_DATASOURCE_PASSWORD
+  - alias: loginservice_oidc
+    resourceType: azureoidc
+    propertyMap:
+      discoveryUri: NO_NAV_SECURITY_OIDC_ISSUER_VEILEDER_DISCOVERYURL
+      clientId: NO_NAV_SECURITY_OIDC_ISSUER_VEILEDER_ACCEPTEDAUDIENCE

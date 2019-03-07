@@ -35,7 +35,7 @@ public class VeilederTilgangService {
                 .queryParam(ENHET, ENHET_PLACEHOLDER);
         this.template = template;
     }
-    
+
     public boolean sjekkVeiledersTilgangTilPerson(String fnr) {
         URI tilgangTilBrukerUriMedFnr = tilgangTilBrukerUriTemplate.build(singletonMap(FNR, fnr));
         return kallUriMedTemplate(tilgangTilBrukerUriMedFnr);
