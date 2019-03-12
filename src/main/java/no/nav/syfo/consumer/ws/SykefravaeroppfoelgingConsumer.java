@@ -11,7 +11,6 @@ import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentNaermesteLeders
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.SykefravaersoppfoelgingV1;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.*;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -46,7 +45,6 @@ public class SykefravaeroppfoelgingConsumer {
         this.sykefravaersoppfoelgingConfig = sykefravaersoppfoelgingConfig;
     }
 
-    @Cacheable("syfoansatte")
     public List<String> hentAnsatteAktorId(String aktoerId, String oidcIssuer) {
         try {
             WSHentNaermesteLedersAnsattListeRequest request = new WSHentNaermesteLedersAnsattListeRequest()
@@ -70,7 +68,6 @@ public class SykefravaeroppfoelgingConsumer {
         }
     }
 
-    @Cacheable("syfoledere")
     public List<NaermesteLeder> hentNaermesteLedere(String aktoerId, String oidcIssuer) {
         try {
             WSHentNaermesteLederListeRequest request = new WSHentNaermesteLederListeRequest()

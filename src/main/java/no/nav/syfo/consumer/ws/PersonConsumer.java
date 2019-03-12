@@ -41,7 +41,7 @@ public class PersonConsumer implements InitializingBean {
         this.personV3 = personV3;
     }
 
-    @Cacheable("personnavn")
+    @Cacheable(cacheNames = "personnavn", key = "#aktoerId", condition = "#aktoerId != null")
     public String hentNavnFraAktoerId(String aktoerId) {
         if (isBlank(aktoerId) || !aktoerId.matches("\\d{13}$")) {
             log.error("Ugyldig format på aktoerId: " + aktoerId);
@@ -78,7 +78,7 @@ public class PersonConsumer implements InitializingBean {
         return KODE6.equals(diskresjonskode) || KODE7.equals(diskresjonskode);
     }
 
-    @Cacheable("persondiskresjonskode")
+    @Cacheable(cacheNames = "persondiskresjonskode", key = "#aktoerId", condition = "#aktoerId != null")
     public String hentDiskresjonskodeForAktoer(String aktoerId) {
         if (isBlank(aktoerId) || !aktoerId.matches("\\d{13}$")) {
             log.error("Ugyldig format på aktoerId: " + aktoerId);

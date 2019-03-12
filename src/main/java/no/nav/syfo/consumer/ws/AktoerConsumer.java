@@ -34,7 +34,7 @@ public class AktoerConsumer implements InitializingBean {
         this.aktoerV2 = aktoerV2;
     }
 
-    @Cacheable("aktoerid")
+    @Cacheable(cacheNames = "aktoerid", key = "#fnr", condition = "#fnr != null")
     public String hentAktoerIdForFnr(String fnr) {
         try {
             return aktoerV2.hentAktoerIdForIdent(new WSHentAktoerIdForIdentRequest()
@@ -46,7 +46,7 @@ public class AktoerConsumer implements InitializingBean {
         }
     }
 
-    @Cacheable("aktoerfnr")
+    @Cacheable(cacheNames = "aktoerfnr", key = "#aktoerId", condition = "#aktoerId != null")
     public String hentFnrForAktoerId(String aktoerId) {
         try {
             return aktoerV2.hentIdentForAktoerId(
