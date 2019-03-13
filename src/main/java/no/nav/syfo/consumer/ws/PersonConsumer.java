@@ -13,6 +13,9 @@ import javax.inject.Inject;
 import javax.ws.rs.ForbiddenException;
 
 import static java.util.Optional.ofNullable;
+import static no.nav.syfo.config.CacheConfig.CACHENAME_PERSON_DISKRESJONSKODE;
+import static no.nav.syfo.config.CacheConfig.CACHENAME_PERSON_GEOGRAFISK;
+import static no.nav.syfo.config.CacheConfig.CACHENAME_PERSON_NAVN;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.text.WordUtils.capitalize;
 
@@ -41,7 +44,7 @@ public class PersonConsumer implements InitializingBean {
         this.personV3 = personV3;
     }
 
-    @Cacheable(cacheNames = "personnavn", key = "#aktoerId", condition = "#aktoerId != null")
+    @Cacheable(cacheNames = CACHENAME_PERSON_NAVN, key = "#aktoerId", condition = "#aktoerId != null")
     public String hentNavnFraAktoerId(String aktoerId) {
         if (isBlank(aktoerId) || !aktoerId.matches("\\d{13}$")) {
             log.error("Ugyldig format på aktoerId: " + aktoerId);
@@ -78,7 +81,7 @@ public class PersonConsumer implements InitializingBean {
         return KODE6.equals(diskresjonskode) || KODE7.equals(diskresjonskode);
     }
 
-    @Cacheable(cacheNames = "persondiskresjonskode", key = "#aktoerId", condition = "#aktoerId != null")
+    @Cacheable(cacheNames = CACHENAME_PERSON_DISKRESJONSKODE, key = "#aktoerId", condition = "#aktoerId != null")
     public String hentDiskresjonskodeForAktoer(String aktoerId) {
         if (isBlank(aktoerId) || !aktoerId.matches("\\d{13}$")) {
             log.error("Ugyldig format på aktoerId: " + aktoerId);
@@ -102,7 +105,7 @@ public class PersonConsumer implements InitializingBean {
         }
     }
 
-    @Cacheable("persongeografisk")
+    @Cacheable(cacheNames = CACHENAME_PERSON_GEOGRAFISK)
     public String hentGeografiskTilknytning(String fnr) {
         try {
             GeografiskTilknytning geografiskTilknytning = personV3.hentGeografiskTilknytning(
