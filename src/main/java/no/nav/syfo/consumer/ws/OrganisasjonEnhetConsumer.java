@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 
+import static no.nav.syfo.config.CacheConfig.CACHENAME_ORGN_KONTORGEOGRAFISK;
 import static no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.WSEnhetsstatus.AKTIV;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -47,7 +48,7 @@ public class OrganisasjonEnhetConsumer implements InitializingBean {
         this.organisasjonEnhetV2 = organisasjonEnhetV2;
     }
 
-    @Cacheable("orgnkontorgeografisk")
+    @Cacheable(cacheNames = CACHENAME_ORGN_KONTORGEOGRAFISK)
     public List<String> finnNAVKontorForGT(String geografiskTilknytning) {
         try {
             return of(organisasjonEnhetV2.finnNAVKontor(

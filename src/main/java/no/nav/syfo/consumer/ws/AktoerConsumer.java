@@ -12,6 +12,9 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 
+import static no.nav.syfo.config.CacheConfig.CACHENAME_AKTOR_FNR;
+import static no.nav.syfo.config.CacheConfig.CACHENAME_AKTOR_ID;
+
 @Component
 @Slf4j
 public class AktoerConsumer implements InitializingBean {
@@ -34,7 +37,7 @@ public class AktoerConsumer implements InitializingBean {
         this.aktoerV2 = aktoerV2;
     }
 
-    @Cacheable(cacheNames = "aktoerid", key = "#fnr", condition = "#fnr != null")
+    @Cacheable(cacheNames = CACHENAME_AKTOR_ID, key = "#fnr", condition = "#fnr != null")
     public String hentAktoerIdForFnr(String fnr) {
         try {
             return aktoerV2.hentAktoerIdForIdent(new WSHentAktoerIdForIdentRequest()
@@ -46,7 +49,7 @@ public class AktoerConsumer implements InitializingBean {
         }
     }
 
-    @Cacheable(cacheNames = "aktoerfnr", key = "#aktoerId", condition = "#aktoerId != null")
+    @Cacheable(cacheNames = CACHENAME_AKTOR_FNR, key = "#aktoerId", condition = "#aktoerId != null")
     public String hentFnrForAktoerId(String aktoerId) {
         try {
             return aktoerV2.hentIdentForAktoerId(
