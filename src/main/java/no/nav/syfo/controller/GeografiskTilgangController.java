@@ -7,14 +7,11 @@ import no.nav.syfo.util.Toggle;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 
 import static no.nav.syfo.OIDCIssuer.INTERN;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
@@ -47,10 +44,5 @@ public class GeografiskTilgangController {
             log.info("Det ble gjort kall mot 'geografisktilgang', men dette endepunktet er togglet av.");
             throw new ForbiddenException("Ikke tilgang");
         }
-    }
-
-    @ExceptionHandler({ForbiddenException.class})
-    void handleForbiddenRequests(HttpServletResponse response) throws IOException {
-        response.sendError(FORBIDDEN.value(), "Handling er forbudt");
     }
 }
