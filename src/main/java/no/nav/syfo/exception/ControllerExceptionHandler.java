@@ -1,6 +1,7 @@
 package no.nav.syfo.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.security.spring.oidc.validation.interceptor.OIDCUnauthorizedException;
 import no.nav.syfo.util.Metrikk;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ public class ControllerExceptionHandler {
 
     private final String BAD_REQUEST_MSG = "Vi kunne ikke tolke inndataene";
     private final String FORBIDDEN_MSG = "Handling er forbudt";
+    private final String UNAUTHORIZED_MSG = "Autorisasjonsfeil";
     private final String INTERNAL_MSG = "Det skjedde en uventet feil";
 
     private Metrikk metrikk;
@@ -29,9 +31,15 @@ public class ControllerExceptionHandler {
         this.metrikk = metrikk;
     }
 
-    @ExceptionHandler({Exception.class, IllegalArgumentException.class, ConstraintViolationException.class, ForbiddenException.class})
+    @ExceptionHandler({Exception.class, IllegalArgumentException.class, ConstraintViolationException.class, ForbiddenException.class, OIDCUnauthorizedException.class})
     public final ResponseEntity<ApiError> handleException(Exception ex, WebRequest request) {
         HttpHeaders headers = new HttpHeaders();
+
+        if (ex instanceof OIDCUnauthorizedException) {
+            OIDCUnauthorizedException notAuthorizedException = (OIDCUnauthorizedException) ex;
+
+            return handleOIDCUnauthorizedException(notAuthorizedException, headers, request);
+        }
 
         if (ex instanceof ForbiddenException) {
             ForbiddenException forbiddenException = (ForbiddenException) ex;
@@ -50,6 +58,10 @@ public class ControllerExceptionHandler {
 
             return handleExceptionInternal(ex, new ApiError(status.value(), INTERNAL_MSG), headers, status, request);
         }
+    }
+
+    private ResponseEntity<ApiError> handleOIDCUnauthorizedException(OIDCUnauthorizedException ex, HttpHeaders headers, WebRequest request) {
+        return handleExceptionInternal(ex, new ApiError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_MSG), headers, HttpStatus.UNAUTHORIZED, request);
     }
 
     private ResponseEntity<ApiError> handleForbiddenException(ForbiddenException ex, HttpHeaders headers, WebRequest request) {
