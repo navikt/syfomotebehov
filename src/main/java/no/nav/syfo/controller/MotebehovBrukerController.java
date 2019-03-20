@@ -3,13 +3,8 @@ package no.nav.syfo.controller;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
-import no.nav.syfo.domain.rest.Fnr;
-import no.nav.syfo.domain.rest.Motebehov;
-import no.nav.syfo.domain.rest.MotebehovSvar;
-import no.nav.syfo.domain.rest.NyttMotebehov;
-import no.nav.syfo.service.BrukertilgangService;
-import no.nav.syfo.service.GeografiskTilgangService;
-import no.nav.syfo.service.MotebehovService;
+import no.nav.syfo.domain.rest.*;
+import no.nav.syfo.service.*;
 import no.nav.syfo.util.Metrikk;
 import no.nav.syfo.util.Toggle;
 import org.apache.commons.lang3.StringUtils;
@@ -53,7 +48,6 @@ public class MotebehovBrukerController {
         this.geografiskTilgangService = geografiskTilgangService;
     }
 
-    @ResponseBody
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public List<Motebehov> hentMotebehovListe(
             @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr,
@@ -74,7 +68,6 @@ public class MotebehovBrukerController {
         }
     }
 
-    @ResponseBody
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public void lagreMotebehov(
             @RequestBody @Valid NyttMotebehov nyttMotebehov
