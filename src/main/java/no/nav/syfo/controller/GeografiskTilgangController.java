@@ -28,7 +28,6 @@ public class GeografiskTilgangController {
         this.geografiskTilgangService = geografiskTilgangService;
     }
 
-    @ResponseBody
     @ProtectedWithClaims(issuer = INTERN, claimMap = {"sub=srvsyfoservice"})
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public Response hentGeografiskTilgang(

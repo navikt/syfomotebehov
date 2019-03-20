@@ -27,7 +27,6 @@ public class MotebehovOppgaveFeedController {
     }
 
     @Unprotected
-    @ResponseBody
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public List<VeilederOppgaveFeedItem> hentMotebehovListe(
             @RequestParam("timestamp") String timestamp

@@ -6,10 +6,7 @@ import no.nav.security.spring.oidc.validation.api.Unprotected;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import no.nav.syfo.util.Toggle;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.stream.Stream;
 
@@ -27,7 +24,6 @@ public class NullstillController {
         this.motebehovDAO = motebehovDAO;
     }
 
-    @ResponseBody
     @RequestMapping(value = "/nullstill/{aktoerId}", produces = APPLICATION_JSON_VALUE)
     public String slettMotebehov(@PathVariable String aktoerId, @Value("${fasit.environment.name:ukjent}") String env) {
         if (Toggle.enableNullstill || Stream.of("q1", "local").anyMatch(env::equals)) {

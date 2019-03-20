@@ -2,13 +2,8 @@ package no.nav.syfo.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
-import no.nav.syfo.domain.rest.Fnr;
-import no.nav.syfo.domain.rest.Historikk;
-import no.nav.syfo.domain.rest.Motebehov;
-import no.nav.syfo.service.GeografiskTilgangService;
-import no.nav.syfo.service.HistorikkService;
-import no.nav.syfo.service.MotebehovService;
-import no.nav.syfo.service.VeilederTilgangService;
+import no.nav.syfo.domain.rest.*;
+import no.nav.syfo.service.*;
 import no.nav.syfo.util.Toggle;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,7 +41,6 @@ public class MotebehovVeilederController {
         this.geografiskTilgangService = geografiskTilgangService;
     }
 
-    @ResponseBody
     @ProtectedWithClaims(issuer = INTERN)
     @GetMapping(value = "/motebehov", produces = APPLICATION_JSON_VALUE)
     public List<Motebehov> hentMotebehovListe(
@@ -66,7 +60,6 @@ public class MotebehovVeilederController {
         }
     }
 
-    @ResponseBody
     @ProtectedWithClaims(issuer = INTERN)
     @GetMapping(value = "/historikk", produces = APPLICATION_JSON_VALUE)
     public List<Historikk> hentMotebehovHistorikk(
