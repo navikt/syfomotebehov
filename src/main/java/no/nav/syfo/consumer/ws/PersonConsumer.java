@@ -76,6 +76,11 @@ public class PersonConsumer implements InitializingBean {
         return KODE6.equals(hentDiskresjonskodeForAktoer(aktoerId));
     }
 
+    public boolean erBrukerDiskresjonsmerket(String aktoerId) {
+        String diskresjonskode = hentDiskresjonskodeForAktoer(aktoerId);
+        return KODE6.equals(diskresjonskode) || KODE7.equals(diskresjonskode);
+    }
+
     @Cacheable(cacheNames = CACHENAME_PERSON_DISKRESJONSKODE, key = "#aktoerId", condition = "#aktoerId != null")
     public String hentDiskresjonskodeForAktoer(String aktoerId) {
         if (isBlank(aktoerId) || !aktoerId.matches("\\d{13}$")) {

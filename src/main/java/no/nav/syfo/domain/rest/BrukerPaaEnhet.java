@@ -10,8 +10,7 @@ public class BrukerPaaEnhet {
     public Skjermingskode skjermetEllerEgenAnsatt;
 
     public enum Skjermingskode {
-        KODE_6,
-        KODE_7,
+        DISKRESJONSMERKET,
         EGEN_ANSATT,
         INGEN
     }

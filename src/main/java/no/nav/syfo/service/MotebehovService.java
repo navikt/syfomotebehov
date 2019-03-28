@@ -167,20 +167,11 @@ public class MotebehovService {
     }
 
     private BrukerPaaEnhet.Skjermingskode hentBrukersSkjermingskode(String fnr) {
-        String brukersDiskresjonskode = personConsumer.hentDiskresjonskodeForAktoer(aktoerConsumer.hentAktoerIdForFnr(fnr));
-        return erKode6(brukersDiskresjonskode) || erKode7(brukersDiskresjonskode)
-                ? erKode6(brukersDiskresjonskode)
-                    ? KODE_6 : KODE_7
-                : egenAnsattConsumer.erEgenAnsatt(fnr)
-                    ? EGEN_ANSATT : INGEN;
-    }
-
-    private boolean erKode6(String diskresjonskode) {
-        return KODE6.equals(diskresjonskode);
-    }
-
-    private boolean erKode7(String diskresjonskode) {
-        return KODE7.equals(diskresjonskode);
+        if(personConsumer.erBrukerDiskresjonsmerket(aktoerConsumer.hentAktoerIdForFnr(fnr)))
+            return DISKRESJONSMERKET;
+        if (egenAnsattConsumer.erEgenAnsatt(fnr))
+            return EGEN_ANSATT;
+        return INGEN;
     }
 
 }
