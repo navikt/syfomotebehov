@@ -16,6 +16,7 @@ import java.util.UUID;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static no.nav.syfo.util.RestUtils.baseUrl;
+import static no.nav.syfo.domain.rest.BrukerPaaEnhet.Skjermingskode.*;
 
 /**
  * MøtebehovService har ansvaret for å knytte sammen og oversette mellom REST-grensesnittet, andre tjenester (aktør-registeret)
@@ -56,7 +57,7 @@ public class MotebehovService {
                 .map(aktoerConsumer::hentFnrForAktoerId)
                 .map(sykmeldtFnr -> new BrukerPaaEnhet()
                         .fnr(sykmeldtFnr)
-                        .skjermetEllerEgenAnsatt(sykmeldtErDiskresjonsmerketEllerEgenAnsatt(sykmeldtFnr)))
+                        .skjermetEllerEgenAnsatt(hentBrukersSkjermingskode(sykmeldtFnr)))
                 .collect(toList());
     }
 
@@ -162,9 +163,12 @@ public class MotebehovService {
         return enhet.enhetId();
     }
 
-    private boolean sykmeldtErDiskresjonsmerketEllerEgenAnsatt(String fnr) {
-        return personConsumer.erBrukerDiskresjonsmerket(aktoerConsumer.hentAktoerIdForFnr(fnr))
-                || egenAnsattConsumer.erEgenAnsatt(fnr);
+    private BrukerPaaEnhet.Skjermingskode hentBrukersSkjermingskode(String fnr) {
+        if(personConsumer.erBrukerDiskresjonsmerket(aktoerConsumer.hentAktoerIdForFnr(fnr)))
+            return DISKRESJONSMERKET;
+        if (egenAnsattConsumer.erEgenAnsatt(fnr))
+            return EGEN_ANSATT;
+        return INGEN;
     }
 
 }

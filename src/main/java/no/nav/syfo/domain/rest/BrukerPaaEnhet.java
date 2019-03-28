@@ -7,5 +7,12 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 public class BrukerPaaEnhet {
     public String fnr;
-    public boolean skjermetEllerEgenAnsatt;
+    public Skjermingskode skjermetEllerEgenAnsatt;
+
+    public enum Skjermingskode {
+        DISKRESJONSMERKET,
+        EGEN_ANSATT,
+        INGEN
+    }
 }
+
