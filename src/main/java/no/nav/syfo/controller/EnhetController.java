@@ -14,6 +14,7 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.ForbiddenException;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.syfo.OIDCIssuer.AZURE;
 
@@ -38,6 +39,9 @@ public class EnhetController {
             (@PathVariable @Pattern(regexp = "\\d{4}$") String enhet) {
         if (!veilederTilgangService.sjekkVeiledersTilgangTilEnhet(enhet))
             throw new ForbiddenException("Innlogget bruker har ikke tilgang til følgende enhet: " + enhet);
-        return motebehovService.hentSykmeldteMedMotebehovPaaEnhet(enhet);
+        return motebehovService.hentSykmeldteMedMotebehovPaaEnhet(enhet)
+                .stream()
+                .filter(brukerPaaEnhet -> veilederTilgangService.sjekkVeiledersTilgangTilPersonViaAzure(brukerPaaEnhet.fnr))
+                .collect(toList());
     }
 }
