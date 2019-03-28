@@ -35,9 +35,6 @@ public class MotebehovService {
     private final OrganisasjonEnhetConsumer organisasjonEnhetConsumer;
     private final MotebehovDAO motebehovDAO;
 
-    private static final String KODE6 = "SPSF";
-    private static final String KODE7 = "SPFO";
-
     @Inject
     public MotebehovService(final AktoerConsumer aktoerConsumer,
                             final ArbeidsfordelingConsumer arbeidsfordelingConsumer,
