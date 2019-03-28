@@ -35,6 +35,9 @@ public class MotebehovService {
     private final OrganisasjonEnhetConsumer organisasjonEnhetConsumer;
     private final MotebehovDAO motebehovDAO;
 
+    private static final String KODE6 = "SPSF";
+    private static final String KODE7 = "SPFO";
+
     @Inject
     public MotebehovService(final AktoerConsumer aktoerConsumer,
                             final ArbeidsfordelingConsumer arbeidsfordelingConsumer,
@@ -164,10 +167,20 @@ public class MotebehovService {
     }
 
     private BrukerPaaEnhet.Skjermingskode hentBrukersSkjermingskode(String fnr) {
-        String aktorId = aktoerConsumer.hentAktoerIdForFnr(fnr);
-        if (personConsumer.erBrukerDiskresjonsmerket(aktorId))
-               return personConsumer.erBrukerKode6(aktorId) ? KODE_6 : KODE_7;
-        return egenAnsattConsumer.erEgenAnsatt(fnr) ? EGEN_ANSATT : INGEN;
+        String brukersDiskresjonskode = personConsumer.hentDiskresjonskodeForAktoer(aktoerConsumer.hentAktoerIdForFnr(fnr));
+        return erKode6(brukersDiskresjonskode) || erKode7(brukersDiskresjonskode)
+                ? erKode6(brukersDiskresjonskode)
+                    ? KODE_6 : KODE_7
+                : egenAnsattConsumer.erEgenAnsatt(fnr)
+                    ? EGEN_ANSATT : INGEN;
+    }
+
+    private boolean erKode6(String diskresjonskode) {
+        return KODE6.equals(diskresjonskode);
+    }
+
+    private boolean erKode7(String diskresjonskode) {
+        return KODE7.equals(diskresjonskode);
     }
 
 }
