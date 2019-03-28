@@ -23,13 +23,13 @@ import org.springframework.web.client.RestTemplate;
 import javax.inject.Inject;
 import java.util.List;
 
-import static no.nav.syfo.service.VeilederTilgangService.ENHET;
-import static no.nav.syfo.service.VeilederTilgangService.TILGANG_TIL_ENHET_PATH;
+import static no.nav.syfo.service.VeilederTilgangService.*;
 import static no.nav.syfo.testhelper.OidcTestHelper.*;
 import static no.nav.syfo.testhelper.UserConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.test.web.client.ExpectedCount.manyTimes;
 import static org.springframework.test.web.client.ExpectedCount.once;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
@@ -83,6 +83,7 @@ public class EnhetComponentTest {
 
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
         mockSvarFraSyfoTilgangsKontrollPaaEnhet(NAV_ENHET, OK);
+        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, OK);
 
         List<BrukerPaaEnhet> sykmeldteMedMotebehovPaaEnhet = enhetController.hentSykmeldteMedMotebehovSvarPaaEnhet(NAV_ENHET);
         BrukerPaaEnhet sykmeldt = sykmeldteMedMotebehovPaaEnhet.get(0);
@@ -107,6 +108,20 @@ public class EnhetComponentTest {
                 );
 
         motebehovBrukerController.lagreMotebehov(nyttMotebehov);
+    }
+
+    private void mockSvarFraSyfoTilgangskontroll(String fnr, HttpStatus status){
+        String uriString = fromHttpUrl(tilgangskontrollUrl)
+                .path(TILGANG_TIL_BRUKER_PATH)
+                .queryParam(FNR, fnr)
+                .toUriString();
+
+        String idToken = oidcRequestContextHolder.getOIDCValidationContext().getToken("intern").getIdToken();
+
+        mockRestServiceServer.expect(manyTimes(), requestTo(uriString))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(AUTHORIZATION, "Bearer " + idToken))
+                .andRespond(withStatus(status));
     }
 
     private void mockSvarFraSyfoTilgangsKontrollPaaEnhet(String enhet, HttpStatus status) throws Exception {
