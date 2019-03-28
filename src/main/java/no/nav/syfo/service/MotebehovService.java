@@ -16,6 +16,7 @@ import java.util.UUID;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static no.nav.syfo.util.RestUtils.baseUrl;
+import static no.nav.syfo.domain.rest.BrukerPaaEnhet.Skjermingskode.*;
 
 /**
  * MøtebehovService har ansvaret for å knytte sammen og oversette mellom REST-grensesnittet, andre tjenester (aktør-registeret)
@@ -162,9 +163,11 @@ public class MotebehovService {
         return enhet.enhetId();
     }
 
-    private boolean sykmeldtErDiskresjonsmerketEllerEgenAnsatt(String fnr) {
-        return personConsumer.erBrukerDiskresjonsmerket(aktoerConsumer.hentAktoerIdForFnr(fnr))
-                || egenAnsattConsumer.erEgenAnsatt(fnr);
+    private BrukerPaaEnhet.Skjermingskode sykmeldtErDiskresjonsmerketEllerEgenAnsatt(String fnr) {
+        String aktorId = aktoerConsumer.hentAktoerIdForFnr(fnr);
+        if (personConsumer.erBrukerDiskresjonsmerket(aktorId))
+               return personConsumer.erBrukerKode6(aktorId) ? KODE_6 : KODE_7;
+        return egenAnsattConsumer.erEgenAnsatt(fnr) ? EGEN_ANSATT : INGEN;
     }
 
 }
