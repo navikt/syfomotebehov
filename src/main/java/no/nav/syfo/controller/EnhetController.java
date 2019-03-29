@@ -39,9 +39,6 @@ public class EnhetController {
             (@PathVariable @Pattern(regexp = "\\d{4}$") String enhet) {
         if (!veilederTilgangService.sjekkVeiledersTilgangTilEnhet(enhet))
             throw new ForbiddenException("Innlogget bruker har ikke tilgang til følgende enhet: " + enhet);
-        return motebehovService.hentSykmeldteMedMotebehovPaaEnhet(enhet)
-                .stream()
-                .filter(brukerPaaEnhet -> veilederTilgangService.sjekkVeiledersTilgangTilPerson(brukerPaaEnhet.fnr))
-                .collect(toList());
+        return motebehovService.hentSykmeldteMedMotebehovPaaEnhet(enhet);
     }
 }
