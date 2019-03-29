@@ -83,7 +83,6 @@ public class EnhetComponentTest {
 
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
         mockSvarFraSyfoTilgangsKontrollPaaEnhet(NAV_ENHET, OK);
-        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, OK);
 
         List<BrukerPaaEnhet> sykmeldteMedMotebehovPaaEnhet = enhetController.hentSykmeldteMedMotebehovSvarPaaEnhet(NAV_ENHET);
         BrukerPaaEnhet sykmeldt = sykmeldteMedMotebehovPaaEnhet.get(0);
