@@ -36,6 +36,8 @@ fasitResources:
     resourceType: restservice
     path: /syfomotebehov/api/feed/motebehov
   used:
+  - alias: appdynamics
+    resourceType: applicationproperties
   - alias: Aktoer_v2
     resourceType: webserviceendpoint
   - alias: Sykefravaersoppfoelging_v1
