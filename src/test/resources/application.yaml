@@ -1,4 +1,13 @@
 spring:
+  main.banner-mode: 'off'
+  embedded.kafka.brokers: 'localhost:9092'
+  kafka:
+    bootstrap-servers: ${spring.embedded.kafka.brokers}
+    consumer:
+      group-id: 'syfomotebehov-q1'
+      max-poll-records: 1
+      auto-offset-reset: latest
+      enable-auto-commit: false
   h2.console:
     enabled: true
     path: '/h2'

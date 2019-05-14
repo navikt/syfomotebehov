@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 public class KTredjepartsvarsel {
-    private String nokkel;
+    private String type;
     private String ressursId;
     private String aktorId;
     private String epost;

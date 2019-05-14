@@ -2,7 +2,6 @@ package no.nav.syfo.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
-import no.nav.security.spring.oidc.validation.api.Unprotected;
 import no.nav.syfo.domain.rest.TredjepartsKontaktinfo;
 import no.nav.syfo.service.VarselService;
 import org.springframework.web.bind.annotation.*;
@@ -28,16 +27,11 @@ public class VarselController {
     }
 
     @ResponseBody
-//    @ProtectedWithClaims(issuer = INTERN, claimMap = {"sub=srvsyfoservice"})
-    @Unprotected
-    @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public Response hentGeografiskTilgang() {
-
-        TredjepartsKontaktinfo tredjepartsKontaktinfo = new TredjepartsKontaktinfo()
-                .aktoerId("1303656999808")
-                .epost("erik.gunnar.jansen@nav.no")
-                .mobil("95134909")
-                .orgnummer("995816598");
+    @ProtectedWithClaims(issuer = INTERN, claimMap = {"sub=srvsyfoservice"})
+    @PostMapping(produces = APPLICATION_JSON_VALUE)
+    public Response sendVarselNaermesteLeder(
+            @RequestBody TredjepartsKontaktinfo tredjepartsKontaktinfo
+    ) {
 
         varselService.sendVarselTilNaermesteLeder(tredjepartsKontaktinfo);
 

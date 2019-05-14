@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SoknadProducerTest {
+public class TredjepartsvarselProducerTest {
 
     @Mock
     private KafkaTemplate<String, Object> kafkaTemplate;
@@ -28,11 +28,11 @@ public class SoknadProducerTest {
     private TredjepartsvarselProducer tredjepartsvarselProducer;
 
     @Test
-    public void sendOppgavevarsel() {
+    public void sendTredjepartsvarsel() {
         when(kafkaTemplate.send(anyString(), anyString(), any(KTredjepartsvarsel.class))).thenReturn(mock(ListenableFuture.class));
 
         KTredjepartsvarsel kTredjepartsvarsel = KTredjepartsvarsel.builder()
-                .nokkel(TredjepartsVarselNokkel.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name())
+                .type(TredjepartsVarselNokkel.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name())
                 .ressursId("1")
                 .aktorId("1010101010101")
                 .epost("test@test.no")

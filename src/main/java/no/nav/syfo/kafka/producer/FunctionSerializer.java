@@ -1,8 +1,9 @@
 package no.nav.syfo.kafka.producer;
 
+import org.apache.kafka.common.serialization.Serializer;
+
 import java.util.Map;
 import java.util.function.Function;
-import org.apache.kafka.common.serialization.Serializer;
 
 public class FunctionSerializer<T> implements Serializer<T> {
     private final Function<T, byte[]> serializer;
@@ -19,9 +20,9 @@ public class FunctionSerializer<T> implements Serializer<T> {
             return null;
         } else {
             try {
-                return (byte[])this.serializer.apply(t);
+                return (byte[]) this.serializer.apply(t);
             } catch (Exception var4) {
-                throw new RuntimeException("Feil ved konvertering av søknad til bytes", var4);
+                throw new RuntimeException("Feil ved konvertering av varsel til bytes", var4);
             }
         }
     }

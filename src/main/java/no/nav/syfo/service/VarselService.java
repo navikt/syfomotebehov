@@ -28,7 +28,7 @@ public class VarselService {
     private KTredjepartsvarsel mapTilKTredjepartsvarsel(TredjepartsKontaktinfo tredjepartsKontaktinfo) {
         LocalDateTime utsendelsestidspunkt = now().plusMinutes(5);
         return KTredjepartsvarsel.builder()
-                .nokkel(TredjepartsVarselNokkel.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name())
+                .type(TredjepartsVarselNokkel.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name())
                 .ressursId(UUID.randomUUID().toString())
                 .aktorId(tredjepartsKontaktinfo.aktoerId)
                 .epost(tredjepartsKontaktinfo.epost)
