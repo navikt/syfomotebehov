@@ -1,7 +1,5 @@
 package no.nav.syfo.service;
 
-
-import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.consumer.ws.OrganisasjonEnhetConsumer;
 import no.nav.syfo.consumer.ws.PersonConsumer;
 import no.nav.syfo.util.Toggle;
@@ -14,7 +12,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 
-@Slf4j
 @Service
 public class GeografiskTilgangService {
 
@@ -48,17 +45,7 @@ public class GeografiskTilgangService {
         List<String> pilotKontorer = hentPilotKontorer();
         List<String> brukersNavkontorer = hentBrukersNavKontorForGeografiskTilknytning(brukerFnr);
 
-        boolean erBrukerTilhorendeMotebehovPilot = brukersNavkontorer.stream().anyMatch(pilotKontorer::contains);
-
-        // TODO: Fjern logging av typen MOTEBEHOV-TRACE etter verifisering av funksjonalitet i Prod.
-        log.info("MOTEBEHOV-TRACE: Toggle {}, pilotkontorer {}, brukerkontorer {}, erMotebehovTilgjengelig {}",
-                Toggle.endepunkterForMotebehov,
-                Toggle.pilotKontorer,
-                String.join(", ", brukersNavkontorer),
-                erBrukerTilhorendeMotebehovPilot
-        );
-
-        return erBrukerTilhorendeMotebehovPilot;
+        return brukersNavkontorer.stream().anyMatch(pilotKontorer::contains);
     }
 
     public boolean erMotebehovTilgjengelig(String brukerFnr) {

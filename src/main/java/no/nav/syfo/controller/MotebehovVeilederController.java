@@ -55,10 +55,6 @@ public class MotebehovVeilederController {
 
             kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
 
-            if (!geografiskTilgangService.erMotebehovTilgjengelig(arbeidstakerFnr)) {
-                return emptyList();
-            }
-
             return motebehovService.hentMotebehovListe(Fnr.of(arbeidstakerFnr));
         } else {
             log.info("Det ble gjort kall mot 'veileder/motebehov', men dette endepunktet er togglet av.");
@@ -75,10 +71,6 @@ public class MotebehovVeilederController {
             metrikk.tellEndepunktKall("veileder_hent_motebehov_historikk");
 
             kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
-
-            if (!geografiskTilgangService.erMotebehovTilgjengelig(arbeidstakerFnr)) {
-                return emptyList();
-            }
 
             return historikkService.hentHistorikkListe(Fnr.of(arbeidstakerFnr));
         } else {

@@ -87,7 +87,7 @@ public class MotebehovBrukerController {
 
     private void kastExceptionHvisIkkeTilgang(String fnr) {
         String innloggetIdent = fnrFraOIDCEkstern(contextHolder).getFnr();
-        boolean harTilgang = geografiskTilgangService.erMotebehovTilgjengelig(fnr) && brukertilgangService.harTilgangTilOppslaattBruker(innloggetIdent, fnr);
+        boolean harTilgang = brukertilgangService.harTilgangTilOppslaattBruker(innloggetIdent, fnr);
         if (!harTilgang) {
             throw new ForbiddenException("Ikke tilgang");
         }
