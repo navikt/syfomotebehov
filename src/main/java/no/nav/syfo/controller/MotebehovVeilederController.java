@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.service.*;
+import no.nav.syfo.util.Metrikk;
 import no.nav.syfo.util.Toggle;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +22,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping(value = "/api/veileder")
 public class MotebehovVeilederController {
 
+    private Metrikk metrikk;
     private HistorikkService historikkService;
 
     private MotebehovService motebehovService;
@@ -31,10 +33,12 @@ public class MotebehovVeilederController {
 
     @Inject
     public MotebehovVeilederController(
+            final Metrikk metrikk,
             final HistorikkService historikkService,
             final MotebehovService motebehovService,
             final VeilederTilgangService tilgangService,
             final GeografiskTilgangService geografiskTilgangService) {
+        this.metrikk = metrikk;
         this.historikkService = historikkService;
         this.motebehovService = motebehovService;
         this.veilederTilgangService = tilgangService;
@@ -47,6 +51,8 @@ public class MotebehovVeilederController {
             @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr
     ) {
         if (Toggle.endepunkterForMotebehov) {
+            metrikk.tellEndepunktKall("veileder_hent_motebehov");
+
             kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
 
             if (!geografiskTilgangService.erMotebehovTilgjengelig(arbeidstakerFnr)) {
@@ -66,6 +72,8 @@ public class MotebehovVeilederController {
             @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr
     ) {
         if (Toggle.endepunkterForMotebehov) {
+            metrikk.tellEndepunktKall("veileder_hent_motebehov_historikk");
+
             kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
 
             if (!geografiskTilgangService.erMotebehovTilgjengelig(arbeidstakerFnr)) {

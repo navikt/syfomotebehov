@@ -16,6 +16,13 @@ public class Metrikk {
         this.registry = registry;
     }
 
+    public void tellEndepunktKall(String navn) {
+        registry.counter(
+                addPrefix(navn),
+                Tags.of("type", "info")
+        ).increment();
+    }
+
     public void tellMotebehovBesvart(boolean harMotebehov, boolean erInnloggetBrukerArbeidstaker) {
         String navn = erInnloggetBrukerArbeidstaker
                 ? "syfomotebehov_motebehov_besvart_at"
