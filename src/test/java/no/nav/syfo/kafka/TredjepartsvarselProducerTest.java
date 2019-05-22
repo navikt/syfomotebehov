@@ -35,8 +35,6 @@ public class TredjepartsvarselProducerTest {
                 .type(TredjepartsVarselNokkel.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name())
                 .ressursId("1")
                 .aktorId("1010101010101")
-                .epost("test@test.no")
-                .mobilnr("99119911")
                 .orgnummer("123456789")
                 .utsendelsestidspunkt(now().plusMinutes(5))
                 .build();
