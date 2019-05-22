@@ -31,8 +31,6 @@ public class VarselService {
                 .type(TredjepartsVarselNokkel.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name())
                 .ressursId(UUID.randomUUID().toString())
                 .aktorId(tredjepartsKontaktinfo.aktoerId)
-                .epost(tredjepartsKontaktinfo.epost)
-                .mobilnr(tredjepartsKontaktinfo.mobil)
                 .orgnummer(tredjepartsKontaktinfo.orgnummer)
                 .utsendelsestidspunkt(utsendelsestidspunkt)
                 .build();

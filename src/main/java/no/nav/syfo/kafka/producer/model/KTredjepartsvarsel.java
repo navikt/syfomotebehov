@@ -13,8 +13,6 @@ public class KTredjepartsvarsel {
     private String type;
     private String ressursId;
     private String aktorId;
-    private String epost;
-    private String mobilnr;
     private String orgnummer;
     private LocalDateTime utsendelsestidspunkt;
 }
