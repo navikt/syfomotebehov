@@ -1,15 +1,14 @@
 package no.nav.syfo.service;
 
-import no.nav.syfo.domain.rest.TredjepartsKontaktinfo;
-import no.nav.syfo.kafka.producer.TredjepartsVarselNokkel;
+import no.nav.syfo.domain.rest.MotebehovsvarVarselInfo;
 import no.nav.syfo.kafka.producer.TredjepartsvarselProducer;
 import no.nav.syfo.kafka.producer.model.KTredjepartsvarsel;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static java.time.LocalDateTime.now;
+import static no.nav.syfo.kafka.producer.VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV;
 
 @Service
 public class VarselService {
@@ -20,19 +19,18 @@ public class VarselService {
         this.tredjepartsvarselProducer = tredjepartsvarselProducer;
     }
 
-    public void sendVarselTilNaermesteLeder(TredjepartsKontaktinfo tredjepartsKontaktinfo) {
-        KTredjepartsvarsel kTredjepartsvarsel = mapTilKTredjepartsvarsel(tredjepartsKontaktinfo);
+    public void sendVarselTilNaermesteLeder(MotebehovsvarVarselInfo motebehovsvarVarselInfo) {
+        KTredjepartsvarsel kTredjepartsvarsel = mapTilKTredjepartsvarsel(motebehovsvarVarselInfo);
         tredjepartsvarselProducer.sendTredjepartsvarselvarsel(kTredjepartsvarsel);
     }
 
-    private KTredjepartsvarsel mapTilKTredjepartsvarsel(TredjepartsKontaktinfo tredjepartsKontaktinfo) {
-        LocalDateTime utsendelsestidspunkt = now().plusMinutes(5);
+    private KTredjepartsvarsel mapTilKTredjepartsvarsel(MotebehovsvarVarselInfo motebehovsvarVarselInfo) {
         return KTredjepartsvarsel.builder()
-                .type(TredjepartsVarselNokkel.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name())
+                .type(NAERMESTE_LEDER_SVAR_MOTEBEHOV.name())
                 .ressursId(UUID.randomUUID().toString())
-                .aktorId(tredjepartsKontaktinfo.aktoerId)
-                .orgnummer(tredjepartsKontaktinfo.orgnummer)
-                .utsendelsestidspunkt(utsendelsestidspunkt)
+                .aktorId(motebehovsvarVarselInfo.sykmeldtAktorId)
+                .orgnummer(motebehovsvarVarselInfo.orgnummer)
+                .utsendelsestidspunkt(now())
                 .build();
     }
 }
