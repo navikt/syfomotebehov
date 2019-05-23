@@ -1,8 +1,6 @@
 package no.nav.syfo.kafka.producer.model;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Value;
+import lombok.*;
 
 import java.time.LocalDateTime;
 

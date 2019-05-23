@@ -5,9 +5,7 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(fluent = true, chain = true)
-public class TredjepartsKontaktinfo {
-    public String aktoerId;
+public class MotebehovsvarVarselInfo {
+    public String sykmeldtAktorId;
     public String orgnummer;
-    public String epost;
-    public String mobil;
 }

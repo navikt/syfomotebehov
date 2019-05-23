@@ -1,6 +1,5 @@
 package no.nav.syfo.kafka;
 
-import no.nav.syfo.kafka.producer.TredjepartsVarselNokkel;
 import no.nav.syfo.kafka.producer.TredjepartsvarselProducer;
 import no.nav.syfo.kafka.producer.model.KTredjepartsvarsel;
 import org.junit.Test;
@@ -12,10 +11,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.util.concurrent.ListenableFuture;
 
 import static java.time.LocalDateTime.now;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.same;
+import static no.nav.syfo.kafka.producer.VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -32,7 +29,7 @@ public class TredjepartsvarselProducerTest {
         when(kafkaTemplate.send(anyString(), anyString(), any(KTredjepartsvarsel.class))).thenReturn(mock(ListenableFuture.class));
 
         KTredjepartsvarsel kTredjepartsvarsel = KTredjepartsvarsel.builder()
-                .type(TredjepartsVarselNokkel.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name())
+                .type(NAERMESTE_LEDER_SVAR_MOTEBEHOV.name())
                 .ressursId("1")
                 .aktorId("1010101010101")
                 .orgnummer("123456789")
