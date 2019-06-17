@@ -32,7 +32,6 @@ public class VarselController {
     public Response sendVarselNaermesteLeder(
             @RequestBody MotebehovsvarVarselInfo motebehovsvarVarselInfo
     ) {
-
         varselService.sendVarselTilNaermesteLeder(motebehovsvarVarselInfo);
 
         return Response
