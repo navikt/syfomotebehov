@@ -1,18 +1,11 @@
 package no.nav.syfo.service;
 
 import com.nimbusds.jwt.SignedJWT;
-import no.nav.security.oidc.context.OIDCClaims;
-import no.nav.security.oidc.context.OIDCRequestContextHolder;
-import no.nav.security.oidc.context.OIDCValidationContext;
-import no.nav.security.oidc.context.TokenContext;
+import no.nav.security.oidc.context.*;
 import no.nav.security.spring.oidc.test.JwtTokenGenerator;
 import no.nav.syfo.OIDCIssuer;
-import no.nav.syfo.consumer.ws.AktoerConsumer;
-import no.nav.syfo.consumer.ws.PersonConsumer;
-import no.nav.syfo.consumer.ws.SykefravaeroppfoelgingConsumer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import no.nav.syfo.consumer.ws.*;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;

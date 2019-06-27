@@ -1,8 +1,6 @@
 package no.nav.syfo.mock;
 
-import no.nav.tjeneste.pip.egen.ansatt.v1.EgenAnsattV1;
-import no.nav.tjeneste.pip.egen.ansatt.v1.WSHentErEgenAnsattEllerIFamilieMedEgenAnsattRequest;
-import no.nav.tjeneste.pip.egen.ansatt.v1.WSHentErEgenAnsattEllerIFamilieMedEgenAnsattResponse;
+import no.nav.tjeneste.pip.egen.ansatt.v1.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +9,8 @@ import org.springframework.stereotype.Service;
 public class EgenAnsattMock implements EgenAnsattV1 {
 
     @Override
-    public void ping() { return; }
+    public void ping() {
+    }
 
     @Override
     public WSHentErEgenAnsattEllerIFamilieMedEgenAnsattResponse hentErEgenAnsattEllerIFamilieMedEgenAnsatt(WSHentErEgenAnsattEllerIFamilieMedEgenAnsattRequest req) {

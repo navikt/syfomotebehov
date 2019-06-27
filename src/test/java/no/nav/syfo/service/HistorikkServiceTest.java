@@ -1,6 +1,6 @@
 package no.nav.syfo.service;
 
-import no.nav.syfo.consumer.ws.*;
+import no.nav.syfo.consumer.ws.PersonConsumer;
 import no.nav.syfo.domain.rest.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +13,8 @@ import java.util.List;
 
 import static java.time.LocalDateTime.now;
 import static java.util.Arrays.asList;
-import static no.nav.syfo.service.HistorikkService.*;
+import static no.nav.syfo.service.HistorikkService.HAR_SVART_PAA_MOTEBEHOV;
+import static no.nav.syfo.service.HistorikkService.MOTEBEHOVET_BLE_LEST_AV;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;

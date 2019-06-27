@@ -1,10 +1,7 @@
 package no.nav.syfo.mock;
 
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.*;
-import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.informasjon.WSAnsatt;
-import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.informasjon.WSHendelse;
-import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.informasjon.WSNaermesteLeder;
-import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.informasjon.WSNaermesteLederStatus;
+import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.informasjon.*;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -29,7 +26,6 @@ public class SykefravaeroppfoelgingMock implements SykefravaersoppfoelgingV1 {
 
     @Override
     public void ping() {
-        return;
     }
 
     @Override

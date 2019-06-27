@@ -14,9 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
-import static no.nav.syfo.domain.rest.BrukerPaaEnhet.Skjermingskode.DISKRESJONSMERKET;
-import static no.nav.syfo.domain.rest.BrukerPaaEnhet.Skjermingskode.EGEN_ANSATT;
-import static no.nav.syfo.domain.rest.BrukerPaaEnhet.Skjermingskode.INGEN;
+import static no.nav.syfo.domain.rest.BrukerPaaEnhet.Skjermingskode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 

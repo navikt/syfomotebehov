@@ -2,9 +2,7 @@ package no.nav.syfo.controller;
 
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.LocalApplication;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,9 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.*;
 
 import javax.inject.Inject;
 import javax.ws.rs.ForbiddenException;
@@ -67,7 +63,7 @@ public class MotebehovVeilederTilgangTest {
     // Innvilget tilgang testes gjennom @MotebehovVeilederComponentTest.arbeidsgiverLagrerOgVeilederHenterMotebehov
 
     @Test(expected = ForbiddenException.class)
-    public void veilederNektesTilgang(){
+    public void veilederNektesTilgang() {
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, FORBIDDEN);
 
@@ -75,7 +71,7 @@ public class MotebehovVeilederTilgangTest {
     }
 
     @Test(expected = HttpClientErrorException.class)
-    public void klientFeilMotTilgangskontroll(){
+    public void klientFeilMotTilgangskontroll() {
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, BAD_REQUEST);
 
@@ -83,14 +79,14 @@ public class MotebehovVeilederTilgangTest {
     }
 
     @Test(expected = HttpServerErrorException.class)
-    public void tekniskFeilITilgangskontroll(){
+    public void tekniskFeilITilgangskontroll() {
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, INTERNAL_SERVER_ERROR);
 
         motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR);
     }
 
-    private void mockSvarFraSyfoTilgangskontroll(String fnr, HttpStatus status){
+    private void mockSvarFraSyfoTilgangskontroll(String fnr, HttpStatus status) {
         String uriString = fromHttpUrl(tilgangskontrollUrl)
                 .path(TILGANG_TIL_BRUKER_PATH)
                 .queryParam(FNR, fnr)

@@ -29,7 +29,8 @@ public class AktoerMock implements AktoerV2 {
                 .withIdent(getFnrFromMockedAktorId(wsHentIdentForAktoerIdRequest.getAktoerId()));
     }
 
-    public void ping() { }
+    public void ping() {
+    }
 
     public static String mockAktorId(String fnr) {
         return MOCK_AKTORID_PREFIX.concat(fnr);

@@ -2,9 +2,7 @@ package no.nav.syfo.mock;
 
 import no.nav.tjeneste.domene.digisyfo.brukeroppgave.v1.BrukeroppgaveV1;
 import no.nav.tjeneste.domene.digisyfo.brukeroppgave.v1.informasjon.WSBrukeroppgave;
-import no.nav.tjeneste.domene.digisyfo.brukeroppgave.v1.meldinger.WSHentBrukeroppgaveListeRequest;
-import no.nav.tjeneste.domene.digisyfo.brukeroppgave.v1.meldinger.WSHentBrukeroppgaveListeResponse;
-import no.nav.tjeneste.domene.digisyfo.brukeroppgave.v1.meldinger.WSSlettBrukeroppgaveRequest;
+import no.nav.tjeneste.domene.digisyfo.brukeroppgave.v1.meldinger.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +16,6 @@ public class BrukeroppgaveMock implements BrukeroppgaveV1 {
 
     @Override
     public void ping() {
-        return;
     }
 
     @Override

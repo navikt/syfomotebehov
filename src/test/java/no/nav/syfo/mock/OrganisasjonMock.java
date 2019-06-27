@@ -1,10 +1,7 @@
 package no.nav.syfo.mock;
 
 import no.nav.tjeneste.virksomhet.organisasjon.v4.*;
-import no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.WSOrganisasjon;
-import no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.WSOrganisasjonsDetaljer;
-import no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.WSOrganisasjonsnavn;
-import no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.WSUstrukturertNavn;
+import no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.*;
 import no.nav.tjeneste.virksomhet.organisasjon.v4.meldinger.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;

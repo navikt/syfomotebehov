@@ -110,7 +110,7 @@ public class EnhetComponentTest {
         motebehovBrukerController.lagreMotebehov(nyttMotebehov);
     }
 
-    private void mockSvarFraSyfoTilgangskontroll(String fnr, HttpStatus status){
+    private void mockSvarFraSyfoTilgangskontroll(String fnr, HttpStatus status) {
         String uriString = fromHttpUrl(tilgangskontrollUrl)
                 .path(TILGANG_TIL_BRUKER_VIA_AZURE_PATH)
                 .queryParam(FNR, fnr)

@@ -1,10 +1,7 @@
 package no.nav.syfo.mock;
 
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Diskresjonskoder;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Kommune;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personnavn;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.*;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -15,7 +12,6 @@ public class PersonMock implements PersonV3 {
 
     @Override
     public void ping() {
-        return;
     }
 
     @Override
