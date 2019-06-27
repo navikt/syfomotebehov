@@ -20,8 +20,8 @@ public class GeografiskTilgangService {
 
     @Inject
     public GeografiskTilgangService(
-            final PersonConsumer personConsumer,
-            final OrganisasjonEnhetConsumer organisasjonEnhetConsumer
+            PersonConsumer personConsumer,
+            OrganisasjonEnhetConsumer organisasjonEnhetConsumer
     ) {
         this.personConsumer = personConsumer;
         this.organisasjonEnhetConsumer = organisasjonEnhetConsumer;

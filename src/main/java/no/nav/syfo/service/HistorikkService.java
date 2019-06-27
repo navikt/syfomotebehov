@@ -3,17 +3,13 @@ package no.nav.syfo.service;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.OIDCIssuer;
 import no.nav.syfo.consumer.ws.*;
-import no.nav.syfo.domain.rest.Fnr;
-import no.nav.syfo.domain.rest.Historikk;
-import no.nav.syfo.domain.rest.Motebehov;
-import no.nav.syfo.domain.rest.NaermesteLeder;
+import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.mappers.domain.Hendelse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -39,13 +35,13 @@ public class HistorikkService {
 
     @Inject
     public HistorikkService(
-            final MotebehovService motebehovService,
-            final VeilederOppgaverService veilederOppgaverService,
-            final PersonConsumer personConsumer,
-            final BrukeroppgaveConsumer brukeroppgaveConsumer,
-            final AktoerConsumer aktoerConsumer,
-            final SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer,
-            final OrganisasjonConsumer organisasjonConsumer
+            MotebehovService motebehovService,
+            VeilederOppgaverService veilederOppgaverService,
+            PersonConsumer personConsumer,
+            BrukeroppgaveConsumer brukeroppgaveConsumer,
+            AktoerConsumer aktoerConsumer,
+            SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer,
+            OrganisasjonConsumer organisasjonConsumer
     ) {
         this.veilederOppgaverService = veilederOppgaverService;
         this.motebehovService = motebehovService;

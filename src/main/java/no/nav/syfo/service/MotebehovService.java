@@ -36,12 +36,14 @@ public class MotebehovService {
     private final MotebehovDAO motebehovDAO;
 
     @Inject
-    public MotebehovService(AktoerConsumer aktoerConsumer,
-                            ArbeidsfordelingConsumer arbeidsfordelingConsumer,
-                            PersonConsumer personConsumer,
-                            EgenAnsattConsumer egenAnsattConsumer,
-                            OrganisasjonEnhetConsumer organisasjonEnhetConsumer,
-                            MotebehovDAO motebehovDAO) {
+    public MotebehovService(
+            AktoerConsumer aktoerConsumer,
+            ArbeidsfordelingConsumer arbeidsfordelingConsumer,
+            PersonConsumer personConsumer,
+            EgenAnsattConsumer egenAnsattConsumer,
+            OrganisasjonEnhetConsumer organisasjonEnhetConsumer,
+            MotebehovDAO motebehovDAO
+    ) {
         this.aktoerConsumer = aktoerConsumer;
         this.arbeidsfordelingConsumer = arbeidsfordelingConsumer;
         this.personConsumer = personConsumer;

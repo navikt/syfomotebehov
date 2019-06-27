@@ -14,15 +14,15 @@ import javax.ws.rs.ForbiddenException;
 @Slf4j
 public class BrukertilgangService {
 
-    private AktoerConsumer aktoerConsumer;
-    private PersonConsumer personConsumer;
-    private SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer;
+    private final AktoerConsumer aktoerConsumer;
+    private final PersonConsumer personConsumer;
+    private final SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer;
 
     @Inject
     public BrukertilgangService(
-            final AktoerConsumer aktoerConsumer,
-            final PersonConsumer personConsumer,
-            final SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer
+            AktoerConsumer aktoerConsumer,
+            PersonConsumer personConsumer,
+            SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer
     ) {
         this.aktoerConsumer = aktoerConsumer;
         this.personConsumer = personConsumer;
