@@ -4,7 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.domain.rest.*;
-import no.nav.syfo.service.*;
+import no.nav.syfo.service.BrukertilgangService;
+import no.nav.syfo.service.MotebehovService;
 import no.nav.syfo.util.Metrikk;
 import no.nav.syfo.util.Toggle;
 import org.apache.commons.lang3.StringUtils;
@@ -31,21 +32,18 @@ public class MotebehovBrukerController {
     private Metrikk metrikk;
     private MotebehovService motebehovService;
     private BrukertilgangService brukertilgangService;
-    private GeografiskTilgangService geografiskTilgangService;
 
     @Inject
     public MotebehovBrukerController(
             final OIDCRequestContextHolder contextHolder,
             final Metrikk metrikk,
             final MotebehovService motebehovService,
-            final BrukertilgangService brukertilgangService,
-            final GeografiskTilgangService geografiskTilgangService
+            final BrukertilgangService brukertilgangService
     ) {
         this.contextHolder = contextHolder;
         this.metrikk = metrikk;
         this.motebehovService = motebehovService;
         this.brukertilgangService = brukertilgangService;
-        this.geografiskTilgangService = geografiskTilgangService;
     }
 
     @GetMapping(produces = APPLICATION_JSON_VALUE)
