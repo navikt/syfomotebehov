@@ -4,11 +4,14 @@ import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.LocalApplication;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.MotebehovSvar;
+import no.nav.syfo.kafka.producer.OversikthendelseProducer;
+import no.nav.syfo.kafka.producer.model.KOversikthendelse;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import no.nav.syfo.testhelper.MotebehovGenerator;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -19,6 +22,8 @@ import static no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker;
 import static no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle;
 import static no.nav.syfo.testhelper.UserConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 
 /**
  * Komponent / blackbox test av møtebehovsfunskjonaliteten - test at input til endepunktet (controlleren, for enkelhets skyld)
@@ -37,6 +42,9 @@ public class MotebehovComponentTest {
 
     @Inject
     private MotebehovDAO motebehovDAO;
+
+    @MockBean
+    private OversikthendelseProducer oversikthendelseProducer;
 
     private MotebehovGenerator motebehovGenerator = new MotebehovGenerator();
 
@@ -68,6 +76,8 @@ public class MotebehovComponentTest {
         assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR);
         assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER);
         assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(motebehovSvar);
+
+        verify(oversikthendelseProducer).sendOversikthendelse(any(KOversikthendelse.class));
     }
 
 

@@ -8,6 +8,7 @@ import no.nav.syfo.testhelper.MotebehovGenerator;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.inject.Inject;
@@ -22,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = LocalApplication.class)
+@DirtiesContext
 public class MotebehovOppgaveFeedControllerTest {
 
     @Inject
@@ -29,9 +31,6 @@ public class MotebehovOppgaveFeedControllerTest {
 
     @Inject
     private OIDCRequestContextHolder oidcRequestContextHolder;
-
-    @Inject
-    private MotebehovBrukerController motebehovBrukerController;
 
     @Inject
     private MotebehovDAO motebehovDAO;
@@ -52,7 +51,8 @@ public class MotebehovOppgaveFeedControllerTest {
 
     @Test
     public void opprettVeilederoppgaverFraMotebehovMedBehov() {
-        motebehovBrukerController.lagreMotebehov(motebehovGenerator.lagNyttMotebehovFraAT(true));
+        motebehovDAO.create(motebehovGenerator.lagNyttPMotebehovFraAT(true));
+
         List<VeilederOppgaveFeedItem> veilederOppgaveFeedItemListe = hentVeilederoppgaver();
 
         assertThat(veilederOppgaveFeedItemListe).size().isOne();
@@ -60,7 +60,8 @@ public class MotebehovOppgaveFeedControllerTest {
 
     @Test
     public void ikkeOpprettVeilederoppgaverFraMotebehovUtenBehov() {
-        motebehovBrukerController.lagreMotebehov(motebehovGenerator.lagNyttMotebehovFraAT(false));
+        motebehovDAO.create(motebehovGenerator.lagNyttPMotebehovFraAT(false));
+
         List<VeilederOppgaveFeedItem> veilederOppgaveFeedItemListe = hentVeilederoppgaver();
 
         assertThat(veilederOppgaveFeedItemListe).size().isZero();
