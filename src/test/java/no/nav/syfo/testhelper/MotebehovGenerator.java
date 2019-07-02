@@ -2,6 +2,7 @@ package no.nav.syfo.testhelper;
 
 import no.nav.syfo.domain.rest.MotebehovSvar;
 import no.nav.syfo.domain.rest.NyttMotebehov;
+import no.nav.syfo.repository.domain.PMotebehov;
 
 import static no.nav.syfo.testhelper.UserConstants.*;
 
@@ -34,5 +35,15 @@ public class MotebehovGenerator {
     public NyttMotebehov lagNyttMotebehovFraAT(boolean harBehov) {
         MotebehovSvar svar = motebehovSvar.harMotebehov(harBehov);
         return nyttMotebehovArbeidstaker.motebehovSvar(svar);
+    }
+
+    private final PMotebehov nyttPMotebehovArbeidstaker = new PMotebehov()
+            .opprettetAv(ARBEIDSTAKER_AKTORID)
+            .aktoerId(ARBEIDSTAKER_AKTORID)
+            .virksomhetsnummer(VIRKSOMHETSNUMMER)
+            .harMotebehov(true);
+
+    public PMotebehov lagNyttPMotebehovFraAT(boolean harBehov) {
+        return nyttPMotebehovArbeidstaker.harMotebehov(harBehov);
     }
 }

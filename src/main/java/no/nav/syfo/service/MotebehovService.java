@@ -7,6 +7,7 @@ import no.nav.syfo.mappers.domain.Enhet;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import no.nav.syfo.repository.domain.PMotebehov;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.time.LocalDateTime;
@@ -33,6 +34,7 @@ public class MotebehovService {
     private final PersonConsumer personConsumer;
     private final EgenAnsattConsumer egenAnsattConsumer;
     private final OrganisasjonEnhetConsumer organisasjonEnhetConsumer;
+    private final OversikthendelseService oversikthendelseService;
     private final MotebehovDAO motebehovDAO;
 
     @Inject
@@ -42,6 +44,7 @@ public class MotebehovService {
             PersonConsumer personConsumer,
             EgenAnsattConsumer egenAnsattConsumer,
             OrganisasjonEnhetConsumer organisasjonEnhetConsumer,
+            OversikthendelseService oversikthendelseService,
             MotebehovDAO motebehovDAO
     ) {
         this.aktoerConsumer = aktoerConsumer;
@@ -49,6 +52,7 @@ public class MotebehovService {
         this.personConsumer = personConsumer;
         this.egenAnsattConsumer = egenAnsattConsumer;
         this.organisasjonEnhetConsumer = organisasjonEnhetConsumer;
+        this.oversikthendelseService = oversikthendelseService;
         this.motebehovDAO = motebehovDAO;
     }
 
@@ -89,13 +93,21 @@ public class MotebehovService {
                 .collect(toList());
     }
 
+    @Transactional
     public UUID lagreMotebehov(Fnr innloggetFNR, Fnr arbeidstakerFnr, final NyttMotebehov nyttMotebehov) {
         final String innloggetBrukerAktoerId = aktoerConsumer.hentAktoerIdForFnr(innloggetFNR.getFnr());
         final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
         final String arbeidstakerBehandlendeEnhet = finnArbeidstakersBehandlendeEnhet(arbeidstakerFnr.getFnr());
         final PMotebehov motebehov = mapNyttMotebehovToPMotebehov(innloggetBrukerAktoerId, arbeidstakerAktoerId, arbeidstakerBehandlendeEnhet, nyttMotebehov);
 
-        return motebehovDAO.create(motebehov);
+        UUID id = motebehovDAO.create(motebehov);
+
+        oversikthendelseService.sendOversikthendelse(nyttMotebehov
+                .arbeidstakerFnr(arbeidstakerFnr.getFnr())
+                .tildeltEnhet(arbeidstakerBehandlendeEnhet)
+        );
+
+        return id;
     }
 
     public List<VeilederOppgaveFeedItem> hentMotebehovListe(final String timestamp) {

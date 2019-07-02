@@ -2,22 +2,22 @@ package no.nav.syfo.controller;
 
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.LocalApplication;
-import no.nav.syfo.domain.rest.BrukerPaaEnhet;
-import no.nav.syfo.domain.rest.MotebehovSvar;
-import no.nav.syfo.domain.rest.NyttMotebehov;
+import no.nav.syfo.domain.rest.*;
+import no.nav.syfo.kafka.producer.model.KOversikthendelse;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import no.nav.syfo.testhelper.MotebehovGenerator;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.client.RestTemplate;
 
 import javax.inject.Inject;
@@ -27,6 +27,10 @@ import static no.nav.syfo.service.VeilederTilgangService.*;
 import static no.nav.syfo.testhelper.OidcTestHelper.*;
 import static no.nav.syfo.testhelper.UserConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.test.web.client.ExpectedCount.manyTimes;
@@ -59,6 +63,9 @@ public class EnhetComponentTest {
     @Inject
     private MotebehovDAO motebehovDAO;
 
+    @MockBean
+    private KafkaTemplate<String, Object> kafkaTemplate;
+
     private MockRestServiceServer mockRestServiceServer;
 
     private MotebehovGenerator motebehovGenerator = new MotebehovGenerator();
@@ -67,6 +74,7 @@ public class EnhetComponentTest {
     public void setUp() {
         cleanDB();
         this.mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build();
+        when(kafkaTemplate.send(anyString(), anyString(), any(KOversikthendelse.class))).thenReturn(mock(ListenableFuture.class));
     }
 
     @After
