@@ -7,7 +7,6 @@ import no.nav.syfo.mappers.domain.Enhet;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import no.nav.syfo.repository.domain.PMotebehov;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.time.LocalDateTime;
@@ -16,8 +15,8 @@ import java.util.UUID;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
-import static no.nav.syfo.util.RestUtils.baseUrl;
 import static no.nav.syfo.domain.rest.BrukerPaaEnhet.Skjermingskode.*;
+import static no.nav.syfo.util.RestUtils.baseUrl;
 
 /**
  * MøtebehovService har ansvaret for å knytte sammen og oversette mellom REST-grensesnittet, andre tjenester (aktør-registeret)
@@ -75,6 +74,7 @@ public class MotebehovService {
                 .map(dbMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov))
                 .collect(toList());
     }
+
     public List<Motebehov> hentMotebehovListeForOgOpprettetAvArbeidstaker(final Fnr arbeidstakerFnr) {
         final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
         return motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktoerId)
@@ -93,7 +93,6 @@ public class MotebehovService {
                 .collect(toList());
     }
 
-    @Transactional
     public UUID lagreMotebehov(Fnr innloggetFNR, Fnr arbeidstakerFnr, final NyttMotebehov nyttMotebehov) {
         final String innloggetBrukerAktoerId = aktoerConsumer.hentAktoerIdForFnr(innloggetFNR.getFnr());
         final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
@@ -178,7 +177,7 @@ public class MotebehovService {
     }
 
     private BrukerPaaEnhet.Skjermingskode hentBrukersSkjermingskode(String fnr) {
-        if(personConsumer.erBrukerDiskresjonsmerket(aktoerConsumer.hentAktoerIdForFnr(fnr)))
+        if (personConsumer.erBrukerDiskresjonsmerket(aktoerConsumer.hentAktoerIdForFnr(fnr)))
             return DISKRESJONSMERKET;
         if (egenAnsattConsumer.erEgenAnsatt(fnr))
             return EGEN_ANSATT;
