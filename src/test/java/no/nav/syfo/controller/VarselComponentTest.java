@@ -3,7 +3,7 @@ package no.nav.syfo.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import no.nav.syfo.LocalApplication;
-import no.nav.syfo.domain.rest.*;
+import no.nav.syfo.domain.rest.MotebehovsvarVarselInfo;
 import no.nav.syfo.kafka.producer.TredjepartsvarselProducer;
 import no.nav.syfo.kafka.producer.model.KTredjepartsvarsel;
 import no.nav.syfo.service.*;
@@ -24,10 +24,11 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
-import java.time.LocalDate;
 
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static no.nav.syfo.kafka.producer.VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV;
+import static no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID;
+import static no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
@@ -78,15 +79,9 @@ public class VarselComponentTest {
             .registerModule(new JavaTimeModule())
             .configure(WRITE_DATES_AS_TIMESTAMPS, false);
 
-    private final String AKTOR_ID = "123";
-
-    private final String ORGNUMMER = "999";
-
-    private LocalDate oppfolgingstilfelleStartDato = LocalDate.now().minusDays(30);
-
     private MotebehovsvarVarselInfo motebehovsvarVarselInfo = new MotebehovsvarVarselInfo()
-            .sykmeldtAktorId(AKTOR_ID)
-            .orgnummer(ORGNUMMER);
+            .sykmeldtAktorId(ARBEIDSTAKER_AKTORID)
+            .orgnummer(VIRKSOMHETSNUMMER);
 
     private ArgumentCaptor<KTredjepartsvarsel> argumentCaptor = ArgumentCaptor.forClass(KTredjepartsvarsel.class);
 
@@ -103,7 +98,6 @@ public class VarselComponentTest {
 
     @Test
     public void sendVarselNaermesteLeder_skal_sende_varsel_til_NL_hvis_ikke_mote() throws Exception {
-        mockSvarFraSyfosyketilfelle();
         mockSvarFraSyfomoteadmin(false);
         when(kafkaTemplate.send(anyString(), anyString(), any(KTredjepartsvarsel.class))).thenReturn(mock(ListenableFuture.class));
 
@@ -119,7 +113,6 @@ public class VarselComponentTest {
 
     @Test
     public void sendVarselNaermesteLeder_skal_ikke_sende_varsel_til_NL_hvis_mote_finnes() throws Exception {
-        mockSvarFraSyfosyketilfelle();
         mockSvarFraSyfomoteadmin(true);
 
         Response returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo);
@@ -128,30 +121,11 @@ public class VarselComponentTest {
         assertEquals(HttpStatus.OK.value(), returnertSvarFraVarselcontroller.getStatus());
     }
 
-    private void mockSvarFraSyfosyketilfelle() throws Exception {
-        OppfolgingstilfelleDTO oppfolgingstilfelle = new OppfolgingstilfelleDTO()
-                .antallBrukteDager(30)
-                .oppbruktArbeidsgvierperiode(true)
-                .arbeidsgiverperiode(new PeriodeDTO()
-                        .fom(oppfolgingstilfelleStartDato)
-                        .tom(LocalDate.now().minusDays(14)));
-
-        String oppfolgingstilfelleJson = objectMapper.writeValueAsString(oppfolgingstilfelle);
-
-        String url = fromHttpUrl(syfosyketilfelleUrl)
-                .pathSegment("oppfolgingstilfelle", "beregn", "syfomotebehov", AKTOR_ID)
-                .toUriString();
-
-        mockRestServiceServer.expect(once(), requestTo(url))
-                .andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess(oppfolgingstilfelleJson, APPLICATION_JSON));
-    }
-
     private void mockSvarFraSyfomoteadmin(boolean harAktivtMote) throws Exception {
         String svarFraSyfomoteadminJson = objectMapper.writeValueAsString(harAktivtMote);
 
         String url = fromHttpUrl(syfomoteadminUrl)
-                .pathSegment("system", AKTOR_ID, "harAktivtMote")
+                .pathSegment("system", ARBEIDSTAKER_AKTORID, "harAktivtMote")
                 .toUriString();
 
         mockRestServiceServer.expect(once(), requestTo(url))
@@ -163,8 +137,8 @@ public class VarselComponentTest {
     private void verifySendtKtredjepartsvarsel(KTredjepartsvarsel kTredjepartsvarsel) {
         assertEquals(kTredjepartsvarsel.getType(), NAERMESTE_LEDER_SVAR_MOTEBEHOV.name());
         assertNotNull(kTredjepartsvarsel.getRessursId());
-        assertEquals(kTredjepartsvarsel.getAktorId(), AKTOR_ID);
-        assertEquals(kTredjepartsvarsel.getOrgnummer(), ORGNUMMER);
+        assertEquals(kTredjepartsvarsel.getAktorId(), ARBEIDSTAKER_AKTORID);
+        assertEquals(kTredjepartsvarsel.getOrgnummer(), VIRKSOMHETSNUMMER);
         assertNotNull(kTredjepartsvarsel.getUtsendelsestidspunkt());
     }
 }

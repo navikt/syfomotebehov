@@ -1,42 +1,49 @@
 package no.nav.syfo.service;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.syfo.domain.rest.OppfolgingstilfelleDTO;
-import org.springframework.beans.factory.annotation.Value;
+import no.nav.syfo.OIDCIssuer;
+import no.nav.syfo.consumer.ws.SykefravaeroppfoelgingConsumer;
+import no.nav.syfo.domain.rest.Oppfolgingstilfelle;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import javax.inject.Inject;
-
-import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
+import java.time.*;
+import java.util.*;
 
 @Slf4j
 @Service
 public class SyketilfelleService {
 
-    private RestTemplate restTemplate;
-    private String syfosyketilfelleUrl;
+    private final SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer;
 
     @Inject
     public SyketilfelleService(
-            RestTemplate restTemplate,
-            @Value("${syfosyketilfelleApi.url}") String syfosyketilfelleUrl
+            SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer
     ) {
-        this.restTemplate = restTemplate;
-        this.syfosyketilfelleUrl = syfosyketilfelleUrl;
+        this.sykefravaeroppfoelgingConsumer = sykefravaeroppfoelgingConsumer;
     }
 
+    public LocalDateTime hentStartDatoINyesteOppfolgingstilfelle(String aktorId, String orgnummer) {
+        List<Oppfolgingstilfelle> oppfolgingstilfelleperioder = sykefravaeroppfoelgingConsumer.hentOppfolgingstilfelleperioder(aktorId, orgnummer, OIDCIssuer.INTERN);
 
-    public OppfolgingstilfelleDTO hentNyesteOppfolgingstilfelle(String aktorId) {
-        String url = fromHttpUrl(syfosyketilfelleUrl)
-                .pathSegment("oppfolgingstilfelle", "beregn", "syfomotebehov", aktorId)
-                .toUriString();
+        Optional<Oppfolgingstilfelle> forstePeriode = forstePeriodeITilfelle(oppfolgingstilfelleperioder);
 
-        try {
-            return restTemplate.getForObject(url, OppfolgingstilfelleDTO.class);
-        } catch (Exception e) {
-            log.error("Det skjedde en feil ved henting av oppfolgingstilfelle fra syfosyketilfelle");
-            throw new RuntimeException("Klarte ikke hente oppfolgingstilfelle fra syfosyketilfelle", e);
+        if (!forstePeriode.isPresent()) {
+            log.error("Fant ikke oppfolgingstilfelle hos syfoservice, dette skal ikke skje, da syfoservice har sagt at motebehov-varsel skal sendes!");
+            throw new NullPointerException("Fikk ikke oppfolgingstilfelle fra syfoservice, dette skal ikke skje!");
         }
+
+        return localDate2LocalDateTime(forstePeriode.get().fom);
+    }
+
+    private Optional<Oppfolgingstilfelle> forstePeriodeITilfelle(List<Oppfolgingstilfelle> oppfolgingstilfelleperioder) {
+        return Optional.of(oppfolgingstilfelleperioder
+                .stream()
+                .min(Comparator.comparing(o -> o.fom)))
+                .orElse(Optional.empty());
+    }
+
+    private LocalDateTime localDate2LocalDateTime(LocalDate forstePeriodeFom) {
+        return LocalDateTime.of(forstePeriodeFom, LocalTime.MIN);
     }
 }
