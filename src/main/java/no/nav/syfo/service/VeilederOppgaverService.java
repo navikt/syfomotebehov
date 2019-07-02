@@ -4,10 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.domain.rest.VeilederOppgave;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -48,7 +45,7 @@ public class VeilederOppgaverService {
         headers.add("Authorization", basicCredentials(credUsername, credPassword));
         HttpEntity<String> request = new HttpEntity<>(headers);
 
-        log.info("Henter møtebehov på URL: {}", url);
+        log.info("Henter møtebehov på URL: {}", maskerFnrFraUrl(url));
 
         ResponseEntity<List<VeilederOppgave>> response = restTemplate.exchange(
                 url,
@@ -58,5 +55,9 @@ public class VeilederOppgaverService {
                 });
 
         return response.getBody();
+    }
+
+    private String maskerFnrFraUrl(String url) {
+        return url.replaceAll("[0-9]", "*");
     }
 }
