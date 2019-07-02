@@ -32,7 +32,9 @@ public class VarselController {
     public Response sendVarselNaermesteLeder(
             @RequestBody MotebehovsvarVarselInfo motebehovsvarVarselInfo
     ) {
+        log.info("L-TRACE: Fikk kall fra syfoservice om sending av varsel til NL");
         varselService.sendVarselTilNaermesteLeder(motebehovsvarVarselInfo);
+        log.info("L-TRACE: Ferdig med sending av varsel, gir OK til syfoservice");
 
         return Response
                 .ok()

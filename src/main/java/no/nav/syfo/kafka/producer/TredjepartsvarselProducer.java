@@ -21,6 +21,7 @@ public class TredjepartsvarselProducer {
     }
 
     public void sendTredjepartsvarselvarsel(KTredjepartsvarsel kTredjepartsvarsel) {
+        log.info("L-TRACE: Forsøker å legge varsel til NL på kø: {}", kTredjepartsvarsel);
         try {
             kafkaTemplate.send(
                     TREDJEPARTSVARSEL_TOPIC,
@@ -28,6 +29,7 @@ public class TredjepartsvarselProducer {
                     kTredjepartsvarsel).get();
             log.info("Legger tredjepartsvarsel på kø for aktor {}", kTredjepartsvarsel.getAktorId());
         } catch (Exception e) {
+            log.info("L-TRACE: Klarte ikke å legge varsel på kø", e);
             log.error("Feil ved sending av oppgavevarsel", e);
             throw new RuntimeException("Feil ved sending av oppgavevarsel", e);
         }

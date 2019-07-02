@@ -6,6 +6,8 @@ import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+
 import static java.util.Arrays.asList;
 import static no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID;
 import static no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID;
@@ -61,7 +63,19 @@ public class SykefravaeroppfoelgingMock implements SykefravaersoppfoelgingV1 {
 
     @Override
     public WSHentSykeforlopperiodeResponse hentSykeforlopperiode(WSHentSykeforlopperiodeRequest request) throws HentSykeforlopperiodeSikkerhetsbegrensning {
-        return null;
+        return new WSHentSykeforlopperiodeResponse()
+                .withSykeforlopperiodeListe(asList(
+                        new WSSykeforlopperiode()
+                                .withFom(LocalDate.now().minusDays(30))
+                                .withTom(LocalDate.now().minusDays(14))
+                                .withGrad(100)
+                                .withAktivitet("Aktivitet"),
+                        new WSSykeforlopperiode()
+                                .withFom(LocalDate.now().minusDays(20))
+                                .withTom(LocalDate.now().minusDays(4))
+                                .withGrad(100)
+                                .withAktivitet("Aktivitet")
+                ));
     }
 
     @Override

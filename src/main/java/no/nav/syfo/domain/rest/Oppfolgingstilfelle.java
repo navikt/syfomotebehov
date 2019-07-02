@@ -7,7 +7,10 @@ import java.time.LocalDate;
 
 @Data
 @Accessors(fluent = true, chain = true)
-public class PeriodeDTO {
+public class Oppfolgingstilfelle {
+    public String orgnummer;
     public LocalDate fom;
     public LocalDate tom;
+    public int grad;
+    public String aktivitet;
 }

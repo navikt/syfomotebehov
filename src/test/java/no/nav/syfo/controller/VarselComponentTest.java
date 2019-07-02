@@ -3,7 +3,7 @@ package no.nav.syfo.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import no.nav.syfo.LocalApplication;
-import no.nav.syfo.domain.rest.*;
+import no.nav.syfo.domain.rest.MotebehovsvarVarselInfo;
 import no.nav.syfo.kafka.producer.TredjepartsvarselProducer;
 import no.nav.syfo.kafka.producer.model.KTredjepartsvarsel;
 import no.nav.syfo.service.*;
@@ -103,7 +103,6 @@ public class VarselComponentTest {
 
     @Test
     public void sendVarselNaermesteLeder_skal_sende_varsel_til_NL_hvis_ikke_mote() throws Exception {
-        mockSvarFraSyfosyketilfelle();
         mockSvarFraSyfomoteadmin(false);
         when(kafkaTemplate.send(anyString(), anyString(), any(KTredjepartsvarsel.class))).thenReturn(mock(ListenableFuture.class));
 
@@ -119,32 +118,12 @@ public class VarselComponentTest {
 
     @Test
     public void sendVarselNaermesteLeder_skal_ikke_sende_varsel_til_NL_hvis_mote_finnes() throws Exception {
-        mockSvarFraSyfosyketilfelle();
         mockSvarFraSyfomoteadmin(true);
 
         Response returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo);
 
         verify(kafkaTemplate, never()).send(any(), any(), any());
         assertEquals(HttpStatus.OK.value(), returnertSvarFraVarselcontroller.getStatus());
-    }
-
-    private void mockSvarFraSyfosyketilfelle() throws Exception {
-        OppfolgingstilfelleDTO oppfolgingstilfelle = new OppfolgingstilfelleDTO()
-                .antallBrukteDager(30)
-                .oppbruktArbeidsgvierperiode(true)
-                .arbeidsgiverperiode(new PeriodeDTO()
-                        .fom(oppfolgingstilfelleStartDato)
-                        .tom(LocalDate.now().minusDays(14)));
-
-        String oppfolgingstilfelleJson = objectMapper.writeValueAsString(oppfolgingstilfelle);
-
-        String url = fromHttpUrl(syfosyketilfelleUrl)
-                .pathSegment("oppfolgingstilfelle", "beregn", "syfomotebehov", AKTOR_ID)
-                .toUriString();
-
-        mockRestServiceServer.expect(once(), requestTo(url))
-                .andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess(oppfolgingstilfelleJson, APPLICATION_JSON));
     }
 
     private void mockSvarFraSyfomoteadmin(boolean harAktivtMote) throws Exception {

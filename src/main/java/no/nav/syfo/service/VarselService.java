@@ -2,16 +2,15 @@ package no.nav.syfo.service;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.domain.rest.MotebehovsvarVarselInfo;
-import no.nav.syfo.domain.rest.OppfolgingstilfelleDTO;
 import no.nav.syfo.kafka.producer.TredjepartsvarselProducer;
 import no.nav.syfo.kafka.producer.model.KTredjepartsvarsel;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static java.time.LocalDateTime.now;
-import static java.util.Optional.ofNullable;
 import static no.nav.syfo.kafka.producer.VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV;
 
 @Service
@@ -33,18 +32,15 @@ public class VarselService {
     }
 
     public void sendVarselTilNaermesteLeder(MotebehovsvarVarselInfo motebehovsvarVarselInfo) {
-        OppfolgingstilfelleDTO oppfolgingstilfelle = syketilfelleService.hentNyesteOppfolgingstilfelle(motebehovsvarVarselInfo.sykmeldtAktorId);
+        LocalDateTime startDatoINyesteOppfolgingstilfelle = syketilfelleService.hentStartDatoINyesteOppfolgingstilfelle(motebehovsvarVarselInfo.sykmeldtAktorId, motebehovsvarVarselInfo.orgnummer);
 
-        if (!ofNullable(oppfolgingstilfelle).isPresent() || !ofNullable(oppfolgingstilfelle.arbeidsgiverperiode).isPresent()) {
-            log.error("Fant ikke oppfolgingstilfelle hos syfosyketilfelle, dette skal ikke skje, da syfoservice har sagt at motebehov-varsel skal sendes!");
-            throw new NullPointerException("Fikk ikke oppfolgingstilfelle fra syfosyketilfelle, dette skal ikke skje!");
-        }
-
-        if (!moterService.erMoteOpprettetForArbeidstakerEtterDato(motebehovsvarVarselInfo.sykmeldtAktorId, oppfolgingstilfelle)) {
+        if (!moterService.erMoteOpprettetForArbeidstakerEtterDato(motebehovsvarVarselInfo.sykmeldtAktorId, startDatoINyesteOppfolgingstilfelle)) {
+            log.info("L-TRACE: Fikk ikkeMoteEtterDato, skal sende varsel til NL!");
             log.info("Sender varsel til naermeste leder");
             KTredjepartsvarsel kTredjepartsvarsel = mapTilKTredjepartsvarsel(motebehovsvarVarselInfo);
             tredjepartsvarselProducer.sendTredjepartsvarselvarsel(kTredjepartsvarsel);
         } else {
+            log.info("L-TRACE: Møte er opprettet etter dato, sender ikke varsel!");
             log.info("Sender ikke varsel til naermeste leder fordi moteplanleggeren er brukt i oppfolgingstilfellet");
         }
     }
