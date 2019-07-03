@@ -73,6 +73,10 @@ fasitResources:
     resourceType: restservice
   - alias: tilgangskontrollapi
     resourceType: restservice
+  - alias: syfomoteadminapi
+    resourceType: restservice
+  - alias: syfosyketilfelleApi
+    resourceType: restservice
   - alias: aad_b2c_clientid
     resourceType: credential
     propertyMap:

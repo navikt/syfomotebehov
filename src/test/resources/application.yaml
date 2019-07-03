@@ -73,3 +73,5 @@ syfoveilederoppgaver.systemapi.username: "dummy"
 syfoveilederoppgaver.systemapi.password: "test123"
 
 tilgangskontrollapi.url: "https://www.ikke.no"
+syfomoteadminapi.url: "https://www.kanskje.no"
+syfosyketilfelleApi.url: http://localhost:8080

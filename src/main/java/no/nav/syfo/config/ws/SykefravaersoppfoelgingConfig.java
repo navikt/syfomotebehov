@@ -1,19 +1,14 @@
 package no.nav.syfo.config.ws;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.syfo.consumer.util.ws.LogErrorHandler;
-import no.nav.syfo.consumer.util.ws.OnBehalfOfOutInterceptor;
-import no.nav.syfo.consumer.util.ws.STSClientConfig;
-import no.nav.syfo.consumer.util.ws.WsClient;
+import no.nav.syfo.consumer.util.ws.*;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.*;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.*;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.*;
 
 import static java.util.Collections.singletonList;
 
@@ -56,6 +51,12 @@ public class SykefravaersoppfoelgingConfig {
         leggTilOnBehalfOfOutInterceptorForOIDC(ClientProxy.getClient(port), OIDCToken);
         return port.hentHendelseListe(request);
     }
+
+    public WSHentSykeforlopperiodeResponse hentSykeforlopperiode(WSHentSykeforlopperiodeRequest request, String OIDCToken) throws HentSykeforlopperiodeSikkerhetsbegrensning {
+        leggTilOnBehalfOfOutInterceptorForOIDC(ClientProxy.getClient(port), OIDCToken);
+        return port.hentSykeforlopperiode(request);
+    }
+
 
     private void leggTilOnBehalfOfOutInterceptorForOIDC(Client client, String OIDCToken) {
         client.getRequestContext().put(OnBehalfOfOutInterceptor.REQUEST_CONTEXT_ONBEHALFOF_TOKEN_TYPE, OnBehalfOfOutInterceptor.TokenType.OIDC);
