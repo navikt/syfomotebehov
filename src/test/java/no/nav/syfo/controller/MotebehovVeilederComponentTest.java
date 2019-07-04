@@ -185,7 +185,7 @@ public class MotebehovVeilederComponentTest {
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR);
 
         List<Motebehov> motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR);
-
+        
         motebehovListe.forEach(motebehov -> {
             assertThat(motebehov.behandletTidspunkt).isNotNull();
             assertThat(motebehov.behandletVeilederIdent).isEqualTo(VEILEDER_ID);
