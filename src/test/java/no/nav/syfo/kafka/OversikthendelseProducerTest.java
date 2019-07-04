@@ -12,6 +12,7 @@ import org.springframework.util.concurrent.ListenableFuture;
 
 import static java.time.LocalDateTime.now;
 import static no.nav.syfo.kafka.producer.OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC;
+import static no.nav.syfo.kafka.producer.OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET;
 import static no.nav.syfo.kafka.producer.OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT;
 import static no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR;
 import static no.nav.syfo.testhelper.UserConstants.NAV_ENHET;
@@ -34,6 +35,22 @@ public class OversikthendelseProducerTest {
         KOversikthendelse kOversikthendelse = KOversikthendelse.builder()
                 .fnr(ARBEIDSTAKER_FNR)
                 .hendelseId(MOTEBEHOV_SVAR_MOTTATT.name())
+                .enhetId(NAV_ENHET)
+                .tidspunkt(now())
+                .build();
+
+        oversikthendelseProducer.sendOversikthendelse(kOversikthendelse);
+
+        verify(kafkaTemplate).send(eq(OVERSIKTHENDELSE_TOPIC), anyString(), same(kOversikthendelse));
+    }
+
+    @Test
+    public void sendOversikthendelseMotebehovSvarBehandlet() {
+        when(kafkaTemplate.send(anyString(), anyString(), any(KOversikthendelse.class))).thenReturn(mock(ListenableFuture.class));
+
+        KOversikthendelse kOversikthendelse = KOversikthendelse.builder()
+                .fnr(ARBEIDSTAKER_FNR)
+                .hendelseId(MOTEBEHOV_SVAR_BEHANDLET.name())
                 .enhetId(NAV_ENHET)
                 .tidspunkt(now())
                 .build();

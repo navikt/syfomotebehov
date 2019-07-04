@@ -47,6 +47,10 @@ public class MotebehovDAO {
         return ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_dato >= ?", getInnsendingRowMapper(), aktoerId, hentTidligsteDatoForGyldigMotebehovSvar()));
     }
 
+    public Optional<List<PMotebehov>> hentMotebehovUbehandletListeForAktoer(String aktoerId) {
+        return ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_dato >= ? AND behandlet_veileder_ident IS NULL", getInnsendingRowMapper(), aktoerId, hentTidligsteDatoForGyldigMotebehovSvar()));
+    }
+
     public Optional<List<PMotebehov>> hentMotebehovListeForOgOpprettetAvArbeidstaker(String arbeidstakerAktorId) {
         return ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av = ? AND opprettet_dato >= ?", getInnsendingRowMapper(), arbeidstakerAktorId, arbeidstakerAktorId, hentTidligsteDatoForGyldigMotebehovSvar()));
     }
@@ -57,6 +61,12 @@ public class MotebehovDAO {
 
     public Optional<List<PMotebehov>> hentMotebehovListeForAktoerOgVirksomhetsnummer(String aktoerId, String virksomhetsnummer) {
         return ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND virksomhetsnummer = ? AND opprettet_dato >= ?", getInnsendingRowMapper(), aktoerId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar()));
+    }
+
+    public int oppdaterUbehandledeMotebehovTilBehandlet(final String aktoerId, final String veilederIdent) {
+        String oppdaterSql = "UPDATE motebehov SET behandlet_tidspunkt = ?, behandlet_veileder_ident = ? WHERE aktoer_id = ? AND behandlet_veileder_ident IS NULL";
+
+        return jdbcTemplate.update(oppdaterSql, convert(now()), veilederIdent, aktoerId);
     }
 
     public UUID create(final PMotebehov motebehov) {
@@ -72,7 +82,9 @@ public class MotebehovDAO {
                 ":tiltak_resultat, " +
                 ":har_motebehov, " +
                 ":forklaring," +
-                ":tildelt_enhet" +
+                ":tildelt_enhet," +
+                ":behandlet_tidspunkt," +
+                ":behandlet_veileder_ident" +
                 ")";
 
         MapSqlParameterSource mapLagreSql = new MapSqlParameterSource()
@@ -86,7 +98,9 @@ public class MotebehovDAO {
                 .addValue("tiltak_resultat", new SqlLobValue(sanitizeUserInput(motebehov.tiltakResultat)), Types.CLOB)
                 .addValue("har_motebehov", motebehov.harMotebehov)
                 .addValue("forklaring", new SqlLobValue(sanitizeUserInput(motebehov.forklaring)), Types.CLOB)
-                .addValue("tildelt_enhet", motebehov.tildeltEnhet);
+                .addValue("tildelt_enhet", motebehov.tildeltEnhet)
+                .addValue("behandlet_tidspunkt", convert(motebehov.behandletTidspunkt()))
+                .addValue("behandlet_veileder_ident", motebehov.behandletVeilederIdent);
 
         namedParameterJdbcTemplate.update(lagreSql, mapLagreSql);
 
@@ -109,7 +123,9 @@ public class MotebehovDAO {
                 .tiltakResultat(rs.getString("tiltak_resultat"))
                 .harMotebehov(rs.getBoolean("har_motebehov"))
                 .forklaring(rs.getString("forklaring"))
-                .tildeltEnhet(rs.getString("tildelt_enhet"));
+                .tildeltEnhet(rs.getString("tildelt_enhet"))
+                .behandletTidspunkt(convert(rs.getTimestamp("opprettet_dato")))
+                .behandletVeilederIdent(rs.getString("behandlet_veileder_ident"));
     }
 
     public int nullstillMotebehov(String aktoerId) {

@@ -6,6 +6,7 @@ import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.mappers.domain.Enhet;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import no.nav.syfo.repository.domain.PMotebehov;
+import no.nav.syfo.util.Metrikk;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,7 @@ import static no.nav.syfo.util.RestUtils.baseUrl;
 @Slf4j
 public class MotebehovService {
 
+    private final Metrikk metrikk;
     private final AktoerConsumer aktoerConsumer;
     private final ArbeidsfordelingConsumer arbeidsfordelingConsumer;
     private final PersonConsumer personConsumer;
@@ -39,6 +41,7 @@ public class MotebehovService {
 
     @Inject
     public MotebehovService(
+            Metrikk metrikk,
             AktoerConsumer aktoerConsumer,
             ArbeidsfordelingConsumer arbeidsfordelingConsumer,
             PersonConsumer personConsumer,
@@ -47,6 +50,7 @@ public class MotebehovService {
             OversikthendelseService oversikthendelseService,
             MotebehovDAO motebehovDAO
     ) {
+        this.metrikk = metrikk;
         this.aktoerConsumer = aktoerConsumer;
         this.arbeidsfordelingConsumer = arbeidsfordelingConsumer;
         this.personConsumer = personConsumer;
@@ -65,6 +69,21 @@ public class MotebehovService {
                         .fnr(sykmeldtFnr)
                         .skjermingskode(hentBrukersSkjermingskode(sykmeldtFnr)))
                 .collect(toList());
+    }
+
+    @Transactional
+    public void behandleUbehandledeMotebehov(final Fnr arbeidstakerFnr, final String veilederIdent) {
+        int antallOppdateringer = motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr()), veilederIdent);
+
+        if (antallOppdateringer > 0) {
+            String behandlendeEnhet = finnArbeidstakersBehandlendeEnhet(arbeidstakerFnr.getFnr());
+            oversikthendelseService.sendOversikthendelse(arbeidstakerFnr.getFnr(), behandlendeEnhet);
+        } else {
+            metrikk.tellHendelse("feil_behandle_motebehov_svar_eksiterer_ikke");
+            log.error("Ugyldig tilstand: Veileder {} forsøkte å behandle motebehovsvar som ikke eksisterer", veilederIdent);
+            throw new RuntimeException();
+
+        }
     }
 
     public List<Motebehov> hentMotebehovListe(final Fnr arbeidstakerFnr) {
@@ -131,7 +150,8 @@ public class MotebehovService {
                 .tiltak(nyttMotebehov.motebehovSvar().tiltak)
                 .tiltakResultat(nyttMotebehov.motebehovSvar().tiltakResultat)
                 .forklaring(nyttMotebehov.motebehovSvar().forklaring)
-                .tildeltEnhet(tildeltEnhet);
+                .tildeltEnhet(tildeltEnhet)
+                .behandletTidspunkt(null);
     }
 
     private Motebehov mapPMotebehovToMotebehov(Fnr arbeidstakerFnr, PMotebehov pMotebehov) {
@@ -149,7 +169,9 @@ public class MotebehovService {
                         .harMotebehov(pMotebehov.harMotebehov)
                         .forklaring(pMotebehov.forklaring)
                 )
-                .tildeltEnhet(pMotebehov.tildeltEnhet);
+                .tildeltEnhet(pMotebehov.tildeltEnhet)
+                .behandletTidspunkt(pMotebehov.behandletTidspunkt)
+                .behandletVeilederIdent(pMotebehov.behandletVeilederIdent);
     }
 
     private VeilederOppgaveFeedItem mapPMotebehovToVeilederOppgaveFeedItem(PMotebehov motebehov, String fnr) {

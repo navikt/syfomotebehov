@@ -20,4 +20,6 @@ public class PMotebehov {
     public boolean harMotebehov;
     public String forklaring;
     public String tildeltEnhet;
+    public LocalDateTime behandletTidspunkt;
+    public String behandletVeilederIdent;
 }

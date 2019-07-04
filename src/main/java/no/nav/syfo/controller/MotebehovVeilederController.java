@@ -1,6 +1,7 @@
 package no.nav.syfo.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.service.*;
@@ -15,6 +16,7 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static no.nav.syfo.OIDCIssuer.INTERN;
+import static no.nav.syfo.util.OIDCUtil.getSubjectFromOIDCToken;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
@@ -22,7 +24,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping(value = "/api/veileder")
 public class MotebehovVeilederController {
 
+    private OIDCRequestContextHolder oidcCtxHolder;
+
     private Metrikk metrikk;
+
     private HistorikkService historikkService;
 
     private MotebehovService motebehovService;
@@ -33,11 +38,13 @@ public class MotebehovVeilederController {
 
     @Inject
     public MotebehovVeilederController(
+            final OIDCRequestContextHolder oidcCtxHolder,
             final Metrikk metrikk,
             final HistorikkService historikkService,
             final MotebehovService motebehovService,
             final VeilederTilgangService tilgangService,
             final GeografiskTilgangService geografiskTilgangService) {
+        this.oidcCtxHolder = oidcCtxHolder;
         this.metrikk = metrikk;
         this.historikkService = historikkService;
         this.motebehovService = motebehovService;
@@ -76,6 +83,24 @@ public class MotebehovVeilederController {
         } else {
             log.info("Det ble gjort kall mot 'veileder/historikk', men dette endepunktet er togglet av.");
             return emptyList();
+        }
+    }
+
+    @ProtectedWithClaims(issuer = INTERN)
+    @PostMapping(value = "/motebehov/{fnr}/behandle")
+    public void behandleMotebehov(
+            @PathVariable(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr
+    ) {
+        if (Toggle.endepunkterForMotebehov) {
+            metrikk.tellEndepunktKall("veileder_behandle_motebehov_call");
+
+            kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
+
+            motebehovService.behandleUbehandledeMotebehov(Fnr.of(arbeidstakerFnr), getSubjectFromOIDCToken(oidcCtxHolder, INTERN));
+
+            metrikk.tellEndepunktKall("veileder_behandle_motebehov_success");
+        } else {
+            log.info("Det ble gjort kall mot 'veileder/motebehov/behandle', men dette endepunktet er togglet av.");
         }
     }
 
