@@ -59,7 +59,7 @@ public class MotebehovDAOTest {
     @Test
     public void hentMotebehovListeForAktoer() throws Exception {
         jdbcTemplate.update("INSERT INTO MOTEBEHOV VALUES('bae778f2-a085-11e8-98d0-529269fb1459', '" + OPPRETTET_DATO_GYLDIG + "', '" + ARBEIDSGIVER_AKTOERID + "', '" + SYKMELDT_AKTOERID + "', '" + VIRKSOMHETSNUMMER + "', 'Snart', '" + TILTAK + "', " +
-                "'Mindre smerter', '1', 'Megling', '0330')");
+                "'Mindre smerter', '1', 'Megling', '0330', null, null)");
         List<PMotebehov> motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(SYKMELDT_AKTOERID).orElseThrow(Exception::new);
 
         assertThat(motebehovListe.size()).isEqualTo(1);
@@ -80,7 +80,7 @@ public class MotebehovDAOTest {
     @Test
     public void hentMotebehovListeForOgOpprettetAvArbeidstakerIkkeGyldig() throws Exception {
         jdbcTemplate.update("INSERT INTO MOTEBEHOV VALUES('bae778f2-a085-11e8-98d0-529269fb1459', '" + OPPRETTET_DATO_UGYLDIG + "', '" + SYKMELDT_AKTOERID + "', '" + SYKMELDT_AKTOERID + "', '" + VIRKSOMHETSNUMMER + "', 'Snart', '" + TILTAK + "', " +
-                "'Mindre smerter', '1', 'Megling', '0330')");
+                "'Mindre smerter', '1', 'Megling', '0330', null, null)");
         List<PMotebehov> motebehovListe = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(SYKMELDT_AKTOERID).orElseThrow(Exception::new);
 
         assertThat(motebehovListe.size()).isEqualTo(0);
@@ -89,7 +89,7 @@ public class MotebehovDAOTest {
     @Test
     public void hentMotebehovListeForOgOpprettetAvArbeidstakerGyldig() throws Exception {
         jdbcTemplate.update("INSERT INTO MOTEBEHOV VALUES('bae778f2-a085-11e8-98d0-529269fb1459', '" + OPPRETTET_DATO_GYLDIG + "', '" + SYKMELDT_AKTOERID + "', '" + SYKMELDT_AKTOERID + "', '" + VIRKSOMHETSNUMMER + "', 'Snart', '" + TILTAK + "', " +
-                "'Mindre smerter', '1', 'Megling', '0330')");
+                "'Mindre smerter', '1', 'Megling', '0330', null, null)");
         List<PMotebehov> motebehovListe = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(SYKMELDT_AKTOERID).orElseThrow(Exception::new);
 
         assertThat(motebehovListe.size()).isEqualTo(1);
@@ -103,7 +103,7 @@ public class MotebehovDAOTest {
     @Test
     public void hentMotebehovListeForArbeidstakerOpprettetAvLederIkkeGyldig() throws Exception {
         jdbcTemplate.update("INSERT INTO MOTEBEHOV VALUES('bae778f2-a085-11e8-98d0-529269fb1459', '" + OPPRETTET_DATO_UGYLDIG + "', '" + ARBEIDSGIVER_AKTOERID + "', '" + SYKMELDT_AKTOERID + "', '" + VIRKSOMHETSNUMMER + "', 'Snart', '" + TILTAK + "', " +
-                "'Mindre smerter', '1', 'Megling', '0330')");
+                "'Mindre smerter', '1', 'Megling', '0330', null, null)");
         List<PMotebehov> motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(SYKMELDT_AKTOERID, VIRKSOMHETSNUMMER).orElseThrow(Exception::new);
 
         assertThat(motebehovListe.size()).isEqualTo(0);
@@ -112,7 +112,7 @@ public class MotebehovDAOTest {
     @Test
     public void hentMotebehovListeForArbeidstakerOpprettetAvLederGyldig() throws Exception {
         jdbcTemplate.update("INSERT INTO MOTEBEHOV VALUES('bae778f2-a085-11e8-98d0-529269fb1459', '" + OPPRETTET_DATO_GYLDIG + "', '" + ARBEIDSGIVER_AKTOERID + "', '" + SYKMELDT_AKTOERID + "', '" + VIRKSOMHETSNUMMER + "', 'Snart', '" + TILTAK + "', " +
-                "'Mindre smerter', '1', 'Megling', '0330')");
+                "'Mindre smerter', '1', 'Megling', '0330', null, null)");
         List<PMotebehov> motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(SYKMELDT_AKTOERID, VIRKSOMHETSNUMMER).orElseThrow(Exception::new);
 
         assertThat(motebehovListe.size()).isEqualTo(1);
@@ -126,7 +126,7 @@ public class MotebehovDAOTest {
     @Test
     public void hentMotebehovListeForAktoerOgVirksomhetsnummerIkkeGyldig() throws Exception {
         jdbcTemplate.update("INSERT INTO MOTEBEHOV VALUES('bae778f2-a085-11e8-98d0-529269fb1459', '" + OPPRETTET_DATO_UGYLDIG + "', '" + ARBEIDSGIVER_AKTOERID + "', '" + SYKMELDT_AKTOERID + "', '" + VIRKSOMHETSNUMMER + "', 'Snart', '" + TILTAK + "', " +
-                "'Mindre smerter', '1', 'Megling', '0330')");
+                "'Mindre smerter', '1', 'Megling', '0330', null, null)");
         List<PMotebehov> motebehovListe = motebehovDAO.hentMotebehovListeForAktoerOgVirksomhetsnummer(SYKMELDT_AKTOERID, VIRKSOMHETSNUMMER).orElseThrow(Exception::new);
 
         assertThat(motebehovListe.size()).isEqualTo(0);
@@ -135,7 +135,7 @@ public class MotebehovDAOTest {
     @Test
     public void hentMotebehovListeForAktoerOgVirksomhetsnummerGyldig() throws Exception {
         jdbcTemplate.update("INSERT INTO MOTEBEHOV VALUES('bae778f2-a085-11e8-98d0-529269fb1459', '" + OPPRETTET_DATO_GYLDIG + "', '" + ARBEIDSGIVER_AKTOERID + "', '" + SYKMELDT_AKTOERID + "', '" + VIRKSOMHETSNUMMER + "', 'Snart', '" + TILTAK + "', " +
-                "'Mindre smerter', '1', 'Megling', '0330')");
+                "'Mindre smerter', '1', 'Megling', '0330', null, null)");
         List<PMotebehov> motebehovListe = motebehovDAO.hentMotebehovListeForAktoerOgVirksomhetsnummer(SYKMELDT_AKTOERID, VIRKSOMHETSNUMMER).orElseThrow(Exception::new);
 
         assertThat(motebehovListe.size()).isEqualTo(1);

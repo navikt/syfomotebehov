@@ -17,4 +17,6 @@ public class Motebehov {
     public String virksomhetsnummer;
     public MotebehovSvar motebehovSvar;
     public String tildeltEnhet;
+    public LocalDateTime behandletTidspunkt;
+    public String behandletVeilederIdent;
 }
