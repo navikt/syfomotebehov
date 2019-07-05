@@ -4,6 +4,10 @@ import no.nav.syfo.domain.rest.MotebehovSvar;
 import no.nav.syfo.domain.rest.NyttMotebehov;
 import no.nav.syfo.repository.domain.PMotebehov;
 
+import java.time.LocalDateTime;
+
+import static java.time.LocalDateTime.now;
+import static no.nav.syfo.repository.DbUtil.MOTEBEHOVSVAR_GYLDIGHET_DAGER;
 import static no.nav.syfo.testhelper.UserConstants.*;
 
 public class MotebehovGenerator {
@@ -38,12 +42,26 @@ public class MotebehovGenerator {
     }
 
     private final PMotebehov nyttPMotebehovArbeidstaker = new PMotebehov()
-            .opprettetAv(ARBEIDSTAKER_AKTORID)
+            .opprettetDato(getOpprettetDato(true))
+            .opprettetAv(LEDER_AKTORID)
             .aktoerId(ARBEIDSTAKER_AKTORID)
             .virksomhetsnummer(VIRKSOMHETSNUMMER)
-            .harMotebehov(true);
+            .forklaring("Megling")
+            .harMotebehov(true)
+            .tiltak("")
+            .tildeltEnhet(NAV_ENHET);
 
     public PMotebehov lagNyttPMotebehovFraAT(boolean harBehov) {
         return nyttPMotebehovArbeidstaker.harMotebehov(harBehov);
+    }
+
+    public LocalDateTime getOpprettetDato(boolean erGyldig) {
+        return erGyldig
+                ? now().minusDays(MOTEBEHOVSVAR_GYLDIGHET_DAGER)
+                : now().minusDays(MOTEBEHOVSVAR_GYLDIGHET_DAGER + 1);
+    }
+
+    public PMotebehov generatePmotebehov() {
+        return nyttPMotebehovArbeidstaker;
     }
 }

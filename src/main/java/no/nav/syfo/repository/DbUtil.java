@@ -17,7 +17,7 @@ public class DbUtil {
 
     private static final Logger LOG = getLogger(DbUtil.class);
 
-    static final int MOTEBEHOVSVAR_GYLDIGHET_DAGER = 10*7;
+    public static final int MOTEBEHOVSVAR_GYLDIGHET_DAGER = 10*7;
 
     public static Timestamp convert(LocalDateTime timestamp) {
         return ofNullable(timestamp).map(Timestamp::valueOf).orElse(null);
