@@ -24,32 +24,29 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping(value = "/api/veileder")
 public class MotebehovVeilederController {
 
-    private OIDCRequestContextHolder oidcCtxHolder;
+    private final OIDCRequestContextHolder oidcCtxHolder;
 
-    private Metrikk metrikk;
+    private final Metrikk metrikk;
 
-    private HistorikkService historikkService;
+    private final HistorikkService historikkService;
 
-    private MotebehovService motebehovService;
+    private final MotebehovService motebehovService;
 
-    private VeilederTilgangService veilederTilgangService;
-
-    private GeografiskTilgangService geografiskTilgangService;
+    private final VeilederTilgangService veilederTilgangService;
 
     @Inject
     public MotebehovVeilederController(
-            final OIDCRequestContextHolder oidcCtxHolder,
-            final Metrikk metrikk,
-            final HistorikkService historikkService,
-            final MotebehovService motebehovService,
-            final VeilederTilgangService tilgangService,
-            final GeografiskTilgangService geografiskTilgangService) {
+            OIDCRequestContextHolder oidcCtxHolder,
+            Metrikk metrikk,
+            HistorikkService historikkService,
+            MotebehovService motebehovService,
+            VeilederTilgangService tilgangService
+    ) {
         this.oidcCtxHolder = oidcCtxHolder;
         this.metrikk = metrikk;
         this.historikkService = historikkService;
         this.motebehovService = motebehovService;
         this.veilederTilgangService = tilgangService;
-        this.geografiskTilgangService = geografiskTilgangService;
     }
 
     @ProtectedWithClaims(issuer = INTERN)
