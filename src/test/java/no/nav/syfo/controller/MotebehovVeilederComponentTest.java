@@ -5,7 +5,6 @@ import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.LocalApplication;
 import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.kafka.producer.model.KOversikthendelse;
-import no.nav.syfo.mock.AktoerMock;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -27,11 +26,14 @@ import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static no.nav.syfo.kafka.producer.OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC;
+import static no.nav.syfo.mock.PersonMock.PERSON_FORNAVN;
+import static no.nav.syfo.mock.PersonMock.PERSON_NAVN;
 import static no.nav.syfo.service.HistorikkService.HAR_SVART_PAA_MOTEBEHOV;
 import static no.nav.syfo.service.HistorikkService.MOTEBEHOVET_BLE_LEST_AV;
 import static no.nav.syfo.service.VeilederTilgangService.FNR;
 import static no.nav.syfo.service.VeilederTilgangService.TILGANG_TIL_BRUKER_PATH;
 import static no.nav.syfo.testhelper.OidcTestHelper.*;
+import static no.nav.syfo.testhelper.UserConstants.*;
 import static no.nav.syfo.util.AuthorizationFilterUtils.basicCredentials;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -55,16 +57,6 @@ import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 @DirtiesContext
 public class MotebehovVeilederComponentTest {
 
-    private static final String ARBEIDSTAKER_FNR = "12345678912";
-    private static final String ARBEIDSTAKER_AKTOERID = AktoerMock.mockAktorId(ARBEIDSTAKER_FNR);
-    private static final String LEDER_FNR = "10987654321";
-    private static final String LEDER_AKTORID = AktoerMock.mockAktorId(LEDER_FNR);
-    private static final String VIRKSOMHETSNUMMER = "1234";
-    private static final String NAV_ENHET = "0330";
-    private static final String VEILEDER_ID = "Z999999";
-    private static final String VEILEDER_2_ID = "Z888888";
-    private static final String NAVN = "Sygve Sykmeldt";
-    private static final String BEDRIFT_NAVN = "NAV AS";
     private static final String HISTORIKK_SIST_ENDRET = "2018-10-10";
 
     @Value("${tilgangskontrollapi.url}")
@@ -145,7 +137,7 @@ public class MotebehovVeilederComponentTest {
         assertThat(motebehovListe).size().isOne();
 
         Motebehov motebehov = motebehovListe.get(0);
-        assertThat(motebehov.opprettetAv).isEqualTo(ARBEIDSTAKER_AKTOERID);
+        assertThat(motebehov.opprettetAv).isEqualTo(ARBEIDSTAKER_AKTORID);
         assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR);
         assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER);
         assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(nyttMotebehov.motebehovSvar);
@@ -166,7 +158,7 @@ public class MotebehovVeilederComponentTest {
 
         Historikk motebehovOpprettetHistorikk = historikkListe.get(0);
         assertThat(motebehovOpprettetHistorikk.opprettetAv).isEqualTo(LEDER_AKTORID);
-        assertThat(motebehovOpprettetHistorikk.tekst).isEqualTo(NAVN + HAR_SVART_PAA_MOTEBEHOV);
+        assertThat(motebehovOpprettetHistorikk.tekst).isEqualTo(PERSON_NAVN + HAR_SVART_PAA_MOTEBEHOV);
         assertThat(motebehovOpprettetHistorikk.tidspunkt).isEqualTo(motebehov.opprettetDato);
 
         Historikk veilederOppgaveHistorikk = historikkListe.get(1);
@@ -185,7 +177,7 @@ public class MotebehovVeilederComponentTest {
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR);
 
         List<Motebehov> motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR);
-        
+
         motebehovListe.forEach(motebehov -> {
             assertThat(motebehov.behandletTidspunkt).isNotNull();
             assertThat(motebehov.behandletVeilederIdent).isEqualTo(VEILEDER_ID);
@@ -197,7 +189,7 @@ public class MotebehovVeilederComponentTest {
     @Test
     public void behandleMotebehovUlikVeilederBehandler() {
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
-        behandleMotebehov(ARBEIDSTAKER_AKTOERID, VEILEDER_ID);
+        behandleMotebehov(ARBEIDSTAKER_AKTORID, VEILEDER_ID);
 
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
@@ -219,7 +211,7 @@ public class MotebehovVeilederComponentTest {
     @Test(expected = RuntimeException.class)
     public void behandleIkkeEksiterendeMotebehov() {
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
-        behandleMotebehov(ARBEIDSTAKER_AKTOERID, VEILEDER_ID);
+        behandleMotebehov(ARBEIDSTAKER_AKTORID, VEILEDER_ID);
 
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_2_ID);
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, OK);
@@ -329,7 +321,7 @@ public class MotebehovVeilederComponentTest {
     }
 
     private void cleanDB() {
-        motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTOERID);
+        motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID);
     }
 
 }

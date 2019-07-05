@@ -10,5 +10,7 @@ public class UserConstants {
     public static final String LEDER_AKTORID = AktoerMock.mockAktorId(LEDER_FNR);
     public static final String VIRKSOMHETSNUMMER = "1234";
     public static final String NAV_ENHET = "0330";
+    public static final String NAV_ENHET_NAVN = "Bjerke";
     public static final String VEILEDER_ID = "Z999999";
+    public static final String VEILEDER_2_ID = "Z888888";
 }

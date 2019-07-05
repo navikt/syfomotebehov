@@ -21,6 +21,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.Response;
 
+import static no.nav.syfo.mock.PersonMock.GEOGRAFISK_TILKNYTNING;
+import static no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR;
+import static no.nav.syfo.testhelper.UserConstants.NAV_ENHET_NAVN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -37,8 +40,6 @@ public class GeografiskTilgangComponentTest {
 
     private GeografiskTilgangController geografiskTilgangController;
 
-    private static final String BRUKER_FNR = "1234567890";
-    private static final String GEOGRAFISK_TILKNYTNING = "Oslo";
     private static final String PILOTKONTOR = "0330";
     private static final String IKKE_PILOTKONTOR = "1234";
 
@@ -59,7 +60,7 @@ public class GeografiskTilgangComponentTest {
         Toggle.enableMotebehovNasjonal = true;
         mockHentPilotkontorFraOrganisasjonEnhet();
 
-        Response response = geografiskTilgangController.hentGeografiskTilgang(BRUKER_FNR);
+        Response response = geografiskTilgangController.hentGeografiskTilgang(ARBEIDSTAKER_FNR);
 
         assertThat(response.getStatus()).isEqualTo(200);
     }
@@ -69,7 +70,7 @@ public class GeografiskTilgangComponentTest {
         Toggle.enableMotebehovNasjonal = true;
         mockHentIkkePilotkontorFraOrganisasjonEnhet();
 
-        Response response = geografiskTilgangController.hentGeografiskTilgang(BRUKER_FNR);
+        Response response = geografiskTilgangController.hentGeografiskTilgang(ARBEIDSTAKER_FNR);
 
         assertThat(response.getStatus()).isEqualTo(200);
     }
@@ -78,7 +79,7 @@ public class GeografiskTilgangComponentTest {
     public void hentGeografiskTilgangIkkePilot() {
         mockHentIkkePilotkontorFraOrganisasjonEnhet();
 
-        geografiskTilgangController.hentGeografiskTilgang(BRUKER_FNR);
+        geografiskTilgangController.hentGeografiskTilgang(ARBEIDSTAKER_FNR);
     }
 
     @Test(expected = ForbiddenException.class)
@@ -86,26 +87,26 @@ public class GeografiskTilgangComponentTest {
         mockHentIkkePilotkontorFraOrganisasjonEnhet();
         Toggle.endepunkterForMotebehov = false;
 
-        geografiskTilgangController.hentGeografiskTilgang(BRUKER_FNR);
+        geografiskTilgangController.hentGeografiskTilgang(ARBEIDSTAKER_FNR);
     }
 
     @Test(expected = ForbiddenException.class)
     public void hentGeografiskTilgangGeografiskTilknytningErNull() {
         mockGeografiskTilknytningErNull();
 
-        geografiskTilgangController.hentGeografiskTilgang(BRUKER_FNR);
+        geografiskTilgangController.hentGeografiskTilgang(ARBEIDSTAKER_FNR);
     }
 
     private void mockHentPilotkontorFraOrganisasjonEnhet() {
         try {
             when(personV3Mock.hentGeografiskTilknytning(any())).thenReturn(new HentGeografiskTilknytningResponse()
                     .withGeografiskTilknytning(new Kommune()
-                            .withGeografiskTilknytning("030109")));
+                            .withGeografiskTilknytning(GEOGRAFISK_TILKNYTNING)));
 
             when(organisasjonEnhetV2Mock.finnNAVKontor(any())).thenReturn(new WSFinnNAVKontorResponse()
                     .withNAVKontor(new WSOrganisasjonsenhet()
                             .withEnhetId(PILOTKONTOR)
-                            .withEnhetNavn("Bjerke")
+                            .withEnhetNavn(NAV_ENHET_NAVN)
                             .withStatus(WSEnhetsstatus.AKTIV)));
         } catch (HentGeografiskTilknytningPersonIkkeFunnet | HentGeografiskTilknytningSikkerhetsbegrensing | FinnNAVKontorUgyldigInput e) {
             throw new RuntimeException(e);
@@ -121,7 +122,7 @@ public class GeografiskTilgangComponentTest {
             when(organisasjonEnhetV2Mock.finnNAVKontor(any())).thenReturn(new WSFinnNAVKontorResponse()
                     .withNAVKontor(new WSOrganisasjonsenhet()
                             .withEnhetId(IKKE_PILOTKONTOR)
-                            .withEnhetNavn("Bjerke")
+                            .withEnhetNavn(NAV_ENHET_NAVN)
                             .withStatus(WSEnhetsstatus.AKTIV)));
         } catch (HentGeografiskTilknytningPersonIkkeFunnet | HentGeografiskTilknytningSikkerhetsbegrensing | FinnNAVKontorUgyldigInput e) {
             throw new RuntimeException(e);

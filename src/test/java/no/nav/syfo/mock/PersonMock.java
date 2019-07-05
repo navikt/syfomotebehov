@@ -10,6 +10,11 @@ import org.springframework.stereotype.Service;
 @ConditionalOnProperty(value = "mockPerson_V3", havingValue = "true")
 public class PersonMock implements PersonV3 {
 
+    public final static String GEOGRAFISK_TILKNYTNING = "030109";
+    public final static String PERSON_FORNAVN = "Fornavn";
+    public final static String PERSON_ETTERNAVN = "Etternavn";
+    public final static String PERSON_NAVN = PERSON_FORNAVN + " " + PERSON_ETTERNAVN;
+
     @Override
     public void ping() {
     }
@@ -18,7 +23,7 @@ public class PersonMock implements PersonV3 {
     public HentGeografiskTilknytningResponse hentGeografiskTilknytning(HentGeografiskTilknytningRequest hentGeografiskTilknytningRequest) {
         return new HentGeografiskTilknytningResponse()
                 .withGeografiskTilknytning(new Kommune()
-                        .withGeografiskTilknytning("030109"));
+                        .withGeografiskTilknytning(GEOGRAFISK_TILKNYTNING));
     }
 
     @Override
@@ -56,8 +61,8 @@ public class PersonMock implements PersonV3 {
         return new HentPersonResponse()
                 .withPerson(new Person()
                         .withPersonnavn(new Personnavn()
-                                .withFornavn("Sygve")
-                                .withEtternavn("Sykmeldt")
+                                .withFornavn(PERSON_FORNAVN)
+                                .withEtternavn(PERSON_ETTERNAVN)
                         )
                         .withDiskresjonskode(new Diskresjonskoder()
                                 .withValue(""))
