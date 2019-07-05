@@ -75,8 +75,11 @@ public class MotebehovBrukerController {
 
             kastExceptionHvisIkkeTilgang(fnr.getFnr());
 
+            boolean erInnloggetBrukerArbeidstaker = StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr);
+
             motebehovService.lagreMotebehov(fnrFraOIDCEkstern(contextHolder), fnr, nyttMotebehov);
-            lagBesvarMotebehovMetrikk(nyttMotebehov);
+
+            lagBesvarMotebehovMetrikk(nyttMotebehov, erInnloggetBrukerArbeidstaker);
 
         } else {
             log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");
@@ -91,8 +94,7 @@ public class MotebehovBrukerController {
         }
     }
 
-    private void lagBesvarMotebehovMetrikk(NyttMotebehov nyttMotebehov) {
-        boolean erInnloggetBrukerArbeidstaker = StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr);
+    private void lagBesvarMotebehovMetrikk(NyttMotebehov nyttMotebehov, boolean erInnloggetBrukerArbeidstaker) {
         MotebehovSvar motebehovSvar = nyttMotebehov.motebehovSvar;
         metrikk.tellMotebehovBesvart(motebehovSvar.harMotebehov, erInnloggetBrukerArbeidstaker);
 
