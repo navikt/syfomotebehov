@@ -20,6 +20,8 @@ import static no.nav.syfo.service.VeilederTilgangService.FNR;
 import static no.nav.syfo.service.VeilederTilgangService.TILGANG_TIL_BRUKER_PATH;
 import static no.nav.syfo.testhelper.OidcTestHelper.loggInnVeileder;
 import static no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle;
+import static no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR;
+import static no.nav.syfo.testhelper.UserConstants.VEILEDER_ID;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.test.web.client.ExpectedCount.manyTimes;
@@ -31,10 +33,6 @@ import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 @SpringBootTest(classes = LocalApplication.class)
 @DirtiesContext
 public class MotebehovVeilederTilgangTest {
-
-
-    private static final String ARBEIDSTAKER_FNR = "12345678912";
-    private static final String VEILEDER_ID = "Z999999";
 
     @Value("${tilgangskontrollapi.url}")
     private String tilgangskontrollUrl;
