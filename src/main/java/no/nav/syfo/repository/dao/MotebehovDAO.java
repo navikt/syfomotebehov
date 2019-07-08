@@ -124,7 +124,7 @@ public class MotebehovDAO {
                 .harMotebehov(rs.getBoolean("har_motebehov"))
                 .forklaring(rs.getString("forklaring"))
                 .tildeltEnhet(rs.getString("tildelt_enhet"))
-                .behandletTidspunkt(convert(rs.getTimestamp("opprettet_dato")))
+                .behandletTidspunkt(convert(rs.getTimestamp("behandlet_tidspunkt")))
                 .behandletVeilederIdent(rs.getString("behandlet_veileder_ident"));
     }
 
