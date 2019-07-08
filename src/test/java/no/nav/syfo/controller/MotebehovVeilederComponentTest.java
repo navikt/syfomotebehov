@@ -167,6 +167,22 @@ public class MotebehovVeilederComponentTest {
     }
 
     @Test
+    public void hentMotebehovUbehandlet() {
+        sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
+        arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
+
+        loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
+        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, OK);
+
+        List<Motebehov> motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR);
+
+        motebehovListe.forEach(motebehov -> {
+            assertThat(motebehov.behandletTidspunkt).isNull();
+            assertThat(motebehov.behandletVeilederIdent).isNull();
+        });
+    }
+
+    @Test
     public void behandleMotebehov() {
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
