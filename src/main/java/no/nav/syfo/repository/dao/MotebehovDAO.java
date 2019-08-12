@@ -44,7 +44,7 @@ public class MotebehovDAO {
     }
 
     public Optional<List<PMotebehov>> hentMotebehovListeForAktoer(String aktoerId) {
-        return ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_dato >= ?", getInnsendingRowMapper(), aktoerId, hentTidligsteDatoForGyldigMotebehovSvar()));
+        return ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ?", getInnsendingRowMapper(), aktoerId));
     }
 
     public Optional<List<PMotebehov>> hentMotebehovUbehandletListeForAktoer(String aktoerId) {
