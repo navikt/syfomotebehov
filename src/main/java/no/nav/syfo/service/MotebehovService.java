@@ -122,11 +122,12 @@ public class MotebehovService {
 
         UUID id = motebehovDAO.create(motebehov);
 
-        oversikthendelseService.sendOversikthendelse(nyttMotebehov
-                .arbeidstakerFnr(arbeidstakerFnr.getFnr())
-                .tildeltEnhet(arbeidstakerBehandlendeEnhet)
-        );
-
+        if (nyttMotebehov.motebehovSvar.harMotebehov) {
+            oversikthendelseService.sendOversikthendelse(nyttMotebehov
+                    .arbeidstakerFnr(arbeidstakerFnr.getFnr())
+                    .tildeltEnhet(arbeidstakerBehandlendeEnhet)
+            );
+        }
         return id;
     }
 
