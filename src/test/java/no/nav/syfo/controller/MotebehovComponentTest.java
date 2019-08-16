@@ -23,6 +23,7 @@ import static no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle;
 import static no.nav.syfo.testhelper.UserConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -61,8 +62,17 @@ public class MotebehovComponentTest {
     }
 
     @Test
-    public void lagreOgHentMotebehov() {
-        final MotebehovSvar motebehovSvar = motebehovGenerator.lagMotebehovSvar(true);
+    public void lagreOgHentMotebehovOgSendOversikthendelseVedSvarMedBehov() {
+        lagreOgHentMotebehovOgSendOversikthendelse(true);
+    }
+
+    @Test
+    public void lagreOgHentMotebehovOgSendOversikthendelseMedSvarUtenBehov() {
+        lagreOgHentMotebehovOgSendOversikthendelse(false);
+    }
+
+    private void lagreOgHentMotebehovOgSendOversikthendelse(boolean harBehov) {
+        final MotebehovSvar motebehovSvar = motebehovGenerator.lagMotebehovSvar(harBehov);
 
         // Lagre
         motebehovController.lagreMotebehov(motebehovGenerator.lagNyttMotebehovFraAT());
@@ -77,12 +87,15 @@ public class MotebehovComponentTest {
         assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER);
         assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(motebehovSvar);
 
-        verify(oversikthendelseProducer).sendOversikthendelse(any(KOversikthendelse.class));
+        if (harBehov) {
+            verify(oversikthendelseProducer).sendOversikthendelse(any(KOversikthendelse.class));
+        } else {
+            verify(oversikthendelseProducer, never()).sendOversikthendelse(any(KOversikthendelse.class));
+        }
     }
 
-
     private void cleanDB() {
-        motebehovDAO.nullstillMotebehov(LEDER_AKTORID);
+        motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID);
     }
 
 }
