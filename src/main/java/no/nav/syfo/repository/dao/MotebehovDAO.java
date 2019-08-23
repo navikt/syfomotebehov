@@ -64,7 +64,7 @@ public class MotebehovDAO {
     }
 
     public int oppdaterUbehandledeMotebehovTilBehandlet(final String aktoerId, final String veilederIdent) {
-        String oppdaterSql = "UPDATE motebehov SET behandlet_tidspunkt = ?, behandlet_veileder_ident = ? WHERE aktoer_id = ? AND behandlet_veileder_ident IS NULL";
+        String oppdaterSql = "UPDATE motebehov SET behandlet_tidspunkt = ?, behandlet_veileder_ident = ? WHERE aktoer_id = ? AND har_motebehov = true AND behandlet_veileder_ident IS NULL";
 
         return jdbcTemplate.update(oppdaterSql, convert(now()), veilederIdent, aktoerId);
     }

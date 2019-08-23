@@ -26,7 +26,6 @@ import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static no.nav.syfo.kafka.producer.OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC;
-import static no.nav.syfo.mock.PersonMock.PERSON_FORNAVN;
 import static no.nav.syfo.mock.PersonMock.PERSON_NAVN;
 import static no.nav.syfo.service.HistorikkService.HAR_SVART_PAA_MOTEBEHOV;
 import static no.nav.syfo.service.HistorikkService.MOTEBEHOVET_BLE_LEST_AV;
@@ -127,7 +126,7 @@ public class MotebehovVeilederComponentTest {
 
     @Test
     public void sykmeldtLagrerOgVeilederHenterMotebehov() {
-        NyttMotebehov nyttMotebehov = sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
+        NyttMotebehov nyttMotebehov = sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true);
 
         // Veileder henter møtebehov
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
@@ -168,7 +167,7 @@ public class MotebehovVeilederComponentTest {
 
     @Test
     public void hentMotebehovUbehandlet() {
-        sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
+        sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true);
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
@@ -183,8 +182,8 @@ public class MotebehovVeilederComponentTest {
     }
 
     @Test
-    public void behandleMotebehov() {
-        sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
+    public void behandleKunMotebehovMedBehovForMote() {
+        sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, false);
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
@@ -194,17 +193,18 @@ public class MotebehovVeilederComponentTest {
 
         List<Motebehov> motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR);
 
-        motebehovListe.forEach(motebehov -> {
-            assertThat(motebehov.behandletTidspunkt).isNotNull();
-            assertThat(motebehov.behandletVeilederIdent).isEqualTo(VEILEDER_ID);
-        });
+        assertThat(motebehovListe.get(0).behandletTidspunkt).isNull();
+        assertThat(motebehovListe.get(0).behandletVeilederIdent).isEqualTo(null);
 
-        verify(kafkaTemplate, times(3)).send(eq(OVERSIKTHENDELSE_TOPIC), anyString(), any());
+        assertThat(motebehovListe.get(1).behandletTidspunkt).isNotNull();
+        assertThat(motebehovListe.get(1).behandletVeilederIdent).isEqualTo(VEILEDER_ID);
+
+        verify(kafkaTemplate, times(2)).send(eq(OVERSIKTHENDELSE_TOPIC), anyString(), any());
     }
 
     @Test
     public void behandleMotebehovUlikVeilederBehandler() {
-        sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
+        sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true);
         behandleMotebehov(ARBEIDSTAKER_AKTORID, VEILEDER_ID);
 
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
@@ -226,7 +226,7 @@ public class MotebehovVeilederComponentTest {
 
     @Test(expected = RuntimeException.class)
     public void behandleIkkeEksiterendeMotebehov() {
-        sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
+        sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true);
         behandleMotebehov(ARBEIDSTAKER_AKTORID, VEILEDER_ID);
 
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_2_ID);
@@ -255,10 +255,10 @@ public class MotebehovVeilederComponentTest {
         return nyttMotebehov;
     }
 
-    private NyttMotebehov sykmeldtLagrerMotebehov(String sykmeldtFnr, String virksomhetsnummer) {
+    private NyttMotebehov sykmeldtLagrerMotebehov(String sykmeldtFnr, String virksomhetsnummer, boolean harBehov) {
         loggInnBruker(oidcRequestContextHolder, sykmeldtFnr);
         final MotebehovSvar motebehovSvar = new MotebehovSvar()
-                .harMotebehov(true)
+                .harMotebehov(harBehov)
                 .friskmeldingForventning("Om noen uker")
                 .tiltak("Krykker")
                 .tiltakResultat("Kommer seg fremover")
