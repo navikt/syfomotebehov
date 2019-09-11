@@ -94,13 +94,13 @@ public class PersonConsumer implements InitializingBean {
                     .getPerson();
             return ofNullable(person.getDiskresjonskode()).map(Diskresjonskoder::getValue).orElse("");
         } catch (HentPersonSikkerhetsbegrensning e) {
-            log.error("Fikk sikkerhetsbegrensing ved oppslag med aktoerId: " + aktoerId);
+            log.error("Fikk sikkerhetsbegrensing ved oppslag med aktoerId: " + aktoerId, e);
             throw new ForbiddenException();
         } catch (HentPersonPersonIkkeFunnet e) {
-            log.error("Fant ikke person med aktoerId: " + aktoerId);
+            log.error("Fant ikke person med aktoerId: " + aktoerId, e);
             throw new RuntimeException();
         } catch (RuntimeException e) {
-            log.error("Fikk RuntimeException mot TPS for diskresjonskode ved oppslag av aktoerId: " + aktoerId);
+            log.error("Fikk RuntimeException mot TPS for diskresjonskode ved oppslag av aktoerId: " + aktoerId, e);
             return "";
         }
     }

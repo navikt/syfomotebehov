@@ -9,11 +9,14 @@ import no.nav.syfo.mappers.domain.Hendelse;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.*;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.informasjon.WSSykeforlopperiode;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.*;
+import org.apache.cxf.binding.soap.interceptor.Soap11FaultInInterceptor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.remoting.soap.SoapFaultException;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.InternalServerErrorException;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -59,11 +62,15 @@ public class SykefravaeroppfoelgingConsumer {
         } catch (HentNaermesteLedersAnsattListeSikkerhetsbegrensning e) {
             log.warn("Fikk sikkerhetsbegrensning {} ved henting av ansatte for person {}", e.getFaultInfo().getFeilaarsak().toUpperCase(), aktoerId);
             throw new ForbiddenException();
-        } catch (RuntimeException e) {
-            log.error("Fikk Runtimefeil ved henting av ansatte for person {}. " +
+        } catch (SoapFaultException e){
+            log.warn("Fikk Soap feil ved henting av ansatte for person {}. " +
                     "Antar dette er tilgang nektet fra modig-security, og kaster ForbiddenException videre.", aktoerId, e);
-            //TODO RuntimeException når SyfoService kaster sikkerhetsbegrensing riktig igjen
+            //TODO Fjern denne når SyfoService kaster sikkerhetsbegrensing riktig igjen
             throw new ForbiddenException();
+        } catch (RuntimeException e) {
+            log.error("Fikk runtime feil ved henting av ansatte for person {}. " +
+                    "Kaster ForbiddenException videre.", aktoerId, e);
+            throw new InternalServerErrorException();
         }
     }
 
