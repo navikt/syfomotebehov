@@ -1,10 +1,15 @@
-
+pom.xml
 *.iml
 .idea
 target
 
 # Compiled class file
 *.class
+
+# Gradle files
+out/
+build/
+.gradle/
 
 # Log file
 *.log
@@ -16,7 +21,6 @@ target
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.nar
 *.ear

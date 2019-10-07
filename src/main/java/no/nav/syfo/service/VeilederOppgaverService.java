@@ -25,7 +25,7 @@ public class VeilederOppgaverService {
 
     @Inject
     public VeilederOppgaverService(
-            @Value("${syfoveilederoppgaver_system_v1.url}") String syfoveilederoppgaverUrl,
+            @Value("${syfoveilederoppgaver.system.v1.url}") String syfoveilederoppgaverUrl,
             @Value("${syfoveilederoppgaver.systemapi.username}") String credUsername,
             @Value("${syfoveilederoppgaver.systemapi.password}") String credPassword,
             RestTemplate restTemplate

@@ -21,7 +21,7 @@ public class EgenAnsattConfig {
     @Bean
     @ConditionalOnProperty(value = "mockEgenAnsatt_V1", havingValue = "false", matchIfMissing = true)
     @Primary
-    public EgenAnsattV1 egenAnsattV1(@Value("${virksomhet.egenansatt.v1.endpointurl}") String serviceUrl) {
+    public EgenAnsattV1 egenAnsattV1(@Value("${egenansatt.v1.url}") String serviceUrl) {
         EgenAnsattV1 port = new WsClient<EgenAnsattV1>().createPort(serviceUrl, EgenAnsattV1.class, singletonList(new LogErrorHandler()));
         STSClientConfig.configureRequestSamlToken(port);
         return port;

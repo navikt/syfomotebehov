@@ -61,7 +61,7 @@ public class MotebehovVeilederComponentTest {
     @Value("${tilgangskontrollapi.url}")
     private String tilgangskontrollUrl;
 
-    @Value("${syfoveilederoppgaver_system_v1.url}")
+    @Value("${syfoveilederoppgaver.system.v1.url}")
     private String syfoveilederoppgaverUrl;
 
     @Value("${syfoveilederoppgaver.systemapi.username}")

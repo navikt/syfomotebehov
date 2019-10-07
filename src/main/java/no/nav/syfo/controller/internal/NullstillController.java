@@ -25,7 +25,7 @@ public class NullstillController {
     }
 
     @RequestMapping(value = "/nullstill/{aktoerId}", produces = APPLICATION_JSON_VALUE)
-    public String slettMotebehov(@PathVariable String aktoerId, @Value("${fasit.environment.name:ukjent}") String env) {
+    public String slettMotebehov(@PathVariable String aktoerId, @Value("${nais.cluster.name:ukjent}") String env) {
         if (Toggle.enableNullstill || Stream.of("q1", "local").anyMatch(env::equals)) {
             log.info("Sletter alle møtebehov på aktørid: {}", aktoerId);
             int antallSlettedeMotebehov = motebehovDAO.nullstillMotebehov(aktoerId);

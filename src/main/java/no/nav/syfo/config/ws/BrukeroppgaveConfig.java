@@ -21,7 +21,7 @@ public class BrukeroppgaveConfig {
     @Bean
     @ConditionalOnProperty(value = "mockBrukeroppgave_V1", havingValue = "false", matchIfMissing = true)
     @Primary
-    public BrukeroppgaveV1 brukeroppgaveV1(@Value("${brukeroppgave.v1.endpointurl}") String serviceUrl) {
+    public BrukeroppgaveV1 brukeroppgaveV1(@Value("${brukeroppgave.v1.url}") String serviceUrl) {
         BrukeroppgaveV1 port = new WsClient<BrukeroppgaveV1>().createPort(serviceUrl, BrukeroppgaveV1.class, singletonList(new LogErrorHandler()));
         STSClientConfig.configureRequestSamlToken(port);
         return port;

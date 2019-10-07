@@ -18,7 +18,7 @@ public class PersonConfig {
     @Bean
     @ConditionalOnProperty(value = "mockPerson_V3", havingValue = "false", matchIfMissing = true)
     @Primary
-    public PersonV3 personV3(@Value("${virksomhet.person.v3.endpointurl}") String serviceUrl) {
+    public PersonV3 personV3(@Value("${person.v3.url}") String serviceUrl) {
         PersonV3 port = new WsClient<PersonV3>().createPort(serviceUrl, PersonV3.class, singletonList(new LogErrorHandler()));
         STSClientConfig.configureRequestSamlToken(port);
         return port;

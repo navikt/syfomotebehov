@@ -28,9 +28,13 @@ server:
 
 
 securitytokenservice.url: "sts.url"
+
 srvsyfomotebehov:
   username: "kek"
   password: "bur"
+
+srv.username: "kek"
+srv.password: "bur"
 
 toggle.enable:
   nullstill: true
@@ -45,17 +49,16 @@ no.nav.security.oidc:
     selvbetjening.accepted_audience: aud-localhost
     selvbetjening.cookie_name: localhost-idtoken
 
-aktoer.v2.endpointurl: "aktoerv2.url"
-sykefravaersoppfoelging.v1.endpointurl: "sykefravaeroppfoelgingv1.url"
-brukeroppgave.v1.endpointurl: "brukeroppgavev1.url"
-virksomhet:
-  person.v3.endpointurl: "personv3.url"
-  organisasjonEnhet.v2.endpointurl: "organisasjonEnhetv2.url"
-  organisasjon.v4.endpointurl: "organisasjonv4.url"
-  arbeidsfordeling.v1.endpointurl: "arbeidsfordelingv1.url"
-  egenansatt.v1.endpointurl: "egenansattv1.url"
+aktoer.v2.url: "aktoerv2.url"
+sykefravaersoppfoelging.v1.url: "sykefravaeroppfoelgingv1.url"
+brukeroppgave.v1.url: "brukeroppgavev1.url"
+person.v3.url: "personv3.url"
+organisasjonEnhet.v2.url: "organisasjonEnhetv2.url"
+organisasjon.v4.url: "organisasjonv4.url"
+arbeidsfordeling.v1.url: "arbeidsfordelingv1.url"
+egenansatt.v1.url: "egenansattv1.url"
 
-fasit.environment.name: 'local'
+nais.cluster.name: 'local'
 
 mockAktoer_V2: true
 mockPerson_V3: true
@@ -68,7 +71,7 @@ mockEgenAnsatt_V1: true
 
 dev: true
 
-syfoveilederoppgaver_system_v1.url: "https://app-q1.adeo.no/syfoveilederoppgaver/api/system/veilederoppgaver/v1"
+syfoveilederoppgaver.system.v1.url: "https://app-q1.adeo.no/syfoveilederoppgaver/api/system/veilederoppgaver/v1"
 syfoveilederoppgaver.systemapi.username: "dummy"
 syfoveilederoppgaver.systemapi.password: "test123"
 
