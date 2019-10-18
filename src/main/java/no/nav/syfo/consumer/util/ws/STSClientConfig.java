@@ -7,9 +7,7 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.ws.policy.EndpointPolicy;
-import org.apache.cxf.ws.policy.PolicyBuilder;
-import org.apache.cxf.ws.policy.PolicyEngine;
+import org.apache.cxf.ws.policy.*;
 import org.apache.cxf.ws.policy.attachment.reference.ReferenceResolver;
 import org.apache.cxf.ws.policy.attachment.reference.RemoteReferenceResolver;
 import org.apache.cxf.ws.security.trust.STSClient;
@@ -18,10 +16,6 @@ import org.apache.neethi.Policy;
 import java.util.HashMap;
 
 public class STSClientConfig {
-    public static final String STS_URL_KEY = "SECURITYTOKENSERVICE_URL";
-    public static final String SERVICEUSER_USERNAME = "SRVSYFOMOTEBEHOV_USERNAME";
-    public static final String SERVICEUSER_PASSWORD = "SRVSYFOMOTEBEHOV_PASSWORD";
-
     // Only use no transportbinding on localhost, should use the requestSamlPolicy.xml with transport binding https
     // when in production.
     private static final String STS_REQUEST_SAML_POLICY = "classpath:policy/requestSamlPolicy.xml";
@@ -55,9 +49,9 @@ public class STSClientConfig {
 
     protected static void configureStsWithPolicyForClient(STSClient stsClient, Client client, String policyReference,
                                                           boolean cacheTokenInEndpoint) {
-        String location = requireProperty(STS_URL_KEY);
-        String username = requireProperty(SERVICEUSER_USERNAME);
-        String password = requireProperty(SERVICEUSER_PASSWORD);
+        String location = System.getenv("SECURITYTOKENSERVICE_URL");
+        String username = System.getenv("SRV_USERNAME");
+        String password = System.getenv("SRV_PASSWORD");
 
         configureSTSClient(stsClient, location, username, password);
 

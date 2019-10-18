@@ -21,7 +21,7 @@ public class ArbeidsfordelingConfig {
     @Bean
     @ConditionalOnProperty(value= "mockArbeidsfordeling_V1", havingValue = "false", matchIfMissing = true)
     @Primary
-    public ArbeidsfordelingV1 arbeidsfordelingV1(@Value("${virksomhet.arbeidsfordeling.v1.endpointurl}") String serviceUrl) {
+    public ArbeidsfordelingV1 arbeidsfordelingV1(@Value("${arbeidsfordeling.v1.url}") String serviceUrl) {
         ArbeidsfordelingV1 port = new WsClient<ArbeidsfordelingV1>().createPort(serviceUrl, ArbeidsfordelingV1.class, Collections.singletonList(new LogErrorHandler()));
         STSClientConfig.configureRequestSamlToken(port);
         return port;

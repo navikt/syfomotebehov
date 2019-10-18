@@ -16,7 +16,7 @@ import static java.util.Collections.singletonList;
 @Configuration
 public class SykefravaersoppfoelgingConfig {
 
-    @Value("${sykefravaersoppfoelging.v1.endpointurl}")
+    @Value("${sykefravaersoppfoelging.v1.url}")
     protected String serviceUrl;
 
     private SykefravaersoppfoelgingV1 port;

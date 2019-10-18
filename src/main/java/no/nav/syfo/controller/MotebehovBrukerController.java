@@ -51,39 +51,29 @@ public class MotebehovBrukerController {
             @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr,
             @RequestParam(name = "virksomhetsnummer") String virksomhetsnummer
     ) {
-        if (Toggle.endepunkterForMotebehov) {
-            Fnr fnr = StringUtils.isEmpty(arbeidstakerFnr) ? fnrFraOIDCEkstern(contextHolder) : Fnr.of(arbeidstakerFnr);
+        Fnr fnr = StringUtils.isEmpty(arbeidstakerFnr) ? fnrFraOIDCEkstern(contextHolder) : Fnr.of(arbeidstakerFnr);
 
-            kastExceptionHvisIkkeTilgang(fnr.getFnr());
+        kastExceptionHvisIkkeTilgang(fnr.getFnr());
 
-            if (!virksomhetsnummer.isEmpty()) {
-                return motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(fnr, virksomhetsnummer);
-            }
-            return motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(fnr);
-        } else {
-            log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");
-            return emptyList();
+        if (!virksomhetsnummer.isEmpty()) {
+            return motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(fnr, virksomhetsnummer);
         }
+        return motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(fnr);
     }
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public void lagreMotebehov(
             @RequestBody @Valid NyttMotebehov nyttMotebehov
     ) {
-        if (Toggle.endepunkterForMotebehov) {
-            Fnr fnr = StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr) ? fnrFraOIDCEkstern(contextHolder) : Fnr.of(nyttMotebehov.arbeidstakerFnr);
+        Fnr fnr = StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr) ? fnrFraOIDCEkstern(contextHolder) : Fnr.of(nyttMotebehov.arbeidstakerFnr);
 
-            kastExceptionHvisIkkeTilgang(fnr.getFnr());
+        kastExceptionHvisIkkeTilgang(fnr.getFnr());
 
-            boolean erInnloggetBrukerArbeidstaker = StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr);
+        boolean erInnloggetBrukerArbeidstaker = StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr);
 
-            motebehovService.lagreMotebehov(fnrFraOIDCEkstern(contextHolder), fnr, nyttMotebehov);
+        motebehovService.lagreMotebehov(fnrFraOIDCEkstern(contextHolder), fnr, nyttMotebehov);
 
-            lagBesvarMotebehovMetrikk(nyttMotebehov, erInnloggetBrukerArbeidstaker);
-
-        } else {
-            log.info("Det ble gjort kall mot 'motebehov', men dette endepunktet er togglet av.");
-        }
+        lagBesvarMotebehovMetrikk(nyttMotebehov, erInnloggetBrukerArbeidstaker);
     }
 
     private void kastExceptionHvisIkkeTilgang(String fnr) {

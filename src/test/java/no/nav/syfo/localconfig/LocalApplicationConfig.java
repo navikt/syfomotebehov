@@ -21,8 +21,8 @@ public class LocalApplicationConfig {
          */
 
         System.setProperty("SECURITYTOKENSERVICE_URL", environment.getProperty("securitytokenservice.url"));
-        System.setProperty("SRVSYFOMOTEBEHOV_USERNAME", environment.getProperty("srvsyfomotebehov.username"));
-        System.setProperty("SRVSYFOMOTEBEHOV_PASSWORD", environment.getProperty("srvsyfomotebehov.password"));
+        System.setProperty("SRV_USERNAME", environment.getProperty("srvsyfomotebehov.username"));
+        System.setProperty("SRV_PASSWORD", environment.getProperty("srvsyfomotebehov.password"));
     }
 
     @Bean

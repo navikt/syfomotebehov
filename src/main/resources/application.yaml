@@ -1,18 +1,20 @@
+app.name: syfomotebehov
+
 no.nav.security:
   oidc:
     issuers: selvbetjening,intern,veileder
     issuer:
       selvbetjening:
-        discoveryurl: <SETTES FRA FASIT>
-        accepted_audience: <SETTES FRA FASIT>
+        discoveryurl: <syfonais>
+        accepted_audience: <syfonais>
         cookie_name: selvbetjening-idtoken
       intern:
-        discoveryurl: <SETTES FRA FASIT>
+        discoveryurl: <syfonais>
         accepted_audience: modiabrukerdialog-p,modiabrukerdialog-q1,veilarblogin-p,veilarblogin-q1,fpsak-frontend-p,fpsak-frontend-q1,fplos-p,fplos-q1
         cookie_name: ID_token
       veileder:
-        discoveryurl: <SETTES FRA FASIT>
-        accepted_audience: <SETTES FRA FASIT>
+        discoveryurl: <syfonais>
+        accepted_audience: <syfonais>
         cookie_name: isso-idtoken
 
 logging.config: classpath:logback-spring.xml
@@ -34,12 +36,12 @@ spring:
     max-pool-size: 32
     min-pool-size: 8
   kafka:
-      client-id: ${app.name}-${fasit.environment.name}
+      client-id: ${app.name}-${kafka.env.name}
       properties:
         security.protocol: SASL_SSL
         sasl:
           mechanism: PLAIN
-          jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${srvsyfomotebehov.username}" password="${srvsyfomotebehov.password}";
+          jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${srv.username}" password="${srv.password}";
         ssl.truststore:
           location: ${javax.net.ssl.trustStore}
           password: ${javax.net.ssl.trustStorePassword}

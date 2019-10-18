@@ -21,7 +21,7 @@ public class OrganisasjonConfig {
     @Bean
     @ConditionalOnProperty(value = "mockOrganisasjon_V4", havingValue = "false", matchIfMissing = true)
     @Primary
-    public OrganisasjonV4 organisasjonV4 (@Value("${virksomhet.organisasjon.v4.endpointurl}") String serviceUrl) {
+    public OrganisasjonV4 organisasjonV4 (@Value("${organisasjon.v4.url}") String serviceUrl) {
         OrganisasjonV4 port = new WsClient<OrganisasjonV4>().createPort(serviceUrl, OrganisasjonV4.class, singletonList(new LogErrorHandler()));
         STSClientConfig.configureRequestSamlToken(port);
         return port;
