@@ -5,11 +5,9 @@ import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.config.ws.SykefravaersoppfoelgingConfig;
 import no.nav.syfo.domain.rest.NaermesteLeder;
 import no.nav.syfo.domain.rest.Oppfolgingstilfelle;
-import no.nav.syfo.mappers.domain.Hendelse;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.*;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.informasjon.WSSykeforlopperiode;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.*;
-import org.apache.cxf.binding.soap.interceptor.Soap11FaultInInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.remoting.soap.SoapFaultException;
 import org.springframework.stereotype.Component;
@@ -21,7 +19,6 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static no.nav.syfo.mappers.WSAnsattMapper.wsAnsatt2AktorId;
-import static no.nav.syfo.mappers.WSHendelseMapper.ws2Hendelse;
 import static no.nav.syfo.mappers.WSNaermesteLederMapper.ws2naermesteLeder;
 import static no.nav.syfo.util.MapUtil.mapListe;
 import static no.nav.syfo.util.OIDCUtil.tokenFraOIDC;
@@ -62,7 +59,7 @@ public class SykefravaeroppfoelgingConsumer {
         } catch (HentNaermesteLedersAnsattListeSikkerhetsbegrensning e) {
             log.warn("Fikk sikkerhetsbegrensning {} ved henting av ansatte for person {}", e.getFaultInfo().getFeilaarsak().toUpperCase(), aktoerId);
             throw new ForbiddenException();
-        } catch (SoapFaultException e){
+        } catch (SoapFaultException e) {
             log.warn("Fikk Soap feil ved henting av ansatte for person {}. " +
                     "Antar dette er tilgang nektet fra modig-security, og kaster ForbiddenException videre.", aktoerId, e);
             //TODO Fjern denne når SyfoService kaster sikkerhetsbegrensing riktig igjen
@@ -102,29 +99,6 @@ public class SykefravaeroppfoelgingConsumer {
         return hentNaermesteLedere(aktoerId, oidcIssuer).stream()
                 .map(ansatt -> ansatt.naermesteLederAktoerId)
                 .collect(toList());
-    }
-
-    public List<Hendelse> hentHendelserForSykmeldt(String aktoerId, String oidcIssuer) {
-        try {
-            WSHentHendelseListeRequest request = new WSHentHendelseListeRequest()
-                    .withAktoerId(aktoerId);
-            WSHentHendelseListeResponse response;
-            if ("true".equals(dev)) {
-                response = sykefravaersoppfoelgingV1.hentHendelseListe(request);
-            } else {
-                String oidcToken = tokenFraOIDC(this.contextHolder, oidcIssuer);
-                response = sykefravaersoppfoelgingConfig.hentHendelseListe(request, oidcToken);
-            }
-            return mapListe(response.getHendelseListe(), ws2Hendelse);
-        } catch (HentHendelseListeSikkerhetsbegrensning e) {
-            log.warn("Fikk sikkerhetsbegrensning {} ved henting av hendelseliste for person {}", e.getFaultInfo().getFeilaarsak().toUpperCase(), aktoerId);
-            throw new ForbiddenException();
-        } catch (RuntimeException e) {
-            log.error("Fikk Runtimefeil ved henting av naermeste ledere for person {}" +
-                    "Antar dette er tilgang nektet fra modig-security, og kaster ForbiddenException videre.", aktoerId, e);
-            //TODO RuntimeException når SyfoService kaster sikkerhetsbegrensing riktig igjen
-            throw new ForbiddenException();
-        }
     }
 
     public List<Oppfolgingstilfelle> hentOppfolgingstilfelleperioder(String aktorId, String orgnummer, String oidcIssuer) {

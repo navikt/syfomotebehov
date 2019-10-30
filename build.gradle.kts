@@ -47,10 +47,8 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus:1.0.6")
 
     implementation("no.nav.syfo.tjenester:aktoer-v2:1.0")
-    implementation("no.nav.syfo.tjenester:brukeroppgavev1-tjenestespesifikasjon:1.0.1")
     implementation("no.nav.tjenester:nav-person-v3-tjenestespesifikasjon:3.4.1")
     implementation("no.nav.syfo.tjenester:sykefravaersoppfoelgingv1-tjenestespesifikasjon:1.0.20")
-    implementation("no.nav.sbl.dialogarena:organisasjonv4-tjenestespesifikasjon:1.0.1")
     implementation("no.nav.sbl.dialogarena:organisasjonenhet-v2-tjenestespesifikasjon:2.1.0")
     implementation("no.nav.sbl.dialogarena:arbeidsfordeling-v1-tjenestespesifikasjon:1.1.0")
     implementation("no.nav.syfo.tjenester:egenAnsatt-v1-tjenestespesifikasjon:1.0.1")
