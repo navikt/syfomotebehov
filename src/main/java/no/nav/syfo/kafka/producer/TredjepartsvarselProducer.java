@@ -26,7 +26,7 @@ public class TredjepartsvarselProducer {
                     TREDJEPARTSVARSEL_TOPIC,
                     randomUUID().toString(),
                     kTredjepartsvarsel).get();
-            log.info("Legger tredjepartsvarsel på kø for aktor {}", kTredjepartsvarsel.getAktorId());
+            log.info("Legger tredjepartsvarsel med ressursID {} på kø for aktor {}", kTredjepartsvarsel.getRessursId(), kTredjepartsvarsel.getAktorId());
         } catch (Exception e) {
             log.error("Feil ved sending av oppgavevarsel", e);
             throw new RuntimeException("Feil ved sending av oppgavevarsel", e);
