@@ -17,7 +17,6 @@ import java.util.UUID;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
-import static no.nav.syfo.domain.rest.BrukerPaaEnhet.Skjermingskode.*;
 import static no.nav.syfo.util.RestUtils.baseUrl;
 
 /**
@@ -58,17 +57,6 @@ public class MotebehovService {
         this.organisasjonEnhetConsumer = organisasjonEnhetConsumer;
         this.oversikthendelseService = oversikthendelseService;
         this.motebehovDAO = motebehovDAO;
-    }
-
-    public List<BrukerPaaEnhet> hentSykmeldteMedMotebehovPaaEnhet(String enhetId) {
-        return motebehovDAO.hentAktorIdMedMotebehovForEnhet(enhetId)
-                .orElse(emptyList())
-                .stream()
-                .map(aktoerConsumer::hentFnrForAktoerId)
-                .map(sykmeldtFnr -> new BrukerPaaEnhet()
-                        .fnr(sykmeldtFnr)
-                        .skjermingskode(hentBrukersSkjermingskode(sykmeldtFnr)))
-                .collect(toList());
     }
 
     @Transactional
@@ -199,14 +187,6 @@ public class MotebehovService {
             return overordnetEnhet.enhetId();
         }
         return enhet.enhetId();
-    }
-
-    private BrukerPaaEnhet.Skjermingskode hentBrukersSkjermingskode(String fnr) {
-        if (personConsumer.erBrukerDiskresjonsmerket(aktoerConsumer.hentAktoerIdForFnr(fnr)))
-            return DISKRESJONSMERKET;
-        if (egenAnsattConsumer.erEgenAnsatt(fnr))
-            return EGEN_ANSATT;
-        return INGEN;
     }
 
 }

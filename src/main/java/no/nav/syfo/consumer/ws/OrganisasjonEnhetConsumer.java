@@ -48,25 +48,6 @@ public class OrganisasjonEnhetConsumer implements InitializingBean {
         this.organisasjonEnhetV2 = organisasjonEnhetV2;
     }
 
-    @Cacheable(cacheNames = CACHENAME_ORGN_KONTORGEOGRAFISK)
-    public List<String> finnNAVKontorForGT(String geografiskTilknytning) {
-        try {
-            return of(organisasjonEnhetV2.finnNAVKontor(
-                    new WSFinnNAVKontorRequest()
-                            .withGeografiskTilknytning(
-                                    new WSGeografi()
-                                            .withValue(geografiskTilknytning))))
-                    .map(WSFinnNAVKontorResponse::getNAVKontor)
-                    .filter(wsOrganisasjonsenhet -> AKTIV.equals(wsOrganisasjonsenhet.getStatus()))
-                    .map(WSOrganisasjonsenhet::getEnhetId)
-                    .collect(toList());
-        } catch (FinnNAVKontorUgyldigInput |
-                RuntimeException e) {
-            log.info("Finner ikke NAV-kontor for geografisk tilknytning " + geografiskTilknytning, e);
-            return emptyList();
-        }
-    }
-
     public Optional<Enhet> finnSetteKontor(String enhet) {
         try {
             return organisasjonEnhetV2.hentOverordnetEnhetListe(new WSHentOverordnetEnhetListeRequest()
