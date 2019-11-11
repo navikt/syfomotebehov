@@ -18,6 +18,8 @@ import java.util.List;
 public class CORSFilter implements Filter {
 
     private List<String> whitelist = Arrays.asList(
+            "https://syfomodiaperson.nais.adeo.no",
+            "https://syfomodiaperson.nais.preprod.local",
             "https://syfooversikt.nais.adeo.no",
             "https://syfooversikt.nais.preprod.local",
             "https://syfooversikt-q1.nais.preprod.local",
