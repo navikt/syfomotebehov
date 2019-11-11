@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 import java.util.List;
 
-import static no.nav.syfo.OIDCIssuer.INTERN;
+import static no.nav.syfo.oidc.OIDCIssuer.INTERN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j

@@ -1,7 +1,7 @@
 package no.nav.syfo.service;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.syfo.OIDCIssuer;
+import no.nav.syfo.oidc.OIDCIssuer;
 import no.nav.syfo.consumer.ws.SykefravaeroppfoelgingConsumer;
 import no.nav.syfo.domain.rest.Oppfolgingstilfelle;
 import org.springframework.stereotype.Service;
