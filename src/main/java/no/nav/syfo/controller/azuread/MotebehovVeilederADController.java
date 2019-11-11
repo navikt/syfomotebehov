@@ -1,12 +1,13 @@
-package no.nav.syfo.controller;
+package no.nav.syfo.controller.azuread;
 
-import lombok.extern.slf4j.Slf4j;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.service.*;
 import no.nav.syfo.util.Metrikk;
 import no.nav.syfo.util.Toggle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
@@ -15,14 +16,16 @@ import javax.ws.rs.ForbiddenException;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
-import static no.nav.syfo.oidc.OIDCIssuer.INTERN;
-import static no.nav.syfo.util.OIDCUtil.getSubjectFromOIDCToken;
+import static no.nav.syfo.util.OIDCUtil.getSubjectInternAD;
+import static no.nav.syfo.oidc.OIDCIssuer.AZURE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@Slf4j
 @RestController
-@RequestMapping(value = "/api/veileder")
-public class MotebehovVeilederController {
+@ProtectedWithClaims(issuer = AZURE)
+@RequestMapping(value = "/api/internad/veileder")
+public class MotebehovVeilederADController {
+
+    private static final Logger log = LoggerFactory.getLogger(MotebehovVeilederADController.class);
 
     private final OIDCRequestContextHolder oidcCtxHolder;
 
@@ -35,7 +38,7 @@ public class MotebehovVeilederController {
     private final VeilederTilgangService veilederTilgangService;
 
     @Inject
-    public MotebehovVeilederController(
+    public MotebehovVeilederADController(
             OIDCRequestContextHolder oidcCtxHolder,
             Metrikk metrikk,
             HistorikkService historikkService,
@@ -49,60 +52,59 @@ public class MotebehovVeilederController {
         this.veilederTilgangService = tilgangService;
     }
 
-    @ProtectedWithClaims(issuer = INTERN)
     @GetMapping(value = "/motebehov", produces = APPLICATION_JSON_VALUE)
     public List<Motebehov> hentMotebehovListe(
-            @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr
+            @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String sykmeldtFnr
     ) {
         if (Toggle.endepunkterForMotebehov) {
             metrikk.tellEndepunktKall("veileder_hent_motebehov");
 
-            kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
+            Fnr fnr = Fnr.of(sykmeldtFnr);
 
-            return motebehovService.hentMotebehovListe(Fnr.of(arbeidstakerFnr));
+            kastExceptionHvisIkkeTilgang(fnr);
+
+            return motebehovService.hentMotebehovListe(fnr);
         } else {
             log.info("Det ble gjort kall mot 'veileder/motebehov', men dette endepunktet er togglet av.");
             return emptyList();
         }
     }
 
-    @ProtectedWithClaims(issuer = INTERN)
     @GetMapping(value = "/historikk", produces = APPLICATION_JSON_VALUE)
     public List<Historikk> hentMotebehovHistorikk(
-            @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr
+            @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String sykmeldtFnr
     ) {
         if (Toggle.endepunkterForMotebehov) {
             metrikk.tellEndepunktKall("veileder_hent_motebehov_historikk");
 
-            kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
+            Fnr fnr = Fnr.of(sykmeldtFnr);
 
-            return historikkService.hentHistorikkListe(Fnr.of(arbeidstakerFnr));
+            kastExceptionHvisIkkeTilgang(fnr);
+
+            return historikkService.hentHistorikkListe(fnr);
         } else {
             log.info("Det ble gjort kall mot 'veileder/historikk', men dette endepunktet er togglet av.");
             return emptyList();
         }
     }
 
-    @ProtectedWithClaims(issuer = INTERN)
     @PostMapping(value = "/motebehov/{fnr}/behandle")
     public void behandleMotebehov(
-            @PathVariable(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr
+            @PathVariable(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String sykmeldtFnr
     ) {
-        if (Toggle.endepunkterForMotebehov) {
-            metrikk.tellEndepunktKall("veileder_behandle_motebehov_call");
+        metrikk.tellEndepunktKall("veileder_behandle_motebehov_call");
 
-            kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
+        Fnr fnr = Fnr.of(sykmeldtFnr);
 
-            motebehovService.behandleUbehandledeMotebehov(Fnr.of(arbeidstakerFnr), getSubjectFromOIDCToken(oidcCtxHolder, INTERN));
+        kastExceptionHvisIkkeTilgang(fnr);
 
-            metrikk.tellEndepunktKall("veileder_behandle_motebehov_success");
-        } else {
-            log.info("Det ble gjort kall mot 'veileder/motebehov/behandle', men dette endepunktet er togglet av.");
-        }
+        motebehovService.behandleUbehandledeMotebehov(fnr, getSubjectInternAD(oidcCtxHolder));
+
+        metrikk.tellEndepunktKall("veileder_behandle_motebehov_success");
     }
 
-    private void kastExceptionHvisIkkeTilgang(String fnr) {
-        if (!veilederTilgangService.sjekkVeiledersTilgangTilPerson(fnr)) {
+    private void kastExceptionHvisIkkeTilgang(Fnr fnr) {
+        if (!veilederTilgangService.sjekkVeiledersTilgangTilPersonViaAzure(fnr)) {
             throw new ForbiddenException("Veilederen har ikke tilgang til denne personen");
         }
     }

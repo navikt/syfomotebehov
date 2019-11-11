@@ -1,11 +1,15 @@
 package no.nav.syfo.testhelper;
 
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import no.nav.security.oidc.context.*;
 import no.nav.security.spring.oidc.test.JwtTokenGenerator;
+import no.nav.syfo.oidc.OIDCIssuer;
 
-import static no.nav.syfo.OIDCIssuer.EKSTERN;
-import static no.nav.syfo.OIDCIssuer.INTERN;
+import java.text.ParseException;
+
+import static no.nav.syfo.oidc.OIDCIssuer.EKSTERN;
+import static no.nav.syfo.oidc.OIDCIssuer.INTERN;
 
 public class OidcTestHelper {
 
@@ -17,6 +21,12 @@ public class OidcTestHelper {
     public static void loggInnVeileder(OIDCRequestContextHolder oidcRequestContextHolder, String subject) {
         SignedJWT jwt = JwtTokenGenerator.createSignedJWT(subject);
         settOIDCValidationContext(oidcRequestContextHolder, jwt, INTERN);
+    }
+
+    public static void loggInnVeilederAzure(OIDCRequestContextHolder oidcRequestContextHolder, String veilederIdent) throws ParseException {
+        JWTClaimsSet claimsSet = JWTClaimsSet.parse("{\"NAVident\":\"" + veilederIdent + "\"}");
+        SignedJWT jwt = JwtTokenGenerator.createSignedJWT(claimsSet);
+        settOIDCValidationContext(oidcRequestContextHolder, jwt, OIDCIssuer.AZURE);
     }
 
     private static void settOIDCValidationContext(OIDCRequestContextHolder oidcRequestContextHolder, SignedJWT jwt, String issuer) {

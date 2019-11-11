@@ -1,5 +1,6 @@
 package no.nav.syfo.service;
 
+import no.nav.syfo.domain.rest.Fnr;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -39,8 +40,8 @@ public class VeilederTilgangService {
         return kallUriMedTemplate(tilgangTilBrukerUriMedFnr);
     }
 
-    public boolean sjekkVeiledersTilgangTilPersonViaAzure(String fnr) {
-        URI tilgangTilBrukerViaAzureUriMedFnr = tilgangTilBrukerViaAzureUriTemplate.build(singletonMap(FNR, fnr));
+    public boolean sjekkVeiledersTilgangTilPersonViaAzure(Fnr fnr) {
+        URI tilgangTilBrukerViaAzureUriMedFnr = tilgangTilBrukerViaAzureUriTemplate.build(singletonMap(FNR, fnr.getFnr()));
         return kallUriMedTemplate(tilgangTilBrukerViaAzureUriMedFnr);
     }
 

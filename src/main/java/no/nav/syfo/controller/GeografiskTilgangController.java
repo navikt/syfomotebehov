@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.Response;
 
-import static no.nav.syfo.OIDCIssuer.INTERN;
+import static no.nav.syfo.oidc.OIDCIssuer.INTERN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
