@@ -9,12 +9,6 @@ import no.nav.tjeneste.virksomhet.arbeidsfordeling.v1.meldinger.WSFinnBehandlend
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
-import static no.nav.syfo.mappers.WSEnhetMapper.ws2Enhet;
-import static no.nav.syfo.util.MapUtil.mapListe;
 import static no.nav.tjeneste.virksomhet.arbeidsfordeling.v1.informasjon.WSEnhetsstatus.AKTIV;
 
 @Component
@@ -25,11 +19,17 @@ public class ArbeidsfordelingConsumer implements InitializingBean {
     private final ArbeidsfordelingV1 arbeidsfordelingV1;
 
     @Override
-    public void afterPropertiesSet() { instance = this; }
+    public void afterPropertiesSet() {
+        instance = this;
+    }
 
-    public static ArbeidsfordelingConsumer arbeidsfordelingConsumer() { return instance; }
+    public static ArbeidsfordelingConsumer arbeidsfordelingConsumer() {
+        return instance;
+    }
 
-    public ArbeidsfordelingConsumer(ArbeidsfordelingV1 arbeidsfordelingV1) { this.arbeidsfordelingV1 = arbeidsfordelingV1; }
+    public ArbeidsfordelingConsumer(ArbeidsfordelingV1 arbeidsfordelingV1) {
+        this.arbeidsfordelingV1 = arbeidsfordelingV1;
+    }
 
     public Enhet finnAktivBehandlendeEnhet(String geografiskTilknytning) {
         try {
