@@ -13,4 +13,5 @@ public class UserConstants {
     public static final String NAV_ENHET_NAVN = "Bjerke";
     public static final String VEILEDER_ID = "Z999999";
     public static final String VEILEDER_2_ID = "Z888888";
+    public static final String STS_TOKEN = "123456789";
 }

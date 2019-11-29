@@ -7,11 +7,13 @@ import no.nav.syfo.controller.MotebehovBrukerController;
 import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.kafka.producer.model.KOversikthendelse;
 import no.nav.syfo.repository.dao.MotebehovDAO;
+import no.nav.syfo.sts.StsConsumer;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -27,14 +29,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
-import static no.nav.syfo.oidc.OIDCIssuer.AZURE;
 import static no.nav.syfo.kafka.producer.OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC;
 import static no.nav.syfo.mock.PersonMock.PERSON_NAVN;
+import static no.nav.syfo.oidc.OIDCIssuer.AZURE;
 import static no.nav.syfo.service.HistorikkService.HAR_SVART_PAA_MOTEBEHOV;
 import static no.nav.syfo.service.HistorikkService.MOTEBEHOVET_BLE_LEST_AV;
 import static no.nav.syfo.service.VeilederTilgangService.FNR;
 import static no.nav.syfo.service.VeilederTilgangService.TILGANG_TIL_BRUKER_VIA_AZURE_PATH;
 import static no.nav.syfo.testhelper.OidcTestHelper.*;
+import static no.nav.syfo.testhelper.RestHelperKt.mockAndExpectBehandlendeEnhetRequest;
+import static no.nav.syfo.testhelper.RestHelperKt.mockAndExpectSTSService;
 import static no.nav.syfo.testhelper.UserConstants.*;
 import static no.nav.syfo.util.AuthorizationFilterUtils.basicCredentials;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,6 +64,18 @@ public class MotebehovVeilederADControllerTest {
     @Value("${tilgangskontrollapi.url}")
     private String tilgangskontrollUrl;
 
+    @Value("${syfobehandlendeenhet.url}")
+    private String behandlendeenhetUrl;
+
+    @Value("${security.token.service.rest.url}")
+    private String stsUrl;
+
+    @Value("${srv.username}")
+    private String srvUsername;
+
+    @Value("${srv.password}")
+    private String srvPassword;
+
     @Value("${syfoveilederoppgaver.system.v1.url}")
     private String syfoveilederoppgaverUrl;
 
@@ -82,13 +98,18 @@ public class MotebehovVeilederADControllerTest {
     private MotebehovDAO motebehovDAO;
 
     @Inject
+    private StsConsumer stsConsumer;
+
+    @Inject
+    private CacheManager cacheManager;
+
+    @Inject
     private RestTemplate restTemplate;
 
     @MockBean
     private KafkaTemplate<String, Object> kafkaTemplate;
 
     private MockRestServiceServer mockRestServiceServer;
-
 
     @Before
     public void setUp() {
@@ -102,14 +123,20 @@ public class MotebehovVeilederADControllerTest {
         // Verify all expectations met
         mockRestServiceServer.verify();
         loggUtAlle(oidcRequestContextHolder);
+        mockRestServiceServer.reset();
+        cacheManager.getCacheNames()
+                .forEach(cacheName -> cacheManager.getCache(cacheName).clear());
         cleanDB();
     }
 
     @Test
     public void arbeidsgiverLagrerOgVeilederHenterMotebehov() throws ParseException {
+        mockBehandlendEnhet(ARBEIDSTAKER_FNR);
+
         NyttMotebehov nyttMotebehov = arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
         // Veileder henter møtebehov
+        mockRestServiceServer.reset();
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID);
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, OK);
 
@@ -125,9 +152,12 @@ public class MotebehovVeilederADControllerTest {
 
     @Test
     public void sykmeldtLagrerOgVeilederHenterMotebehov() throws ParseException {
+        mockBehandlendEnhet(ARBEIDSTAKER_FNR);
+
         NyttMotebehov nyttMotebehov = sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true);
 
         // Veileder henter møtebehov
+        mockRestServiceServer.reset();
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID);
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, OK);
 
@@ -143,8 +173,11 @@ public class MotebehovVeilederADControllerTest {
 
     @Test
     public void hentHistorikk() throws Exception {
+        mockBehandlendEnhet(ARBEIDSTAKER_FNR);
+
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
+        mockRestServiceServer.reset();
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID);
         mockSvarFraSyfoTilgangsKontrollOgVeilederoppgaver(ARBEIDSTAKER_FNR, OK);
 
@@ -166,9 +199,12 @@ public class MotebehovVeilederADControllerTest {
 
     @Test
     public void hentMotebehovUbehandlet() throws ParseException {
+        mockBehandlendEnhet(ARBEIDSTAKER_FNR);
+
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true);
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
+        mockRestServiceServer.reset();
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID);
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, OK);
 
@@ -182,9 +218,12 @@ public class MotebehovVeilederADControllerTest {
 
     @Test
     public void behandleKunMotebehovMedBehovForMote() throws ParseException {
+        mockBehandlendEnhet(ARBEIDSTAKER_FNR);
+
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, false);
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
+        mockRestServiceServer.reset();
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID);
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, OK);
 
@@ -203,13 +242,16 @@ public class MotebehovVeilederADControllerTest {
 
     @Test
     public void behandleMotebehovUlikVeilederBehandler() throws ParseException {
+        mockBehandlendEnhet(ARBEIDSTAKER_FNR);
+
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true);
         behandleMotebehov(ARBEIDSTAKER_AKTORID, VEILEDER_ID);
-
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
+        mockRestServiceServer.reset();
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_2_ID);
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, OK);
+
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR);
 
         List<Motebehov> motebehovListe1 = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR);
@@ -225,11 +267,15 @@ public class MotebehovVeilederADControllerTest {
 
     @Test(expected = RuntimeException.class)
     public void behandleIkkeEksiterendeMotebehov() throws ParseException {
+        mockBehandlendEnhet(ARBEIDSTAKER_FNR);
+
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true);
         behandleMotebehov(ARBEIDSTAKER_AKTORID, VEILEDER_ID);
 
+        mockRestServiceServer.reset();
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_2_ID);
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, OK);
+
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR);
     }
 
@@ -292,6 +338,17 @@ public class MotebehovVeilederADControllerTest {
                 .andExpect(method(HttpMethod.GET))
                 .andExpect(header(AUTHORIZATION, "Bearer " + idToken))
                 .andRespond(withStatus(status));
+    }
+
+    private void mockSTS() {
+        if (!stsConsumer.isTokenCached()) {
+            mockAndExpectSTSService(mockRestServiceServer, stsUrl, srvUsername, srvPassword);
+        }
+    }
+
+    private void mockBehandlendEnhet(String fnr) {
+        mockSTS();
+        mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, fnr);
     }
 
     private void mockSvarFraSyfoTilgangsKontrollOgVeilederoppgaver(String fnr, HttpStatus status) throws Exception {

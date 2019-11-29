@@ -3,6 +3,8 @@ package no.nav.syfo.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.LocalApplication;
+import no.nav.syfo.behandlendeenhet.BehandlendeEnhet;
+import no.nav.syfo.behandlendeenhet.BehandlendeEnhetConsumer;
 import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.kafka.producer.model.KOversikthendelse;
 import no.nav.syfo.repository.dao.MotebehovDAO;
@@ -86,6 +88,8 @@ public class MotebehovVeilederComponentTest {
     private RestTemplate restTemplate;
 
     @MockBean
+    private BehandlendeEnhetConsumer behandlendeEnhetConsumer;
+    @MockBean
     private KafkaTemplate<String, Object> kafkaTemplate;
 
     private MockRestServiceServer mockRestServiceServer;
@@ -95,6 +99,7 @@ public class MotebehovVeilederComponentTest {
     public void setUp() {
         cleanDB();
         this.mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build();
+        when(behandlendeEnhetConsumer.getBehandlendeEnhet(ARBEIDSTAKER_FNR)).thenReturn(new BehandlendeEnhet("", ""));
         when(kafkaTemplate.send(anyString(), anyString(), any(KOversikthendelse.class))).thenReturn(mock(ListenableFuture.class));
     }
 

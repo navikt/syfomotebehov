@@ -1,9 +1,9 @@
 package no.nav.syfo.service;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.syfo.consumer.ws.*;
+import no.nav.syfo.behandlendeenhet.BehandlendeEnhetConsumer;
+import no.nav.syfo.consumer.ws.AktoerConsumer;
 import no.nav.syfo.domain.rest.*;
-import no.nav.syfo.mappers.domain.Enhet;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import no.nav.syfo.repository.domain.PMotebehov;
 import no.nav.syfo.util.Metrikk;
@@ -31,10 +31,7 @@ public class MotebehovService {
 
     private final Metrikk metrikk;
     private final AktoerConsumer aktoerConsumer;
-    private final ArbeidsfordelingConsumer arbeidsfordelingConsumer;
-    private final PersonConsumer personConsumer;
-    private final EgenAnsattConsumer egenAnsattConsumer;
-    private final OrganisasjonEnhetConsumer organisasjonEnhetConsumer;
+    private final BehandlendeEnhetConsumer behandlendeEnhetConsumer;
     private final OversikthendelseService oversikthendelseService;
     private final MotebehovDAO motebehovDAO;
 
@@ -42,19 +39,13 @@ public class MotebehovService {
     public MotebehovService(
             Metrikk metrikk,
             AktoerConsumer aktoerConsumer,
-            ArbeidsfordelingConsumer arbeidsfordelingConsumer,
-            PersonConsumer personConsumer,
-            EgenAnsattConsumer egenAnsattConsumer,
-            OrganisasjonEnhetConsumer organisasjonEnhetConsumer,
+            BehandlendeEnhetConsumer behandlendeEnhetConsumer,
             OversikthendelseService oversikthendelseService,
             MotebehovDAO motebehovDAO
     ) {
         this.metrikk = metrikk;
         this.aktoerConsumer = aktoerConsumer;
-        this.arbeidsfordelingConsumer = arbeidsfordelingConsumer;
-        this.personConsumer = personConsumer;
-        this.egenAnsattConsumer = egenAnsattConsumer;
-        this.organisasjonEnhetConsumer = organisasjonEnhetConsumer;
+        this.behandlendeEnhetConsumer = behandlendeEnhetConsumer;
         this.oversikthendelseService = oversikthendelseService;
         this.motebehovDAO = motebehovDAO;
     }
@@ -64,7 +55,7 @@ public class MotebehovService {
         int antallOppdateringer = motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr()), veilederIdent);
 
         if (antallOppdateringer > 0) {
-            String behandlendeEnhet = finnArbeidstakersBehandlendeEnhet(arbeidstakerFnr.getFnr());
+            String behandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.getFnr()).getEnhetId();
             oversikthendelseService.sendOversikthendelse(arbeidstakerFnr.getFnr(), behandlendeEnhet);
         } else {
             metrikk.tellHendelse("feil_behandle_motebehov_svar_eksiterer_ikke");
@@ -105,7 +96,7 @@ public class MotebehovService {
     public UUID lagreMotebehov(Fnr innloggetFNR, Fnr arbeidstakerFnr, final NyttMotebehov nyttMotebehov) {
         final String innloggetBrukerAktoerId = aktoerConsumer.hentAktoerIdForFnr(innloggetFNR.getFnr());
         final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
-        final String arbeidstakerBehandlendeEnhet = finnArbeidstakersBehandlendeEnhet(arbeidstakerFnr.getFnr());
+        final String arbeidstakerBehandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.getFnr()).getEnhetId();
         final PMotebehov motebehov = mapNyttMotebehovToPMotebehov(innloggetBrukerAktoerId, arbeidstakerAktoerId, arbeidstakerBehandlendeEnhet, nyttMotebehov);
 
         UUID id = motebehovDAO.create(motebehov);
@@ -174,19 +165,4 @@ public class MotebehovService {
                 .status("IKKE_STARTET")
                 .virksomhetsnummer(motebehov.virksomhetsnummer);
     }
-
-    private String finnArbeidstakersBehandlendeEnhet(String arbeidstakerFnr) {
-        String geografiskTilknytning = personConsumer.hentGeografiskTilknytning(arbeidstakerFnr);
-        if ("".equals(geografiskTilknytning)) {
-            log.error("Klarte ikke hente geografisk tilknytning på sykmeldt");
-            throw new RuntimeException();
-        }
-        Enhet enhet = arbeidsfordelingConsumer.finnAktivBehandlendeEnhet(geografiskTilknytning);
-        if (egenAnsattConsumer.erEgenAnsatt(arbeidstakerFnr)) {
-            Enhet overordnetEnhet = organisasjonEnhetConsumer.finnSetteKontor(enhet.enhetId()).orElse(enhet);
-            return overordnetEnhet.enhetId();
-        }
-        return enhet.enhetId();
-    }
-
 }

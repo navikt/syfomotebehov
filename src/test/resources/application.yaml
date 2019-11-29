@@ -53,10 +53,6 @@ aktoer.v2.url: "aktoerv2.url"
 sykefravaersoppfoelging.v1.url: "sykefravaeroppfoelgingv1.url"
 brukeroppgave.v1.url: "brukeroppgavev1.url"
 person.v3.url: "personv3.url"
-organisasjonEnhet.v2.url: "organisasjonEnhetv2.url"
-organisasjon.v4.url: "organisasjonv4.url"
-arbeidsfordeling.v1.url: "arbeidsfordelingv1.url"
-egenansatt.v1.url: "egenansattv1.url"
 
 nais.cluster.name: 'local'
 
@@ -75,6 +71,8 @@ syfoveilederoppgaver.system.v1.url: "https://app-q1.adeo.no/syfoveilederoppgaver
 syfoveilederoppgaver.systemapi.username: "dummy"
 syfoveilederoppgaver.systemapi.password: "test123"
 
+syfobehandlendeenhet.url: "https://syfobehandlendeenhet"
 tilgangskontrollapi.url: "https://www.ikke.no"
+security.token.service.rest.url: "https://security-token-service"
 syfomoteadminapi.url: "https://www.kanskje.no"
 syfosyketilfelleApi.url: http://localhost:8080
