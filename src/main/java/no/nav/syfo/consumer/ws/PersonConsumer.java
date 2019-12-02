@@ -3,7 +3,6 @@ package no.nav.syfo.consumer.ws;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.tjeneste.virksomhet.person.v3.binding.*;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.*;
-import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningRequest;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cache.annotation.Cacheable;
@@ -14,7 +13,6 @@ import javax.ws.rs.ForbiddenException;
 
 import static java.util.Optional.ofNullable;
 import static no.nav.syfo.config.CacheConfig.CACHENAME_PERSON_DISKRESJONSKODE;
-import static no.nav.syfo.config.CacheConfig.CACHENAME_PERSON_GEOGRAFISK;
 import static no.nav.syfo.config.CacheConfig.CACHENAME_PERSON_NAVN;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.text.WordUtils.capitalize;
@@ -99,25 +97,4 @@ public class PersonConsumer implements InitializingBean {
             return "";
         }
     }
-
-    @Cacheable(cacheNames = CACHENAME_PERSON_GEOGRAFISK)
-    public String hentGeografiskTilknytning(String fnr) {
-        try {
-            GeografiskTilknytning geografiskTilknytning = personV3.hentGeografiskTilknytning(
-                    new HentGeografiskTilknytningRequest()
-                            .withAktoer(new PersonIdent().withIdent(new NorskIdent().withIdent(fnr))))
-                    .getGeografiskTilknytning();
-            return ofNullable(geografiskTilknytning).map(GeografiskTilknytning::getGeografiskTilknytning).orElse("");
-        } catch (HentGeografiskTilknytningSikkerhetsbegrensing e) {
-            log.error("Fikk sikkerhetsbegrensing ved henting av geografiskTilknytning");
-            throw new ForbiddenException();
-        } catch (HentGeografiskTilknytningPersonIkkeFunnet e) {
-            log.error("Fant ikke person ved henting av geografiskTilknytning");
-            throw new RuntimeException();
-        } catch (RuntimeException e) {
-            log.error("Fikk RuntimeException mote TPS for diskresjonskode ved henting av geografiskTilknytning");
-            return "";
-        }
-    }
-
 }
