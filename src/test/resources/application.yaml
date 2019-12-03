@@ -51,19 +51,13 @@ no.nav.security.oidc:
 
 aktoer.v2.url: "aktoerv2.url"
 sykefravaersoppfoelging.v1.url: "sykefravaeroppfoelgingv1.url"
-brukeroppgave.v1.url: "brukeroppgavev1.url"
 person.v3.url: "personv3.url"
 
 nais.cluster.name: 'local'
 
 mockAktoer_V2: true
 mockPerson_V3: true
-mockOrganisasjonEnhet_V2: true
-mockOrganisasjon_V4: true
 mockSykefravaeroppfoelging_V1: true
-mockBrukeroppgave_V1: true
-mockArbeidsfordeling_V1: true
-mockEgenAnsatt_V1: true
 
 dev: true
 
@@ -75,4 +69,3 @@ syfobehandlendeenhet.url: "https://syfobehandlendeenhet"
 tilgangskontrollapi.url: "https://www.ikke.no"
 security.token.service.rest.url: "https://security-token-service"
 syfomoteadminapi.url: "https://www.kanskje.no"
-syfosyketilfelleApi.url: http://localhost:8080

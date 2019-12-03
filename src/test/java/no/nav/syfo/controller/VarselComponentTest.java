@@ -46,9 +46,6 @@ import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 @DirtiesContext
 public class VarselComponentTest {
 
-    @Value("${syfosyketilfelleApi.url}")
-    String syfosyketilfelleUrl;
-
     @Value("${syfomoteadminapi.url}")
     String syfomoteadminUrl;
 
