@@ -44,7 +44,6 @@ repositories {
     maven(url = "https://repo.adeo.no/repository/maven-releases/")
     maven(url = "https://repo.adeo.no/repository/maven-snapshots/")
     maven(url = "http://packages.confluent.io/maven/")
-    maven(url = "http://repo.maven.apache.org/maven2/")
     maven(url = "https://dl.bintray.com/kotlin/kotlinx/")
 }
 
@@ -52,7 +51,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinLibVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinLibVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$kotlinJacksonVersion")
-    
+
     implementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
     implementation("org.springframework.boot:spring-boot-starter-actuator:$springBootVersion")
     implementation("org.springframework.boot:spring-boot-starter-logging:$springBootVersion")
