@@ -37,8 +37,7 @@ import static no.nav.syfo.service.HistorikkService.MOTEBEHOVET_BLE_LEST_AV;
 import static no.nav.syfo.service.VeilederTilgangService.FNR;
 import static no.nav.syfo.service.VeilederTilgangService.TILGANG_TIL_BRUKER_VIA_AZURE_PATH;
 import static no.nav.syfo.testhelper.OidcTestHelper.*;
-import static no.nav.syfo.testhelper.RestHelperKt.mockAndExpectBehandlendeEnhetRequest;
-import static no.nav.syfo.testhelper.RestHelperKt.mockAndExpectSTSService;
+import static no.nav.syfo.testhelper.RestHelperKt.*;
 import static no.nav.syfo.testhelper.UserConstants.*;
 import static no.nav.syfo.util.AuthorizationFilterUtils.basicCredentials;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,6 +65,9 @@ public class MotebehovVeilederADControllerTest {
 
     @Value("${syfobehandlendeenhet.url}")
     private String behandlendeenhetUrl;
+
+    @Value("${syfobrukertilgang.url}")
+    private String brukertilgangUrl;
 
     @Value("${security.token.service.rest.url}")
     private String stsUrl;
@@ -131,6 +133,7 @@ public class MotebehovVeilederADControllerTest {
 
     @Test
     public void arbeidsgiverLagrerOgVeilederHenterMotebehov() throws ParseException {
+        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR);
         mockBehandlendEnhet(ARBEIDSTAKER_FNR);
 
         NyttMotebehov nyttMotebehov = arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
@@ -173,6 +176,7 @@ public class MotebehovVeilederADControllerTest {
 
     @Test
     public void hentHistorikk() throws Exception {
+        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR);
         mockBehandlendEnhet(ARBEIDSTAKER_FNR);
 
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
@@ -200,8 +204,10 @@ public class MotebehovVeilederADControllerTest {
     @Test
     public void hentMotebehovUbehandlet() throws ParseException {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR);
-
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true);
+
+        mockRestServiceServer.reset();
+        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR);
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
         mockRestServiceServer.reset();
@@ -221,6 +227,9 @@ public class MotebehovVeilederADControllerTest {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR);
 
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, false);
+
+        mockRestServiceServer.reset();
+        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR);
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
         mockRestServiceServer.reset();
@@ -246,6 +255,9 @@ public class MotebehovVeilederADControllerTest {
 
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true);
         behandleMotebehov(ARBEIDSTAKER_AKTORID, VEILEDER_ID);
+
+        mockRestServiceServer.reset();
+        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR);
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
         mockRestServiceServer.reset();

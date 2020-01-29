@@ -25,8 +25,7 @@ import java.util.List;
 
 import static no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker;
 import static no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle;
-import static no.nav.syfo.testhelper.RestHelperKt.mockAndExpectBehandlendeEnhetRequest;
-import static no.nav.syfo.testhelper.RestHelperKt.mockAndExpectSTSService;
+import static no.nav.syfo.testhelper.RestHelperKt.*;
 import static no.nav.syfo.testhelper.UserConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,6 +43,9 @@ public class MotebehovComponentTest {
 
     @Value("${syfobehandlendeenhet.url}")
     private String behandlendeenhetUrl;
+
+    @Value("${syfobrukertilgang.url}")
+    private String brukertilgangUrl;
 
     @Value("${security.token.service.rest.url}")
     private String stsUrl;
@@ -84,6 +86,7 @@ public class MotebehovComponentTest {
         this.mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build();
         loggInnBruker(oidcRequestContextHolder, LEDER_FNR);
         cleanDB();
+        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR);
     }
 
     @After

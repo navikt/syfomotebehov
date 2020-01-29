@@ -50,6 +50,7 @@ no.nav.security.oidc:
     selvbetjening.cookie_name: localhost-idtoken
 
 aktoer.v2.url: "aktoerv2.url"
+syfobrukertilgang.url: "http://syfobrukertilgang"
 sykefravaersoppfoelging.v1.url: "sykefravaeroppfoelgingv1.url"
 person.v3.url: "personv3.url"
 

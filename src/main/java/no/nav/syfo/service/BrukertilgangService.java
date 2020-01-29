@@ -1,28 +1,32 @@
 package no.nav.syfo.service;
 
-import no.nav.syfo.consumer.ws.*;
-import no.nav.syfo.oidc.OIDCIssuer;
+import no.nav.syfo.brukertilgang.BrukertilgangConsumer;
+import no.nav.syfo.consumer.ws.AktoerConsumer;
+import no.nav.syfo.consumer.ws.PersonConsumer;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.ws.rs.ForbiddenException;
 
+import static no.nav.syfo.config.CacheConfig.CACHENAME_TILGANG_IDENT;
+
 @Service
 public class BrukertilgangService {
 
     private final AktoerConsumer aktoerConsumer;
+    private final BrukertilgangConsumer brukertilgangConsumer;
     private final PersonConsumer personConsumer;
-    private final SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer;
 
     @Inject
     public BrukertilgangService(
             AktoerConsumer aktoerConsumer,
-            PersonConsumer personConsumer,
-            SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer
+            BrukertilgangConsumer brukertilgangConsumer,
+            PersonConsumer personConsumer
     ) {
         this.aktoerConsumer = aktoerConsumer;
+        this.brukertilgangConsumer = brukertilgangConsumer;
         this.personConsumer = personConsumer;
-        this.sykefravaeroppfoelgingConsumer = sykefravaeroppfoelgingConsumer;
     }
 
     public boolean harTilgangTilOppslaattBruker(String innloggetIdent, String fnr) {
@@ -35,20 +39,8 @@ public class BrukertilgangService {
         }
     }
 
-
+    @Cacheable(cacheNames = CACHENAME_TILGANG_IDENT, key = "#innloggetIdent.concat(#oppslaattFnr)", condition = "#innloggetIdent != null && #oppslaattFnr != null")
     public boolean sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(String innloggetIdent, String oppslaattFnr) {
-        return !(sporInnloggetBrukerOmSegSelv(innloggetIdent, oppslaattFnr) || sporInnloggetBrukerOmEnAnsatt(innloggetIdent, oppslaattFnr));
-    }
-
-    private boolean sporInnloggetBrukerOmEnAnsatt(String innloggetIdent, String oppslaattFnr) {
-        String innloggetAktoerId = aktoerConsumer.hentAktoerIdForFnr(innloggetIdent);
-        String oppslaattAktoerId = aktoerConsumer.hentAktoerIdForFnr(oppslaattFnr);
-        return sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(innloggetAktoerId, OIDCIssuer.EKSTERN)
-                .stream()
-                .anyMatch(oppslaattAktoerId::equals);
-    }
-
-    private boolean sporInnloggetBrukerOmSegSelv(String innloggetIdent, String fnr) {
-        return fnr.equals(innloggetIdent);
+        return !(oppslaattFnr.equals(innloggetIdent) || brukertilgangConsumer.hasAccessToAnsatt(oppslaattFnr));
     }
 }

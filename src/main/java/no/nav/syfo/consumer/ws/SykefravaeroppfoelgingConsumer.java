@@ -4,21 +4,19 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.config.ws.SykefravaersoppfoelgingConfig;
 import no.nav.syfo.domain.rest.Oppfolgingstilfelle;
-import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.*;
+import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentSykeforlopperiodeSikkerhetsbegrensning;
+import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.SykefravaersoppfoelgingV1;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.informasjon.WSSykeforlopperiode;
-import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.*;
+import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentSykeforlopperiodeRequest;
+import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentSykeforlopperiodeResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.remoting.soap.SoapFaultException;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.InternalServerErrorException;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static no.nav.syfo.mappers.WSAnsattMapper.wsAnsatt2AktorId;
-import static no.nav.syfo.util.MapUtil.mapListe;
 import static no.nav.syfo.util.OIDCUtil.tokenFraOIDC;
 
 @Component
@@ -40,33 +38,6 @@ public class SykefravaeroppfoelgingConsumer {
         this.contextHolder = contextHolder;
         this.sykefravaersoppfoelgingV1 = sykefravaersoppfoelgingV1;
         this.sykefravaersoppfoelgingConfig = sykefravaersoppfoelgingConfig;
-    }
-
-    public List<String> hentAnsatteAktorId(String aktoerId, String oidcIssuer) {
-        try {
-            WSHentNaermesteLedersAnsattListeRequest request = new WSHentNaermesteLedersAnsattListeRequest()
-                    .withAktoerId(aktoerId);
-            WSHentNaermesteLedersAnsattListeResponse response;
-            if ("true".equals(dev)) {
-                response = sykefravaersoppfoelgingV1.hentNaermesteLedersAnsattListe(request);
-            } else {
-                String oidcToken = tokenFraOIDC(this.contextHolder, oidcIssuer);
-                response = sykefravaersoppfoelgingConfig.hentNaermesteLedersAnsattListe(request, oidcToken);
-            }
-            return mapListe(response.getAnsattListe(), wsAnsatt2AktorId);
-        } catch (HentNaermesteLedersAnsattListeSikkerhetsbegrensning e) {
-            log.warn("Fikk sikkerhetsbegrensning {} ved henting av ansatte for person {}", e.getFaultInfo().getFeilaarsak().toUpperCase(), aktoerId);
-            throw new ForbiddenException();
-        } catch (SoapFaultException e) {
-            log.warn("Fikk Soap feil ved henting av ansatte for person {}. " +
-                    "Antar dette er tilgang nektet fra modig-security, og kaster ForbiddenException videre.", aktoerId, e);
-            //TODO Fjern denne når SyfoService kaster sikkerhetsbegrensing riktig igjen
-            throw new ForbiddenException();
-        } catch (RuntimeException e) {
-            log.error("Fikk runtime feil ved henting av ansatte for person {}. " +
-                    "Kaster ForbiddenException videre.", aktoerId, e);
-            throw new InternalServerErrorException();
-        }
     }
 
     public List<Oppfolgingstilfelle> hentOppfolgingstilfelleperioder(String aktorId, String orgnummer, String oidcIssuer) {

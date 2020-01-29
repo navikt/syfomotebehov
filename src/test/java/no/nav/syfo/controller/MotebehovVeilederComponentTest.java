@@ -34,6 +34,7 @@ import static no.nav.syfo.service.HistorikkService.MOTEBEHOVET_BLE_LEST_AV;
 import static no.nav.syfo.service.VeilederTilgangService.FNR;
 import static no.nav.syfo.service.VeilederTilgangService.TILGANG_TIL_BRUKER_PATH;
 import static no.nav.syfo.testhelper.OidcTestHelper.*;
+import static no.nav.syfo.testhelper.RestHelperKt.mockAndExpectBrukertilgangRequest;
 import static no.nav.syfo.testhelper.UserConstants.*;
 import static no.nav.syfo.util.AuthorizationFilterUtils.basicCredentials;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,6 +63,9 @@ public class MotebehovVeilederComponentTest {
 
     @Value("${tilgangskontrollapi.url}")
     private String tilgangskontrollUrl;
+
+    @Value("${syfobrukertilgang.url}")
+    private String brukertilgangUrl;
 
     @Value("${syfoveilederoppgaver.system.v1.url}")
     private String syfoveilederoppgaverUrl;
@@ -113,10 +117,12 @@ public class MotebehovVeilederComponentTest {
 
     @Test
     public void arbeidsgiverLagrerOgVeilederHenterMotebehov() {
+        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR);
         NyttMotebehov nyttMotebehov = arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
         // Veileder henter møtebehov
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
+        mockRestServiceServer.reset();
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, OK);
 
         List<Motebehov> motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR);
@@ -149,8 +155,10 @@ public class MotebehovVeilederComponentTest {
 
     @Test
     public void hentHistorikk() throws Exception {
+        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR);
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
+        mockRestServiceServer.reset();
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
         mockSvarFraSyfoTilgangsKontrollOgVeilederoppgaver(ARBEIDSTAKER_FNR, OK);
 
@@ -173,9 +181,11 @@ public class MotebehovVeilederComponentTest {
     @Test
     public void hentMotebehovUbehandlet() {
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true);
+        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR);
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
+        mockRestServiceServer.reset();
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, OK);
 
         List<Motebehov> motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR);
@@ -189,9 +199,12 @@ public class MotebehovVeilederComponentTest {
     @Test
     public void behandleKunMotebehovMedBehovForMote() {
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, false);
+
+        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR);
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_ID);
+        mockRestServiceServer.reset();
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, OK);
 
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR);
@@ -212,9 +225,11 @@ public class MotebehovVeilederComponentTest {
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true);
         behandleMotebehov(ARBEIDSTAKER_AKTORID, VEILEDER_ID);
 
+        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR);
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER);
 
         loggInnVeileder(oidcRequestContextHolder, VEILEDER_2_ID);
+        mockRestServiceServer.reset();
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, OK);
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR);
 

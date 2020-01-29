@@ -3,15 +3,16 @@ package no.nav.syfo.service;
 import com.nimbusds.jwt.SignedJWT;
 import no.nav.security.oidc.context.*;
 import no.nav.security.spring.oidc.test.JwtTokenGenerator;
-import no.nav.syfo.consumer.ws.*;
-import no.nav.syfo.oidc.OIDCIssuer;
+import no.nav.syfo.brukertilgang.BrukertilgangConsumer;
+import no.nav.syfo.consumer.ws.AktoerConsumer;
+import no.nav.syfo.consumer.ws.PersonConsumer;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static java.util.Arrays.asList;
+import static no.nav.syfo.oidc.OIDCIssuer.EKSTERN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -23,9 +24,9 @@ public class BrukertilgangskontrollServiceTest {
     @Mock
     private AktoerConsumer aktorConsumer;
     @Mock
-    private PersonConsumer personConsumer;
+    private BrukertilgangConsumer brukertilgangConsumer;
     @Mock
-    private SykefravaeroppfoelgingConsumer sykefravaeroppfoelgingConsumer;
+    private PersonConsumer personConsumer;
     @InjectMocks
     private BrukertilgangService tilgangskontrollService;
 
@@ -38,7 +39,6 @@ public class BrukertilgangskontrollServiceTest {
     public void setup() {
         mockOIDC(INNLOGGET_FNR);
 
-        when(aktorConsumer.hentAktoerIdForFnr(INNLOGGET_FNR)).thenReturn(INNLOGGET_AKTOERID);
         when(aktorConsumer.hentAktoerIdForFnr(SPOR_OM_FNR)).thenReturn(SPOR_OM_AKTOERID);
         when(personConsumer.erBrukerKode6(SPOR_OM_AKTOERID)).thenReturn(false);
     }
@@ -50,9 +50,7 @@ public class BrukertilgangskontrollServiceTest {
 
     @Test
     public void harTilgangTilOppslaattBrukerGirFalseNaarOppslaattBrukerErKode6() {
-        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
-                SPOR_OM_AKTOERID
-        ));
+        when(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(true);
         when(personConsumer.erBrukerKode6(SPOR_OM_AKTOERID)).thenReturn(true);
 
         boolean tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR);
@@ -67,18 +65,14 @@ public class BrukertilgangskontrollServiceTest {
 
     @Test
     public void harTilgangTilOppslaattBrukerGirTrueNaarManSporOmEnAnsatt() {
-        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
-                SPOR_OM_AKTOERID
-        ));
+        when(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(true);
         boolean tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR);
         assertThat(tilgang).isTrue();
     }
 
     @Test
     public void harTilgangTilOppslaattBrukerGirFalseNaarManSporOmEnSomIkkeErSegSelvOgIkkeAnsatt() {
-        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
-
-        ));
+        when(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(false);
         boolean tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR);
         assertThat(tilgang).isFalse();
     }
@@ -91,26 +85,21 @@ public class BrukertilgangskontrollServiceTest {
 
     @Test
     public void sporOmNoenAndreEnnSegSelvGirFalseNaarManSporOmEnAnsatt() {
-        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
-                SPOR_OM_AKTOERID
-        ));
+        when(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(true);
         boolean tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, SPOR_OM_FNR);
         assertThat(tilgang).isFalse();
     }
 
     @Test
     public void sporOmNoenAndreEnnSegSelvGirTrueNaarManSporOmEnSomIkkeErSegSelvOgIkkeAnsatt() {
-        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
-
-        ));
+        when(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(false);
         boolean tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, SPOR_OM_FNR);
         assertThat(tilgang).isTrue();
     }
 
     private void mockOIDC(String subject) {
-        //OIDC-hack - legg til token og oidcclaims for en test-person
         SignedJWT jwt = JwtTokenGenerator.createSignedJWT(subject);
-        String issuer = "selvbetjening";
+        String issuer = EKSTERN;
         TokenContext tokenContext = new TokenContext(issuer, jwt.serialize());
         OIDCClaims oidcClaims = new OIDCClaims(jwt);
         OIDCValidationContext oidcValidationContext = new OIDCValidationContext();
