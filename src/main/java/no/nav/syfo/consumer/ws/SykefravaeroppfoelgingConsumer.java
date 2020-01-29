@@ -3,7 +3,6 @@ package no.nav.syfo.consumer.ws;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.config.ws.SykefravaersoppfoelgingConfig;
-import no.nav.syfo.domain.rest.NaermesteLeder;
 import no.nav.syfo.domain.rest.Oppfolgingstilfelle;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.*;
 import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.informasjon.WSSykeforlopperiode;
@@ -19,7 +18,6 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static no.nav.syfo.mappers.WSAnsattMapper.wsAnsatt2AktorId;
-import static no.nav.syfo.mappers.WSNaermesteLederMapper.ws2naermesteLeder;
 import static no.nav.syfo.util.MapUtil.mapListe;
 import static no.nav.syfo.util.OIDCUtil.tokenFraOIDC;
 
@@ -69,36 +67,6 @@ public class SykefravaeroppfoelgingConsumer {
                     "Kaster ForbiddenException videre.", aktoerId, e);
             throw new InternalServerErrorException();
         }
-    }
-
-    public List<NaermesteLeder> hentNaermesteLedere(String aktoerId, String oidcIssuer) {
-        try {
-            WSHentNaermesteLederListeRequest request = new WSHentNaermesteLederListeRequest()
-                    .withAktoerId(aktoerId)
-                    .withKunAktive(false);
-            WSHentNaermesteLederListeResponse response;
-            if ("true".equals(dev)) {
-                response = sykefravaersoppfoelgingV1.hentNaermesteLederListe(request);
-            } else {
-                String oidcToken = tokenFraOIDC(this.contextHolder, oidcIssuer);
-                response = sykefravaersoppfoelgingConfig.hentNaermesteLederListe(request, oidcToken);
-            }
-            return mapListe(response.getNaermesteLederListe(), ws2naermesteLeder);
-        } catch (HentNaermesteLederListeSikkerhetsbegrensning e) {
-            log.warn("Fikk sikkerhetsbegrensning {} ved henting av naermeste ledere for person {}", e.getFaultInfo().getFeilaarsak().toUpperCase(), aktoerId);
-            throw new ForbiddenException();
-        } catch (RuntimeException e) {
-            log.error("Fikk Runtimefeil ved henting av naermeste ledere for person {}" +
-                    "Antar dette er tilgang nektet fra modig-security, og kaster ForbiddenException videre.", aktoerId, e);
-            //TODO RuntimeException når SyfoService kaster sikkerhetsbegrensing riktig igjen
-            throw new ForbiddenException();
-        }
-    }
-
-    public List<String> hentNaermesteLederAktoerIdListe(String aktoerId, String oidcIssuer) {
-        return hentNaermesteLedere(aktoerId, oidcIssuer).stream()
-                .map(ansatt -> ansatt.naermesteLederAktoerId)
-                .collect(toList());
     }
 
     public List<Oppfolgingstilfelle> hentOppfolgingstilfelleperioder(String aktorId, String orgnummer, String oidcIssuer) {

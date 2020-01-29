@@ -3,8 +3,8 @@ package no.nav.syfo.service;
 import com.nimbusds.jwt.SignedJWT;
 import no.nav.security.oidc.context.*;
 import no.nav.security.spring.oidc.test.JwtTokenGenerator;
-import no.nav.syfo.oidc.OIDCIssuer;
 import no.nav.syfo.consumer.ws.*;
+import no.nav.syfo.oidc.OIDCIssuer;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -14,7 +14,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-
 
 @RunWith(MockitoJUnitRunner.class)
 public class BrukertilgangskontrollServiceTest {
@@ -105,46 +104,6 @@ public class BrukertilgangskontrollServiceTest {
 
         ));
         boolean tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, SPOR_OM_FNR);
-        assertThat(tilgang).isTrue();
-    }
-
-
-    @Test
-    public void sporOmNoenAndreEnnSegSelvEllerEgneAnsatteEllerLedereGirFalseNaaerManSporOmSegSelv() {
-        boolean tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatteEllerLedere(INNLOGGET_FNR, INNLOGGET_FNR);
-        assertThat(tilgang).isFalse();
-    }
-
-    @Test
-    public void sporOmNoenAndreEnnSegSelvEllerEgneAnsatteEllerLedereGirFalseNaarManSporOmEnAnsatt() {
-        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
-                SPOR_OM_AKTOERID
-        ));
-        boolean tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatteEllerLedere(INNLOGGET_FNR, SPOR_OM_FNR);
-        assertThat(tilgang).isFalse();
-    }
-
-    @Test
-    public void sporOmNoenAndreEnnSegSelvEllerEgneAnsatteEllerLedereGirFalseNaarManSporOmEnLeder() {
-        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
-
-        ));
-        when(sykefravaeroppfoelgingConsumer.hentNaermesteLederAktoerIdListe(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
-                SPOR_OM_AKTOERID
-        ));
-        boolean tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatteEllerLedere(INNLOGGET_FNR, SPOR_OM_FNR);
-        assertThat(tilgang).isFalse();
-    }
-
-    @Test
-    public void sporOmNoenAndreEnnSegSelvEllerEgneAnsatteEllerLedereGirTrueNaarManSporOmEnSomIkkeErSegSelvOgIkkeAnsatt() {
-        when(sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
-
-        ));
-        when(sykefravaeroppfoelgingConsumer.hentNaermesteLederAktoerIdListe(INNLOGGET_AKTOERID, OIDCIssuer.EKSTERN)).thenReturn(asList(
-
-        ));
-        boolean tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatteEllerLedere(INNLOGGET_FNR, SPOR_OM_FNR);
         assertThat(tilgang).isTrue();
     }
 

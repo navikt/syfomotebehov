@@ -1,17 +1,13 @@
 package no.nav.syfo.service;
 
-import lombok.extern.slf4j.Slf4j;
+import no.nav.syfo.consumer.ws.*;
 import no.nav.syfo.oidc.OIDCIssuer;
-import no.nav.syfo.consumer.ws.AktoerConsumer;
-import no.nav.syfo.consumer.ws.PersonConsumer;
-import no.nav.syfo.consumer.ws.SykefravaeroppfoelgingConsumer;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.ws.rs.ForbiddenException;
 
 @Service
-@Slf4j
 public class BrukertilgangService {
 
     private final AktoerConsumer aktoerConsumer;
@@ -39,10 +35,6 @@ public class BrukertilgangService {
         }
     }
 
-    public boolean sporOmNoenAndreEnnSegSelvEllerEgneAnsatteEllerLedere(String innloggetIdent, String oppslaattFnr) {
-        return !(sporInnloggetBrukerOmSegSelv(innloggetIdent, oppslaattFnr) || sporInnloggetBrukerOmEnAnsatt(innloggetIdent, oppslaattFnr) || sporInnloggetBrukerOmEnLeder(innloggetIdent, oppslaattFnr));
-    }
-
 
     public boolean sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(String innloggetIdent, String oppslaattFnr) {
         return !(sporInnloggetBrukerOmSegSelv(innloggetIdent, oppslaattFnr) || sporInnloggetBrukerOmEnAnsatt(innloggetIdent, oppslaattFnr));
@@ -52,14 +44,6 @@ public class BrukertilgangService {
         String innloggetAktoerId = aktoerConsumer.hentAktoerIdForFnr(innloggetIdent);
         String oppslaattAktoerId = aktoerConsumer.hentAktoerIdForFnr(oppslaattFnr);
         return sykefravaeroppfoelgingConsumer.hentAnsatteAktorId(innloggetAktoerId, OIDCIssuer.EKSTERN)
-                .stream()
-                .anyMatch(oppslaattAktoerId::equals);
-    }
-
-    private boolean sporInnloggetBrukerOmEnLeder(String innloggetIdent, String oppslaattFnr) {
-        String innloggetAktoerId = aktoerConsumer.hentAktoerIdForFnr(innloggetIdent);
-        String oppslaattAktoerId = aktoerConsumer.hentAktoerIdForFnr(oppslaattFnr);
-        return sykefravaeroppfoelgingConsumer.hentNaermesteLederAktoerIdListe(innloggetAktoerId, OIDCIssuer.EKSTERN)
                 .stream()
                 .anyMatch(oppslaattAktoerId::equals);
     }
