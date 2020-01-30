@@ -2,8 +2,10 @@ package no.nav.syfo.config.ws;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.consumer.util.ws.*;
-import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.*;
-import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.*;
+import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.HentSykeforlopperiodeSikkerhetsbegrensning;
+import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.SykefravaersoppfoelgingV1;
+import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentSykeforlopperiodeRequest;
+import no.nav.tjeneste.virksomhet.sykefravaersoppfoelging.v1.meldinger.WSHentSykeforlopperiodeResponse;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,21 +32,6 @@ public class SykefravaersoppfoelgingConfig {
         STSClientConfig.configureRequestSamlTokenOnBehalfOfOidc(port);
         this.port = port;
         return port;
-    }
-
-    public WSHentNaermesteLederResponse hentNaermesteLeder(WSHentNaermesteLederRequest request, String OIDCToken) throws HentNaermesteLederSikkerhetsbegrensning {
-        leggTilOnBehalfOfOutInterceptorForOIDC(ClientProxy.getClient(port), OIDCToken);
-        return port.hentNaermesteLeder(request);
-    }
-
-    public WSHentNaermesteLederListeResponse hentNaermesteLederListe(WSHentNaermesteLederListeRequest request, String OIDCToken) throws HentNaermesteLederListeSikkerhetsbegrensning {
-        leggTilOnBehalfOfOutInterceptorForOIDC(ClientProxy.getClient(port), OIDCToken);
-        return port.hentNaermesteLederListe(request);
-    }
-
-    public WSHentHendelseListeResponse hentHendelseListe(WSHentHendelseListeRequest request, String OIDCToken) throws HentHendelseListeSikkerhetsbegrensning {
-        leggTilOnBehalfOfOutInterceptorForOIDC(ClientProxy.getClient(port), OIDCToken);
-        return port.hentHendelseListe(request);
     }
 
     public WSHentSykeforlopperiodeResponse hentSykeforlopperiode(WSHentSykeforlopperiodeRequest request, String OIDCToken) throws HentSykeforlopperiodeSikkerhetsbegrensning {
