@@ -18,6 +18,7 @@ public class CacheConfig {
     public static final String CACHENAME_BEHANDLENDEENHET_FNR = "behandlendeenhetfnr";
     public static final String CACHENAME_PERSON_DISKRESJONSKODE = "persondiskresjonskode";
     public static final String CACHENAME_PERSON_NAVN = "personnavn";
+    public static final String CACHENAME_TILGANG_IDENT = "tilgangtilident";
 
     @Bean
     public CacheManager cacheManager() {
@@ -27,7 +28,8 @@ public class CacheConfig {
                 new ConcurrentMapCache(CACHENAME_AKTOR_FNR),
                 new ConcurrentMapCache(CACHENAME_BEHANDLENDEENHET_FNR),
                 new ConcurrentMapCache(CACHENAME_PERSON_DISKRESJONSKODE),
-                new ConcurrentMapCache(CACHENAME_PERSON_NAVN)
+                new ConcurrentMapCache(CACHENAME_PERSON_NAVN),
+                new ConcurrentMapCache(CACHENAME_TILGANG_IDENT)
         ));
         return cacheManager;
     }

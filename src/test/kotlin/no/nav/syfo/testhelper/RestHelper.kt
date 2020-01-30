@@ -3,7 +3,6 @@ package no.nav.syfo.testhelper
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhet
-import no.nav.syfo.sts.STSToken
 import no.nav.syfo.testhelper.UserConstants.STS_TOKEN
 import no.nav.syfo.util.basicCredentials
 import no.nav.syfo.util.bearerCredentials
@@ -13,6 +12,22 @@ import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers
 import org.springframework.test.web.client.response.MockRestResponseCreators
 import org.springframework.web.util.UriComponentsBuilder
+
+fun mockAndExpectBrukertilgangRequest(mockRestServiceServer: MockRestServiceServer, brukertilgangUrl: String, ansattFnr: String) {
+    val uriString = UriComponentsBuilder.fromHttpUrl(brukertilgangUrl)
+            .path("/api/v1/tilgang/ansatt/")
+            .path(ansattFnr)
+            .toUriString()
+    try {
+        val json = ObjectMapper().writeValueAsString(true)
+
+        mockRestServiceServer.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(uriString))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON))
+    } catch (e: JsonProcessingException) {
+        e.printStackTrace()
+    }
+}
 
 
 fun mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer: MockRestServiceServer, behandlendeenhetUrl: String, fnr: String) {
