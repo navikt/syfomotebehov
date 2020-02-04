@@ -7,8 +7,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestClientException
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.*
 
 @Service
 class BrukertilgangConsumer(
@@ -31,6 +30,8 @@ class BrukertilgangConsumer(
             metrikk.tellHendelse("call_syfobrukertilgang_success")
             return responseBody
         } catch (e: RestClientException) {
+            throw e
+        } catch (e: HttpServerErrorException) {
             metrikk.tellHendelse("call_syfobrukertilgang_fail")
             LOG.error("Error requesting ansatt access from syfobrukertilgang: ", e)
             throw e
