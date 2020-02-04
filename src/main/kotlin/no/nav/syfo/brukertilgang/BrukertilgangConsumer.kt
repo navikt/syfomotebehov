@@ -29,7 +29,7 @@ class BrukertilgangConsumer(
             val responseBody = response.body!!
             metrikk.tellHendelse("call_syfobrukertilgang_success")
             return responseBody
-        } catch (e: RestClientException) {
+        } catch (e: HttpClientErrorException) {
             throw e
         } catch (e: HttpServerErrorException) {
             metrikk.tellHendelse("call_syfobrukertilgang_fail")
