@@ -7,6 +7,7 @@ group = "no.nav.syfo"
 version = "1.0.0"
 
 val cxfVersion = "3.2.7"
+val personV3Version = "1.2019.07.11-06.47-b55f47790a9d"
 val springBootVersion = "2.0.4.RELEASE"
 val kotlinLibVersion = "1.3.50"
 val kotlinJacksonVersion = "2.9.8"
@@ -63,7 +64,7 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus:1.0.6")
 
     implementation("no.nav.syfo.tjenester:aktoer-v2:1.0")
-    implementation("no.nav.tjenester:nav-person-v3-tjenestespesifikasjon:3.4.1")
+    implementation("no.nav.tjenestespesifikasjoner:person-v3-tjenestespesifikasjon:$personV3Version")
     implementation("no.nav.syfo.tjenester:sykefravaersoppfoelgingv1-tjenestespesifikasjon:1.0.20")
     implementation("no.nav.security:oidc-spring-support:0.2.4")
     implementation("no.nav.security:oidc-support:0.2.4")
