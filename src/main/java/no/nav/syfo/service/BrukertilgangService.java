@@ -1,7 +1,8 @@
 package no.nav.syfo.service;
 
+import no.nav.syfo.aktorregister.AktorregisterConsumer;
+import no.nav.syfo.aktorregister.domain.Fodselsnummer;
 import no.nav.syfo.brukertilgang.BrukertilgangConsumer;
-import no.nav.syfo.consumer.ws.AktoerConsumer;
 import no.nav.syfo.consumer.ws.PersonConsumer;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -14,23 +15,23 @@ import static no.nav.syfo.config.CacheConfig.CACHENAME_TILGANG_IDENT;
 @Service
 public class BrukertilgangService {
 
-    private final AktoerConsumer aktoerConsumer;
+    private final AktorregisterConsumer aktorregisterConsumer;
     private final BrukertilgangConsumer brukertilgangConsumer;
     private final PersonConsumer personConsumer;
 
     @Inject
     public BrukertilgangService(
-            AktoerConsumer aktoerConsumer,
+            AktorregisterConsumer aktorregisterConsumer,
             BrukertilgangConsumer brukertilgangConsumer,
             PersonConsumer personConsumer
     ) {
-        this.aktoerConsumer = aktoerConsumer;
+        this.aktorregisterConsumer = aktorregisterConsumer;
         this.brukertilgangConsumer = brukertilgangConsumer;
         this.personConsumer = personConsumer;
     }
 
     public boolean harTilgangTilOppslaattBruker(String innloggetIdent, String fnr) {
-        String oppslaattAktoerId = aktoerConsumer.hentAktoerIdForFnr(fnr);
+        String oppslaattAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(fnr));
         try {
             return !(sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetIdent, fnr)
                     || personConsumer.erBrukerKode6(oppslaattAktoerId));

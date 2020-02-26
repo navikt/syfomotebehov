@@ -1,8 +1,10 @@
 package no.nav.syfo.service;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.syfo.aktorregister.AktorregisterConsumer;
+import no.nav.syfo.aktorregister.domain.AktorId;
+import no.nav.syfo.aktorregister.domain.Fodselsnummer;
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhetConsumer;
-import no.nav.syfo.consumer.ws.AktoerConsumer;
 import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import no.nav.syfo.repository.domain.PMotebehov;
@@ -30,7 +32,7 @@ import static no.nav.syfo.util.RestUtils.baseUrl;
 public class MotebehovService {
 
     private final Metrikk metrikk;
-    private final AktoerConsumer aktoerConsumer;
+    private final AktorregisterConsumer aktorregisterConsumer;
     private final BehandlendeEnhetConsumer behandlendeEnhetConsumer;
     private final OversikthendelseService oversikthendelseService;
     private final MotebehovDAO motebehovDAO;
@@ -38,13 +40,13 @@ public class MotebehovService {
     @Inject
     public MotebehovService(
             Metrikk metrikk,
-            AktoerConsumer aktoerConsumer,
+            AktorregisterConsumer aktorregisterConsumer,
             BehandlendeEnhetConsumer behandlendeEnhetConsumer,
             OversikthendelseService oversikthendelseService,
             MotebehovDAO motebehovDAO
     ) {
         this.metrikk = metrikk;
-        this.aktoerConsumer = aktoerConsumer;
+        this.aktorregisterConsumer = aktorregisterConsumer;
         this.behandlendeEnhetConsumer = behandlendeEnhetConsumer;
         this.oversikthendelseService = oversikthendelseService;
         this.motebehovDAO = motebehovDAO;
@@ -52,7 +54,7 @@ public class MotebehovService {
 
     @Transactional
     public void behandleUbehandledeMotebehov(final Fnr arbeidstakerFnr, final String veilederIdent) {
-        int antallOppdateringer = motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr()), veilederIdent);
+        int antallOppdateringer = motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(arbeidstakerFnr.getFnr())), veilederIdent);
 
         if (antallOppdateringer > 0) {
             String behandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.getFnr()).getEnhetId();
@@ -66,7 +68,7 @@ public class MotebehovService {
     }
 
     public List<Motebehov> hentMotebehovListe(final Fnr arbeidstakerFnr) {
-        final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
+        final String arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(arbeidstakerFnr.getFnr()));
         return motebehovDAO.hentMotebehovListeForAktoer(arbeidstakerAktoerId)
                 .orElse(emptyList())
                 .stream()
@@ -75,7 +77,7 @@ public class MotebehovService {
     }
 
     public List<Motebehov> hentMotebehovListeForOgOpprettetAvArbeidstaker(final Fnr arbeidstakerFnr) {
-        final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
+        final String arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(arbeidstakerFnr.getFnr()));
         return motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktoerId)
                 .orElse(emptyList())
                 .stream()
@@ -84,7 +86,7 @@ public class MotebehovService {
     }
 
     public List<Motebehov> hentMotebehovListeForArbeidstakerOpprettetAvLeder(final Fnr arbeidstakerFnr, String virksomhetsnummer) {
-        final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
+        final String arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(arbeidstakerFnr.getFnr()));
         return motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerAktoerId, virksomhetsnummer)
                 .orElse(emptyList())
                 .stream()
@@ -94,8 +96,8 @@ public class MotebehovService {
 
     @Transactional
     public UUID lagreMotebehov(Fnr innloggetFNR, Fnr arbeidstakerFnr, final NyttMotebehov nyttMotebehov) {
-        final String innloggetBrukerAktoerId = aktoerConsumer.hentAktoerIdForFnr(innloggetFNR.getFnr());
-        final String arbeidstakerAktoerId = aktoerConsumer.hentAktoerIdForFnr(arbeidstakerFnr.getFnr());
+        final String innloggetBrukerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(innloggetFNR.getFnr()));
+        final String arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(arbeidstakerFnr.getFnr()));
         final String arbeidstakerBehandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.getFnr()).getEnhetId();
         final PMotebehov motebehov = mapNyttMotebehovToPMotebehov(innloggetBrukerAktoerId, arbeidstakerAktoerId, arbeidstakerBehandlendeEnhet, nyttMotebehov);
 
@@ -114,7 +116,7 @@ public class MotebehovService {
         return motebehovDAO.finnMotebehovMedBehovOpprettetSiden(LocalDateTime.parse(timestamp))
                 .stream()
                 .map(motebehov -> {
-                    String fnr = aktoerConsumer.hentFnrForAktoerId(motebehov.aktoerId);
+                    String fnr = aktorregisterConsumer.getFnrForAktorId(new AktorId(motebehov.aktoerId));
                     return mapPMotebehovToVeilederOppgaveFeedItem(motebehov, fnr);
                 })
                 .collect(toList());

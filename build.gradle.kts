@@ -62,8 +62,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-jta-atomikos:$springBootVersion")
 
     implementation("io.micrometer:micrometer-registry-prometheus:1.0.6")
-
-    implementation("no.nav.syfo.tjenester:aktoer-v2:1.0")
+    
     implementation("no.nav.tjenestespesifikasjoner:person-v3-tjenestespesifikasjon:$personV3Version")
     implementation("no.nav.syfo.tjenester:sykefravaersoppfoelgingv1-tjenestespesifikasjon:1.0.20")
     implementation("no.nav.security:oidc-spring-support:0.2.4")

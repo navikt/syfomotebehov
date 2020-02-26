@@ -3,6 +3,8 @@ package no.nav.syfo.controller.azuread;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.LocalApplication;
+import no.nav.syfo.aktorregister.AktorregisterConsumer;
+import no.nav.syfo.aktorregister.domain.Fodselsnummer;
 import no.nav.syfo.controller.MotebehovBrukerController;
 import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.kafka.producer.model.KOversikthendelse;
@@ -109,6 +111,9 @@ public class MotebehovVeilederADControllerTest {
     private RestTemplate restTemplate;
 
     @MockBean
+    private AktorregisterConsumer aktorregisterConsumer;
+
+    @MockBean
     private KafkaTemplate<String, Object> kafkaTemplate;
 
     private MockRestServiceServer mockRestServiceServer;
@@ -118,6 +123,8 @@ public class MotebehovVeilederADControllerTest {
         cleanDB();
         this.mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build();
         when(kafkaTemplate.send(anyString(), anyString(), any(KOversikthendelse.class))).thenReturn(mock(ListenableFuture.class));
+        when(aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(ARBEIDSTAKER_AKTORID);
+        when(aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(LEDER_FNR))).thenReturn(LEDER_AKTORID);
     }
 
     @After

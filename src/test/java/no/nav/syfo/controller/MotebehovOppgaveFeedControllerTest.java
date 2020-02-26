@@ -2,12 +2,15 @@ package no.nav.syfo.controller;
 
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.LocalApplication;
+import no.nav.syfo.aktorregister.AktorregisterConsumer;
+import no.nav.syfo.aktorregister.domain.Fodselsnummer;
 import no.nav.syfo.domain.rest.VeilederOppgaveFeedItem;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import no.nav.syfo.testhelper.MotebehovGenerator;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -17,9 +20,9 @@ import java.util.List;
 import static java.time.LocalDateTime.now;
 import static no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker;
 import static no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle;
-import static no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID;
-import static no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR;
+import static no.nav.syfo.testhelper.UserConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = LocalApplication.class)
@@ -35,10 +38,14 @@ public class MotebehovOppgaveFeedControllerTest {
     @Inject
     private MotebehovDAO motebehovDAO;
 
+    @MockBean
+    private AktorregisterConsumer aktorregisterConsumer;
+
     private MotebehovGenerator motebehovGenerator = new MotebehovGenerator();
 
     @Before
     public void setUp() {
+        when(aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(LEDER_FNR))).thenReturn(LEDER_AKTORID);
         loggInnBruker(oidcRequestContextHolder, ARBEIDSTAKER_FNR);
         cleanDB();
     }

@@ -2,6 +2,8 @@ package no.nav.syfo.controller;
 
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.LocalApplication;
+import no.nav.syfo.aktorregister.AktorregisterConsumer;
+import no.nav.syfo.aktorregister.domain.Fodselsnummer;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.MotebehovSvar;
 import no.nav.syfo.kafka.producer.OversikthendelseProducer;
@@ -29,8 +31,7 @@ import static no.nav.syfo.testhelper.RestHelperKt.*;
 import static no.nav.syfo.testhelper.UserConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 /**
  * Komponent / blackbox test av møtebehovsfunskjonaliteten - test at input til endepunktet (controlleren, for enkelhets skyld)
@@ -75,6 +76,9 @@ public class MotebehovComponentTest {
     private RestTemplate restTemplate;
 
     @MockBean
+    private AktorregisterConsumer aktorregisterConsumer;
+
+    @MockBean
     private OversikthendelseProducer oversikthendelseProducer;
 
     private MockRestServiceServer mockRestServiceServer;
@@ -83,6 +87,9 @@ public class MotebehovComponentTest {
 
     @Before
     public void setUp() {
+        when(aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(ARBEIDSTAKER_AKTORID);
+        when(aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(LEDER_FNR))).thenReturn(LEDER_AKTORID);
+
         this.mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build();
         loggInnBruker(oidcRequestContextHolder, LEDER_FNR);
         cleanDB();
