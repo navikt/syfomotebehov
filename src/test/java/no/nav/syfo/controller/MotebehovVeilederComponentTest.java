@@ -3,6 +3,8 @@ package no.nav.syfo.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.LocalApplication;
+import no.nav.syfo.aktorregister.AktorregisterConsumer;
+import no.nav.syfo.aktorregister.domain.Fodselsnummer;
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhet;
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhetConsumer;
 import no.nav.syfo.domain.rest.*;
@@ -92,6 +94,9 @@ public class MotebehovVeilederComponentTest {
     private RestTemplate restTemplate;
 
     @MockBean
+    private AktorregisterConsumer aktorregisterConsumer;
+
+    @MockBean
     private BehandlendeEnhetConsumer behandlendeEnhetConsumer;
     @MockBean
     private KafkaTemplate<String, Object> kafkaTemplate;
@@ -101,6 +106,9 @@ public class MotebehovVeilederComponentTest {
 
     @Before
     public void setUp() {
+        when(aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(ARBEIDSTAKER_AKTORID);
+        when(aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(LEDER_FNR))).thenReturn(LEDER_AKTORID);
+
         cleanDB();
         this.mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build();
         when(behandlendeEnhetConsumer.getBehandlendeEnhet(ARBEIDSTAKER_FNR)).thenReturn(new BehandlendeEnhet("", ""));

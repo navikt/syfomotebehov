@@ -27,6 +27,7 @@ server:
     context-path: /syfomotebehov
 
 
+aktorregister.rest.url: "aktorregister.url"
 securitytokenservice.url: "sts.url"
 
 srvsyfomotebehov:

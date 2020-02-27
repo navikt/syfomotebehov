@@ -3,8 +3,9 @@ package no.nav.syfo.service;
 import com.nimbusds.jwt.SignedJWT;
 import no.nav.security.oidc.context.*;
 import no.nav.security.spring.oidc.test.JwtTokenGenerator;
+import no.nav.syfo.aktorregister.AktorregisterConsumer;
+import no.nav.syfo.aktorregister.domain.Fodselsnummer;
 import no.nav.syfo.brukertilgang.BrukertilgangConsumer;
-import no.nav.syfo.consumer.ws.AktoerConsumer;
 import no.nav.syfo.consumer.ws.PersonConsumer;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -22,7 +23,7 @@ public class BrukertilgangskontrollServiceTest {
     @Mock
     private OIDCRequestContextHolder oidcRequestContextHolder;
     @Mock
-    private AktoerConsumer aktorConsumer;
+    private AktorregisterConsumer aktorregisterConsumer;
     @Mock
     private BrukertilgangConsumer brukertilgangConsumer;
     @Mock
@@ -39,7 +40,7 @@ public class BrukertilgangskontrollServiceTest {
     public void setup() {
         mockOIDC(INNLOGGET_FNR);
 
-        when(aktorConsumer.hentAktoerIdForFnr(SPOR_OM_FNR)).thenReturn(SPOR_OM_AKTOERID);
+        when(aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(SPOR_OM_FNR))).thenReturn(SPOR_OM_AKTOERID);
         when(personConsumer.erBrukerKode6(SPOR_OM_AKTOERID)).thenReturn(false);
     }
 
