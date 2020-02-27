@@ -28,6 +28,7 @@ server:
 
 
 aktorregister.rest.url: "aktorregister.url"
+pdl.url: "https://pdl"
 securitytokenservice.url: "sts.url"
 
 srvsyfomotebehov:
@@ -50,15 +51,11 @@ no.nav.security.oidc:
     selvbetjening.accepted_audience: aud-localhost
     selvbetjening.cookie_name: localhost-idtoken
 
-aktoer.v2.url: "aktoerv2.url"
 syfobrukertilgang.url: "http://syfobrukertilgang"
 sykefravaersoppfoelging.v1.url: "sykefravaeroppfoelgingv1.url"
-person.v3.url: "personv3.url"
 
 nais.cluster.name: 'local'
 
-mockAktoer_V2: true
-mockPerson_V3: true
 mockSykefravaeroppfoelging_V1: true
 
 dev: true

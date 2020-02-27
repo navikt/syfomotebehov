@@ -10,7 +10,7 @@ public class Fnr {
 
     @NotEmpty
     @Pattern(regexp = "^[0-9]{11}$")
-    String fnr;
+    public String fnr;
 
     @Override
     public boolean equals(Object o) {

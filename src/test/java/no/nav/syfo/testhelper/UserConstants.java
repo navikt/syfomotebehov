@@ -14,4 +14,10 @@ public class UserConstants {
     public static final String VEILEDER_ID = "Z999999";
     public static final String VEILEDER_2_ID = "Z888888";
     public static final String STS_TOKEN = "123456789";
+
+    public static final String PERSON_NAME_FIRST = "First";
+    public static final String PERSON_NAME_MIDDLE = "Middle";
+    public static final String PERSON_NAME_LAST = "Last";
+
+    public static final String PERSON_FULL_NAME = PERSON_NAME_FIRST + " " +  PERSON_NAME_MIDDLE + " " + PERSON_NAME_LAST;
 }

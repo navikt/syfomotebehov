@@ -3,8 +3,13 @@ package no.nav.syfo.controller;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
-import no.nav.syfo.domain.rest.*;
-import no.nav.syfo.service.*;
+import no.nav.syfo.aktorregister.domain.Fodselsnummer;
+import no.nav.syfo.domain.rest.Fnr;
+import no.nav.syfo.domain.rest.Motebehov;
+import no.nav.syfo.historikk.Historikk;
+import no.nav.syfo.historikk.HistorikkService;
+import no.nav.syfo.service.MotebehovService;
+import no.nav.syfo.service.VeilederTilgangService;
 import no.nav.syfo.util.Metrikk;
 import no.nav.syfo.util.Toggle;
 import org.springframework.web.bind.annotation.*;
@@ -59,7 +64,7 @@ public class MotebehovVeilederController {
 
             kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
 
-            return motebehovService.hentMotebehovListe(Fnr.of(arbeidstakerFnr));
+            return motebehovService.hentMotebehovListe(new Fodselsnummer(arbeidstakerFnr));
         } else {
             log.info("Det ble gjort kall mot 'veileder/motebehov', men dette endepunktet er togglet av.");
             return emptyList();
@@ -76,7 +81,7 @@ public class MotebehovVeilederController {
 
             kastExceptionHvisIkkeTilgang(arbeidstakerFnr);
 
-            return historikkService.hentHistorikkListe(Fnr.of(arbeidstakerFnr));
+            return historikkService.hentHistorikkListe(arbeidstakerFnr);
         } else {
             log.info("Det ble gjort kall mot 'veileder/historikk', men dette endepunktet er togglet av.");
             return emptyList();
