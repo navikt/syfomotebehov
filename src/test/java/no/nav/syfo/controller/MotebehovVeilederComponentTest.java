@@ -4,11 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.LocalApplication;
 import no.nav.syfo.aktorregister.AktorregisterConsumer;
+import no.nav.syfo.aktorregister.domain.AktorId;
 import no.nav.syfo.aktorregister.domain.Fodselsnummer;
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhet;
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhetConsumer;
 import no.nav.syfo.domain.rest.*;
+import no.nav.syfo.historikk.Historikk;
 import no.nav.syfo.kafka.producer.model.KOversikthendelse;
+import no.nav.syfo.pdl.PdlConsumer;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -29,13 +32,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
+import static no.nav.syfo.historikk.HistorikkService.HAR_SVART_PAA_MOTEBEHOV;
+import static no.nav.syfo.historikk.HistorikkService.MOTEBEHOVET_BLE_LEST_AV;
 import static no.nav.syfo.kafka.producer.OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC;
-import static no.nav.syfo.mock.PersonMock.PERSON_NAVN;
-import static no.nav.syfo.service.HistorikkService.HAR_SVART_PAA_MOTEBEHOV;
-import static no.nav.syfo.service.HistorikkService.MOTEBEHOVET_BLE_LEST_AV;
 import static no.nav.syfo.service.VeilederTilgangService.FNR;
 import static no.nav.syfo.service.VeilederTilgangService.TILGANG_TIL_BRUKER_PATH;
 import static no.nav.syfo.testhelper.OidcTestHelper.*;
+import static no.nav.syfo.testhelper.PdlPersonResponseGeneratorKt.generatePdlHentPerson;
 import static no.nav.syfo.testhelper.RestHelperKt.mockAndExpectBrukertilgangRequest;
 import static no.nav.syfo.testhelper.UserConstants.*;
 import static no.nav.syfo.util.AuthorizationFilterUtils.basicCredentials;
@@ -95,6 +98,8 @@ public class MotebehovVeilederComponentTest {
 
     @MockBean
     private AktorregisterConsumer aktorregisterConsumer;
+    @MockBean
+    private PdlConsumer pdlConsumer;
 
     @MockBean
     private BehandlendeEnhetConsumer behandlendeEnhetConsumer;
@@ -106,8 +111,11 @@ public class MotebehovVeilederComponentTest {
 
     @Before
     public void setUp() {
+        when(aktorregisterConsumer.getFnrForAktorId(new AktorId(ARBEIDSTAKER_AKTORID))).thenReturn(ARBEIDSTAKER_FNR);
+        when(aktorregisterConsumer.getFnrForAktorId(new AktorId(LEDER_AKTORID))).thenReturn(LEDER_FNR);
         when(aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(ARBEIDSTAKER_AKTORID);
         when(aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(LEDER_FNR))).thenReturn(LEDER_AKTORID);
+        when(pdlConsumer.person(any())).thenReturn(generatePdlHentPerson(null, null));
 
         cleanDB();
         this.mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build();
@@ -177,13 +185,13 @@ public class MotebehovVeilederComponentTest {
         assertThat(historikkListe).size().isEqualTo(2);
 
         Historikk motebehovOpprettetHistorikk = historikkListe.get(0);
-        assertThat(motebehovOpprettetHistorikk.opprettetAv).isEqualTo(LEDER_AKTORID);
-        assertThat(motebehovOpprettetHistorikk.tekst).isEqualTo(PERSON_NAVN + HAR_SVART_PAA_MOTEBEHOV);
-        assertThat(motebehovOpprettetHistorikk.tidspunkt).isEqualTo(motebehov.opprettetDato);
+        assertThat(motebehovOpprettetHistorikk.getOpprettetAv()).isEqualTo(LEDER_AKTORID);
+        assertThat(motebehovOpprettetHistorikk.getTekst()).isEqualTo(PERSON_FULL_NAME + HAR_SVART_PAA_MOTEBEHOV);
+        assertThat(motebehovOpprettetHistorikk.getTidspunkt()).isEqualTo(motebehov.opprettetDato);
 
         Historikk veilederOppgaveHistorikk = historikkListe.get(1);
-        assertThat(veilederOppgaveHistorikk.tekst).isEqualTo(MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID);
-        assertThat(veilederOppgaveHistorikk.tidspunkt).isEqualTo(LocalDateTime.of(2018, 10, 10, 0, 0));
+        assertThat(veilederOppgaveHistorikk.getTekst()).isEqualTo(MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID);
+        assertThat(veilederOppgaveHistorikk.getTidspunkt()).isEqualTo(LocalDateTime.of(2018, 10, 10, 0, 0));
     }
 
     @Test

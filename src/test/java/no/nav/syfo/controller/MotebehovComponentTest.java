@@ -8,6 +8,7 @@ import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.MotebehovSvar;
 import no.nav.syfo.kafka.producer.OversikthendelseProducer;
 import no.nav.syfo.kafka.producer.model.KOversikthendelse;
+import no.nav.syfo.pdl.PdlConsumer;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import no.nav.syfo.sts.StsConsumer;
 import no.nav.syfo.testhelper.MotebehovGenerator;
@@ -27,6 +28,7 @@ import java.util.List;
 
 import static no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker;
 import static no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle;
+import static no.nav.syfo.testhelper.PdlPersonResponseGeneratorKt.generatePdlHentPerson;
 import static no.nav.syfo.testhelper.RestHelperKt.*;
 import static no.nav.syfo.testhelper.UserConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,6 +79,8 @@ public class MotebehovComponentTest {
 
     @MockBean
     private AktorregisterConsumer aktorregisterConsumer;
+    @MockBean
+    private PdlConsumer pdlConsumer;
 
     @MockBean
     private OversikthendelseProducer oversikthendelseProducer;
@@ -89,6 +93,7 @@ public class MotebehovComponentTest {
     public void setUp() {
         when(aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(ARBEIDSTAKER_AKTORID);
         when(aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(LEDER_FNR))).thenReturn(LEDER_AKTORID);
+        when(pdlConsumer.person(any())).thenReturn(generatePdlHentPerson(null, null));
 
         this.mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build();
         loggInnBruker(oidcRequestContextHolder, LEDER_FNR);

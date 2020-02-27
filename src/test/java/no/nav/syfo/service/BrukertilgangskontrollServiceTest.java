@@ -3,10 +3,10 @@ package no.nav.syfo.service;
 import com.nimbusds.jwt.SignedJWT;
 import no.nav.security.oidc.context.*;
 import no.nav.security.spring.oidc.test.JwtTokenGenerator;
-import no.nav.syfo.aktorregister.AktorregisterConsumer;
 import no.nav.syfo.aktorregister.domain.Fodselsnummer;
 import no.nav.syfo.brukertilgang.BrukertilgangConsumer;
-import no.nav.syfo.consumer.ws.PersonConsumer;
+import no.nav.syfo.brukertilgang.BrukertilgangService;
+import no.nav.syfo.pdl.*;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -14,6 +14,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static no.nav.syfo.oidc.OIDCIssuer.EKSTERN;
+import static no.nav.syfo.testhelper.PdlPersonResponseGeneratorKt.generatePdlHentPerson;
+import static no.nav.syfo.testhelper.UserConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -23,25 +25,29 @@ public class BrukertilgangskontrollServiceTest {
     @Mock
     private OIDCRequestContextHolder oidcRequestContextHolder;
     @Mock
-    private AktorregisterConsumer aktorregisterConsumer;
-    @Mock
     private BrukertilgangConsumer brukertilgangConsumer;
     @Mock
-    private PersonConsumer personConsumer;
+    private PdlConsumer pdlConsumer;
     @InjectMocks
     private BrukertilgangService tilgangskontrollService;
 
     private static final String INNLOGGET_FNR = "15065933818";
-    private static final String INNLOGGET_AKTOERID = "1234567890123";
     private static final String SPOR_OM_FNR = "12345678902";
-    private static final String SPOR_OM_AKTOERID = "1234567890122";
 
     @Before
     public void setup() {
         mockOIDC(INNLOGGET_FNR);
 
-        when(aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(SPOR_OM_FNR))).thenReturn(SPOR_OM_AKTOERID);
-        when(personConsumer.erBrukerKode6(SPOR_OM_AKTOERID)).thenReturn(false);
+        PdlHentPerson pdlPersonResponse = generatePdlHentPerson(
+                new PdlPersonNavn(
+                        PERSON_NAME_FIRST,
+                        PERSON_NAME_MIDDLE,
+                        PERSON_NAME_LAST
+                ),
+                null
+        );
+
+        when(pdlConsumer.person(new Fodselsnummer(SPOR_OM_FNR))).thenReturn(pdlPersonResponse);
     }
 
     @After
@@ -51,8 +57,17 @@ public class BrukertilgangskontrollServiceTest {
 
     @Test
     public void harTilgangTilOppslaattBrukerGirFalseNaarOppslaattBrukerErKode6() {
+        PdlHentPerson pdlPersonResponseFortrolig = generatePdlHentPerson(
+                new PdlPersonNavn(
+                        PERSON_NAME_FIRST,
+                        PERSON_NAME_MIDDLE,
+                        PERSON_NAME_LAST
+                ),
+                new Adressebeskyttelse(Gradering.STRENGT_FORTROLIG)
+        );
+
         when(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(true);
-        when(personConsumer.erBrukerKode6(SPOR_OM_AKTOERID)).thenReturn(true);
+        when(pdlConsumer.person(new Fodselsnummer(SPOR_OM_FNR))).thenReturn(pdlPersonResponseFortrolig);
 
         boolean tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR);
         assertThat(tilgang).isFalse();

@@ -36,7 +36,7 @@ public class VeilederOppgaverService {
         this.credPassword = credPassword;
     }
 
-    List<VeilederOppgave> get(String fnr) {
+    public List<VeilederOppgave> getVeilederoppgave(String fnr) {
         String url = fromHttpUrl(syfoveilederoppgaverUrl)
                 .queryParam("fnr", fnr)
                 .toUriString();

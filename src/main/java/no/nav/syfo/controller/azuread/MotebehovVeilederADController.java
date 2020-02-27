@@ -2,8 +2,13 @@ package no.nav.syfo.controller.azuread;
 
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
-import no.nav.syfo.domain.rest.*;
-import no.nav.syfo.service.*;
+import no.nav.syfo.aktorregister.domain.Fodselsnummer;
+import no.nav.syfo.domain.rest.Fnr;
+import no.nav.syfo.domain.rest.Motebehov;
+import no.nav.syfo.historikk.Historikk;
+import no.nav.syfo.historikk.HistorikkService;
+import no.nav.syfo.service.MotebehovService;
+import no.nav.syfo.service.VeilederTilgangService;
 import no.nav.syfo.util.Metrikk;
 import no.nav.syfo.util.Toggle;
 import org.slf4j.Logger;
@@ -16,8 +21,8 @@ import javax.ws.rs.ForbiddenException;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
-import static no.nav.syfo.util.OIDCUtil.getSubjectInternAD;
 import static no.nav.syfo.oidc.OIDCIssuer.AZURE;
+import static no.nav.syfo.util.OIDCUtil.getSubjectInternAD;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -63,7 +68,7 @@ public class MotebehovVeilederADController {
 
             kastExceptionHvisIkkeTilgang(fnr);
 
-            return motebehovService.hentMotebehovListe(fnr);
+            return motebehovService.hentMotebehovListe(new Fodselsnummer(fnr.getFnr()));
         } else {
             log.info("Det ble gjort kall mot 'veileder/motebehov', men dette endepunktet er togglet av.");
             return emptyList();
@@ -81,7 +86,7 @@ public class MotebehovVeilederADController {
 
             kastExceptionHvisIkkeTilgang(fnr);
 
-            return historikkService.hentHistorikkListe(fnr);
+            return historikkService.hentHistorikkListe(fnr.getFnr());
         } else {
             log.info("Det ble gjort kall mot 'veileder/historikk', men dette endepunktet er togglet av.");
             return emptyList();
