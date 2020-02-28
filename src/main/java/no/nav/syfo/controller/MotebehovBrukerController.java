@@ -1,8 +1,8 @@
 package no.nav.syfo.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.security.oidc.api.ProtectedWithClaims;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
-import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.brukertilgang.BrukertilgangService;
 import no.nav.syfo.service.MotebehovService;

@@ -1,7 +1,7 @@
 package no.nav.syfo.controller.azuread;
 
+import no.nav.security.oidc.api.ProtectedWithClaims;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
-import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
 import no.nav.syfo.aktorregister.domain.Fodselsnummer;
 import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Motebehov;

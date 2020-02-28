@@ -1,7 +1,7 @@
 package no.nav.syfo.web.selftest;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.security.spring.oidc.validation.api.Unprotected;
+import no.nav.security.oidc.api.Unprotected;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
