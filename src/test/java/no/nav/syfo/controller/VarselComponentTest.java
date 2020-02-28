@@ -7,6 +7,7 @@ import no.nav.syfo.domain.rest.MotebehovsvarVarselInfo;
 import no.nav.syfo.kafka.producer.TredjepartsvarselProducer;
 import no.nav.syfo.kafka.producer.model.KTredjepartsvarsel;
 import no.nav.syfo.service.*;
+import no.nav.syfo.sts.StsConsumer;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -27,6 +28,7 @@ import javax.ws.rs.core.Response;
 
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static no.nav.syfo.kafka.producer.VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV;
+import static no.nav.syfo.testhelper.RestHelperKt.mockAndExpectSTSService;
 import static no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID;
 import static no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER;
 import static org.junit.Assert.assertEquals;
@@ -48,6 +50,18 @@ public class VarselComponentTest {
 
     @Value("${syfomoteadminapi.url}")
     String syfomoteadminUrl;
+
+    @Value("${security.token.service.rest.url}")
+    private String stsUrl;
+
+    @Value("${srv.username}")
+    private String srvUsername;
+
+    @Value("${srv.password}")
+    private String srvPassword;
+
+    @Inject
+    private StsConsumer stsConsumer;
 
     @Inject
     private VarselController varselController;
@@ -95,6 +109,8 @@ public class VarselComponentTest {
 
     @Test
     public void sendVarselNaermesteLeder_skal_sende_varsel_til_NL_hvis_ikke_mote() throws Exception {
+        mockSTS();
+
         mockSvarFraSyfomoteadmin(false);
         when(kafkaTemplate.send(anyString(), anyString(), any(KTredjepartsvarsel.class))).thenReturn(mock(ListenableFuture.class));
 
@@ -110,12 +126,20 @@ public class VarselComponentTest {
 
     @Test
     public void sendVarselNaermesteLeder_skal_ikke_sende_varsel_til_NL_hvis_mote_finnes() throws Exception {
+        mockSTS();
+
         mockSvarFraSyfomoteadmin(true);
 
         Response returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo);
 
         verify(kafkaTemplate, never()).send(any(), any(), any());
         assertEquals(HttpStatus.OK.value(), returnertSvarFraVarselcontroller.getStatus());
+    }
+
+    private void mockSTS() {
+        if (!stsConsumer.isTokenCached()) {
+            mockAndExpectSTSService(mockRestServiceServer, stsUrl, srvUsername, srvPassword);
+        }
     }
 
     private void mockSvarFraSyfomoteadmin(boolean harAktivtMote) throws Exception {
