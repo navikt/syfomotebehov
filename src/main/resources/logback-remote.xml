@@ -12,5 +12,7 @@
 		<appender-ref ref="stdout_json"/>
 	</logger>
 
+	<logger name="no.nav.security.spring.oidc.validation.interceptor.OIDCTokenControllerHandlerInterceptor" level="OFF" />
+
 	<logger name="org.springframework" level="INFO"/>
 </included>
