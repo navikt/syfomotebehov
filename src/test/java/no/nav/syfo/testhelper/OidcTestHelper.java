@@ -9,18 +9,12 @@ import no.nav.syfo.oidc.OIDCIssuer;
 import java.text.ParseException;
 
 import static no.nav.syfo.oidc.OIDCIssuer.EKSTERN;
-import static no.nav.syfo.oidc.OIDCIssuer.INTERN;
 
 public class OidcTestHelper {
 
     public static void loggInnBruker(OIDCRequestContextHolder oidcRequestContextHolder, String subject) {
         SignedJWT jwt = JwtTokenGenerator.createSignedJWT(subject);
         settOIDCValidationContext(oidcRequestContextHolder, jwt, EKSTERN);
-    }
-
-    public static void loggInnVeileder(OIDCRequestContextHolder oidcRequestContextHolder, String subject) {
-        SignedJWT jwt = JwtTokenGenerator.createSignedJWT(subject);
-        settOIDCValidationContext(oidcRequestContextHolder, jwt, INTERN);
     }
 
     public static void loggInnVeilederAzure(OIDCRequestContextHolder oidcRequestContextHolder, String veilederIdent) throws ParseException {
