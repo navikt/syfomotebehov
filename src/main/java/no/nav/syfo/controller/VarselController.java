@@ -1,7 +1,7 @@
 package no.nav.syfo.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
+import no.nav.security.oidc.api.ProtectedWithClaims;
 import no.nav.syfo.domain.rest.MotebehovsvarVarselInfo;
 import no.nav.syfo.service.VarselService;
 import org.springframework.web.bind.annotation.*;

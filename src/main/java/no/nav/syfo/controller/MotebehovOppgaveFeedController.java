@@ -1,8 +1,8 @@
 package no.nav.syfo.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.security.spring.oidc.validation.api.ProtectedWithClaims;
-import no.nav.security.spring.oidc.validation.api.Unprotected;
+import no.nav.security.oidc.api.ProtectedWithClaims;
+import no.nav.security.oidc.api.Unprotected;
 import no.nav.syfo.domain.rest.VeilederOppgaveFeedItem;
 import no.nav.syfo.service.MotebehovService;
 import org.springframework.web.bind.annotation.*;

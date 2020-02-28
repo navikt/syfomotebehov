@@ -2,7 +2,7 @@ package no.nav.syfo.controller.internal;
 
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.security.spring.oidc.validation.api.Unprotected;
+import no.nav.security.oidc.api.Unprotected;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import no.nav.syfo.util.Toggle;
 import org.springframework.beans.factory.annotation.Value;
