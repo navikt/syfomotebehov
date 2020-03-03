@@ -1,12 +1,10 @@
 package no.nav.syfo.pdl
 
 import no.nav.syfo.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.config.CacheConfig
 import no.nav.syfo.sts.StsConsumer
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.cache.annotation.Cacheable
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.*
 import org.springframework.http.HttpHeaders.AUTHORIZATION
@@ -21,7 +19,6 @@ class PdlConsumer(
         private val stsConsumer: StsConsumer,
         private val restTemplate: RestTemplate
 ) {
-    @Cacheable(cacheNames = [CacheConfig.CACHENAME_PERSONBYFNR], key = "#fnr", condition = "#fnr != null")
     fun person(fnr: Fodselsnummer): PdlHentPerson? {
         metric.tellHendelse("call_pdl")
 
@@ -54,8 +51,7 @@ class PdlConsumer(
     }
 
     fun isKode6(fnr: Fodselsnummer): Boolean {
-        val person = person(fnr)
-        return person?.isKode6() ?: true
+        return person(fnr)?.isKode6() ?: throw PdlRequestFailedException()
     }
 
     private fun createRequestEntity(request: PdlRequest): HttpEntity<PdlRequest> {
