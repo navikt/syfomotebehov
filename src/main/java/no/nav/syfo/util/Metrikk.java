@@ -16,6 +16,16 @@ public class Metrikk {
         this.registry = registry;
     }
 
+    public void countOutgoingReponses(String navn, Integer statusCode) {
+        registry.counter(
+                addPrefix(navn),
+                Tags.of(
+                        "type", "info",
+                        "status", statusCode.toString()
+                )
+        ).increment();
+    }
+
     public void tellHendelse(String navn) {
         registry.counter(
                 addPrefix(navn),

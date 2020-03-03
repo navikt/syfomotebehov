@@ -2,10 +2,9 @@ package no.nav.syfo.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.spring.oidc.validation.interceptor.OIDCUnauthorizedException;
+import no.nav.syfo.brukertilgang.RequestUnauthorizedException;
 import no.nav.syfo.util.Metrikk;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -39,6 +38,9 @@ public class ControllerExceptionHandler {
             OIDCUnauthorizedException notAuthorizedException = (OIDCUnauthorizedException) ex;
 
             return handleOIDCUnauthorizedException(notAuthorizedException, headers, request);
+        } else if (ex instanceof RequestUnauthorizedException) {
+            RequestUnauthorizedException notAuthorizedException = (RequestUnauthorizedException) ex;
+            return handleRequestUnauthorizedException(notAuthorizedException, headers, request);
         }
 
         if (ex instanceof ForbiddenException) {
@@ -61,6 +63,10 @@ public class ControllerExceptionHandler {
     }
 
     private ResponseEntity<ApiError> handleOIDCUnauthorizedException(OIDCUnauthorizedException ex, HttpHeaders headers, WebRequest request) {
+        return handleExceptionInternal(ex, new ApiError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_MSG), headers, HttpStatus.UNAUTHORIZED, request);
+    }
+
+    private ResponseEntity<ApiError> handleRequestUnauthorizedException(RequestUnauthorizedException ex, HttpHeaders headers, WebRequest request) {
         return handleExceptionInternal(ex, new ApiError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_MSG), headers, HttpStatus.UNAUTHORIZED, request);
     }
 
