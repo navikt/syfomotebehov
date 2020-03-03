@@ -1,6 +1,7 @@
 package no.nav.syfo.service;
 
 import no.nav.syfo.sts.StsConsumer;
+import no.nav.syfo.util.Metrikk;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,8 +11,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.HttpServerErrorException;
 import java.time.LocalDateTime;
 
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static junit.framework.TestCase.assertFalse;
 import static no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID;
 import static org.junit.Assert.assertTrue;
@@ -24,6 +27,9 @@ public class MoterServiceTest {
 
     @Mock
     private StsConsumer stsConsumer;
+
+    @Mock
+    private Metrikk metrikk;
 
     @Mock
     private RestTemplate template;
@@ -52,16 +58,16 @@ public class MoterServiceTest {
         assertFalse(moterService.erMoteOpprettetForArbeidstakerEtterDato(ARBEIDSTAKER_AKTORID, START_DATO));
     }
 
-    @Test(expected = RuntimeException.class)
-    public void harArbeidstakerMoteIOppfolgingstilfelle_skal_kaste_exception_hvis_svar_fra_syfomoteadmin_er_null() {
+    @Test(expected = NullPointerException.class)
+    public void harArbeidstakerMoteIOppfolgingstilfelle_skal_kaste_NullPointerException_hvis_svar_fra_syfomoteadmin_er_null() {
         when(template.postForObject(anyString(), any(HttpEntity.class), any())).thenReturn(null);
 
         moterService.erMoteOpprettetForArbeidstakerEtterDato(ARBEIDSTAKER_AKTORID, START_DATO);
     }
 
     @Test(expected = RuntimeException.class)
-    public void harArbeidstakerMoteIOppfolgingstilfelle_skal_kaste_exception_hvis_kall_til_syfomoteadmin_feiler() {
-        when(template.postForObject(anyString(), any(HttpEntity.class), any())).thenReturn(null);
+    public void harArbeidstakerMoteIOppfolgingstilfelle_skal_kaste_RuntimeException_hvis_kall_til_syfomoteadmin_feiler() {
+        when(template.postForObject(anyString(), any(HttpEntity.class), any())).thenThrow(new HttpServerErrorException(INTERNAL_SERVER_ERROR));
 
         moterService.erMoteOpprettetForArbeidstakerEtterDato(ARBEIDSTAKER_AKTORID, START_DATO);
     }

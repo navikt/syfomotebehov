@@ -2,9 +2,12 @@ package no.nav.syfo.service;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.sts.StsConsumer;
+import no.nav.syfo.util.Metrikk;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 
@@ -17,18 +20,21 @@ public class MoterService {
 
     private final RestTemplate template;
     private final StsConsumer stsConsumer;
+    private final Metrikk metrikk;
     private String syfomoteadminUrl;
-
-
     private static final String SYFOMOTEADMIN_FEILMELDING_NULL = "Fikk null fra syfomoteadmin ved henting av om arbeidstaker har mote i oppfolgingstilfellet";
     private static final String SYFOMOTEADMIN_FEILMELDING_GENERELL = "Klarte ikke hente om det er mote i oppfolgingstilfelle fra syfomoteadmin";
+    private static final String SYFOMOTEADMIN_FEILMELDING_KLIENT = "Fikk 4XX-feil ved henting av om det er mote i oppfolgingstilfelle fra syfomoteadmin";
+    private static final String SYFOMOTEADMIN_FEILMELDING_SERVER = "Fikk 5XX-feil ved henting av om det er mote i oppfolgingstilfelle fra syfomoteadmin";
 
     public MoterService(
             RestTemplate template,
             StsConsumer stsConsumer,
+            Metrikk metrikk,
             @Value("${syfomoteadminapi.url}") String syfomoteadminUrl) {
         this.template = template;
         this.stsConsumer = stsConsumer;
+        this.metrikk = metrikk;
         this.syfomoteadminUrl = syfomoteadminUrl;
     }
 
@@ -41,14 +47,24 @@ public class MoterService {
                 .toUriString();
 
         try {
+            metrikk.tellHendelse("call_syfomoteadmin");
             Boolean erMoteOpprettetEtterDato = template.postForObject(url, requestEntity, Boolean.class);
             if (!ofNullable(erMoteOpprettetEtterDato).isPresent()) {
-                throw new RuntimeException(SYFOMOTEADMIN_FEILMELDING_NULL);
+                log.error(SYFOMOTEADMIN_FEILMELDING_NULL);
+                throw new NullPointerException();
             }
+            metrikk.tellHendelse("call_syfomoteadmin_success");
             return erMoteOpprettetEtterDato;
-        } catch (Exception e) {
-            log.error("Det skjedde en feil ved henting av om det er mote i oppfolgingstilfelle fra syfomoteadmin", e);
-            throw new RuntimeException(SYFOMOTEADMIN_FEILMELDING_GENERELL, e);
+        } catch (HttpClientErrorException e) {
+            log.warn(SYFOMOTEADMIN_FEILMELDING_KLIENT);
+            throw e;
+        } catch (HttpServerErrorException e) {
+            metrikk.tellHendelse("call_syfomoteadmin_fail");
+            log.error(SYFOMOTEADMIN_FEILMELDING_SERVER, e);
+            throw e;
+        } catch (RuntimeException e) {
+            log.error(SYFOMOTEADMIN_FEILMELDING_GENERELL, e);
+            throw e;
         }
     }
 
