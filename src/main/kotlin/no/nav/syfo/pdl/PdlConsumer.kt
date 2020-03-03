@@ -53,6 +53,11 @@ class PdlConsumer(
         }
     }
 
+    fun isKode6(fnr: Fodselsnummer): Boolean {
+        val person = person(fnr)
+        return person?.isKode6() ?: true
+    }
+
     private fun createRequestEntity(request: PdlRequest): HttpEntity<PdlRequest> {
         val stsToken: String = stsConsumer.token()
         val headers = HttpHeaders()

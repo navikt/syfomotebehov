@@ -3,7 +3,6 @@ package no.nav.syfo.brukertilgang
 import no.nav.syfo.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.config.CacheConfig
 import no.nav.syfo.pdl.PdlConsumer
-import no.nav.syfo.pdl.isKode6
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import javax.inject.Inject
@@ -17,7 +16,7 @@ class BrukertilgangService @Inject constructor(
     fun harTilgangTilOppslaattBruker(innloggetIdent: String, fnr: String): Boolean {
         return try {
             !(sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetIdent, fnr)
-                    || pdlConsumer.person(Fodselsnummer(fnr))?.isKode6() == true)
+                    || pdlConsumer.isKode6(Fodselsnummer(fnr)))
         } catch (e: ForbiddenException) {
             false
         }

@@ -6,7 +6,7 @@ import no.nav.security.spring.oidc.test.JwtTokenGenerator;
 import no.nav.syfo.aktorregister.domain.Fodselsnummer;
 import no.nav.syfo.brukertilgang.BrukertilgangConsumer;
 import no.nav.syfo.brukertilgang.BrukertilgangService;
-import no.nav.syfo.pdl.*;
+import no.nav.syfo.pdl.PdlConsumer;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -14,8 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static no.nav.syfo.oidc.OIDCIssuer.EKSTERN;
-import static no.nav.syfo.testhelper.PdlPersonResponseGeneratorKt.generatePdlHentPerson;
-import static no.nav.syfo.testhelper.UserConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -38,16 +36,7 @@ public class BrukertilgangskontrollServiceTest {
     public void setup() {
         mockOIDC(INNLOGGET_FNR);
 
-        PdlHentPerson pdlPersonResponse = generatePdlHentPerson(
-                new PdlPersonNavn(
-                        PERSON_NAME_FIRST,
-                        PERSON_NAME_MIDDLE,
-                        PERSON_NAME_LAST
-                ),
-                null
-        );
-
-        when(pdlConsumer.person(new Fodselsnummer(SPOR_OM_FNR))).thenReturn(pdlPersonResponse);
+        when(pdlConsumer.isKode6(new Fodselsnummer(SPOR_OM_FNR))).thenReturn(false);
     }
 
     @After
@@ -57,17 +46,8 @@ public class BrukertilgangskontrollServiceTest {
 
     @Test
     public void harTilgangTilOppslaattBrukerGirFalseNaarOppslaattBrukerErKode6() {
-        PdlHentPerson pdlPersonResponseFortrolig = generatePdlHentPerson(
-                new PdlPersonNavn(
-                        PERSON_NAME_FIRST,
-                        PERSON_NAME_MIDDLE,
-                        PERSON_NAME_LAST
-                ),
-                new Adressebeskyttelse(Gradering.STRENGT_FORTROLIG)
-        );
-
         when(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(true);
-        when(pdlConsumer.person(new Fodselsnummer(SPOR_OM_FNR))).thenReturn(pdlPersonResponseFortrolig);
+        when(pdlConsumer.isKode6(new Fodselsnummer(SPOR_OM_FNR))).thenReturn(true);
 
         boolean tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR);
         assertThat(tilgang).isFalse();
