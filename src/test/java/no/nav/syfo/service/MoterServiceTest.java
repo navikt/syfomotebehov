@@ -58,15 +58,8 @@ public class MoterServiceTest {
         assertFalse(moterService.erMoteOpprettetForArbeidstakerEtterDato(ARBEIDSTAKER_AKTORID, START_DATO));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void harArbeidstakerMoteIOppfolgingstilfelle_skal_kaste_NullPointerException_hvis_svar_fra_syfomoteadmin_er_null() {
-        when(template.postForObject(anyString(), any(HttpEntity.class), any())).thenReturn(null);
-
-        moterService.erMoteOpprettetForArbeidstakerEtterDato(ARBEIDSTAKER_AKTORID, START_DATO);
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void harArbeidstakerMoteIOppfolgingstilfelle_skal_kaste_RuntimeException_hvis_kall_til_syfomoteadmin_feiler() {
+    @Test(expected = HttpServerErrorException.class)
+    public void harArbeidstakerMoteIOppfolgingstilfelle_skal_kaste_HttpServerErrorException_hvis_kall_til_syfomoteadmin_feiler() {
         when(template.postForObject(anyString(), any(HttpEntity.class), any())).thenThrow(new HttpServerErrorException(INTERNAL_SERVER_ERROR));
 
         moterService.erMoteOpprettetForArbeidstakerEtterDato(ARBEIDSTAKER_AKTORID, START_DATO);

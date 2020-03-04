@@ -22,7 +22,6 @@ public class MoterService {
     private final StsConsumer stsConsumer;
     private final Metrikk metrikk;
     private String syfomoteadminUrl;
-    private static final String SYFOMOTEADMIN_FEILMELDING_NULL = "Fikk null fra syfomoteadmin ved henting av om arbeidstaker har mote i oppfolgingstilfellet";
     private static final String SYFOMOTEADMIN_FEILMELDING_GENERELL = "Klarte ikke hente om det er mote i oppfolgingstilfelle fra syfomoteadmin";
     private static final String SYFOMOTEADMIN_FEILMELDING_KLIENT = "Fikk 4XX-feil ved henting av om det er mote i oppfolgingstilfelle fra syfomoteadmin";
     private static final String SYFOMOTEADMIN_FEILMELDING_SERVER = "Fikk 5XX-feil ved henting av om det er mote i oppfolgingstilfelle fra syfomoteadmin";
@@ -49,10 +48,6 @@ public class MoterService {
         try {
             metrikk.tellHendelse("call_syfomoteadmin");
             Boolean erMoteOpprettetEtterDato = template.postForObject(url, requestEntity, Boolean.class);
-            if (!ofNullable(erMoteOpprettetEtterDato).isPresent()) {
-                log.error(SYFOMOTEADMIN_FEILMELDING_NULL);
-                throw new NullPointerException();
-            }
             metrikk.tellHendelse("call_syfomoteadmin_success");
             return erMoteOpprettetEtterDato;
         } catch (HttpClientErrorException e) {
