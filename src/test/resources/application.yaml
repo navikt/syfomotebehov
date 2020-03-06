@@ -52,11 +52,8 @@ no.nav.security.oidc:
     selvbetjening.cookie_name: localhost-idtoken
 
 syfobrukertilgang.url: "http://syfobrukertilgang"
-sykefravaersoppfoelging.v1.url: "sykefravaeroppfoelgingv1.url"
 
 nais.cluster.name: 'local'
-
-mockSykefravaeroppfoelging_V1: true
 
 dev: true
 
