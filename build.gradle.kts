@@ -1,13 +1,10 @@
-import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
-import com.github.jengelman.gradle.plugins.shadow.transformers.PropertiesFileTransformer
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.jengelman.gradle.plugins.shadow.transformers.PropertiesFileTransformer
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "no.nav.syfo"
 version = "1.0.0"
 
-val cxfVersion = "3.3.3"
-val personV3Version = "1.2019.07.11-06.47-b55f47790a9d"
 val springBootVersion = "2.0.4.RELEASE"
 val oidcSupportVersion = "0.2.7"
 val kotlinLibVersion = "1.3.50"
@@ -24,13 +21,6 @@ plugins {
 buildscript {
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.0")
-        classpath("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
-        classpath("org.glassfish.jaxb:jaxb-runtime:2.4.0-b180830.0438")
-        classpath("com.sun.activation:javax.activation:1.2.0")
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.4.RELEASE")
-        classpath("com.sun.xml.ws:jaxws-tools:2.3.1") {
-            exclude(group = "com.sun.xml.ws", module = "policy")
-        }
     }
 }
 
@@ -64,15 +54,8 @@ dependencies {
 
     implementation("io.micrometer:micrometer-registry-prometheus:1.0.6")
 
-    implementation("no.nav.syfo.tjenester:sykefravaersoppfoelgingv1-tjenestespesifikasjon:1.0.20")
     implementation("no.nav.security:oidc-spring-support:$oidcSupportVersion")
     implementation("no.nav.security:oidc-support:$oidcSupportVersion")
-
-    implementation("org.apache.cxf:cxf-rt-features-logging:$cxfVersion")
-    implementation("org.apache.cxf:cxf-rt-ws-security:$cxfVersion")
-    implementation("org.apache.cxf:cxf-rt-ws-policy:$cxfVersion")
-    implementation("org.apache.cxf:cxf-rt-transports-http:$cxfVersion")
-    implementation("org.apache.cxf:cxf-rt-frontend-jaxws:$cxfVersion")
 
     implementation("com.oracle:ojdbc8:12.2.0.1")
     implementation("org.springframework.kafka:spring-kafka:2.1.8.RELEASE")
@@ -105,10 +88,6 @@ tasks {
     }
 
     withType<ShadowJar> {
-        transform(ServiceFileTransformer::class.java) {
-            setPath("META-INF/cxf")
-            include("bus-extensions.txt")
-        }
         transform(PropertiesFileTransformer::class.java) {
             paths = listOf("META-INF/spring.factories")
             mergeStrategy = "append"
