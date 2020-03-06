@@ -2,7 +2,7 @@ package no.nav.syfo.service;
 
 import com.nimbusds.jwt.SignedJWT;
 import no.nav.security.oidc.context.*;
-import no.nav.security.spring.oidc.test.JwtTokenGenerator;
+import no.nav.security.oidc.test.support.JwtTokenGenerator;
 import no.nav.syfo.aktorregister.domain.Fodselsnummer;
 import no.nav.syfo.brukertilgang.BrukertilgangConsumer;
 import no.nav.syfo.brukertilgang.BrukertilgangService;
