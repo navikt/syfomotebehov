@@ -1,9 +1,9 @@
 package no.nav.syfo.service;
 
-import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.domain.rest.MotebehovsvarVarselInfo;
 import no.nav.syfo.kafka.producer.TredjepartsvarselProducer;
 import no.nav.syfo.kafka.producer.model.KTredjepartsvarsel;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -12,27 +12,30 @@ import java.util.UUID;
 
 import static java.time.LocalDateTime.now;
 import static no.nav.syfo.kafka.producer.VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV;
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
-@Slf4j
 public class VarselService {
 
+    private static final Logger log = getLogger(VarselService.class);
+
+
+    private static final int MOTEBEHOV_VARSEL_UKER = 16;
+    private static final int MOTEBEHOV_VARSEL_DAGER = MOTEBEHOV_VARSEL_UKER * 7;
+
     private MoterService moterService;
-    private SyketilfelleService syketilfelleService;
     private TredjepartsvarselProducer tredjepartsvarselProducer;
 
     @Inject
     public VarselService(
             MoterService moterService,
-            SyketilfelleService syketilfelleService,
             TredjepartsvarselProducer tredjepartsvarselProducer) {
         this.moterService = moterService;
-        this.syketilfelleService = syketilfelleService;
         this.tredjepartsvarselProducer = tredjepartsvarselProducer;
     }
 
     public void sendVarselTilNaermesteLeder(MotebehovsvarVarselInfo motebehovsvarVarselInfo) {
-        LocalDateTime startDatoINyesteOppfolgingstilfelle = syketilfelleService.hentStartDatoINyesteOppfolgingstilfelle(motebehovsvarVarselInfo.sykmeldtAktorId, motebehovsvarVarselInfo.orgnummer);
+        LocalDateTime startDatoINyesteOppfolgingstilfelle = LocalDateTime.now().minusDays(MOTEBEHOV_VARSEL_DAGER);
 
         if (!moterService.erMoteOpprettetForArbeidstakerEtterDato(motebehovsvarVarselInfo.sykmeldtAktorId, startDatoINyesteOppfolgingstilfelle)) {
             log.info("Sender varsel til naermeste leder");
