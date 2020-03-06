@@ -70,10 +70,10 @@ dependencies {
     implementation("org.projectlombok:lombok:1.16.22")
     annotationProcessor("org.projectlombok:lombok:1.18.6")
 
-    testCompile("no.nav.security:oidc-spring-test:0.2.4")
-    testCompile("org.springframework.kafka:spring-kafka-test:2.1.8.RELEASE")
-    testCompile("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
-    testCompile("com.h2database:h2:1.4.197")
+    testImplementation("no.nav.security:oidc-spring-test:0.2.4")
+    testImplementation("org.springframework.kafka:spring-kafka-test:2.1.8.RELEASE")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
+    testImplementation("com.h2database:h2:1.4.197")
 }
 
 tasks {
