@@ -310,9 +310,6 @@ public class MotebehovVeilederADControllerTest {
         loggInnBruker(oidcRequestContextHolder, lederFnr);
         final MotebehovSvar motebehovSvar = new MotebehovSvar()
                 .harMotebehov(true)
-                .friskmeldingForventning("Om en uke")
-                .tiltak("Krykker")
-                .tiltakResultat("Kommer seg fremover")
                 .forklaring("");
 
         final NyttMotebehov nyttMotebehov = new NyttMotebehov()
@@ -331,9 +328,6 @@ public class MotebehovVeilederADControllerTest {
         loggInnBruker(oidcRequestContextHolder, sykmeldtFnr);
         final MotebehovSvar motebehovSvar = new MotebehovSvar()
                 .harMotebehov(harBehov)
-                .friskmeldingForventning("Om noen uker")
-                .tiltak("Krykker")
-                .tiltakResultat("Kommer seg fremover")
                 .forklaring("");
 
         final NyttMotebehov nyttMotebehov = new NyttMotebehov()

@@ -14,9 +14,6 @@ public class PMotebehov {
     public String opprettetAv;
     public String aktoerId;
     public String virksomhetsnummer;
-    public String friskmeldingForventning;
-    public String tiltak;
-    public String tiltakResultat;
     public boolean harMotebehov;
     public String forklaring;
     public String tildeltEnhet;
