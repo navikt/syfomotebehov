@@ -39,9 +39,7 @@ public class MotebehovDAOTest {
     }
 
     private void insertPMotebehov(PMotebehov motebehov) {
-        final String TILTAK = "Hvilerom";
-        String sqlInsert = "INSERT INTO MOTEBEHOV VALUES('bae778f2-a085-11e8-98d0-529269fb1459', '" + motebehov.opprettetDato + "', '" + motebehov.opprettetAv + "', '" + motebehov.aktoerId + "', '" + motebehov.virksomhetsnummer + "', 'Snart', '" + TILTAK + "', " +
-                "'Mindre smerter', '1', '" + motebehov.forklaring + "', '" + motebehov.tildeltEnhet + "', null, null)";
+        String sqlInsert = "INSERT INTO MOTEBEHOV VALUES('bae778f2-a085-11e8-98d0-529269fb1459', '" + motebehov.opprettetDato + "', '" + motebehov.opprettetAv + "', '" + motebehov.aktoerId + "', '" + motebehov.virksomhetsnummer + "', '" + '1' + "', '" + motebehov.forklaring + "', '" + motebehov.tildeltEnhet + "', null, null)";
         jdbcTemplate.update(sqlInsert);
     }
 
