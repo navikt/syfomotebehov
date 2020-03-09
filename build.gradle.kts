@@ -5,11 +5,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 version = "1.0.0"
 
-val oidcSupportVersion = "0.2.7"
 val kotlinLibVersion = "1.3.50"
 val kotlinJacksonVersion = "2.9.8"
 val flywayVersion = "5.1.4"
 val h2Version = "1.4.197"
+val oidcSupportVersion = "0.2.18"
 val ojdbcVersion = "19.3.0.0"
 
 plugins {
@@ -58,7 +58,6 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus:1.0.6")
 
     implementation("no.nav.security:oidc-spring-support:$oidcSupportVersion")
-    implementation("no.nav.security:oidc-support:$oidcSupportVersion")
 
     implementation("com.oracle.ojdbc:ojdbc8:$ojdbcVersion")
     implementation("org.springframework.kafka:spring-kafka")
@@ -73,7 +72,7 @@ dependencies {
     implementation("org.projectlombok:lombok:1.16.22")
     annotationProcessor("org.projectlombok:lombok:1.18.6")
 
-    testImplementation("no.nav.security:oidc-spring-test:0.2.4")
+    testImplementation("no.nav.security:oidc-test-support:$oidcSupportVersion")
     testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("com.h2database:h2:$h2Version")
