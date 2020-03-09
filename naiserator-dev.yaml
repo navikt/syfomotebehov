@@ -1,0 +1,91 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: syfomotebehov
+  namespace: default
+  labels:
+    team: teamsykefravr
+spec:
+  image: {{ image }}
+  port: 8080
+  team: teamsykefravr
+  liveness:
+    path: /syfomotebehov/internal/isAlive
+    initialDelay: 30
+    timeout: 1
+    periodSeconds: 10
+    failureThreshold: 3
+  readiness:
+    path: /syfomotebehov/internal/isReady
+    initialDelay: 30
+    timeout: 1
+  resources:
+    limits:
+      cpu: 3000m
+      memory: 2048Mi
+    requests:
+      cpu: 1000m
+      memory: 1024Mi
+  replicas:
+    min: 1
+    max: 2
+    cpuThresholdPercentage: 80
+  prometheus:
+    enabled: true
+    path: /syfomotebehov/internal/prometheus
+  ingresses:
+    - "https://syfomotebehov.nais.preprod.local"
+    - "https://app-q1.adeo.no/syfomotebehov"
+  vault:
+    enabled: true
+  env:
+    - name: APP_NAME
+      value: "syfomotebehov"
+    - name: APPDYNAMICS_CONTROLLER_HOST_NAME
+      value: appdynamics.adeo.no
+    - name: APPDYNAMICS_CONTROLLER_PORT
+      value: "443"
+    - name: APPDYNAMICS_CONTROLLER_SSL_ENABLED
+      value: "true"
+    - name: APPDYNAMICS_AGENT_ACCOUNT_NAME
+      value: NON-PROD
+    - name: toggle_enable_nullstill
+      value: 'false'
+    - name: toggle_enable_motebehov
+      value: 'true'
+    - name: toggle_mvp_kontorer
+      value: 1783,1719,0315
+    - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+      value: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
+    - name: AKTORREGISTER_REST_URL
+      value: https://app-q1.adeo.no/aktoerregister/api/v1
+    - name: PDL_URL
+      value: https://pdl-api.nais.preprod.local/graphql
+    - name: SYFOBRUKERTILGANG_URL
+      value: https://syfobrukertilgang.nais.preprod.local
+    - name: SYFOVEILEDEROPPGAVER_SYSTEM_V1_URL
+      value: https://syfoveilederoppgaver-q1.nais.preprod.local/syfoveilederoppgaver/api/system/veilederoppgaver/v1
+    - name: TILGANGSKONTROLLAPI_URL
+      value: https://syfo-tilgangskontroll.nais.preprod.local/syfo-tilgangskontroll/api/tilgang
+    - name: SECURITY_TOKEN_SERVICE_REST_URL
+      value: https://security-token-service.nais.preprod.local
+    - name: SYFOBEHANDLENDEENHET_URL
+      value: https://syfobehandlendeenhet.nais.preprod.local
+    - name: SYFOMOTEADMINAPI_URL
+      value: https://syfomoteadmin.nais.preprod.local/syfomoteadmin/api
+    - name: NO_NAV_SECURITY_OIDC_ISSUER_SELVBETJENING_ACCEPTEDAUDIENCE
+      value: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
+    - name: NO_NAV_SECURITY_OIDC_ISSUER_SELVBETJENING_DISCOVERYURL
+      value: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
+    - name: NO_NAV_SECURITY_OIDC_ISSUER_INTERN_DISCOVERYURL
+      value: https://isso-q.adeo.no:443/isso/oauth2/.well-known/openid-configuration
+    - name: NO_NAV_SECURITY_OIDC_ISSUER_VEILEDER_DISCOVERYURL
+      value: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/.well-known/openid-configuration
+    - name: NO_NAV_SECURITY_OIDC_ISSUER_VEILEDER_ACCEPTEDAUDIENCE
+      value: 38e07d31-659d-4595-939a-f18dce3446c5
+    - name: SPRING_DATASOURCE_URL
+      value: jdbc:oracle:thin:@a01dbfl033.adeo.no:1521/SYFOMOTEBEHOV_Q1
+    - name: SPRING_DATASOURCE_USERNAME
+      value: syfomotebehov_q1
+    - name: KAFKA_ENV_NAME
+      value: q1
