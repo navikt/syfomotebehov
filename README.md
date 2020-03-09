@@ -1,7 +1,6 @@
 # syfomotebehov
 
-syfomotebehov er en mikrotjeneste i POC-en Robot-Berit. syfomotebehov lagrer data om behovet for et
-dialogmøte, dette rapportertes inn av den sykemeldtes nærmeste leder.
+Syfomotebehov lagrer data om behovet for et dialogmøte. Den sykmeldte og dens arbeidsgiver rapporter dette behovet.
 
 syfomotebehov er en springboot-applikasjon basert på https://github.com/navikt/syfospringboot-kickstarter. Den er
 satt opp til å kjøre på nais.
@@ -37,10 +36,11 @@ Enhetstester er satt opp med in-memory db og kan kjøres på vanlig vis: **mvn t
 Applikasjonen pakkes til en stor jar vha spring-boot-maven-plugin, og bygges med docker. Applikasjonen kan kjøres opp 
 lokalt på docker hvis jdbc-url legges på path.
 
-### Deploy
+### Pipeline
 
-Deploy til preprod med fasitressurser fra q1 gjøres av alle brancher pushet til github. Dette kontrolleres av seed-
-jobbene i https://github.com/navikt/jenkins-dsl-scripts, som er satt opp på https://jenkins-digisyfo.adeo.no.
+Pipeline er på Github Action.
+Commits til Master-branch deployes automatisk til dev-fss og prod-fss.
+Commits til ikke-master-branch bygges uten automatisk deploy.
 
 
 ## Database
