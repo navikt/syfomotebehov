@@ -19,6 +19,7 @@ import javax.ws.rs.ForbiddenException;
 public class ControllerExceptionHandler {
 
     private final String BAD_REQUEST_MSG = "Vi kunne ikke tolke inndataene";
+    private final String CONFLICT_MSG = "Dette oppsto en konflikt i tilstand";
     private final String FORBIDDEN_MSG = "Handling er forbudt";
     private final String UNAUTHORIZED_MSG = "Autorisasjonsfeil";
     private final String INTERNAL_MSG = "Det skjedde en uventet feil";
@@ -55,6 +56,10 @@ public class ControllerExceptionHandler {
             ConstraintViolationException constraintViolationException = (ConstraintViolationException) ex;
 
             return handleConstraintViolationException(constraintViolationException, headers, request);
+        } else if (ex instanceof ConflictException) {
+            ConflictException conflictException = (ConflictException) ex;
+
+            return handleConflictException(conflictException, headers, request);
         } else {
             HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
 
@@ -80,6 +85,11 @@ public class ControllerExceptionHandler {
 
     private ResponseEntity<ApiError> handleConstraintViolationException(ConstraintViolationException ex, HttpHeaders headers, WebRequest request) {
         return handleExceptionInternal(ex, new ApiError(HttpStatus.BAD_REQUEST.value(), BAD_REQUEST_MSG), headers, HttpStatus.BAD_REQUEST, request);
+    }
+
+    private ResponseEntity<ApiError> handleConflictException(ConflictException ex, HttpHeaders headers, WebRequest request) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        return handleExceptionInternal(ex, new ApiError(status.value(), CONFLICT_MSG), headers, status, request);
     }
 
     private ResponseEntity<ApiError> handleExceptionInternal(Exception ex, ApiError body, HttpHeaders headers, HttpStatus status, WebRequest request) {

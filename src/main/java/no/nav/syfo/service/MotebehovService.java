@@ -1,14 +1,15 @@
 package no.nav.syfo.service;
 
-import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.aktorregister.AktorregisterConsumer;
 import no.nav.syfo.aktorregister.domain.AktorId;
 import no.nav.syfo.aktorregister.domain.Fodselsnummer;
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhetConsumer;
 import no.nav.syfo.domain.rest.*;
+import no.nav.syfo.exception.ConflictException;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import no.nav.syfo.repository.domain.PMotebehov;
 import no.nav.syfo.util.Metrikk;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,16 +21,12 @@ import java.util.UUID;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static no.nav.syfo.util.RestUtils.baseUrl;
+import static org.slf4j.LoggerFactory.getLogger;
 
-/**
- * MøtebehovService har ansvaret for å knytte sammen og oversette mellom REST-grensesnittet, andre tjenester (aktør-registeret)
- * og database-koblingen, slik at de ikke trenger å vite noe om hverandre. (Low coupling - high cohesion)
- * <p>
- * Det er også nyttig å ha mappingen her (så lenge klassen er under en skjermlengde), slik at man ser den i sammenheng med stedet den blir brukt.
- */
 @Service
-@Slf4j
 public class MotebehovService {
+
+    private static final Logger log = getLogger(MotebehovService.class);
 
     private final Metrikk metrikk;
     private final AktorregisterConsumer aktorregisterConsumer;
@@ -61,9 +58,8 @@ public class MotebehovService {
             oversikthendelseService.sendOversikthendelse(arbeidstakerFnr.getFnr(), behandlendeEnhet);
         } else {
             metrikk.tellHendelse("feil_behandle_motebehov_svar_eksiterer_ikke");
-            log.error("Ugyldig tilstand: Veileder {} forsøkte å behandle motebehovsvar som ikke eksisterer", veilederIdent);
-            throw new RuntimeException();
-
+            log.warn("Ugyldig tilstand: Veileder {} forsøkte å behandle motebehovsvar som ikke eksisterer. Kaster Http-409", veilederIdent);
+            throw new ConflictException();
         }
     }
 
