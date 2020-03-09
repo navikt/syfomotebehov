@@ -1,22 +1,24 @@
 package no.nav.syfo.controller.internal;
 
 
-import lombok.extern.slf4j.Slf4j;
 import no.nav.security.oidc.api.Unprotected;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import no.nav.syfo.util.Toggle;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.stream.Stream;
 
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@Slf4j
 @RestController
 @Unprotected
 @RequestMapping(value = "/internal")
 public class NullstillController {
+
+    private static final Logger log = getLogger(NullstillController.class);
 
     private final MotebehovDAO motebehovDAO;
 

@@ -7,16 +7,10 @@ import org.springframework.stereotype.Component;
 public class Toggle {
 
     public static boolean enableNullstill;
-    public static boolean endepunkterForMotebehov;
-    public static String pilotKontorer;
 
     public Toggle(
-            @Value("${toggle.enable.nullstill:false}") boolean enableNullstill,
-            @Value("${toggle.enable.motebehov:false}") boolean endepunkterForMotebehov,
-            @Value("${toggle.mvp.kontorer:}") String pilotKontorer
+            @Value("${toggle.enable.nullstill:false}") boolean enableNullstill
     ) {
         Toggle.enableNullstill = enableNullstill;
-        Toggle.endepunkterForMotebehov = endepunkterForMotebehov;
-        Toggle.pilotKontorer = pilotKontorer;
     }
 }

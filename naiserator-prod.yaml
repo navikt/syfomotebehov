@@ -51,12 +51,6 @@ spec:
       value: PROD
     - name: toggle_enable_nullstill
       value: 'false'
-    - name: toggle_enable_motebehov
-      value: 'true'
-    - name: toggle_enable_motebehov_nasjonal
-      value: 'true'
-    - name: toggle_mvp_kontorer
-      value: 1634,1638,1657,1620,5703,1621,5701,1653,1663,1783,1719,1721,1702,1703
     - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
       value: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443
     - name: AKTORREGISTER_REST_URL
