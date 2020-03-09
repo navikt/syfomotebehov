@@ -40,9 +40,6 @@ srv.password: "bur"
 
 toggle.enable:
   nullstill: true
-  motebehov: true
-
-toggle.mvp.kontorer: "0330"
 
 no.nav.security.oidc:
   issuers: selvbetjening

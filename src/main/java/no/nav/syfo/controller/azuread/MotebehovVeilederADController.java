@@ -10,9 +10,6 @@ import no.nav.syfo.historikk.HistorikkService;
 import no.nav.syfo.service.MotebehovService;
 import no.nav.syfo.service.VeilederTilgangService;
 import no.nav.syfo.util.Metrikk;
-import no.nav.syfo.util.Toggle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
@@ -20,7 +17,6 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.ForbiddenException;
 import java.util.List;
 
-import static java.util.Collections.emptyList;
 import static no.nav.syfo.oidc.OIDCIssuer.AZURE;
 import static no.nav.syfo.util.OIDCUtil.getSubjectInternAD;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -29,8 +25,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @ProtectedWithClaims(issuer = AZURE)
 @RequestMapping(value = "/api/internad/veileder")
 public class MotebehovVeilederADController {
-
-    private static final Logger log = LoggerFactory.getLogger(MotebehovVeilederADController.class);
 
     private final OIDCRequestContextHolder oidcCtxHolder;
 
@@ -61,36 +55,26 @@ public class MotebehovVeilederADController {
     public List<Motebehov> hentMotebehovListe(
             @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String sykmeldtFnr
     ) {
-        if (Toggle.endepunkterForMotebehov) {
-            metrikk.tellEndepunktKall("veileder_hent_motebehov");
+        metrikk.tellEndepunktKall("veileder_hent_motebehov");
 
-            Fnr fnr = Fnr.of(sykmeldtFnr);
+        Fnr fnr = Fnr.of(sykmeldtFnr);
 
-            kastExceptionHvisIkkeTilgang(fnr);
+        kastExceptionHvisIkkeTilgang(fnr);
 
-            return motebehovService.hentMotebehovListe(new Fodselsnummer(fnr.getFnr()));
-        } else {
-            log.info("Det ble gjort kall mot 'veileder/motebehov', men dette endepunktet er togglet av.");
-            return emptyList();
-        }
+        return motebehovService.hentMotebehovListe(new Fodselsnummer(fnr.getFnr()));
     }
 
     @GetMapping(value = "/historikk", produces = APPLICATION_JSON_VALUE)
     public List<Historikk> hentMotebehovHistorikk(
             @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String sykmeldtFnr
     ) {
-        if (Toggle.endepunkterForMotebehov) {
-            metrikk.tellEndepunktKall("veileder_hent_motebehov_historikk");
+        metrikk.tellEndepunktKall("veileder_hent_motebehov_historikk");
 
-            Fnr fnr = Fnr.of(sykmeldtFnr);
+        Fnr fnr = Fnr.of(sykmeldtFnr);
 
-            kastExceptionHvisIkkeTilgang(fnr);
+        kastExceptionHvisIkkeTilgang(fnr);
 
-            return historikkService.hentHistorikkListe(fnr.getFnr());
-        } else {
-            log.info("Det ble gjort kall mot 'veileder/historikk', men dette endepunktet er togglet av.");
-            return emptyList();
-        }
+        return historikkService.hentHistorikkListe(fnr.getFnr());
     }
 
     @PostMapping(value = "/motebehov/{fnr}/behandle")
