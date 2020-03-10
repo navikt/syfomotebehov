@@ -47,8 +47,6 @@ spec:
       value: "443"
     - name: APPDYNAMICS_CONTROLLER_SSL_ENABLED
       value: "true"
-    - name: APPDYNAMICS_AGENT_ACCOUNT_NAME
-      value: PROD
     - name: toggle_enable_nullstill
       value: 'false'
     - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
@@ -79,9 +77,5 @@ spec:
       value: https://login.microsoftonline.com/navno.onmicrosoft.com/.well-known/openid-configuration
     - name: NO_NAV_SECURITY_OIDC_ISSUER_VEILEDER_ACCEPTEDAUDIENCE
       value: 9b4e07a3-4f4c-4bab-b866-87f62dff480d
-    - name: SPRING_DATASOURCE_URL
-      value: jdbc:oracle:thin:@a01dbfl030.adeo.no:1521/SYFOMOTEBEHOV_P
-    - name: SPRING_DATASOURCE_USERNAME
-      value: syfomotebehov_p
     - name: KAFKA_ENV_NAME
       value: p
