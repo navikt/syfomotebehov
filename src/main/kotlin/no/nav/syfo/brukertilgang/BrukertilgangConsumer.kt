@@ -27,7 +27,7 @@ class BrukertilgangConsumer(
             )
 
             val responseBody = response.body!!
-            metrikk.countOutgoingReponses(METRIC_CALL_BRUKERTILGANG, 200)
+            metrikk.countOutgoingReponses(METRIC_CALL_BRUKERTILGANG, response.statusCodeValue)
             return responseBody
         } catch (e: RestClientResponseException) {
             metrikk.countOutgoingReponses(METRIC_CALL_BRUKERTILGANG, e.rawStatusCode)
