@@ -1,9 +1,9 @@
 package no.nav.syfo.exception;
 
-import lombok.extern.slf4j.Slf4j;
 import no.nav.security.spring.oidc.validation.interceptor.OIDCUnauthorizedException;
 import no.nav.syfo.brukertilgang.RequestUnauthorizedException;
 import no.nav.syfo.util.Metrikk;
+import org.slf4j.Logger;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,9 +14,12 @@ import javax.inject.Inject;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.ForbiddenException;
 
-@Slf4j
+import static org.slf4j.LoggerFactory.getLogger;
+
 @ControllerAdvice
 public class ControllerExceptionHandler {
+
+    private static final Logger log = getLogger(ControllerExceptionHandler.class);
 
     private final String BAD_REQUEST_MSG = "Vi kunne ikke tolke inndataene";
     private final String CONFLICT_MSG = "Dette oppsto en konflikt i tilstand";

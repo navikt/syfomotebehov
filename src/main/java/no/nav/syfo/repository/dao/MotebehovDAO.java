@@ -1,6 +1,5 @@
 package no.nav.syfo.repository.dao;
 
-import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.repository.domain.PMotebehov;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -13,9 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Types;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static java.time.LocalDateTime.now;
 import static java.util.Collections.emptyList;
@@ -25,7 +22,6 @@ import static java.util.stream.Collectors.toList;
 import static no.nav.syfo.repository.DbUtil.*;
 
 @Service
-@Slf4j
 @Transactional
 @Repository
 public class MotebehovDAO {
@@ -128,8 +124,6 @@ public class MotebehovDAO {
 
                     new MapSqlParameterSource()
                             .addValue("motebehovIder", motebehovIder));
-
-            log.info("Slettet {} møtebehov på aktør: {}", antallMotebehovSlettet, aktoerId);
 
             return antallMotebehovSlettet;
         } else {

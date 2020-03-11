@@ -19,7 +19,6 @@ public class VarselService {
 
     private static final Logger log = getLogger(VarselService.class);
 
-
     private static final int MOTEBEHOV_VARSEL_UKER = 16;
     private static final int MOTEBEHOV_VARSEL_DAGER = MOTEBEHOV_VARSEL_UKER * 7;
 

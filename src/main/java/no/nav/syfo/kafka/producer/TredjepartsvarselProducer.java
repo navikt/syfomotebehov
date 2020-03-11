@@ -1,15 +1,18 @@
 package no.nav.syfo.kafka.producer;
 
-import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.kafka.producer.model.KTredjepartsvarsel;
+import org.slf4j.Logger;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import static java.util.UUID.randomUUID;
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
-@Slf4j
 public class TredjepartsvarselProducer {
+
+    private static final Logger log = getLogger(TredjepartsvarselProducer.class);
+
     private KafkaTemplate<String, Object> kafkaTemplate;
 
     public final String TREDJEPARTSVARSEL_TOPIC = "aapen-syfo-tredjepartsvarsel-v1";
