@@ -1,7 +1,7 @@
 package no.nav.syfo.service;
 
-import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.domain.rest.VeilederOppgave;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -12,11 +12,13 @@ import javax.inject.Inject;
 import java.util.List;
 
 import static no.nav.syfo.util.AuthorizationFilterUtils.basicCredentials;
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
-@Slf4j
 @Service
 public class VeilederOppgaverService {
+
+    private static final Logger log = getLogger(VeilederOppgaverService.class);
 
     private final RestTemplate restTemplate;
     private final String syfoveilederoppgaverUrl;

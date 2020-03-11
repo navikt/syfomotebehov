@@ -1,6 +1,5 @@
 package no.nav.syfo.controller;
 
-import lombok.extern.slf4j.Slf4j;
 import no.nav.security.oidc.api.ProtectedWithClaims;
 import no.nav.security.oidc.api.Unprotected;
 import no.nav.syfo.domain.rest.VeilederOppgaveFeedItem;
@@ -13,7 +12,6 @@ import java.util.List;
 import static no.nav.syfo.oidc.OIDCIssuer.INTERN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@Slf4j
 @RestController
 @ProtectedWithClaims(issuer = INTERN, claimMap = {"sub=srvsyfoveilederoppgaver"})
 @RequestMapping(value = "/api/feed/motebehov")

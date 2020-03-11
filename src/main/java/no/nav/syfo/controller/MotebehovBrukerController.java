@@ -1,10 +1,9 @@
 package no.nav.syfo.controller;
 
-import lombok.extern.slf4j.Slf4j;
 import no.nav.security.oidc.api.ProtectedWithClaims;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
-import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.brukertilgang.BrukertilgangService;
+import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.service.MotebehovService;
 import no.nav.syfo.util.Metrikk;
 import org.apache.commons.lang3.StringUtils;
@@ -20,7 +19,6 @@ import static no.nav.syfo.oidc.OIDCIssuer.EKSTERN;
 import static no.nav.syfo.util.OIDCUtil.fnrFraOIDCEkstern;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@Slf4j
 @RestController
 @ProtectedWithClaims(issuer = EKSTERN, claimMap = {"acr=Level4"})
 @RequestMapping(value = "/api/motebehov")
