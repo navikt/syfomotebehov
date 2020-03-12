@@ -1,6 +1,5 @@
 package no.nav.syfo.controller.azuread;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.LocalApplication;
 import no.nav.syfo.aktorregister.AktorregisterConsumer;
@@ -33,7 +32,6 @@ import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static java.util.Collections.singletonList;
 import static no.nav.syfo.historikk.HistorikkService.HAR_SVART_PAA_MOTEBEHOV;
 import static no.nav.syfo.historikk.HistorikkService.MOTEBEHOVET_BLE_LEST_AV;
 import static no.nav.syfo.kafka.producer.OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC;
@@ -44,18 +42,14 @@ import static no.nav.syfo.testhelper.OidcTestHelper.*;
 import static no.nav.syfo.testhelper.PdlPersonResponseGeneratorKt.generatePdlHentPerson;
 import static no.nav.syfo.testhelper.RestHelperKt.*;
 import static no.nav.syfo.testhelper.UserConstants.*;
-import static no.nav.syfo.util.AuthorizationFilterUtils.basicCredentials;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.client.ExpectedCount.manyTimes;
-import static org.springframework.test.web.client.ExpectedCount.once;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
 @RunWith(SpringRunner.class)
@@ -82,15 +76,6 @@ public class MotebehovVeilederADControllerTest {
 
     @Value("${srv.password}")
     private String srvPassword;
-
-    @Value("${syfoveilederoppgaver.system.v1.url}")
-    private String syfoveilederoppgaverUrl;
-
-    @Value("${syfoveilederoppgaver.systemapi.username}")
-    private String credUsername;
-
-    @Value("${syfoveilederoppgaver.systemapi.password}")
-    private String credPassword;
 
     @Inject
     private MotebehovBrukerController motebehovController;
@@ -198,10 +183,15 @@ public class MotebehovVeilederADControllerTest {
 
         mockRestServiceServer.reset();
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID);
-        mockSvarFraSyfoTilgangsKontrollOgVeilederoppgaver(ARBEIDSTAKER_FNR, OK);
+        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, OK);
 
         List<Motebehov> motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR);
         Motebehov motebehov = motebehovListe.get(0);
+
+        mockRestServiceServer.reset();
+        loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID);
+        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, OK);
+        motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR);
 
         List<Historikk> historikkListe = motebehovVeilederController.hentMotebehovHistorikk(ARBEIDSTAKER_FNR);
         assertThat(historikkListe).size().isEqualTo(2);
@@ -213,7 +203,8 @@ public class MotebehovVeilederADControllerTest {
 
         Historikk veilederOppgaveHistorikk = historikkListe.get(1);
         assertThat(veilederOppgaveHistorikk.getTekst()).isEqualTo(MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID);
-        assertThat(veilederOppgaveHistorikk.getTidspunkt()).isEqualTo(LocalDateTime.of(2018, 10, 10, 0, 0));
+        LocalDateTime today = LocalDateTime.now();
+        assertThat(veilederOppgaveHistorikk.getTidspunkt().minusNanos(veilederOppgaveHistorikk.getTidspunkt().getNano())).isEqualTo(today.minusNanos(today.getNano()));
     }
 
     @Test
@@ -370,47 +361,6 @@ public class MotebehovVeilederADControllerTest {
     private void mockBehandlendEnhet(String fnr) {
         mockSTS();
         mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, fnr);
-    }
-
-    private void mockSvarFraSyfoTilgangsKontrollOgVeilederoppgaver(String fnr, HttpStatus status) throws Exception {
-        String uriString = fromHttpUrl(tilgangskontrollUrl)
-                .path(TILGANG_TIL_BRUKER_VIA_AZURE_PATH)
-                .queryParam(FNR, fnr)
-                .toUriString();
-
-        String idToken = oidcRequestContextHolder.getOIDCValidationContext().getToken(AZURE).getIdToken();
-
-        mockRestServiceServer.expect(manyTimes(), requestTo(uriString))
-                .andExpect(method(HttpMethod.GET))
-                .andExpect(header(AUTHORIZATION, "Bearer " + idToken))
-                .andRespond(withStatus(status));
-
-        List<VeilederOppgave> oppgaveListe = singletonList(
-                new VeilederOppgave()
-                        .id(1L)
-                        .type("MOTEBEHOV_MOTTATT")
-                        .tildeltIdent(VEILEDER_ID)
-                        .tildeltEnhet(NAV_ENHET)
-                        .lenke("123")
-                        .fnr(fnr)
-                        .virksomhetsnummer(VIRKSOMHETSNUMMER)
-                        .created(HISTORIKK_SIST_ENDRET)
-                        .sistEndret(HISTORIKK_SIST_ENDRET)
-                        .sistEndretAv(VEILEDER_ID)
-                        .status("FERDIG")
-                        .uuid("000000")
-        );
-
-        String oppgaveListeJson = new ObjectMapper().writeValueAsString(oppgaveListe);
-
-        String veilederoppgaverUriString = fromHttpUrl(syfoveilederoppgaverUrl)
-                .queryParam(FNR, fnr)
-                .toUriString();
-
-        mockRestServiceServer.expect(once(), requestTo(veilederoppgaverUriString))
-                .andExpect(method(HttpMethod.GET))
-                .andExpect(header(AUTHORIZATION, basicCredentials(credUsername, credPassword)))
-                .andRespond(withSuccess(oppgaveListeJson, APPLICATION_JSON));
     }
 
     private void cleanDB() {
