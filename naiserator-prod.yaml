@@ -57,8 +57,6 @@ spec:
       value: https://pdl-api.nais.adeo.no/graphql
     - name: SYFOBRUKERTILGANG_URL
       value: https://syfobrukertilgang.nais.adeo.no
-    - name: SYFOVEILEDEROPPGAVER_SYSTEM_V1_URL
-      value: https://syfoveilederoppgaver.nais.adeo.no/syfoveilederoppgaver/api/system/veilederoppgaver/v1
     - name: TILGANGSKONTROLLAPI_URL
       value: https://syfo-tilgangskontroll.nais.adeo.no/syfo-tilgangskontroll/api/tilgang
     - name: SECURITY_TOKEN_SERVICE_REST_URL

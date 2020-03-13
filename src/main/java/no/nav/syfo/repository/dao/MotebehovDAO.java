@@ -93,10 +93,6 @@ public class MotebehovDAO {
         return uuid;
     }
 
-    public List<PMotebehov> finnMotebehovMedBehovOpprettetSiden(LocalDateTime timestamp) {
-        return jdbcTemplate.query("SELECT * FROM motebehov WHERE opprettet_dato > ? AND har_motebehov = 1", getInnsendingRowMapper(), timestamp);
-    }
-
     private static RowMapper<PMotebehov> getInnsendingRowMapper() {
         return (rs, i) -> new PMotebehov()
                 .uuid(fromString(rs.getString("motebehov_uuid")))
