@@ -1,7 +1,6 @@
 package no.nav.syfo.service;
 
 import no.nav.syfo.aktorregister.AktorregisterConsumer;
-import no.nav.syfo.aktorregister.domain.AktorId;
 import no.nav.syfo.aktorregister.domain.Fodselsnummer;
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhetConsumer;
 import no.nav.syfo.domain.rest.*;
@@ -14,13 +13,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
-import static no.nav.syfo.util.RestUtils.baseUrl;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
@@ -108,16 +105,6 @@ public class MotebehovService {
         return id;
     }
 
-    public List<VeilederOppgaveFeedItem> hentMotebehovListe(final String timestamp) {
-        return motebehovDAO.finnMotebehovMedBehovOpprettetSiden(LocalDateTime.parse(timestamp))
-                .stream()
-                .map(motebehov -> {
-                    String fnr = aktorregisterConsumer.getFnrForAktorId(new AktorId(motebehov.aktoerId));
-                    return mapPMotebehovToVeilederOppgaveFeedItem(motebehov, fnr);
-                })
-                .collect(toList());
-    }
-
     private PMotebehov mapNyttMotebehovToPMotebehov(String innloggetAktoerId, String arbeidstakerAktoerId, String tildeltEnhet, NyttMotebehov nyttMotebehov) {
         return new PMotebehov()
                 .opprettetAv(innloggetAktoerId)
@@ -144,17 +131,5 @@ public class MotebehovService {
                 .tildeltEnhet(pMotebehov.tildeltEnhet)
                 .behandletTidspunkt(pMotebehov.behandletTidspunkt)
                 .behandletVeilederIdent(pMotebehov.behandletVeilederIdent);
-    }
-
-    private VeilederOppgaveFeedItem mapPMotebehovToVeilederOppgaveFeedItem(PMotebehov motebehov, String fnr) {
-        return new VeilederOppgaveFeedItem()
-                .uuid(motebehov.uuid.toString())
-                .tildeltEnhet(motebehov.tildeltEnhet)
-                .fnr(fnr)
-                .lenke(baseUrl() + "/sykefravaer/" + fnr + "/motebehov/")
-                .type(VeilederOppgaveFeedItem.FeedHendelseType.MOTEBEHOV_MOTTATT.toString())
-                .created(motebehov.opprettetDato)
-                .status("IKKE_STARTET")
-                .virksomhetsnummer(motebehov.virksomhetsnummer);
     }
 }

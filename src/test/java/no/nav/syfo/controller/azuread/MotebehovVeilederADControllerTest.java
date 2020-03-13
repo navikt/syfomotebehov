@@ -201,10 +201,10 @@ public class MotebehovVeilederADControllerTest {
         assertThat(motebehovOpprettetHistorikk.getTekst()).isEqualTo(PERSON_FULL_NAME + HAR_SVART_PAA_MOTEBEHOV);
         assertThat(motebehovOpprettetHistorikk.getTidspunkt()).isEqualTo(motebehov.opprettetDato);
 
-        Historikk veilederOppgaveHistorikk = historikkListe.get(1);
-        assertThat(veilederOppgaveHistorikk.getTekst()).isEqualTo(MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID);
+        Historikk behandletHistorikk = historikkListe.get(1);
+        assertThat(behandletHistorikk.getTekst()).isEqualTo(MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID);
         LocalDateTime today = LocalDateTime.now();
-        assertThat(veilederOppgaveHistorikk.getTidspunkt().minusNanos(veilederOppgaveHistorikk.getTidspunkt().getNano())).isEqualTo(today.minusNanos(today.getNano()));
+        assertThat(behandletHistorikk.getTidspunkt().minusNanos(behandletHistorikk.getTidspunkt().getNano())).isEqualTo(today.minusNanos(today.getNano()));
     }
 
     @Test
