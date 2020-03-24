@@ -2,11 +2,12 @@ package no.nav.syfo.sts
 
 import no.nav.syfo.util.Metrikk
 import no.nav.syfo.util.basicCredentials
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.*
 import org.springframework.stereotype.Service
-import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import org.springframework.web.util.UriComponentsBuilder.fromHttpUrl
@@ -26,7 +27,6 @@ class StsConsumer(
 
     fun token(): String {
         if (STSToken.shouldRenew(cachedOidcToken)) {
-            metric.tellEndepunktKall(METRIC_CALL_STS)
             val request = HttpEntity<Any>(authorizationHeader())
 
             val stsTokenUri = getStsTokenUriTemplate.build().toUri()
@@ -40,8 +40,9 @@ class StsConsumer(
                 )
                 cachedOidcToken = response.body
                 metric.tellEndepunktKall(METRIC_CALL_STS_SUCCESS)
-            } catch (e: HttpClientErrorException) {
-                metric.tellEndepunktKall(METRIC_CALL_STS_FAIL)
+            } catch (e: RestClientResponseException) {
+                LOG.error("Request to get STS failed with status: ${e.rawStatusCode} and message: ${e.responseBodyAsString}")
+                metric.tellHendelse(METRIC_CALL_STS_FAIL)
                 throw e
             }
         }
@@ -54,7 +55,8 @@ class StsConsumer(
     }
 
     companion object {
-        const val METRIC_CALL_STS = "call_sts"
+        private val LOG = LoggerFactory.getLogger(StsConsumer::class.java)
+
         const val METRIC_CALL_STS_SUCCESS = "call_sts_success"
         const val METRIC_CALL_STS_FAIL = "call_sts_fail"
     }
