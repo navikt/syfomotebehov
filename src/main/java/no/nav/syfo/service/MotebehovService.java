@@ -13,8 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -47,12 +46,12 @@ public class MotebehovService {
     }
 
     @Transactional
-    public void behandleUbehandledeMotebehov(final Fnr arbeidstakerFnr, final String veilederIdent) {
-        int antallOppdateringer = motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(arbeidstakerFnr.getFnr())), veilederIdent);
+    public void behandleUbehandledeMotebehov(final Fodselsnummer arbeidstakerFnr, final String veilederIdent) {
+        int antallOppdateringer = motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr), veilederIdent);
 
         if (antallOppdateringer > 0) {
-            String behandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.getFnr()).getEnhetId();
-            oversikthendelseService.sendOversikthendelse(arbeidstakerFnr.getFnr(), behandlendeEnhet);
+            String behandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.getValue()).getEnhetId();
+            oversikthendelseService.sendOversikthendelse(arbeidstakerFnr.getValue(), behandlendeEnhet);
         } else {
             metrikk.tellHendelse("feil_behandle_motebehov_svar_eksiterer_ikke");
             log.warn("Ugyldig tilstand: Veileder {} forsøkte å behandle motebehovsvar som ikke eksisterer. Kaster Http-409", veilederIdent);
@@ -65,12 +64,12 @@ public class MotebehovService {
         return motebehovDAO.hentMotebehovListeForAktoer(arbeidstakerAktoerId)
                 .orElse(emptyList())
                 .stream()
-                .map(dbMotebehov -> mapPMotebehovToMotebehov(Fnr.of(arbeidstakerFnr.getValue()), dbMotebehov))
+                .map(dbMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov))
                 .collect(toList());
     }
 
-    public List<Motebehov> hentMotebehovListeForOgOpprettetAvArbeidstaker(final Fnr arbeidstakerFnr) {
-        final String arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(arbeidstakerFnr.getFnr()));
+    public List<Motebehov> hentMotebehovListeForOgOpprettetAvArbeidstaker(final Fodselsnummer arbeidstakerFnr) {
+        final String arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(arbeidstakerFnr.getValue()));
         return motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktoerId)
                 .orElse(emptyList())
                 .stream()
@@ -78,8 +77,8 @@ public class MotebehovService {
                 .collect(toList());
     }
 
-    public List<Motebehov> hentMotebehovListeForArbeidstakerOpprettetAvLeder(final Fnr arbeidstakerFnr, String virksomhetsnummer) {
-        final String arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(arbeidstakerFnr.getFnr()));
+    public List<Motebehov> hentMotebehovListeForArbeidstakerOpprettetAvLeder(final Fodselsnummer arbeidstakerFnr, String virksomhetsnummer) {
+        final String arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(arbeidstakerFnr.getValue()));
         return motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerAktoerId, virksomhetsnummer)
                 .orElse(emptyList())
                 .stream()
@@ -88,17 +87,17 @@ public class MotebehovService {
     }
 
     @Transactional
-    public UUID lagreMotebehov(Fnr innloggetFNR, Fnr arbeidstakerFnr, final NyttMotebehov nyttMotebehov) {
-        final String innloggetBrukerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(innloggetFNR.getFnr()));
-        final String arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(new Fodselsnummer(arbeidstakerFnr.getFnr()));
-        final String arbeidstakerBehandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.getFnr()).getEnhetId();
+    public UUID lagreMotebehov(Fodselsnummer innloggetFNR, Fodselsnummer arbeidstakerFnr, final NyttMotebehov nyttMotebehov) {
+        final String innloggetBrukerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(innloggetFNR);
+        final String arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr);
+        final String arbeidstakerBehandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.getValue()).getEnhetId();
         final PMotebehov motebehov = mapNyttMotebehovToPMotebehov(innloggetBrukerAktoerId, arbeidstakerAktoerId, arbeidstakerBehandlendeEnhet, nyttMotebehov);
 
         UUID id = motebehovDAO.create(motebehov);
 
         if (nyttMotebehov.motebehovSvar.harMotebehov) {
             oversikthendelseService.sendOversikthendelse(nyttMotebehov
-                    .arbeidstakerFnr(arbeidstakerFnr.getFnr())
+                    .arbeidstakerFnr(arbeidstakerFnr.getValue())
                     .tildeltEnhet(arbeidstakerBehandlendeEnhet)
             );
         }
@@ -116,13 +115,13 @@ public class MotebehovService {
                 .behandletTidspunkt(null);
     }
 
-    private Motebehov mapPMotebehovToMotebehov(Fnr arbeidstakerFnr, PMotebehov pMotebehov) {
+    private Motebehov mapPMotebehovToMotebehov(Fodselsnummer arbeidstakerFnr, PMotebehov pMotebehov) {
         return new Motebehov()
                 .id(pMotebehov.uuid)
                 .opprettetDato(pMotebehov.opprettetDato)
                 .aktorId(pMotebehov.aktoerId)
                 .opprettetAv(pMotebehov.opprettetAv)
-                .arbeidstakerFnr(arbeidstakerFnr)
+                .arbeidstakerFnr(arbeidstakerFnr.getValue())
                 .virksomhetsnummer(pMotebehov.virksomhetsnummer)
                 .motebehovSvar(new MotebehovSvar()
                         .harMotebehov(pMotebehov.harMotebehov)

@@ -2,6 +2,7 @@ package no.nav.syfo.controller;
 
 import no.nav.security.oidc.api.ProtectedWithClaims;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
+import no.nav.syfo.aktorregister.domain.Fodselsnummer;
 import no.nav.syfo.brukertilgang.BrukertilgangService;
 import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.service.MotebehovService;
@@ -47,9 +48,9 @@ public class MotebehovBrukerController {
             @RequestParam(name = "fnr") @Pattern(regexp = "^[0-9]{11}$") String arbeidstakerFnr,
             @RequestParam(name = "virksomhetsnummer") String virksomhetsnummer
     ) {
-        Fnr fnr = StringUtils.isEmpty(arbeidstakerFnr) ? fnrFraOIDCEkstern(contextHolder) : Fnr.of(arbeidstakerFnr);
+        Fodselsnummer fnr = StringUtils.isEmpty(arbeidstakerFnr) ? fnrFraOIDCEkstern(contextHolder) : new Fodselsnummer(arbeidstakerFnr);
 
-        kastExceptionHvisIkkeTilgang(fnr.getFnr());
+        kastExceptionHvisIkkeTilgang(fnr.getValue());
 
         if (!virksomhetsnummer.isEmpty()) {
             return motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(fnr, virksomhetsnummer);
@@ -61,9 +62,9 @@ public class MotebehovBrukerController {
     public void lagreMotebehov(
             @RequestBody @Valid NyttMotebehov nyttMotebehov
     ) {
-        Fnr fnr = StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr) ? fnrFraOIDCEkstern(contextHolder) : Fnr.of(nyttMotebehov.arbeidstakerFnr);
+        Fodselsnummer fnr = StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr) ? fnrFraOIDCEkstern(contextHolder) : new Fodselsnummer(nyttMotebehov.arbeidstakerFnr);
 
-        kastExceptionHvisIkkeTilgang(fnr.getFnr());
+        kastExceptionHvisIkkeTilgang(fnr.getValue());
 
         boolean erInnloggetBrukerArbeidstaker = StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr);
 
@@ -73,7 +74,7 @@ public class MotebehovBrukerController {
     }
 
     private void kastExceptionHvisIkkeTilgang(String fnr) {
-        String innloggetIdent = fnrFraOIDCEkstern(contextHolder).getFnr();
+        String innloggetIdent = fnrFraOIDCEkstern(contextHolder).getValue();
         boolean harTilgang = brukertilgangService.harTilgangTilOppslaattBruker(innloggetIdent, fnr);
         if (!harTilgang) {
             throw new ForbiddenException("Ikke tilgang");
