@@ -92,7 +92,6 @@ public class ControllerExceptionHandler {
             } else {
                 log.warn("Fikk response med kode : {} : {} : {}", status.value(), ex.getClass().toString(), ex.getMessage(), ex);
             }
-
         }
 
         return new ResponseEntity<>(body, headers, status);
