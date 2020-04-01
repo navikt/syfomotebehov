@@ -13,7 +13,7 @@ public class Motebehov {
     public LocalDateTime opprettetDato;
     public String aktorId;
     public String opprettetAv;
-    public Fnr arbeidstakerFnr;
+    public String arbeidstakerFnr;
     public String virksomhetsnummer;
     public MotebehovSvar motebehovSvar;
     public String tildeltEnhet;

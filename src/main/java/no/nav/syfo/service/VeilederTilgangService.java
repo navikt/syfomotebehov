@@ -1,14 +1,13 @@
 package no.nav.syfo.service;
 
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
-import no.nav.syfo.domain.rest.Fnr;
+import no.nav.syfo.aktorregister.domain.Fodselsnummer;
 import no.nav.syfo.oidc.OIDCIssuer;
 import no.nav.syfo.util.OIDCUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -41,8 +40,8 @@ public class VeilederTilgangService {
         this.oidcContextHolder = oidcContextHolder;
     }
 
-    public boolean sjekkVeiledersTilgangTilPersonViaAzure(Fnr fnr) {
-        URI tilgangTilBrukerViaAzureUriMedFnr = tilgangTilBrukerViaAzureUriTemplate.build(singletonMap(FNR, fnr.getFnr()));
+    public boolean sjekkVeiledersTilgangTilPersonViaAzure(Fodselsnummer fnr) {
+        URI tilgangTilBrukerViaAzureUriMedFnr = tilgangTilBrukerViaAzureUriTemplate.build(singletonMap(FNR, fnr.getValue()));
         return checkAccess(tilgangTilBrukerViaAzureUriMedFnr, OIDCIssuer.AZURE);
     }
 

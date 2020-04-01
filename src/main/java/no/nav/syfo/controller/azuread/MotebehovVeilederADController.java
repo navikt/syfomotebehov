@@ -3,12 +3,9 @@ package no.nav.syfo.controller.azuread;
 import no.nav.security.oidc.api.ProtectedWithClaims;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.aktorregister.domain.Fodselsnummer;
-import no.nav.syfo.domain.rest.Fnr;
 import no.nav.syfo.domain.rest.Motebehov;
-import no.nav.syfo.historikk.Historikk;
-import no.nav.syfo.historikk.HistorikkService;
-import no.nav.syfo.service.MotebehovService;
-import no.nav.syfo.service.VeilederTilgangService;
+import no.nav.syfo.historikk.*;
+import no.nav.syfo.service.*;
 import no.nav.syfo.util.Metrikk;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,11 +54,11 @@ public class MotebehovVeilederADController {
     ) {
         metrikk.tellEndepunktKall("veileder_hent_motebehov");
 
-        Fnr fnr = Fnr.of(sykmeldtFnr);
+        Fodselsnummer fnr = new Fodselsnummer(sykmeldtFnr);
 
         kastExceptionHvisIkkeTilgang(fnr);
 
-        return motebehovService.hentMotebehovListe(new Fodselsnummer(fnr.getFnr()));
+        return motebehovService.hentMotebehovListe(new Fodselsnummer(fnr.getValue()));
     }
 
     @GetMapping(value = "/historikk", produces = APPLICATION_JSON_VALUE)
@@ -70,11 +67,11 @@ public class MotebehovVeilederADController {
     ) {
         metrikk.tellEndepunktKall("veileder_hent_motebehov_historikk");
 
-        Fnr fnr = Fnr.of(sykmeldtFnr);
+        Fodselsnummer fnr = new Fodselsnummer(sykmeldtFnr);
 
         kastExceptionHvisIkkeTilgang(fnr);
 
-        return historikkService.hentHistorikkListe(fnr.getFnr());
+        return historikkService.hentHistorikkListe(fnr.getValue());
     }
 
     @PostMapping(value = "/motebehov/{fnr}/behandle")
@@ -83,7 +80,7 @@ public class MotebehovVeilederADController {
     ) {
         metrikk.tellEndepunktKall("veileder_behandle_motebehov_call");
 
-        Fnr fnr = Fnr.of(sykmeldtFnr);
+        Fodselsnummer fnr = new Fodselsnummer(sykmeldtFnr);
 
         kastExceptionHvisIkkeTilgang(fnr);
 
@@ -92,7 +89,7 @@ public class MotebehovVeilederADController {
         metrikk.tellEndepunktKall("veileder_behandle_motebehov_success");
     }
 
-    private void kastExceptionHvisIkkeTilgang(Fnr fnr) {
+    private void kastExceptionHvisIkkeTilgang(Fodselsnummer fnr) {
         if (!veilederTilgangService.sjekkVeiledersTilgangTilPersonViaAzure(fnr)) {
             throw new ForbiddenException("Veilederen har ikke tilgang til denne personen");
         }
