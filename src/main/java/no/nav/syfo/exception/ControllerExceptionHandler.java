@@ -98,9 +98,13 @@ public class ControllerExceptionHandler {
     private ResponseEntity<ApiError> handleExceptionInternal(Exception ex, ApiError body, HttpHeaders headers, HttpStatus status, WebRequest request) {
         metrikk.tellHttpKall(status.value());
 
-        if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
-            log.error("Uventet feil: {} : {}", ex.getClass().toString(), ex.getMessage(), ex);
-            request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);
+        if (!status.is2xxSuccessful()) {
+            if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
+                log.error("Uventet feil: {} : {}", ex.getClass().toString(), ex.getMessage(), ex);
+                request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);
+            } else {
+                log.warn("Fikk response med kode : {} : {} : {}", status.value(), ex.getClass().toString(), ex.getMessage(), ex);
+            }
         }
 
         return new ResponseEntity<>(body, headers, status);
