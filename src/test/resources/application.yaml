@@ -40,9 +40,6 @@ srv.password: "bur"
 
 toggle.enable:
   nullstill: true
-  motebehov: true
-
-toggle.mvp.kontorer: "0330"
 
 no.nav.security.oidc:
   issuers: selvbetjening
@@ -52,17 +49,10 @@ no.nav.security.oidc:
     selvbetjening.cookie_name: localhost-idtoken
 
 syfobrukertilgang.url: "http://syfobrukertilgang"
-sykefravaersoppfoelging.v1.url: "sykefravaeroppfoelgingv1.url"
 
 nais.cluster.name: 'local'
 
-mockSykefravaeroppfoelging_V1: true
-
 dev: true
-
-syfoveilederoppgaver.system.v1.url: "https://app-q1.adeo.no/syfoveilederoppgaver/api/system/veilederoppgaver/v1"
-syfoveilederoppgaver.systemapi.username: "dummy"
-syfoveilederoppgaver.systemapi.password: "test123"
 
 syfobehandlendeenhet.url: "https://syfobehandlendeenhet"
 tilgangskontrollapi.url: "https://www.ikke.no"

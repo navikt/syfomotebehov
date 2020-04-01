@@ -9,8 +9,7 @@ import org.springframework.cache.annotation.Cacheable
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.*
 import org.springframework.stereotype.Service
-import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.*
 
 @Service
 class BehandlendeEnhetConsumer(
@@ -22,7 +21,6 @@ class BehandlendeEnhetConsumer(
 
     @Cacheable(cacheNames = [CacheConfig.CACHENAME_BEHANDLENDEENHET_FNR], key = "#fnr", condition = "#fnr != null")
     fun getBehandlendeEnhet(fnr: String): BehandlendeEnhet {
-        metric.tellEndepunktKall(METRIC_CALL_BEHANDLENDEENHET)
         val bearer = stsConsumer.token()
 
         val request = HttpEntity<Any>(authorizationHeader(bearer))
@@ -38,19 +36,17 @@ class BehandlendeEnhetConsumer(
             )
             val responseBody = response.body
 
-            metric.tellEndepunktKall(METRIC_CALL_BEHANDLENDEENHET_SUCCESS)
+            metric.countOutgoingReponses(METRIC_CALL_BEHANDLENDEENHET, 200)
 
             return responseBody!!
-        } catch (e: HttpClientErrorException) {
-            metric.tellEndepunktKall(METRIC_CALL_BEHANDLENDEENHET_FAIL)
+        } catch (e: RestClientResponseException) {
+            metric.countOutgoingReponses(METRIC_CALL_BEHANDLENDEENHET, e.rawStatusCode)
             throw e
         }
     }
 
     companion object {
         const val METRIC_CALL_BEHANDLENDEENHET = "call_behandlendeenhet"
-        const val METRIC_CALL_BEHANDLENDEENHET_SUCCESS = "call_behandlendeenhet_success"
-        const val METRIC_CALL_BEHANDLENDEENHET_FAIL = "call_behandlendeenhet_fail"
     }
 
     private fun getBehandlendeEnhetUrl(bruker: String): String {

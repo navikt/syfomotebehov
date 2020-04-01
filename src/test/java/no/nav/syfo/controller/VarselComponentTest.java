@@ -76,9 +76,6 @@ public class VarselComponentTest {
     private VarselService varselService;
 
     @Inject
-    private SyketilfelleService syketilfelleService;
-
-    @Inject
     private TredjepartsvarselProducer tredjepartsvarselProducer;
 
     @MockBean

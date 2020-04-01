@@ -1,14 +1,11 @@
 package no.nav.syfo.web.selftest;
 
-import lombok.extern.slf4j.Slf4j;
 import no.nav.security.oidc.api.Unprotected;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
 @RestController
-@Unprotected
 @RequestMapping(value = "/internal")
 public class SelftestController {
     private static final String APPLICATION_LIVENESS = "Application is alive!";

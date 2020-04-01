@@ -1,22 +1,24 @@
 package no.nav.syfo.service;
 
-import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.sts.StsConsumer;
 import no.nav.syfo.util.Metrikk;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.*;
+
 import java.time.LocalDateTime;
 
-import static java.util.Optional.ofNullable;
+import static no.nav.syfo.util.CredentialUtilKt.bearerCredentials;
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
 @Service
-@Slf4j
 public class MoterService {
+
+    private static final Logger log = getLogger(MoterService.class);
 
     private final RestTemplate template;
     private final StsConsumer stsConsumer;
@@ -64,10 +66,8 @@ public class MoterService {
     }
 
     private HttpHeaders authorizationHeader(String token) {
-        String bearerTokenCredentials = "Bearer " + token;
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.AUTHORIZATION, bearerTokenCredentials);
+        headers.add(HttpHeaders.AUTHORIZATION, bearerCredentials(token));
         return headers;
     }
-
 }

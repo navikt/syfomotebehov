@@ -1,0 +1,79 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: syfomotebehov
+  namespace: default
+  labels:
+    team: teamsykefravr
+spec:
+  image: {{ image }}
+  port: 8080
+  team: teamsykefravr
+  liveness:
+    path: /syfomotebehov/internal/isAlive
+    initialDelay: 30
+    timeout: 1
+    periodSeconds: 10
+    failureThreshold: 3
+  readiness:
+    path: /syfomotebehov/internal/isReady
+    initialDelay: 30
+    timeout: 1
+  resources:
+    limits:
+      cpu: 3000m
+      memory: 2048Mi
+    requests:
+      cpu: 1000m
+      memory: 1024Mi
+  replicas:
+    min: 1
+    max: 2
+    cpuThresholdPercentage: 80
+  prometheus:
+    enabled: true
+    path: /syfomotebehov/internal/prometheus
+  ingresses:
+    - "https://syfomotebehov.nais.adeo.no"
+    - "https://app.adeo.no/syfomotebehov"
+  vault:
+    enabled: true
+  env:
+    - name: APP_NAME
+      value: "syfomotebehov"
+    - name: APPDYNAMICS_CONTROLLER_HOST_NAME
+      value: appdynamics.adeo.no
+    - name: APPDYNAMICS_CONTROLLER_PORT
+      value: "443"
+    - name: APPDYNAMICS_CONTROLLER_SSL_ENABLED
+      value: "true"
+    - name: toggle_enable_nullstill
+      value: 'false'
+    - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+      value: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443
+    - name: AKTORREGISTER_REST_URL
+      value: https://app.adeo.no/aktoerregister/api/v1
+    - name: PDL_URL
+      value: https://pdl-api.nais.adeo.no/graphql
+    - name: SYFOBRUKERTILGANG_URL
+      value: https://syfobrukertilgang.nais.adeo.no
+    - name: TILGANGSKONTROLLAPI_URL
+      value: https://syfo-tilgangskontroll.nais.adeo.no/syfo-tilgangskontroll/api/tilgang
+    - name: SECURITY_TOKEN_SERVICE_REST_URL
+      value: https://security-token-service.nais.adeo.no
+    - name: SYFOBEHANDLENDEENHET_URL
+      value: https://syfobehandlendeenhet.nais.adeo.no
+    - name: SYFOMOTEADMINAPI_URL
+      value: https://syfomoteadmin.nais.adeo.no/syfomoteadmin/api
+    - name: NO_NAV_SECURITY_OIDC_ISSUER_SELVBETJENING_ACCEPTEDAUDIENCE
+      value: 45104d6a-f5bc-4e8c-b352-4bbfc9381f25
+    - name: NO_NAV_SECURITY_OIDC_ISSUER_SELVBETJENING_DISCOVERYURL
+      value: https://login.microsoftonline.com/navnob2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten
+    - name: NO_NAV_SECURITY_OIDC_ISSUER_INTERN_DISCOVERYURL
+      value: https://isso.adeo.no:443/isso/oauth2/.well-known/openid-configuration
+    - name: NO_NAV_SECURITY_OIDC_ISSUER_VEILEDER_DISCOVERYURL
+      value: https://login.microsoftonline.com/navno.onmicrosoft.com/.well-known/openid-configuration
+    - name: NO_NAV_SECURITY_OIDC_ISSUER_VEILEDER_ACCEPTEDAUDIENCE
+      value: 9b4e07a3-4f4c-4bab-b866-87f62dff480d
+    - name: KAFKA_ENV_NAME
+      value: p

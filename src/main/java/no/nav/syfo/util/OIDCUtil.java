@@ -1,11 +1,9 @@
 package no.nav.syfo.util;
 
 import no.nav.security.oidc.OIDCConstants;
-import no.nav.security.oidc.context.OIDCRequestContextHolder;
-import no.nav.security.oidc.context.OIDCValidationContext;
-import no.nav.syfo.oidc.OIDCClaim;
-import no.nav.syfo.oidc.OIDCIssuer;
-import no.nav.syfo.domain.rest.Fnr;
+import no.nav.security.oidc.context.*;
+import no.nav.syfo.aktorregister.domain.Fodselsnummer;
+import no.nav.syfo.oidc.*;
 
 import java.text.ParseException;
 
@@ -19,10 +17,10 @@ public class OIDCUtil {
         return context.getToken(issuer).getIdToken();
     }
 
-    public static Fnr fnrFraOIDCEkstern(OIDCRequestContextHolder contextHolder) {
+    public static Fodselsnummer fnrFraOIDCEkstern(OIDCRequestContextHolder contextHolder) {
         OIDCValidationContext context = (OIDCValidationContext) contextHolder
                 .getRequestAttribute(OIDCConstants.OIDC_VALIDATION_CONTEXT);
-        return Fnr.of(context.getClaims(OIDCIssuer.EKSTERN).getClaimSet().getSubject());
+        return new Fodselsnummer(context.getClaims(OIDCIssuer.EKSTERN).getClaimSet().getSubject());
     }
 
     public static String getSubjectFromOIDCToken(OIDCRequestContextHolder contextHolder, String issuerName) {

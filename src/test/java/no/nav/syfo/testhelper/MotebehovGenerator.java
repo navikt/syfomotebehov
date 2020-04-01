@@ -14,9 +14,6 @@ public class MotebehovGenerator {
 
     private final MotebehovSvar motebehovSvar = new MotebehovSvar()
             .harMotebehov(true)
-            .friskmeldingForventning("Om en uke")
-            .tiltak("Krykker")
-            .tiltakResultat("Kommer seg fremover")
             .forklaring("");
 
     private final NyttMotebehov nyttMotebehovArbeidstaker = new NyttMotebehov()
@@ -48,7 +45,6 @@ public class MotebehovGenerator {
             .virksomhetsnummer(VIRKSOMHETSNUMMER)
             .forklaring("Megling")
             .harMotebehov(true)
-            .tiltak("")
             .tildeltEnhet(NAV_ENHET);
 
     public PMotebehov lagNyttPMotebehovFraAT(boolean harBehov) {

@@ -18,7 +18,6 @@ class BrukertilgangConsumer(
         @Value("\${syfobrukertilgang.url}") private val baseUrl: String
 ) {
     fun hasAccessToAnsatt(ansattFnr: String): Boolean {
-        metrikk.tellHendelse("call_syfobrukertilgang")
         try {
             val response = restTemplate.exchange<Boolean>(
                     arbeidstakerUrl(ansattFnr),
@@ -28,10 +27,10 @@ class BrukertilgangConsumer(
             )
 
             val responseBody = response.body!!
-            metrikk.tellHendelse("call_syfobrukertilgang_success")
+            metrikk.countOutgoingReponses(METRIC_CALL_BRUKERTILGANG, response.statusCodeValue)
             return responseBody
         } catch (e: RestClientResponseException) {
-            metrikk.countOutgoingReponses("call_syfobrukertilgang", e.rawStatusCode)
+            metrikk.countOutgoingReponses(METRIC_CALL_BRUKERTILGANG, e.rawStatusCode)
             if (e.rawStatusCode == 401) {
                 throw RequestUnauthorizedException("Unauthorized request to get access to Ansatt from Syfobrukertilgang")
             } else {
@@ -53,5 +52,7 @@ class BrukertilgangConsumer(
 
     companion object {
         private val LOG = LoggerFactory.getLogger(BrukertilgangConsumer::class.java)
+
+        const val METRIC_CALL_BRUKERTILGANG = "call_syfobrukertilgang"
     }
 }

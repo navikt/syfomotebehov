@@ -1,6 +1,5 @@
 package no.nav.syfo.filters;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -12,7 +11,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-@Slf4j
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
 public class CORSFilter implements Filter {

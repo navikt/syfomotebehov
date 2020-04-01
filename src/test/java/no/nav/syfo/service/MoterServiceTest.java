@@ -41,6 +41,7 @@ public class MoterServiceTest {
 
     @Before
     public void setUp() {
+        when(stsConsumer.token()).thenReturn("token");
         ReflectionTestUtils.setField(moterService, "syfomoteadminUrl", "https://www.kanskje.no");
     }
 

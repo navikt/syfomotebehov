@@ -7,8 +7,5 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true, chain = true)
 public class MotebehovSvar {
     public boolean harMotebehov;
-    public String friskmeldingForventning;
-    public String tiltak;
-    public String tiltakResultat;
     public String forklaring;
 }

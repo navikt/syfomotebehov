@@ -3,7 +3,7 @@ package no.nav.syfo.testhelper;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import no.nav.security.oidc.context.*;
-import no.nav.security.spring.oidc.test.JwtTokenGenerator;
+import no.nav.security.oidc.test.support.JwtTokenGenerator;
 import no.nav.syfo.oidc.OIDCIssuer;
 
 import java.text.ParseException;

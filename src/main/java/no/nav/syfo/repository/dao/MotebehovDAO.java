@@ -1,6 +1,5 @@
 package no.nav.syfo.repository.dao;
 
-import lombok.extern.slf4j.Slf4j;
 import no.nav.syfo.repository.domain.PMotebehov;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -13,9 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Types;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static java.time.LocalDateTime.now;
 import static java.util.Collections.emptyList;
@@ -25,7 +22,6 @@ import static java.util.stream.Collectors.toList;
 import static no.nav.syfo.repository.DbUtil.*;
 
 @Service
-@Slf4j
 @Transactional
 @Repository
 public class MotebehovDAO {
@@ -73,9 +69,6 @@ public class MotebehovDAO {
                 ":opprettet_av, " +
                 ":aktoer_id, " +
                 ":virksomhetsnummer, " +
-                ":friskmelding_forventning, " +
-                ":tiltak, " +
-                ":tiltak_resultat, " +
                 ":har_motebehov, " +
                 ":forklaring," +
                 ":tildelt_enhet," +
@@ -89,9 +82,6 @@ public class MotebehovDAO {
                 .addValue("opprettet_dato", convert(now()))
                 .addValue("aktoer_id", motebehov.aktoerId)
                 .addValue("virksomhetsnummer", motebehov.virksomhetsnummer)
-                .addValue("friskmelding_forventning", new SqlLobValue(sanitizeUserInput(motebehov.friskmeldingForventning)), Types.CLOB)
-                .addValue("tiltak", new SqlLobValue(sanitizeUserInput(motebehov.tiltak)), Types.CLOB)
-                .addValue("tiltak_resultat", new SqlLobValue(sanitizeUserInput(motebehov.tiltakResultat)), Types.CLOB)
                 .addValue("har_motebehov", motebehov.harMotebehov)
                 .addValue("forklaring", new SqlLobValue(sanitizeUserInput(motebehov.forklaring)), Types.CLOB)
                 .addValue("tildelt_enhet", motebehov.tildeltEnhet)
@@ -103,10 +93,6 @@ public class MotebehovDAO {
         return uuid;
     }
 
-    public List<PMotebehov> finnMotebehovMedBehovOpprettetSiden(LocalDateTime timestamp) {
-        return jdbcTemplate.query("SELECT * FROM motebehov WHERE opprettet_dato > ? AND har_motebehov = 1", getInnsendingRowMapper(), timestamp);
-    }
-
     private static RowMapper<PMotebehov> getInnsendingRowMapper() {
         return (rs, i) -> new PMotebehov()
                 .uuid(fromString(rs.getString("motebehov_uuid")))
@@ -114,9 +100,6 @@ public class MotebehovDAO {
                 .opprettetAv(rs.getString("opprettet_av"))
                 .aktoerId(rs.getString("aktoer_id"))
                 .virksomhetsnummer(rs.getString("virksomhetsnummer"))
-                .friskmeldingForventning(rs.getString("friskmelding_forventning"))
-                .tiltak(rs.getString("tiltak"))
-                .tiltakResultat(rs.getString("tiltak_resultat"))
                 .harMotebehov(rs.getBoolean("har_motebehov"))
                 .forklaring(rs.getString("forklaring"))
                 .tildeltEnhet(rs.getString("tildelt_enhet"))
@@ -137,8 +120,6 @@ public class MotebehovDAO {
 
                     new MapSqlParameterSource()
                             .addValue("motebehovIder", motebehovIder));
-
-            log.info("Slettet {} møtebehov på aktør: {}", antallMotebehovSlettet, aktoerId);
 
             return antallMotebehovSlettet;
         } else {
