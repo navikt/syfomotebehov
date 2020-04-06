@@ -18,8 +18,8 @@ import javax.ws.rs.ForbiddenException;
 import java.text.ParseException;
 
 import static no.nav.syfo.oidc.OIDCIssuer.AZURE;
-import static no.nav.syfo.service.VeilederTilgangService.FNR;
-import static no.nav.syfo.service.VeilederTilgangService.TILGANG_TIL_BRUKER_VIA_AZURE_PATH;
+import static no.nav.syfo.veiledertilgang.VeilederTilgangConsumer.FNR;
+import static no.nav.syfo.veiledertilgang.VeilederTilgangConsumer.TILGANG_TIL_BRUKER_VIA_AZURE_PATH;
 import static no.nav.syfo.testhelper.OidcTestHelper.loggInnVeilederAzure;
 import static no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle;
 import static no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR;

@@ -7,6 +7,7 @@ import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.historikk.*;
 import no.nav.syfo.service.*;
 import no.nav.syfo.util.Metrikk;
+import no.nav.syfo.veiledertilgang.VeilederTilgangConsumer;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
@@ -31,7 +32,7 @@ public class MotebehovVeilederADController {
 
     private final MotebehovService motebehovService;
 
-    private final VeilederTilgangService veilederTilgangService;
+    private final VeilederTilgangConsumer veilederTilgangConsumer;
 
     @Inject
     public MotebehovVeilederADController(
@@ -39,13 +40,13 @@ public class MotebehovVeilederADController {
             Metrikk metrikk,
             HistorikkService historikkService,
             MotebehovService motebehovService,
-            VeilederTilgangService tilgangService
+            VeilederTilgangConsumer tilgangService
     ) {
         this.oidcCtxHolder = oidcCtxHolder;
         this.metrikk = metrikk;
         this.historikkService = historikkService;
         this.motebehovService = motebehovService;
-        this.veilederTilgangService = tilgangService;
+        this.veilederTilgangConsumer = tilgangService;
     }
 
     @GetMapping(value = "/motebehov", produces = APPLICATION_JSON_VALUE)
@@ -90,7 +91,7 @@ public class MotebehovVeilederADController {
     }
 
     private void kastExceptionHvisIkkeTilgang(Fodselsnummer fnr) {
-        if (!veilederTilgangService.sjekkVeiledersTilgangTilPersonViaAzure(fnr)) {
+        if (!veilederTilgangConsumer.sjekkVeiledersTilgangTilPersonViaAzure(fnr)) {
             throw new ForbiddenException("Veilederen har ikke tilgang til denne personen");
         }
     }
