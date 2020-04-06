@@ -23,7 +23,7 @@ class VeilederTilgangConsumer(
 ) {
     private val tilgangTilBrukerViaAzureUriTemplate: UriComponentsBuilder
 
-    fun sjekkVeiledersTilgangTilPersonViaAzure(fnr: Fodselsnummer): Boolean {
+    fun sjekkVeiledersTilgangTilPerson(fnr: Fodselsnummer): Boolean {
         val tilgangTilBrukerViaAzureUriMedFnr = tilgangTilBrukerViaAzureUriTemplate.build(Collections.singletonMap(FNR, fnr.value))
         return checkAccess(tilgangTilBrukerViaAzureUriMedFnr, OIDCIssuer.AZURE)
     }

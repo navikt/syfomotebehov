@@ -91,7 +91,7 @@ public class MotebehovVeilederADController {
     }
 
     private void kastExceptionHvisIkkeTilgang(Fodselsnummer fnr) {
-        if (!veilederTilgangConsumer.sjekkVeiledersTilgangTilPersonViaAzure(fnr)) {
+        if (!veilederTilgangConsumer.sjekkVeiledersTilgangTilPerson(fnr)) {
             throw new ForbiddenException("Veilederen har ikke tilgang til denne personen");
         }
     }
