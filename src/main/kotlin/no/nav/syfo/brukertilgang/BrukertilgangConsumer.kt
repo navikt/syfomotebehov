@@ -18,14 +18,14 @@ class BrukertilgangConsumer(
         @Value("\${syfobrukertilgang.url}") private val baseUrl: String
 ) {
     fun hasAccessToAnsatt(ansattFnr: String): Boolean {
+        val httpEntity = entity()
         try {
             val response = restTemplate.exchange<Boolean>(
                     arbeidstakerUrl(ansattFnr),
                     HttpMethod.GET,
-                    entity(),
+                    httpEntity,
                     Boolean::class.java
             )
-
             val responseBody = response.body!!
             metrikk.countOutgoingReponses(METRIC_CALL_BRUKERTILGANG, response.statusCodeValue)
             return responseBody
@@ -34,7 +34,7 @@ class BrukertilgangConsumer(
             if (e.rawStatusCode == 401) {
                 throw RequestUnauthorizedException("Unauthorized request to get access to Ansatt from Syfobrukertilgang")
             } else {
-                LOG.error("Error requesting ansatt access from syfobrukertilgang: ", e)
+                LOG.error("Error requesting ansatt access from syfobrukertilgang with callId ${httpEntity.headers.get(NAV_CALL_ID_HEADER)}: ", e)
                 throw e
             }
         }
@@ -42,7 +42,9 @@ class BrukertilgangConsumer(
 
     private fun entity(): HttpEntity<*> {
         val headers = HttpHeaders()
-        headers.add(HttpHeaders.AUTHORIZATION, bearerCredentials(OIDCUtil.tokenFraOIDC(oidcContextHolder, OIDCIssuer.EKSTERN)))
+        headers[HttpHeaders.AUTHORIZATION] = bearerCredentials(OIDCUtil.tokenFraOIDC(oidcContextHolder, OIDCIssuer.EKSTERN))
+        headers[NAV_CALL_ID_HEADER] = createCallId()
+        headers[NAV_CONSUMER_ID_HEADER] = APP_CONSUMER_ID
         return HttpEntity<Any>(headers)
     }
 
