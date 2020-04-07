@@ -50,7 +50,7 @@ public class MotebehovService {
         int antallOppdateringer = motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr), veilederIdent);
 
         if (antallOppdateringer > 0) {
-            String behandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.getValue()).getEnhetId();
+            String behandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.getValue(), null).getEnhetId();
             oversikthendelseService.sendOversikthendelse(arbeidstakerFnr.getValue(), behandlendeEnhet);
         } else {
             metrikk.tellHendelse("feil_behandle_motebehov_svar_eksiterer_ikke");
@@ -90,7 +90,7 @@ public class MotebehovService {
     public UUID lagreMotebehov(Fodselsnummer innloggetFNR, Fodselsnummer arbeidstakerFnr, final NyttMotebehov nyttMotebehov) {
         final String innloggetBrukerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(innloggetFNR);
         final String arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr);
-        final String arbeidstakerBehandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.getValue()).getEnhetId();
+        final String arbeidstakerBehandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.getValue(), null).getEnhetId();
         final PMotebehov motebehov = mapNyttMotebehovToPMotebehov(innloggetBrukerAktoerId, arbeidstakerAktoerId, arbeidstakerBehandlendeEnhet, nyttMotebehov);
 
         UUID id = motebehovDAO.create(motebehov);
