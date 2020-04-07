@@ -34,7 +34,7 @@ class BrukertilgangConsumer(
             if (e.rawStatusCode == 401) {
                 throw RequestUnauthorizedException("Unauthorized request to get access to Ansatt from Syfobrukertilgang")
             } else {
-                LOG.error("Error requesting ansatt access from syfobrukertilgang with callId ${httpEntity.headers.get(NAV_CALL_ID_HEADER)}: ", e)
+                LOG.error("Error requesting ansatt access from syfobrukertilgang with callId ${httpEntity.headers[NAV_CALL_ID_HEADER]}: ", e)
                 throw e
             }
         }
