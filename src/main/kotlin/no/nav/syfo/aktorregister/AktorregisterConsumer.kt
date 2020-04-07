@@ -71,8 +71,6 @@ class AktorregisterConsumer @Inject constructor(
 
     companion object {
         private val LOG = LoggerFactory.getLogger(AktorregisterConsumer::class.java)
-
-        private const val NAV_PERSONIDENTER_HEADER = "Nav-Personidenter"
     }
 }
 
