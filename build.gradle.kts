@@ -67,8 +67,8 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:4.10")
     implementation("org.apache.commons:commons-lang3:3.5")
     implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:20171016.1")
-    implementation("org.projectlombok:lombok:1.16.22")
-    annotationProcessor("org.projectlombok:lombok:1.18.6")
+    implementation("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
 
     testImplementation("no.nav.security:oidc-test-support:$oidcSupportVersion")
     testImplementation("org.springframework.kafka:spring-kafka-test")
