@@ -5,7 +5,7 @@ import no.nav.syfo.LocalApplication;
 import no.nav.syfo.aktorregister.AktorregisterConsumer;
 import no.nav.syfo.aktorregister.domain.AktorId;
 import no.nav.syfo.aktorregister.domain.Fodselsnummer;
-import no.nav.syfo.controller.MotebehovBrukerController;
+import no.nav.syfo.api.MotebehovBrukerController;
 import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.historikk.Historikk;
 import no.nav.syfo.kafka.producer.model.KOversikthendelse;
