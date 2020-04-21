@@ -4,6 +4,7 @@ import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.syfo.LocalApplication;
 import no.nav.syfo.aktorregister.AktorregisterConsumer;
 import no.nav.syfo.aktorregister.domain.Fodselsnummer;
+import no.nav.syfo.api.MotebehovBrukerController;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.MotebehovSvar;
 import no.nav.syfo.kafka.producer.OversikthendelseProducer;
