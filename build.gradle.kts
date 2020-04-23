@@ -36,8 +36,6 @@ allOpen {
 repositories {
     mavenCentral()
     jcenter()
-    maven(url = "https://repo.adeo.no/repository/maven-releases/")
-    maven(url = "https://repo.adeo.no/repository/maven-snapshots/")
     maven(url = "http://packages.confluent.io/maven/")
     maven(url = "https://dl.bintray.com/kotlin/kotlinx/")
 }
