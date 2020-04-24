@@ -1,14 +1,12 @@
 package no.nav.syfo.config;
 
-import org.springframework.context.annotation.*;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.client.RestTemplate;
-
-import static java.util.Arrays.asList;
 
 @Configuration
 @EnableTransactionManagement
@@ -21,10 +19,8 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public RestTemplate restTemplate(ClientHttpRequestInterceptor... interceptors) {
-        RestTemplate template = new RestTemplate();
-        template.setInterceptors(asList(interceptors));
-        return template;
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }
 
