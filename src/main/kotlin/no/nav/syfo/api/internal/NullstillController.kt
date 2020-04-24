@@ -2,7 +2,7 @@ package no.nav.syfo.api.internal
 
 import no.nav.security.oidc.api.Unprotected
 import no.nav.syfo.repository.dao.MotebehovDAO
-import no.nav.syfo.util.Toggle
+import no.nav.syfo.toggle.Toggle
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
