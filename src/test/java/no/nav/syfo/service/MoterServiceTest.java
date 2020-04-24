@@ -1,7 +1,7 @@
 package no.nav.syfo.service;
 
 import no.nav.syfo.sts.StsConsumer;
-import no.nav.syfo.util.Metrikk;
+import no.nav.syfo.metric.Metrikk;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

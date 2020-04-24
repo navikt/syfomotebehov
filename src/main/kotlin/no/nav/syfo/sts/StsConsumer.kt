@@ -1,6 +1,6 @@
 package no.nav.syfo.sts
 
-import no.nav.syfo.util.Metrikk
+import no.nav.syfo.metric.Metrikk
 import no.nav.syfo.util.basicCredentials
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value

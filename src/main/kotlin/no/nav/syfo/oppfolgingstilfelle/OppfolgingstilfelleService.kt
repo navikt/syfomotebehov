@@ -4,7 +4,7 @@ import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.oppfolgingstilfelle.kafka.KOppfolgingstilfellePeker
 import no.nav.syfo.oppfolgingstilfelle.syketilfelle.KOppfolgingstilfelle
 import no.nav.syfo.oppfolgingstilfelle.syketilfelle.SyketilfelleConsumer
-import no.nav.syfo.util.Metrikk
+import no.nav.syfo.metric.Metrikk
 import org.springframework.stereotype.Service
 import javax.inject.Inject
 

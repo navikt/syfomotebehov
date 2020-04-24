@@ -2,7 +2,7 @@ package no.nav.syfo.exception;
 
 import no.nav.security.spring.oidc.validation.interceptor.OIDCUnauthorizedException;
 import no.nav.syfo.brukertilgang.RequestUnauthorizedException;
-import no.nav.syfo.util.Metrikk;
+import no.nav.syfo.metric.Metrikk;
 import org.slf4j.Logger;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.ControllerAdvice;

@@ -7,7 +7,7 @@
     import no.nav.syfo.historikk.Historikk;
     import no.nav.syfo.historikk.HistorikkService;
     import no.nav.syfo.service.MotebehovService;
-    import no.nav.syfo.util.Metrikk;
+    import no.nav.syfo.metric.Metrikk;
     import no.nav.syfo.veiledertilgang.VeilederTilgangConsumer;
     import org.springframework.web.bind.annotation.*;
 

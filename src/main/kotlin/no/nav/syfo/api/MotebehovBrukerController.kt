@@ -8,7 +8,7 @@ import no.nav.syfo.domain.rest.Motebehov
 import no.nav.syfo.domain.rest.NyttMotebehov
 import no.nav.syfo.oidc.OIDCIssuer
 import no.nav.syfo.service.MotebehovService
-import no.nav.syfo.util.Metrikk
+import no.nav.syfo.metric.Metrikk
 import no.nav.syfo.oidc.OIDCUtil
 import org.apache.commons.lang3.StringUtils
 import org.springframework.http.MediaType

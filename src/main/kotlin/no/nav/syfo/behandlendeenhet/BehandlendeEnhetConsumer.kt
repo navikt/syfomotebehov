@@ -1,6 +1,7 @@
 package no.nav.syfo.behandlendeenhet
 
 import no.nav.syfo.cache.CacheConfig
+import no.nav.syfo.metric.Metrikk
 import no.nav.syfo.sts.StsConsumer
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory

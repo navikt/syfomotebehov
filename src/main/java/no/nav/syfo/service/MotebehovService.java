@@ -7,7 +7,7 @@ import no.nav.syfo.domain.rest.*;
 import no.nav.syfo.exception.ConflictException;
 import no.nav.syfo.repository.dao.MotebehovDAO;
 import no.nav.syfo.repository.domain.PMotebehov;
-import no.nav.syfo.util.Metrikk;
+import no.nav.syfo.metric.Metrikk;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
