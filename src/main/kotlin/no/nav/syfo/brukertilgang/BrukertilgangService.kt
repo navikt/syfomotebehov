@@ -1,7 +1,7 @@
 package no.nav.syfo.brukertilgang
 
 import no.nav.syfo.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.config.CacheConfig
+import no.nav.syfo.cache.CacheConfig
 import no.nav.syfo.pdl.PdlConsumer
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service

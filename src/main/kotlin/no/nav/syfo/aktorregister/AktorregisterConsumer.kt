@@ -1,8 +1,7 @@
 package no.nav.syfo.aktorregister
 
 import no.nav.syfo.aktorregister.domain.*
-import no.nav.syfo.config.CacheConfig.CACHENAME_AKTOR_FNR
-import no.nav.syfo.config.CacheConfig.CACHENAME_AKTOR_ID
+import no.nav.syfo.cache.CacheConfig
 import no.nav.syfo.sts.StsConsumer
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
@@ -25,13 +24,13 @@ class AktorregisterConsumer @Inject constructor(
 ) {
     private val responseType: ParameterizedTypeReference<Map<String, IdentinfoListe>> = object : ParameterizedTypeReference<Map<String, IdentinfoListe>>() {}
 
-    @Cacheable(value = [CACHENAME_AKTOR_ID], key = "#fnr", condition = "#fnr != null")
+    @Cacheable(value = [CacheConfig.CACHENAME_AKTOR_ID], key = "#fnr", condition = "#fnr != null")
     fun getAktorIdForFodselsnummer(fnr: Fodselsnummer): String {
         val response = getIdentFromAktorregister(fnr.value, IdentType.AktoerId)
         return currentIdentFromAktorregisterResponse(response, fnr.value, IdentType.AktoerId)
     }
 
-    @Cacheable(value = [CACHENAME_AKTOR_FNR], key = "#aktorId", condition = "#aktorId != null")
+    @Cacheable(value = [CacheConfig.CACHENAME_AKTOR_FNR], key = "#aktorId", condition = "#aktorId != null")
     fun getFnrForAktorId(aktorId: AktorId): String {
         val response = getIdentFromAktorregister(aktorId.value, IdentType.NorskIdent)
         return currentIdentFromAktorregisterResponse(response, aktorId.value, IdentType.NorskIdent)
