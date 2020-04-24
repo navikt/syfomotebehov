@@ -3,6 +3,7 @@ package no.nav.syfo.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import no.nav.syfo.LocalApplication;
+import no.nav.syfo.api.VarselController;
 import no.nav.syfo.domain.rest.MotebehovsvarVarselInfo;
 import no.nav.syfo.kafka.producer.TredjepartsvarselProducer;
 import no.nav.syfo.kafka.producer.model.KTredjepartsvarsel;
