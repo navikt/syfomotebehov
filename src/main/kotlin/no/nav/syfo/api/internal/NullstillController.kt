@@ -16,7 +16,7 @@ import java.util.stream.Stream
 @RequestMapping(value = ["/internal"])
 class NullstillController(private val motebehovDAO: MotebehovDAO) {
     @RequestMapping(value = ["/nullstill/{aktoerId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun slettMotebehov(@PathVariable aktoerId: String?, @Value("\${nais.cluster.name:ukjent}") env: String): String {
+    fun slettMotebehov(@PathVariable aktoerId: String, @Value("\${nais.cluster.name:ukjent}") env: String): String {
         return if (Toggle.enableNullstill || Stream.of("q1", "local").anyMatch { anObject: String -> env.equals(anObject) }) {
             log.info("Sletter alle møtebehov på aktørid: {}", aktoerId)
             val antallSlettedeMotebehov = motebehovDAO.nullstillMotebehov(aktoerId)
