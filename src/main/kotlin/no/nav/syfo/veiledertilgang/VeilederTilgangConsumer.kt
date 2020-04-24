@@ -3,6 +3,7 @@ package no.nav.syfo.veiledertilgang
 import no.nav.security.oidc.context.OIDCRequestContextHolder
 import no.nav.syfo.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.oidc.OIDCIssuer
+import no.nav.syfo.oidc.OIDCUtil
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
