@@ -7,7 +7,7 @@ import no.nav.syfo.aktorregister.domain.Fodselsnummer;
 import no.nav.syfo.api.MotebehovBrukerController;
 import no.nav.syfo.domain.rest.Motebehov;
 import no.nav.syfo.domain.rest.MotebehovSvar;
-import no.nav.syfo.kafka.producer.OversikthendelseProducer;
+import no.nav.syfo.oversikthendelse.OversikthendelseProducer;
 import no.nav.syfo.kafka.producer.model.KOversikthendelse;
 import no.nav.syfo.pdl.PdlConsumer;
 import no.nav.syfo.repository.dao.MotebehovDAO;

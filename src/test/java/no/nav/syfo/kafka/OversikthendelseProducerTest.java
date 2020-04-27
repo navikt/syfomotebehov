@@ -1,6 +1,6 @@
 package no.nav.syfo.kafka;
 
-import no.nav.syfo.kafka.producer.OversikthendelseProducer;
+import no.nav.syfo.oversikthendelse.OversikthendelseProducer;
 import no.nav.syfo.kafka.producer.model.KOversikthendelse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,7 +11,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.util.concurrent.ListenableFuture;
 
 import static java.time.LocalDateTime.now;
-import static no.nav.syfo.kafka.producer.OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC;
+import static no.nav.syfo.oversikthendelse.OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC;
 import static no.nav.syfo.kafka.producer.OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET;
 import static no.nav.syfo.kafka.producer.OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT;
 import static no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR;

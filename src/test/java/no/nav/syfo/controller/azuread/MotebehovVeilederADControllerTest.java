@@ -35,7 +35,7 @@ import java.util.List;
 
 import static no.nav.syfo.historikk.HistorikkService.HAR_SVART_PAA_MOTEBEHOV;
 import static no.nav.syfo.historikk.HistorikkService.MOTEBEHOVET_BLE_LEST_AV;
-import static no.nav.syfo.kafka.producer.OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC;
+import static no.nav.syfo.oversikthendelse.OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC;
 import static no.nav.syfo.oidc.OIDCIssuer.AZURE;
 import static no.nav.syfo.veiledertilgang.VeilederTilgangConsumer.FNR;
 import static no.nav.syfo.veiledertilgang.VeilederTilgangConsumer.TILGANG_TIL_BRUKER_VIA_AZURE_PATH;
