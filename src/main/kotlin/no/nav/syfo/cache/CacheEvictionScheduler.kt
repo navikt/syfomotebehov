@@ -17,7 +17,10 @@ class CacheEvictionScheduler @Inject constructor(
 
     private fun evictAllCaches() {
         cachemanager.cacheNames
-                .forEach(Consumer { cacheName: String -> cachemanager.getCache(cacheName).clear() })
+                .forEach(Consumer { cacheName: String ->
+                    val cache = cachemanager.getCache(cacheName)
+                    cache?.clear()
+                })
     }
 
     companion object {
