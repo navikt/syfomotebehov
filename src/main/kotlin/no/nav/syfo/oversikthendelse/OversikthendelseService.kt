@@ -1,7 +1,6 @@
 package no.nav.syfo.oversikthendelse
 
 import no.nav.syfo.domain.rest.NyttMotebehov
-import no.nav.syfo.kafka.producer.OversikthendelseType
 import no.nav.syfo.kafka.producer.model.KOversikthendelse
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime

@@ -12,8 +12,8 @@ import org.springframework.util.concurrent.ListenableFuture;
 
 import static java.time.LocalDateTime.now;
 import static no.nav.syfo.oversikthendelse.OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC;
-import static no.nav.syfo.kafka.producer.OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET;
-import static no.nav.syfo.kafka.producer.OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT;
+import static no.nav.syfo.oversikthendelse.OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET;
+import static no.nav.syfo.oversikthendelse.OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT;
 import static no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR;
 import static no.nav.syfo.testhelper.UserConstants.NAV_ENHET;
 import static org.mockito.ArgumentMatchers.*;
