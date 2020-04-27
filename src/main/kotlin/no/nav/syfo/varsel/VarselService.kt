@@ -1,7 +1,6 @@
 package no.nav.syfo.varsel
 
 import no.nav.syfo.domain.rest.MotebehovsvarVarselInfo
-import no.nav.syfo.kafka.producer.TredjepartsvarselProducer
 import no.nav.syfo.kafka.producer.VarselType
 import no.nav.syfo.kafka.producer.model.KTredjepartsvarsel
 import no.nav.syfo.service.MoterService

@@ -1,6 +1,6 @@
 package no.nav.syfo.kafka;
 
-import no.nav.syfo.kafka.producer.TredjepartsvarselProducer;
+import no.nav.syfo.varsel.TredjepartsvarselProducer;
 import no.nav.syfo.kafka.producer.model.KTredjepartsvarsel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +37,6 @@ public class TredjepartsvarselProducerTest {
 
         tredjepartsvarselProducer.sendTredjepartsvarselvarsel(kTredjepartsvarsel);
 
-        verify(kafkaTemplate).send(eq(tredjepartsvarselProducer.TREDJEPARTSVARSEL_TOPIC), anyString(), same(kTredjepartsvarsel));
+        verify(kafkaTemplate).send(eq(TredjepartsvarselProducer.TREDJEPARTSVARSEL_TOPIC), anyString(), same(kTredjepartsvarsel));
     }
 }

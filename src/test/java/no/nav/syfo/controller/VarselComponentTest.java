@@ -5,7 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import no.nav.syfo.LocalApplication;
 import no.nav.syfo.api.VarselController;
 import no.nav.syfo.domain.rest.MotebehovsvarVarselInfo;
-import no.nav.syfo.kafka.producer.TredjepartsvarselProducer;
+import no.nav.syfo.varsel.TredjepartsvarselProducer;
 import no.nav.syfo.kafka.producer.model.KTredjepartsvarsel;
 import no.nav.syfo.service.*;
 import no.nav.syfo.sts.StsConsumer;
@@ -115,7 +115,7 @@ public class VarselComponentTest {
 
         Response returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo);
 
-        verify(kafkaTemplate).send(eq(tredjepartsvarselProducer.TREDJEPARTSVARSEL_TOPIC), anyString(), argumentCaptor.capture());
+        verify(kafkaTemplate).send(eq(TredjepartsvarselProducer.TREDJEPARTSVARSEL_TOPIC), anyString(), argumentCaptor.capture());
 
         KTredjepartsvarsel sendtKTredjepartsvarsel = argumentCaptor.getValue();
         verifySendtKtredjepartsvarsel(sendtKTredjepartsvarsel);
