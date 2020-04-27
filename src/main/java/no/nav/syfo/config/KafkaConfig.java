@@ -14,22 +14,12 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 
-import javax.inject.Inject;
-
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
-
 
 @Profile("remote")
 @Configuration
 @EnableKafka
 public class KafkaConfig {
-
-    private final KafkaProperties properties;
-
-    @Inject
-    public KafkaConfig(KafkaProperties properties) {
-        this.properties = properties;
-    }
 
     @Bean
     public KafkaTemplate<String, Object> kafkaTemplate(ProducerFactory<String, Object> producerFactory) {
