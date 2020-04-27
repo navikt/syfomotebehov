@@ -39,7 +39,7 @@ public class MoterService {
         this.syfomoteadminUrl = syfomoteadminUrl;
     }
 
-    boolean erMoteOpprettetForArbeidstakerEtterDato(String aktorId, LocalDateTime startDato) {
+    public boolean erMoteOpprettetForArbeidstakerEtterDato(String aktorId, LocalDateTime startDato) {
         String stsToken = stsConsumer.token();
         HttpEntity<LocalDateTime> requestEntity = new HttpEntity<>(startDato, authorizationHeader(stsToken));
 
