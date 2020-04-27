@@ -7,7 +7,7 @@ import no.nav.syfo.LocalApplication
 import no.nav.syfo.api.VarselController
 import no.nav.syfo.domain.rest.MotebehovsvarVarselInfo
 import no.nav.syfo.kafka.producer.model.KTredjepartsvarsel
-import no.nav.syfo.service.MoterService
+import no.nav.syfo.mote.MoterService
 import no.nav.syfo.sts.StsConsumer
 import no.nav.syfo.testhelper.UserConstants
 import no.nav.syfo.testhelper.mockAndExpectSTSService
@@ -42,9 +42,6 @@ import javax.inject.Inject
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
 class VarselComponentTest {
-    @Value("\${syfomoteadminapi.url}")
-    private lateinit var syfomoteadminUrl: String
-
     @Value("\${security.token.service.rest.url}")
     private lateinit var stsUrl: String
 
@@ -128,7 +125,7 @@ class VarselComponentTest {
     @Throws(Exception::class)
     private fun mockSvarFraSyfomoteadmin(harAktivtMote: Boolean) {
         val svarFraSyfomoteadminJson = objectMapper.writeValueAsString(harAktivtMote)
-        val url = UriComponentsBuilder.fromHttpUrl(syfomoteadminUrl)
+        val url = UriComponentsBuilder.fromHttpUrl(MoterService.SYFOMOTEADMIN_BASEURL)
                 .pathSegment("system", UserConstants.ARBEIDSTAKER_AKTORID, "harAktivtMote")
                 .toUriString()
         mockRestServiceServer.expect(ExpectedCount.once(), MockRestRequestMatchers.requestTo(url))

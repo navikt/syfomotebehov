@@ -2,7 +2,7 @@ package no.nav.syfo.varsel
 
 import no.nav.syfo.domain.rest.MotebehovsvarVarselInfo
 import no.nav.syfo.kafka.producer.model.KTredjepartsvarsel
-import no.nav.syfo.service.MoterService
+import no.nav.syfo.mote.MoterService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime

@@ -63,8 +63,6 @@ spec:
       value: https://security-token-service.nais.adeo.no
     - name: SYFOBEHANDLENDEENHET_URL
       value: https://syfobehandlendeenhet.nais.adeo.no
-    - name: SYFOMOTEADMINAPI_URL
-      value: https://syfomoteadmin.nais.adeo.no/syfomoteadmin/api
     - name: NO_NAV_SECURITY_OIDC_ISSUER_SELVBETJENING_ACCEPTEDAUDIENCE
       value: 45104d6a-f5bc-4e8c-b352-4bbfc9381f25
     - name: NO_NAV_SECURITY_OIDC_ISSUER_SELVBETJENING_DISCOVERYURL

@@ -2,7 +2,6 @@ package no.nav.syfo.mote
 
 import junit.framework.TestCase
 import no.nav.syfo.metric.Metrikk
-import no.nav.syfo.service.MoterService
 import no.nav.syfo.sts.StsConsumer
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import org.junit.Assert
@@ -34,12 +33,12 @@ class MoterServiceTest {
 
     @InjectMocks
     private lateinit var moterService: MoterService
+
     private val START_DATO = LocalDateTime.now().minusDays(30)
 
     @Before
     fun setUp() {
         Mockito.`when`(stsConsumer.token()).thenReturn("token")
-        ReflectionTestUtils.setField(moterService, "syfomoteadminUrl", "https://www.kanskje.no")
     }
 
     @Test
