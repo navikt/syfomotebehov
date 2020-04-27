@@ -25,7 +25,7 @@ class OversikthendelseProducerTest {
 
     @Test
     fun sendOversikthendelse() {
-        Mockito.`when`(kafkaTemplate!!.send(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.any(KOversikthendelse::class.java))).thenReturn(Mockito.mock(ListenableFuture::class.java) as ListenableFuture<SendResult<String, Any>>?)
+        Mockito.`when`(kafkaTemplate.send(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.any(KOversikthendelse::class.java))).thenReturn(Mockito.mock(ListenableFuture::class.java) as ListenableFuture<SendResult<String, Any>>?)
         val kOversikthendelse = KOversikthendelse()
                 .fnr(ARBEIDSTAKER_FNR)
                 .hendelseId(OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name)

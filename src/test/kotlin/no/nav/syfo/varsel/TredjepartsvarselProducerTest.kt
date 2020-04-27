@@ -23,7 +23,7 @@ class TredjepartsvarselProducerTest {
 
     @Test
     fun sendTredjepartsvarsel() {
-        Mockito.`when`(kafkaTemplate!!.send(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.any(KTredjepartsvarsel::class.java))).thenReturn(Mockito.mock(ListenableFuture::class.java) as ListenableFuture<SendResult<String, Any>>?)
+        Mockito.`when`(kafkaTemplate.send(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.any(KTredjepartsvarsel::class.java))).thenReturn(Mockito.mock(ListenableFuture::class.java) as ListenableFuture<SendResult<String, Any>>?)
         val kTredjepartsvarsel = KTredjepartsvarsel()
                 .type(VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name)
                 .ressursId("1")
