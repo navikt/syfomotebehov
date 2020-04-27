@@ -23,7 +23,7 @@ public class MoterService {
     private final RestTemplate template;
     private final StsConsumer stsConsumer;
     private final Metrikk metrikk;
-    private String syfomoteadminUrl;
+    private final String syfomoteadminUrl;
     private static final String SYFOMOTEADMIN_FEILMELDING_GENERELL = "Klarte ikke hente om det er mote i oppfolgingstilfelle fra syfomoteadmin";
     private static final String SYFOMOTEADMIN_FEILMELDING_KLIENT = "Fikk 4XX-feil ved henting av om det er mote i oppfolgingstilfelle fra syfomoteadmin";
     private static final String SYFOMOTEADMIN_FEILMELDING_SERVER = "Fikk 5XX-feil ved henting av om det er mote i oppfolgingstilfelle fra syfomoteadmin";
