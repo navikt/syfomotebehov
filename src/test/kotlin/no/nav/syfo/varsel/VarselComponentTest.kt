@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.api.VarselController
-import no.nav.syfo.domain.rest.MotebehovsvarVarselInfo
 import no.nav.syfo.mote.MoterService
 import no.nav.syfo.sts.StsConsumer
 import no.nav.syfo.testhelper.UserConstants
@@ -76,9 +75,10 @@ class VarselComponentTest {
     private val objectMapper = ObjectMapper()
             .registerModule(JavaTimeModule())
             .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-    private val motebehovsvarVarselInfo = MotebehovsvarVarselInfo()
-            .sykmeldtAktorId(UserConstants.ARBEIDSTAKER_AKTORID)
-            .orgnummer(UserConstants.VIRKSOMHETSNUMMER)
+    private val motebehovsvarVarselInfo = MotebehovsvarVarselInfo(
+            sykmeldtAktorId = UserConstants.ARBEIDSTAKER_AKTORID,
+            orgnummer = UserConstants.VIRKSOMHETSNUMMER
+    )
     private val argumentCaptor = ArgumentCaptor.forClass(KTredjepartsvarsel::class.java)
 
     @Before

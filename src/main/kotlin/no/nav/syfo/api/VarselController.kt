@@ -1,7 +1,7 @@
 package no.nav.syfo.api
 
 import no.nav.security.oidc.api.ProtectedWithClaims
-import no.nav.syfo.domain.rest.MotebehovsvarVarselInfo
+import no.nav.syfo.varsel.MotebehovsvarVarselInfo
 import no.nav.syfo.oidc.OIDCIssuer.INTERN
 import no.nav.syfo.varsel.VarselService
 import org.springframework.http.MediaType
