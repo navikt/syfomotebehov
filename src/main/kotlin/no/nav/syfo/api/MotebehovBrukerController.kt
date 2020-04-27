@@ -43,10 +43,14 @@ class MotebehovBrukerController @Inject constructor(
     fun lagreMotebehov(
             @RequestBody nyttMotebehov: @Valid NyttMotebehov
     ) {
-        val fnr = if (StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr)) OIDCUtil.fnrFraOIDCEkstern(contextHolder) else Fodselsnummer(nyttMotebehov.arbeidstakerFnr)
-        kastExceptionHvisIkkeTilgang(fnr.value)
+        val arbeidstakerFnr = if (StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr)) {
+            OIDCUtil.fnrFraOIDCEkstern(contextHolder)
+        } else Fodselsnummer(nyttMotebehov.arbeidstakerFnr)
+        kastExceptionHvisIkkeTilgang(arbeidstakerFnr.value)
+
+        motebehovService.lagreMotebehov(OIDCUtil.fnrFraOIDCEkstern(contextHolder), arbeidstakerFnr, nyttMotebehov)
+
         val erInnloggetBrukerArbeidstaker = StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr)
-        motebehovService.lagreMotebehov(OIDCUtil.fnrFraOIDCEkstern(contextHolder), fnr, nyttMotebehov)
         lagBesvarMotebehovMetrikk(nyttMotebehov, erInnloggetBrukerArbeidstaker)
     }
 
