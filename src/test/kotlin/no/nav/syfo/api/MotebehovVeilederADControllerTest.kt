@@ -9,7 +9,7 @@ import no.nav.syfo.domain.rest.Motebehov
 import no.nav.syfo.domain.rest.MotebehovSvar
 import no.nav.syfo.domain.rest.NyttMotebehov
 import no.nav.syfo.historikk.HistorikkService
-import no.nav.syfo.kafka.producer.model.KOversikthendelse
+import no.nav.syfo.oversikthendelse.KOversikthendelse
 import no.nav.syfo.oidc.OIDCIssuer.AZURE
 import no.nav.syfo.oversikthendelse.OversikthendelseProducer
 import no.nav.syfo.pdl.PdlConsumer

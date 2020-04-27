@@ -4,7 +4,6 @@ import no.nav.security.oidc.context.OIDCRequestContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.aktorregister.AktorregisterConsumer
 import no.nav.syfo.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.kafka.producer.model.KOversikthendelse
 import no.nav.syfo.oversikthendelse.OversikthendelseProducer
 import no.nav.syfo.pdl.PdlConsumer
 import no.nav.syfo.repository.dao.MotebehovDAO
@@ -22,7 +21,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
