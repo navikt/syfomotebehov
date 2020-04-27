@@ -13,7 +13,7 @@ import no.nav.syfo.oversikthendelse.KOversikthendelse
 import no.nav.syfo.oidc.OIDCIssuer.AZURE
 import no.nav.syfo.oversikthendelse.OversikthendelseProducer
 import no.nav.syfo.pdl.PdlConsumer
-import no.nav.syfo.repository.dao.MotebehovDAO
+import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.sts.StsConsumer
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnVeilederAzure

@@ -8,12 +8,13 @@ import no.nav.syfo.domain.rest.MotebehovSvar
 import no.nav.syfo.domain.rest.NyttMotebehov
 import no.nav.syfo.exception.ConflictException
 import no.nav.syfo.metric.Metrikk
-import no.nav.syfo.repository.dao.MotebehovDAO
-import no.nav.syfo.repository.domain.PMotebehov
+import no.nav.syfo.motebehov.database.MotebehovDAO
+import no.nav.syfo.motebehov.database.PMotebehov
 import no.nav.syfo.oversikthendelse.OversikthendelseService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 import java.util.*
 import java.util.stream.Collectors
 import javax.inject.Inject
@@ -42,7 +43,6 @@ class MotebehovService @Inject constructor(
     fun hentMotebehovListe(arbeidstakerFnr: Fodselsnummer): List<Motebehov> {
         val arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr)
         return motebehovDAO.hentMotebehovListeForAktoer(arbeidstakerAktoerId)
-                .orElse(emptyList())
                 .stream()
                 .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
                 .collect(Collectors.toList())
@@ -51,7 +51,6 @@ class MotebehovService @Inject constructor(
     fun hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr: Fodselsnummer): List<Motebehov> {
         val arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(arbeidstakerFnr.value))
         return motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktoerId)
-                .orElse(emptyList())
                 .stream()
                 .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
                 .collect(Collectors.toList())
@@ -60,7 +59,6 @@ class MotebehovService @Inject constructor(
     fun hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr: Fodselsnummer, virksomhetsnummer: String): List<Motebehov> {
         val arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(arbeidstakerFnr.value))
         return motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerAktoerId, virksomhetsnummer)
-                .orElse(emptyList())
                 .stream()
                 .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
                 .collect(Collectors.toList())
@@ -82,15 +80,18 @@ class MotebehovService @Inject constructor(
     }
 
     private fun mapNyttMotebehovToPMotebehov(innloggetAktoerId: String, arbeidstakerAktoerId: String, tildeltEnhet: String, nyttMotebehov: NyttMotebehov): PMotebehov {
-        val pMotebehov = PMotebehov()
-        pMotebehov.opprettetAv = innloggetAktoerId
-        pMotebehov.aktoerId = arbeidstakerAktoerId
-        pMotebehov.virksomhetsnummer = nyttMotebehov.virksomhetsnummer
-        pMotebehov.harMotebehov = nyttMotebehov.motebehovSvar.harMotebehov
-        pMotebehov.forklaring = nyttMotebehov.motebehovSvar.forklaring
-        pMotebehov.tildeltEnhet = tildeltEnhet
-        pMotebehov.behandletTidspunkt = null
-        return pMotebehov
+        return PMotebehov(
+                uuid = UUID.randomUUID(),
+                opprettetDato = LocalDateTime.now(),
+                opprettetAv = innloggetAktoerId,
+                aktoerId = arbeidstakerAktoerId,
+                virksomhetsnummer = nyttMotebehov.virksomhetsnummer,
+                harMotebehov = nyttMotebehov.motebehovSvar.harMotebehov,
+                forklaring = nyttMotebehov.motebehovSvar.forklaring,
+                tildeltEnhet = tildeltEnhet,
+                behandletVeilederIdent = null,
+                behandletTidspunkt = null
+        )
     }
 
     private fun mapPMotebehovToMotebehov(arbeidstakerFnr: Fodselsnummer, pMotebehov: PMotebehov): Motebehov {

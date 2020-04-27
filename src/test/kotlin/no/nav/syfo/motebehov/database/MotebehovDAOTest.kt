@@ -1,8 +1,6 @@
 package no.nav.syfo.motebehov.database
 
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.repository.dao.MotebehovDAO
-import no.nav.syfo.repository.domain.PMotebehov
 import no.nav.syfo.testhelper.MotebehovGenerator
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
@@ -45,7 +43,7 @@ class MotebehovDAOTest {
     fun hentMotebehovListeForAktoer() {
         val pMotebehov = motebehovGenerator.generatePmotebehov()
         insertPMotebehov(pMotebehov)
-        val motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(ARBEIDSTAKER_AKTORID).orElseThrow { Exception() }
+        val motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(ARBEIDSTAKER_AKTORID)
         Assertions.assertThat(motebehovListe.size).isEqualTo(1)
         val motebehovFraDb = motebehovListe[0]
         Assertions.assertThat(motebehovFraDb.opprettetDato).isEqualTo(pMotebehov.opprettetDato)
@@ -60,22 +58,24 @@ class MotebehovDAOTest {
     @Test
     @Throws(java.lang.Exception::class)
     fun hentMotebehovListeForOgOpprettetAvArbeidstakerIkkeGyldig() {
-        val pMotebehov = motebehovGenerator.generatePmotebehov()
-                .opprettetDato(motebehovGenerator.getOpprettetDato(false))
-                .opprettetAv(ARBEIDSTAKER_AKTORID)
+        val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
+                opprettetDato = motebehovGenerator.getOpprettetDato(false),
+                opprettetAv = ARBEIDSTAKER_AKTORID
+        )
         insertPMotebehov(pMotebehov)
-        val motebehovListe = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(ARBEIDSTAKER_AKTORID).orElseThrow { Exception() }
+        val motebehovListe = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(ARBEIDSTAKER_AKTORID)
         Assertions.assertThat(motebehovListe.size).isEqualTo(0)
     }
 
     @Test
     @Throws(java.lang.Exception::class)
     fun hentMotebehovListeForOgOpprettetAvArbeidstakerGyldig() {
-        val pMotebehov = motebehovGenerator.generatePmotebehov()
-                .opprettetDato(motebehovGenerator.getOpprettetDato(true))
-                .opprettetAv(ARBEIDSTAKER_AKTORID)
+        val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
+                opprettetDato = motebehovGenerator.getOpprettetDato(true),
+                opprettetAv = ARBEIDSTAKER_AKTORID
+        )
         insertPMotebehov(pMotebehov)
-        val motebehovListe = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(ARBEIDSTAKER_AKTORID).orElseThrow { Exception() }
+        val motebehovListe = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(ARBEIDSTAKER_AKTORID)
         Assertions.assertThat(motebehovListe.size).isEqualTo(1)
         val motebehovFraDb = motebehovListe[0]
         Assertions.assertThat(motebehovFraDb.opprettetDato).isEqualTo(pMotebehov.opprettetDato)
@@ -86,22 +86,24 @@ class MotebehovDAOTest {
     @Test
     @Throws(java.lang.Exception::class)
     fun hentMotebehovListeForArbeidstakerOpprettetAvLederIkkeGyldig() {
-        val pMotebehov = motebehovGenerator.generatePmotebehov()
-                .opprettetDato(motebehovGenerator.getOpprettetDato(false))
-                .opprettetAv(LEDER_AKTORID)
+        val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
+                opprettetDato = motebehovGenerator.getOpprettetDato(false),
+                opprettetAv = LEDER_AKTORID
+        )
         insertPMotebehov(pMotebehov)
-        val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(ARBEIDSTAKER_AKTORID, VIRKSOMHETSNUMMER).orElseThrow { Exception() }
+        val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(ARBEIDSTAKER_AKTORID, VIRKSOMHETSNUMMER)
         Assertions.assertThat(motebehovListe.size).isEqualTo(0)
     }
 
     @Test
     @Throws(java.lang.Exception::class)
     fun hentMotebehovListeForArbeidstakerOpprettetAvLederGyldig() {
-        val pMotebehov = motebehovGenerator.generatePmotebehov()
-                .opprettetDato(motebehovGenerator.getOpprettetDato(true))
-                .opprettetAv(LEDER_AKTORID)
+        val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
+                opprettetDato = motebehovGenerator.getOpprettetDato(true),
+                opprettetAv = LEDER_AKTORID
+        )
         insertPMotebehov(pMotebehov)
-        val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(ARBEIDSTAKER_AKTORID, VIRKSOMHETSNUMMER).orElseThrow { Exception() }
+        val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(ARBEIDSTAKER_AKTORID, VIRKSOMHETSNUMMER)
         Assertions.assertThat(motebehovListe.size).isEqualTo(1)
         val motebehovFraDb = motebehovListe[0]
         Assertions.assertThat(motebehovFraDb.opprettetDato).isEqualTo(pMotebehov.opprettetDato)
@@ -111,35 +113,9 @@ class MotebehovDAOTest {
 
     @Test
     @Throws(java.lang.Exception::class)
-    fun hentMotebehovListeForAktoerOgVirksomhetsnummerIkkeGyldig() {
-        val pMotebehov = motebehovGenerator.generatePmotebehov()
-                .opprettetDato(motebehovGenerator.getOpprettetDato(false))
-                .opprettetAv(LEDER_AKTORID)
-        insertPMotebehov(pMotebehov)
-        val motebehovListe = motebehovDAO.hentMotebehovListeForAktoerOgVirksomhetsnummer(ARBEIDSTAKER_AKTORID, VIRKSOMHETSNUMMER).orElseThrow { Exception() }
-        Assertions.assertThat(motebehovListe.size).isEqualTo(0)
-    }
-
-    @Test
-    @Throws(java.lang.Exception::class)
-    fun hentMotebehovListeForAktoerOgVirksomhetsnummerGyldig() {
-        val pMotebehov = motebehovGenerator.generatePmotebehov()
-                .opprettetDato(motebehovGenerator.getOpprettetDato(true))
-                .opprettetAv(LEDER_AKTORID)
-        insertPMotebehov(pMotebehov)
-        val motebehovListe = motebehovDAO.hentMotebehovListeForAktoerOgVirksomhetsnummer(ARBEIDSTAKER_AKTORID, VIRKSOMHETSNUMMER).orElseThrow { Exception() }
-        Assertions.assertThat(motebehovListe.size).isEqualTo(1)
-        val motebehovFraDb = motebehovListe[0]
-        Assertions.assertThat(motebehovFraDb.opprettetDato).isEqualTo(pMotebehov.opprettetDato)
-        Assertions.assertThat(motebehovFraDb.opprettetAv).isEqualTo(pMotebehov.opprettetAv)
-        Assertions.assertThat(motebehovFraDb.aktoerId).isEqualTo(pMotebehov.aktoerId)
-    }
-
-    @Test
-    @Throws(java.lang.Exception::class)
     fun lagreMotebehov() {
         val uuid = motebehovDAO.create(motebehovGenerator.generatePmotebehov())
-        val motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(ARBEIDSTAKER_AKTORID).orElseThrow { Exception() }
+        val motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(ARBEIDSTAKER_AKTORID)
         Assertions.assertThat(motebehovListe.size).isEqualTo(1)
         Assertions.assertThat(motebehovListe[0].uuid).isEqualTo(uuid)
     }

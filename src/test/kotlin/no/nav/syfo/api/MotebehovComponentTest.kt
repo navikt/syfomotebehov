@@ -6,7 +6,7 @@ import no.nav.syfo.aktorregister.AktorregisterConsumer
 import no.nav.syfo.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.oversikthendelse.OversikthendelseProducer
 import no.nav.syfo.pdl.PdlConsumer
-import no.nav.syfo.repository.dao.MotebehovDAO
+import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.sts.StsConsumer
 import no.nav.syfo.testhelper.*
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker
