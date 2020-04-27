@@ -1,7 +1,6 @@
 package no.nav.syfo.varsel
 
 import no.nav.syfo.domain.rest.MotebehovsvarVarselInfo
-import no.nav.syfo.kafka.producer.model.KTredjepartsvarsel
 import no.nav.syfo.mote.MoterService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -26,13 +25,13 @@ class VarselService @Inject constructor(
     }
 
     private fun mapTilKTredjepartsvarsel(motebehovsvarVarselInfo: MotebehovsvarVarselInfo): KTredjepartsvarsel {
-        val kTredjepartsvarsel = KTredjepartsvarsel()
-        kTredjepartsvarsel.type = VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name
-        kTredjepartsvarsel.ressursId = UUID.randomUUID().toString()
-        kTredjepartsvarsel.aktorId = motebehovsvarVarselInfo.sykmeldtAktorId
-        kTredjepartsvarsel.orgnummer = motebehovsvarVarselInfo.orgnummer
-        kTredjepartsvarsel.utsendelsestidspunkt = LocalDateTime.now()
-        return kTredjepartsvarsel
+        return KTredjepartsvarsel(
+                type = VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name,
+                ressursId = UUID.randomUUID().toString(),
+                aktorId = motebehovsvarVarselInfo.sykmeldtAktorId,
+                orgnummer = motebehovsvarVarselInfo.orgnummer,
+                utsendelsestidspunkt = LocalDateTime.now()
+        )
     }
 
     companion object {

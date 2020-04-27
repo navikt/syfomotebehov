@@ -6,7 +6,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.api.VarselController
 import no.nav.syfo.domain.rest.MotebehovsvarVarselInfo
-import no.nav.syfo.kafka.producer.model.KTredjepartsvarsel
 import no.nav.syfo.mote.MoterService
 import no.nav.syfo.sts.StsConsumer
 import no.nav.syfo.testhelper.UserConstants
@@ -134,10 +133,10 @@ class VarselComponentTest {
     }
 
     private fun verifySendtKtredjepartsvarsel(kTredjepartsvarsel: KTredjepartsvarsel) {
-        Assert.assertEquals(kTredjepartsvarsel.type(), VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name)
-        Assert.assertNotNull(kTredjepartsvarsel.ressursId())
-        Assert.assertEquals(kTredjepartsvarsel.aktorId(), UserConstants.ARBEIDSTAKER_AKTORID)
-        Assert.assertEquals(kTredjepartsvarsel.orgnummer(), UserConstants.VIRKSOMHETSNUMMER)
-        Assert.assertNotNull(kTredjepartsvarsel.utsendelsestidspunkt())
+        Assert.assertEquals(kTredjepartsvarsel.type, VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name)
+        Assert.assertNotNull(kTredjepartsvarsel.ressursId)
+        Assert.assertEquals(kTredjepartsvarsel.aktorId, UserConstants.ARBEIDSTAKER_AKTORID)
+        Assert.assertEquals(kTredjepartsvarsel.orgnummer, UserConstants.VIRKSOMHETSNUMMER)
+        Assert.assertNotNull(kTredjepartsvarsel.utsendelsestidspunkt)
     }
 }
