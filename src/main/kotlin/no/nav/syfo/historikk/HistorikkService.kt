@@ -6,7 +6,7 @@ import no.nav.syfo.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.domain.rest.Motebehov
 import no.nav.syfo.pdl.PdlConsumer
 import no.nav.syfo.pdl.fullName
-import no.nav.syfo.service.MotebehovService
+import no.nav.syfo.motebehov.MotebehovService
 import org.springframework.stereotype.Service
 import java.util.stream.Collectors
 import javax.inject.Inject

@@ -5,7 +5,7 @@ import no.nav.syfo.aktorregister.domain.AktorId
 import no.nav.syfo.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.domain.rest.Motebehov
 import no.nav.syfo.pdl.*
-import no.nav.syfo.service.MotebehovService
+import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.testhelper.UserConstants
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.generatePdlHentPerson

@@ -9,7 +9,7 @@ import no.nav.syfo.historikk.HistorikkService
 import no.nav.syfo.metric.Metrikk
 import no.nav.syfo.oidc.OIDCIssuer.AZURE
 import no.nav.syfo.oidc.getSubjectInternAD
-import no.nav.syfo.service.MotebehovService
+import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.veiledertilgang.VeilederTilgangConsumer
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
