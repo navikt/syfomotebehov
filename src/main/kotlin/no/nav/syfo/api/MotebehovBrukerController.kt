@@ -5,10 +5,11 @@ import no.nav.security.oidc.context.OIDCRequestContextHolder
 import no.nav.syfo.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.brukertilgang.BrukertilgangService
 import no.nav.syfo.domain.rest.Motebehov
-import no.nav.syfo.domain.rest.NyttMotebehov
-import no.nav.syfo.oidc.OIDCIssuer
-import no.nav.syfo.motebehov.MotebehovService
+import no.nav.syfo.domain.rest.MotebehovSvar
 import no.nav.syfo.metric.Metrikk
+import no.nav.syfo.motebehov.MotebehovService
+import no.nav.syfo.motebehov.NyttMotebehov
+import no.nav.syfo.oidc.OIDCIssuer
 import no.nav.syfo.oidc.OIDCUtil
 import org.apache.commons.lang3.StringUtils
 import org.springframework.http.MediaType
@@ -43,15 +44,18 @@ class MotebehovBrukerController @Inject constructor(
     fun lagreMotebehov(
             @RequestBody nyttMotebehov: @Valid NyttMotebehov
     ) {
-        val arbeidstakerFnr = if (StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr)) {
+        val arbeidstakerFnr = if (nyttMotebehov.arbeidstakerFnr.isNullOrEmpty()) {
             OIDCUtil.fnrFraOIDCEkstern(contextHolder)
         } else Fodselsnummer(nyttMotebehov.arbeidstakerFnr)
         kastExceptionHvisIkkeTilgang(arbeidstakerFnr.value)
 
-        motebehovService.lagreMotebehov(OIDCUtil.fnrFraOIDCEkstern(contextHolder), arbeidstakerFnr, nyttMotebehov)
-
-        val erInnloggetBrukerArbeidstaker = StringUtils.isEmpty(nyttMotebehov.arbeidstakerFnr)
-        lagBesvarMotebehovMetrikk(nyttMotebehov, erInnloggetBrukerArbeidstaker)
+        motebehovService.lagreMotebehov(
+                OIDCUtil.fnrFraOIDCEkstern(contextHolder),
+                arbeidstakerFnr,
+                nyttMotebehov.virksomhetsnummer,
+                nyttMotebehov.motebehovSvar
+        )
+        lagBesvarMotebehovMetrikk(nyttMotebehov.motebehovSvar, nyttMotebehov.arbeidstakerFnr.isNullOrEmpty())
     }
 
     private fun kastExceptionHvisIkkeTilgang(fnr: String) {
@@ -62,8 +66,7 @@ class MotebehovBrukerController @Inject constructor(
         }
     }
 
-    private fun lagBesvarMotebehovMetrikk(nyttMotebehov: NyttMotebehov, erInnloggetBrukerArbeidstaker: Boolean) {
-        val motebehovSvar = nyttMotebehov.motebehovSvar
+    private fun lagBesvarMotebehovMetrikk(motebehovSvar: MotebehovSvar, erInnloggetBrukerArbeidstaker: Boolean) {
         metrikk.tellMotebehovBesvart(motebehovSvar.harMotebehov, erInnloggetBrukerArbeidstaker)
         if (!motebehovSvar.harMotebehov) {
             metrikk.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring.length, erInnloggetBrukerArbeidstaker)

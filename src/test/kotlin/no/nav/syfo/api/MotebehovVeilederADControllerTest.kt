@@ -7,7 +7,7 @@ import no.nav.syfo.aktorregister.domain.AktorId
 import no.nav.syfo.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.domain.rest.Motebehov
 import no.nav.syfo.domain.rest.MotebehovSvar
-import no.nav.syfo.domain.rest.NyttMotebehov
+import no.nav.syfo.motebehov.NyttMotebehov
 import no.nav.syfo.historikk.HistorikkService
 import no.nav.syfo.oversikthendelse.KOversikthendelse
 import no.nav.syfo.oidc.OIDCIssuer.AZURE
@@ -285,12 +285,11 @@ class MotebehovVeilederADControllerTest {
         val motebehovSvar = MotebehovSvar()
                 .harMotebehov(true)
                 .forklaring("")
-        val nyttMotebehov = NyttMotebehov()
-                .arbeidstakerFnr(arbeidstakerFnr)
-                .virksomhetsnummer(virksomhetsnummer)
-                .motebehovSvar(
-                        motebehovSvar
-                )
+        val nyttMotebehov = NyttMotebehov(
+                arbeidstakerFnr = arbeidstakerFnr,
+                virksomhetsnummer = virksomhetsnummer,
+                motebehovSvar = motebehovSvar
+        )
         motebehovController.lagreMotebehov(nyttMotebehov)
         return nyttMotebehov
     }
@@ -300,12 +299,11 @@ class MotebehovVeilederADControllerTest {
         val motebehovSvar = MotebehovSvar()
                 .harMotebehov(harBehov)
                 .forklaring("")
-        val nyttMotebehov = NyttMotebehov()
-                .arbeidstakerFnr(sykmeldtFnr)
-                .virksomhetsnummer(virksomhetsnummer)
-                .motebehovSvar(
-                        motebehovSvar
-                )
+        val nyttMotebehov = NyttMotebehov(
+                arbeidstakerFnr = sykmeldtFnr,
+                virksomhetsnummer = virksomhetsnummer,
+                motebehovSvar = motebehovSvar
+        )
         motebehovController.lagreMotebehov(nyttMotebehov)
         return nyttMotebehov
     }

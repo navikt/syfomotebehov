@@ -1,6 +1,6 @@
 package no.nav.syfo.oversikthendelse
 
-import no.nav.syfo.domain.rest.NyttMotebehov
+import no.nav.syfo.aktorregister.domain.Fodselsnummer
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -9,28 +9,25 @@ import javax.inject.Inject
 class OversikthendelseService @Inject constructor(
         private val oversikthendelseProducer: OversikthendelseProducer
 ) {
-    fun sendOversikthendelse(nyttMotebehov: NyttMotebehov) {
-        val kOversikthendelse = nyttMotebehov2KOversikthendelse(nyttMotebehov)
+    fun sendOversikthendelseMottatt(arbeidstakerFnr: Fodselsnummer, tildeltEnhet: String) {
+        sendOversikthendelse(arbeidstakerFnr, tildeltEnhet, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT)
+    }
+
+    fun sendOversikthendelseBehandlet(arbeidstakerFnr: Fodselsnummer, tildeltEnhet: String) {
+        sendOversikthendelse(arbeidstakerFnr, tildeltEnhet, OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET)
+    }
+
+    private fun sendOversikthendelse(fnr: Fodselsnummer, tildeltEnhet: String, oversikthendelseType: OversikthendelseType) {
+        val kOversikthendelse = map2KOversikthendelse(fnr, tildeltEnhet, oversikthendelseType)
         oversikthendelseProducer.sendOversikthendelse(kOversikthendelse)
     }
 
-    fun sendOversikthendelse(fnr: String, tildeltEnhet: String) {
-        val kOversikthendelse = KOversikthendelse(
-                fnr = fnr,
-                hendelseId = OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name,
+    private fun map2KOversikthendelse(fnr: Fodselsnummer, tildeltEnhet: String, oversikthendelseType: OversikthendelseType): KOversikthendelse {
+        return KOversikthendelse(
+                fnr = fnr.value,
+                hendelseId = oversikthendelseType.name,
                 enhetId = tildeltEnhet,
                 tidspunkt = LocalDateTime.now()
         )
-        oversikthendelseProducer.sendOversikthendelse(kOversikthendelse)
-    }
-
-    private fun nyttMotebehov2KOversikthendelse(nyttMotebehov: NyttMotebehov): KOversikthendelse {
-        val kOversikthendelse = KOversikthendelse(
-                fnr = nyttMotebehov.arbeidstakerFnr,
-                hendelseId = OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
-                enhetId = nyttMotebehov.tildeltEnhet,
-                tidspunkt = LocalDateTime.now()
-        )
-        return kOversikthendelse
     }
 }

@@ -1,7 +1,7 @@
 package no.nav.syfo.testhelper
 
 import no.nav.syfo.domain.rest.MotebehovSvar
-import no.nav.syfo.domain.rest.NyttMotebehov
+import no.nav.syfo.motebehov.NyttMotebehov
 import no.nav.syfo.motebehov.database.PMotebehov
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
@@ -16,13 +16,12 @@ class MotebehovGenerator {
     private val motebehovSvar = MotebehovSvar()
             .harMotebehov(true)
             .forklaring("")
-    private val nyttMotebehovArbeidstaker = NyttMotebehov()
-            .arbeidstakerFnr(ARBEIDSTAKER_FNR)
-            .virksomhetsnummer(VIRKSOMHETSNUMMER)
-            .motebehovSvar(
-                    motebehovSvar
-            )
-            .tildeltEnhet(NAV_ENHET)
+    private val nyttMotebehovArbeidstaker = NyttMotebehov(
+            arbeidstakerFnr = ARBEIDSTAKER_FNR,
+            virksomhetsnummer = VIRKSOMHETSNUMMER,
+            motebehovSvar = motebehovSvar,
+            tildeltEnhet = NAV_ENHET
+    )
 
     fun lagMotebehovSvar(harBehov: Boolean): MotebehovSvar {
         return motebehovSvar
