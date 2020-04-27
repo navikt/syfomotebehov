@@ -29,7 +29,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
-import static no.nav.syfo.kafka.producer.VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV;
+import static no.nav.syfo.varsel.VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV;
 import static no.nav.syfo.testhelper.RestHelperKt.mockAndExpectSTSService;
 import static no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID;
 import static no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER;

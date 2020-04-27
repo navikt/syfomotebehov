@@ -11,7 +11,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.util.concurrent.ListenableFuture;
 
 import static java.time.LocalDateTime.now;
-import static no.nav.syfo.kafka.producer.VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV;
+import static no.nav.syfo.varsel.VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
