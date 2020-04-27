@@ -1,6 +1,5 @@
 package no.nav.syfo.util
 
-import no.nav.syfo.repository.DbUtil
 import org.apache.commons.lang3.StringEscapeUtils
 import org.assertj.core.api.Assertions
 import org.junit.Test

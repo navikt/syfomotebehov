@@ -1,6 +1,7 @@
 package no.nav.syfo.repository.dao;
 
 import no.nav.syfo.repository.domain.PMotebehov;
+import no.nav.syfo.util.DateUtilKt;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Types;
-import java.time.LocalDateTime;
 import java.util.*;
 
 import static java.time.LocalDateTime.now;
@@ -19,7 +19,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.UUID.fromString;
 import static java.util.stream.Collectors.toList;
-import static no.nav.syfo.repository.DbUtil.*;
+import static no.nav.syfo.util.DbUtil.*;
 
 @Service
 @Transactional
@@ -58,7 +58,7 @@ public class MotebehovDAO {
     public int oppdaterUbehandledeMotebehovTilBehandlet(final String aktoerId, final String veilederIdent) {
         String oppdaterSql = "UPDATE motebehov SET behandlet_tidspunkt = ?, behandlet_veileder_ident = ? WHERE aktoer_id = ? AND har_motebehov = 1 AND behandlet_veileder_ident IS NULL";
 
-        return jdbcTemplate.update(oppdaterSql, convert(now()), veilederIdent, aktoerId);
+        return jdbcTemplate.update(oppdaterSql, DateUtilKt.convert(now()), veilederIdent, aktoerId);
     }
 
     public UUID create(final PMotebehov motebehov) {
@@ -79,13 +79,13 @@ public class MotebehovDAO {
         MapSqlParameterSource mapLagreSql = new MapSqlParameterSource()
                 .addValue("uuid", uuid.toString())
                 .addValue("opprettet_av", motebehov.opprettetAv)
-                .addValue("opprettet_dato", convert(now()))
+                .addValue("opprettet_dato", DateUtilKt.convert(now()))
                 .addValue("aktoer_id", motebehov.aktoerId)
                 .addValue("virksomhetsnummer", motebehov.virksomhetsnummer)
                 .addValue("har_motebehov", motebehov.harMotebehov)
                 .addValue("forklaring", new SqlLobValue(sanitizeUserInput(motebehov.forklaring)), Types.CLOB)
                 .addValue("tildelt_enhet", motebehov.tildeltEnhet)
-                .addValue("behandlet_tidspunkt", convert(motebehov.behandletTidspunkt()))
+                .addValue("behandlet_tidspunkt", DateUtilKt.convertNullable(motebehov.behandletTidspunkt()))
                 .addValue("behandlet_veileder_ident", motebehov.behandletVeilederIdent);
 
         namedParameterJdbcTemplate.update(lagreSql, mapLagreSql);

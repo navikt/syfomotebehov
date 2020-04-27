@@ -2,7 +2,7 @@ package no.nav.syfo.testhelper
 
 import no.nav.syfo.domain.rest.MotebehovSvar
 import no.nav.syfo.domain.rest.NyttMotebehov
-import no.nav.syfo.repository.DbUtil
+import no.nav.syfo.util.DbUtil
 import no.nav.syfo.repository.domain.PMotebehov
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR

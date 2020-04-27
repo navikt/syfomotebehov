@@ -1,7 +1,7 @@
 package no.nav.syfo.oppfolgingstilfelle.database
 
 import no.nav.syfo.oppfolgingstilfelle.syketilfelle.KOppfolgingstilfelle
-import no.nav.syfo.repository.DbUtil
+import no.nav.syfo.util.DbUtil
 import no.nav.syfo.util.convert
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -42,7 +42,7 @@ class OppfolgingstilfelleDAO @Inject constructor(
             WHERE aktoer_id = :aktorId AND virksomhetsnummer = :virksomhetsnummer
             """.trimIndent()
         val mapSaveSql = MapSqlParameterSource()
-                .addValue("sistEndret", DbUtil.convert(LocalDateTime.now()))
+                .addValue("sistEndret", convert(LocalDateTime.now()))
                 .addValue("fom", convert(oppfolgingstilfelle.tidslinje.first().dag))
                 .addValue("tom", convert(oppfolgingstilfelle.tidslinje.last().dag))
                 .addValue("aktorId", oppfolgingstilfelle.aktorId)
@@ -58,8 +58,8 @@ class OppfolgingstilfelleDAO @Inject constructor(
             """.trimIndent()
         val mapSaveSql = MapSqlParameterSource()
                 .addValue("oppfolgingstilfelleUuid", uuid.toString())
-                .addValue("opprettet", DbUtil.convert(LocalDateTime.now()))
-                .addValue("sistEndret", DbUtil.convert(LocalDateTime.now()))
+                .addValue("opprettet", convert(LocalDateTime.now()))
+                .addValue("sistEndret", convert(LocalDateTime.now()))
                 .addValue("aktorId", oppfolgingstilfelle.aktorId)
                 .addValue("virksomhetsnummer", oppfolgingstilfelle.orgnummer)
                 .addValue("fom", convert(oppfolgingstilfelle.tidslinje.first().dag))
