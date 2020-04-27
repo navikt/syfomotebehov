@@ -56,15 +56,17 @@ class HistorikkServiceTest {
 
     @Test
     fun hentHistorikkServiceSkalReturnereHistorikkAvForskjelligeTyper() {
-        Mockito.`when`(motebehovService.hentMotebehovListe(ArgumentMatchers.any(Fodselsnummer::class.java))).thenReturn(listOf(
-                Motebehov()
-                        .opprettetAv(NL3_AKTORID)
-                        .opprettetDato(LocalDateTime.now())
-                        .behandletVeilederIdent(VEILEDER_ID)
-                        .behandletTidspunkt(LocalDateTime.now()),
-                Motebehov()
-                        .opprettetAv(NL1_AKTORID)
-                        .opprettetDato(LocalDateTime.now().minusMinutes(2L))
+        val motebehov1 = Motebehov()
+            motebehov1.opprettetAv(NL3_AKTORID)
+        motebehov1.opprettetDato(LocalDateTime.now())
+        motebehov1.behandletVeilederIdent(VEILEDER_ID)
+        motebehov1.behandletTidspunkt(LocalDateTime.now())
+        val motebehov2 = Motebehov()
+        motebehov2.opprettetAv(NL1_AKTORID)
+        motebehov2.opprettetDato(LocalDateTime.now().minusMinutes(2L))
+        Mockito.`when`(motebehovService.hentMotebehovListe(Fodselsnummer(SM_FNR))).thenReturn(listOf(
+                motebehov1,
+                motebehov2
         ))
         val historikkForSykmeldt = historikkService.hentHistorikkListe(SM_FNR)
         Assertions.assertThat(historikkForSykmeldt.size).isEqualTo(3)
