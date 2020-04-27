@@ -32,12 +32,11 @@ public class OversikthendelseProducerTest {
     public void sendOversikthendelse() {
         when(kafkaTemplate.send(anyString(), anyString(), any(KOversikthendelse.class))).thenReturn(mock(ListenableFuture.class));
 
-        KOversikthendelse kOversikthendelse = KOversikthendelse.builder()
+        KOversikthendelse kOversikthendelse = new KOversikthendelse()
                 .fnr(ARBEIDSTAKER_FNR)
                 .hendelseId(MOTEBEHOV_SVAR_MOTTATT.name())
                 .enhetId(NAV_ENHET)
-                .tidspunkt(now())
-                .build();
+                .tidspunkt(now());
 
         oversikthendelseProducer.sendOversikthendelse(kOversikthendelse);
 
@@ -48,12 +47,11 @@ public class OversikthendelseProducerTest {
     public void sendOversikthendelseMotebehovSvarBehandlet() {
         when(kafkaTemplate.send(anyString(), anyString(), any(KOversikthendelse.class))).thenReturn(mock(ListenableFuture.class));
 
-        KOversikthendelse kOversikthendelse = KOversikthendelse.builder()
+        KOversikthendelse kOversikthendelse = new KOversikthendelse()
                 .fnr(ARBEIDSTAKER_FNR)
                 .hendelseId(MOTEBEHOV_SVAR_BEHANDLET.name())
                 .enhetId(NAV_ENHET)
-                .tidspunkt(now())
-                .build();
+                .tidspunkt(now());
 
         oversikthendelseProducer.sendOversikthendelse(kOversikthendelse);
 

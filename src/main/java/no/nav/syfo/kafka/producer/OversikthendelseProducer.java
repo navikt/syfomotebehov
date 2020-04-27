@@ -30,7 +30,7 @@ public class OversikthendelseProducer {
                     randomUUID().toString(),
                     kOversikthendelse
             ).get();
-            log.info("Legger oversikthendelse med id {} på kø for enhet {}", kOversikthendelse.getHendelseId(), kOversikthendelse.getEnhetId());
+            log.info("Legger oversikthendelse med id {} på kø for enhet {}", kOversikthendelse.hendelseId(), kOversikthendelse.enhetId());
         } catch (Exception e) {
             log.error("Feil ved sending av oppgavevarsel", e);
             throw new RuntimeException("Feil ved sending av oppgavevarsel", e);

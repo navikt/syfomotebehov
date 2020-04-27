@@ -1,22 +1,22 @@
 package no.nav.syfo.kafka.producer.model;
 
-import lombok.*;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 
-@Value
-@Builder
-@Getter
+@Data
+@Accessors(fluent = true, chain = true)
 public class KOversikthendelse {
 
     @NotEmpty
     @Pattern(regexp = "^[0-9]{11}$")
-    private String fnr;
+    public String fnr;
     @NotEmpty
-    private String hendelseId;
+    public String hendelseId;
     @NotEmpty
-    private String enhetId;
+    public String enhetId;
     @NotNull
-    private LocalDateTime tidspunkt;
+    public LocalDateTime tidspunkt;
 }

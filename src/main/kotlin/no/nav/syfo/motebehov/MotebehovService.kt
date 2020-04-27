@@ -10,7 +10,7 @@ import no.nav.syfo.exception.ConflictException
 import no.nav.syfo.metric.Metrikk
 import no.nav.syfo.repository.dao.MotebehovDAO
 import no.nav.syfo.repository.domain.PMotebehov
-import no.nav.syfo.service.OversikthendelseService
+import no.nav.syfo.oversikthendelse.OversikthendelseService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
