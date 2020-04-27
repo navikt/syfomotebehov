@@ -1,16 +1,16 @@
 package no.nav.syfo.kafka.producer.model;
 
-import lombok.*;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
 
-@Value
-@Builder
-@Getter
+@Data
+@Accessors(fluent = true, chain = true)
 public class KTredjepartsvarsel {
-    private String type;
-    private String ressursId;
-    private String aktorId;
-    private String orgnummer;
-    private LocalDateTime utsendelsestidspunkt;
+    public String type;
+    public String ressursId;
+    public String aktorId;
+    public String orgnummer;
+    public LocalDateTime utsendelsestidspunkt;
 }

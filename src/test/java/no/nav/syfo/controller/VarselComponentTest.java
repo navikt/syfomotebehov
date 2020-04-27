@@ -9,6 +9,7 @@ import no.nav.syfo.kafka.producer.TredjepartsvarselProducer;
 import no.nav.syfo.kafka.producer.model.KTredjepartsvarsel;
 import no.nav.syfo.service.*;
 import no.nav.syfo.sts.StsConsumer;
+import no.nav.syfo.varsel.VarselService;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -154,10 +155,10 @@ public class VarselComponentTest {
     }
 
     private void verifySendtKtredjepartsvarsel(KTredjepartsvarsel kTredjepartsvarsel) {
-        assertEquals(kTredjepartsvarsel.getType(), NAERMESTE_LEDER_SVAR_MOTEBEHOV.name());
-        assertNotNull(kTredjepartsvarsel.getRessursId());
-        assertEquals(kTredjepartsvarsel.getAktorId(), ARBEIDSTAKER_AKTORID);
-        assertEquals(kTredjepartsvarsel.getOrgnummer(), VIRKSOMHETSNUMMER);
-        assertNotNull(kTredjepartsvarsel.getUtsendelsestidspunkt());
+        assertEquals(kTredjepartsvarsel.type(), NAERMESTE_LEDER_SVAR_MOTEBEHOV.name());
+        assertNotNull(kTredjepartsvarsel.ressursId());
+        assertEquals(kTredjepartsvarsel.aktorId(), ARBEIDSTAKER_AKTORID);
+        assertEquals(kTredjepartsvarsel.orgnummer(), VIRKSOMHETSNUMMER);
+        assertNotNull(kTredjepartsvarsel.utsendelsestidspunkt());
     }
 }

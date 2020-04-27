@@ -28,13 +28,12 @@ public class TredjepartsvarselProducerTest {
     public void sendTredjepartsvarsel() {
         when(kafkaTemplate.send(anyString(), anyString(), any(KTredjepartsvarsel.class))).thenReturn(mock(ListenableFuture.class));
 
-        KTredjepartsvarsel kTredjepartsvarsel = KTredjepartsvarsel.builder()
+        KTredjepartsvarsel kTredjepartsvarsel = new KTredjepartsvarsel()
                 .type(NAERMESTE_LEDER_SVAR_MOTEBEHOV.name())
                 .ressursId("1")
                 .aktorId("1010101010101")
                 .orgnummer("123456789")
-                .utsendelsestidspunkt(now().plusMinutes(5))
-                .build();
+                .utsendelsestidspunkt(now().plusMinutes(5));
 
         tredjepartsvarselProducer.sendTredjepartsvarselvarsel(kTredjepartsvarsel);
 

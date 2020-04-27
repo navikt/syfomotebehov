@@ -3,7 +3,7 @@ package no.nav.syfo.api
 import no.nav.security.oidc.api.ProtectedWithClaims
 import no.nav.syfo.domain.rest.MotebehovsvarVarselInfo
 import no.nav.syfo.oidc.OIDCIssuer.INTERN
-import no.nav.syfo.service.VarselService
+import no.nav.syfo.varsel.VarselService
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import javax.inject.Inject
