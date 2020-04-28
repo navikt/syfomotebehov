@@ -130,7 +130,9 @@ class MotebehovComponentTest {
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(harBehov)
 
         // Lagre
-        motebehovController.lagreMotebehov(motebehovGenerator.lagNyttMotebehovFraAT())
+        motebehovController.lagreMotebehov(motebehovGenerator.lagNyttMotebehovFraAT().copy(
+                motebehovSvar = motebehovSvar
+        ))
 
         // Hent
         val motebehovListe = motebehovController.hentMotebehovListe(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)

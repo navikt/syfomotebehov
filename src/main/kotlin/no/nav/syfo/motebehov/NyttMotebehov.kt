@@ -1,6 +1,5 @@
 package no.nav.syfo.motebehov
 
-import no.nav.syfo.domain.rest.MotebehovSvar
 import java.io.Serializable
 import javax.validation.constraints.NotEmpty
 

@@ -3,9 +3,9 @@ package no.nav.syfo.historikk
 import no.nav.syfo.aktorregister.AktorregisterConsumer
 import no.nav.syfo.aktorregister.domain.AktorId
 import no.nav.syfo.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.domain.rest.Motebehov
 import no.nav.syfo.pdl.*
 import no.nav.syfo.motebehov.MotebehovService
+import no.nav.syfo.testhelper.MotebehovGenerator
 import no.nav.syfo.testhelper.UserConstants
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.generatePdlHentPerson
@@ -22,12 +22,17 @@ class HistorikkServiceTest {
 
     @Mock
     private lateinit var aktorregisterConsumer: AktorregisterConsumer
+
     @Mock
     private lateinit var motebehovService: MotebehovService
+
     @Mock
     private lateinit var pdlConsumer: PdlConsumer
+
     @InjectMocks
     private lateinit var historikkService: HistorikkService
+
+    private val motebehovGenerator = MotebehovGenerator()
 
     private val pdlPersonResponseNL1 = generatePdlHentPerson(
             PdlPersonNavn(
@@ -56,26 +61,32 @@ class HistorikkServiceTest {
 
     @Test
     fun hentHistorikkServiceSkalReturnereHistorikkAvForskjelligeTyper() {
-        val motebehov1 = Motebehov()
-            motebehov1.opprettetAv(NL3_AKTORID)
-        motebehov1.opprettetDato(LocalDateTime.now())
-        motebehov1.behandletVeilederIdent(VEILEDER_ID)
-        motebehov1.behandletTidspunkt(LocalDateTime.now())
-        val motebehov2 = Motebehov()
-        motebehov2.opprettetAv(NL1_AKTORID)
-        motebehov2.opprettetDato(LocalDateTime.now().minusMinutes(2L))
+        val motebehov1 = motebehovGenerator.generateMotebehov().copy(
+                opprettetAv = NL3_AKTORID,
+                opprettetDato = LocalDateTime.now(),
+                behandletVeilederIdent = VEILEDER_ID,
+                behandletTidspunkt = LocalDateTime.now()
+        )
+        val motebehov2 = motebehovGenerator.generateMotebehov().copy(
+                opprettetAv = NL1_AKTORID,
+                opprettetDato = LocalDateTime.now().minusMinutes(2L),
+                behandletVeilederIdent = VEILEDER_ID,
+                behandletTidspunkt = LocalDateTime.now()
+        )
         Mockito.`when`(motebehovService.hentMotebehovListe(Fodselsnummer(SM_FNR))).thenReturn(listOf(
                 motebehov1,
                 motebehov2
         ))
         val historikkForSykmeldt = historikkService.hentHistorikkListe(SM_FNR)
-        Assertions.assertThat(historikkForSykmeldt.size).isEqualTo(3)
+        Assertions.assertThat(historikkForSykmeldt.size).isEqualTo(4)
         val historikkOpprettetMotebehovTekst1 = historikkForSykmeldt[0].tekst
         val historikkOpprettetMotebehovTekst2 = historikkForSykmeldt[1].tekst
-        val historikkLesteMotebehovTekst = historikkForSykmeldt[2].tekst
+        val historikkLesteMotebehovTekst1 = historikkForSykmeldt[2].tekst
+        val historikkLesteMotebehovTekst2 = historikkForSykmeldt[3].tekst
         Assertions.assertThat(historikkOpprettetMotebehovTekst1).isEqualTo(pdlPersonResponseNL1.fullName() + HistorikkService.HAR_SVART_PAA_MOTEBEHOV)
         Assertions.assertThat(historikkOpprettetMotebehovTekst2).isEqualTo(pdlPersonResponseNL3.fullName() + HistorikkService.HAR_SVART_PAA_MOTEBEHOV)
-        Assertions.assertThat(historikkLesteMotebehovTekst).isEqualTo(HistorikkService.MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID)
+        Assertions.assertThat(historikkLesteMotebehovTekst1).isEqualTo(HistorikkService.MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID)
+        Assertions.assertThat(historikkLesteMotebehovTekst2).isEqualTo(HistorikkService.MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID)
     }
 
     companion object {

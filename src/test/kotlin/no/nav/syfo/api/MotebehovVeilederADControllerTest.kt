@@ -5,8 +5,8 @@ import no.nav.syfo.LocalApplication
 import no.nav.syfo.aktorregister.AktorregisterConsumer
 import no.nav.syfo.aktorregister.domain.AktorId
 import no.nav.syfo.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.domain.rest.Motebehov
-import no.nav.syfo.domain.rest.MotebehovSvar
+import no.nav.syfo.motebehov.Motebehov
+import no.nav.syfo.motebehov.MotebehovSvar
 import no.nav.syfo.motebehov.NyttMotebehov
 import no.nav.syfo.historikk.HistorikkService
 import no.nav.syfo.oversikthendelse.KOversikthendelse
@@ -282,9 +282,10 @@ class MotebehovVeilederADControllerTest {
 
     private fun arbeidsgiverLagrerMotebehov(lederFnr: String, arbeidstakerFnr: String, virksomhetsnummer: String): NyttMotebehov {
         loggInnBruker(oidcRequestContextHolder, lederFnr)
-        val motebehovSvar = MotebehovSvar()
-                .harMotebehov(true)
-                .forklaring("")
+        val motebehovSvar = MotebehovSvar(
+                harMotebehov = true,
+                forklaring = ""
+        )
         val nyttMotebehov = NyttMotebehov(
                 arbeidstakerFnr = arbeidstakerFnr,
                 virksomhetsnummer = virksomhetsnummer,
@@ -296,9 +297,10 @@ class MotebehovVeilederADControllerTest {
 
     private fun sykmeldtLagrerMotebehov(sykmeldtFnr: String, virksomhetsnummer: String, harBehov: Boolean): NyttMotebehov {
         loggInnBruker(oidcRequestContextHolder, sykmeldtFnr)
-        val motebehovSvar = MotebehovSvar()
-                .harMotebehov(harBehov)
-                .forklaring("")
+        val motebehovSvar = MotebehovSvar(
+                harMotebehov = harBehov,
+                forklaring = ""
+        )
         val nyttMotebehov = NyttMotebehov(
                 arbeidstakerFnr = sykmeldtFnr,
                 virksomhetsnummer = virksomhetsnummer,

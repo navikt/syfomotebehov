@@ -3,8 +3,6 @@ package no.nav.syfo.motebehov
 import no.nav.syfo.aktorregister.AktorregisterConsumer
 import no.nav.syfo.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhetConsumer
-import no.nav.syfo.domain.rest.Motebehov
-import no.nav.syfo.domain.rest.MotebehovSvar
 import no.nav.syfo.exception.ConflictException
 import no.nav.syfo.metric.Metrikk
 import no.nav.syfo.motebehov.database.MotebehovDAO
@@ -104,21 +102,21 @@ class MotebehovService @Inject constructor(
     }
 
     private fun mapPMotebehovToMotebehov(arbeidstakerFnr: Fodselsnummer, pMotebehov: PMotebehov): Motebehov {
-        val motebehovSvar = MotebehovSvar()
-        motebehovSvar.harMotebehov = pMotebehov.harMotebehov
-        motebehovSvar.forklaring = pMotebehov.forklaring
-        val motebehov = Motebehov()
-        motebehov.id = pMotebehov.uuid
-        motebehov.opprettetDato = pMotebehov.opprettetDato
-        motebehov.aktorId = pMotebehov.aktoerId
-        motebehov.opprettetAv = pMotebehov.opprettetAv
-        motebehov.arbeidstakerFnr = arbeidstakerFnr.value
-        motebehov.virksomhetsnummer = pMotebehov.virksomhetsnummer
-        motebehov.motebehovSvar = motebehovSvar
-        motebehov.tildeltEnhet = pMotebehov.tildeltEnhet
-        motebehov.behandletTidspunkt = pMotebehov.behandletTidspunkt
-        motebehov.behandletVeilederIdent = pMotebehov.behandletVeilederIdent
-        return motebehov;
+        return Motebehov(
+                id = pMotebehov.uuid,
+                opprettetDato = pMotebehov.opprettetDato,
+                aktorId = pMotebehov.aktoerId,
+                opprettetAv = pMotebehov.opprettetAv,
+                arbeidstakerFnr = arbeidstakerFnr.value,
+                virksomhetsnummer = pMotebehov.virksomhetsnummer,
+                motebehovSvar = MotebehovSvar(
+                        harMotebehov = pMotebehov.harMotebehov,
+                        forklaring = pMotebehov.forklaring
+                ),
+                tildeltEnhet = pMotebehov.tildeltEnhet,
+                behandletTidspunkt = pMotebehov.behandletTidspunkt,
+                behandletVeilederIdent = pMotebehov.behandletVeilederIdent
+        )
     }
 
     companion object {

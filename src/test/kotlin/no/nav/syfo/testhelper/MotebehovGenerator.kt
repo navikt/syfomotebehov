@@ -1,21 +1,36 @@
 package no.nav.syfo.testhelper
 
-import no.nav.syfo.domain.rest.MotebehovSvar
+import no.nav.syfo.motebehov.Motebehov
+import no.nav.syfo.motebehov.MotebehovSvar
 import no.nav.syfo.motebehov.NyttMotebehov
 import no.nav.syfo.motebehov.database.PMotebehov
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.NAV_ENHET
+import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.util.DbUtil
 import java.time.LocalDateTime
 import java.util.*
 
 class MotebehovGenerator {
-    private val motebehovSvar = MotebehovSvar()
-            .harMotebehov(true)
-            .forklaring("")
+    private val motebehovSvar = MotebehovSvar(
+            harMotebehov = true,
+            forklaring = ""
+    )
+    private val motebehov = Motebehov(
+            id = UUID.randomUUID(),
+            arbeidstakerFnr = ARBEIDSTAKER_FNR,
+            aktorId = ARBEIDSTAKER_AKTORID,
+            virksomhetsnummer = VIRKSOMHETSNUMMER,
+            opprettetAv = LEDER_AKTORID,
+            opprettetDato = LocalDateTime.now().minusMinutes(2L),
+            motebehovSvar = motebehovSvar.copy(harMotebehov = true),
+            tildeltEnhet = NAV_ENHET,
+            behandletVeilederIdent = VEILEDER_ID,
+            behandletTidspunkt = LocalDateTime.now()
+    )
     private val nyttMotebehovArbeidstaker = NyttMotebehov(
             arbeidstakerFnr = ARBEIDSTAKER_FNR,
             virksomhetsnummer = VIRKSOMHETSNUMMER,
@@ -24,12 +39,13 @@ class MotebehovGenerator {
     )
 
     fun lagMotebehovSvar(harBehov: Boolean): MotebehovSvar {
-        return motebehovSvar
-                .harMotebehov(harBehov)
+        return motebehovSvar.copy(
+                harMotebehov = harBehov
+        )
     }
 
     fun lagNyttMotebehovFraAT(): NyttMotebehov {
-        return nyttMotebehovArbeidstaker
+        return nyttMotebehovArbeidstaker.copy()
     }
 
     private val nyttPMotebehovArbeidstaker = PMotebehov(
@@ -48,6 +64,10 @@ class MotebehovGenerator {
     }
 
     fun generatePmotebehov(): PMotebehov {
-        return nyttPMotebehovArbeidstaker
+        return nyttPMotebehovArbeidstaker.copy()
+    }
+
+    fun generateMotebehov(): Motebehov {
+        return motebehov.copy()
     }
 }

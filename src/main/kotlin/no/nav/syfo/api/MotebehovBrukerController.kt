@@ -4,8 +4,8 @@ import no.nav.security.oidc.api.ProtectedWithClaims
 import no.nav.security.oidc.context.OIDCRequestContextHolder
 import no.nav.syfo.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.brukertilgang.BrukertilgangService
-import no.nav.syfo.domain.rest.Motebehov
-import no.nav.syfo.domain.rest.MotebehovSvar
+import no.nav.syfo.motebehov.Motebehov
+import no.nav.syfo.motebehov.MotebehovSvar
 import no.nav.syfo.metric.Metrikk
 import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.motebehov.NyttMotebehov
@@ -69,9 +69,9 @@ class MotebehovBrukerController @Inject constructor(
     private fun lagBesvarMotebehovMetrikk(motebehovSvar: MotebehovSvar, erInnloggetBrukerArbeidstaker: Boolean) {
         metrikk.tellMotebehovBesvart(motebehovSvar.harMotebehov, erInnloggetBrukerArbeidstaker)
         if (!motebehovSvar.harMotebehov) {
-            metrikk.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring.length, erInnloggetBrukerArbeidstaker)
+            metrikk.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring!!.length, erInnloggetBrukerArbeidstaker)
         } else if (!StringUtils.isEmpty(motebehovSvar.forklaring)) {
-            metrikk.tellMotebehovBesvartJaMedForklaringTegn(motebehovSvar.forklaring.length, erInnloggetBrukerArbeidstaker)
+            metrikk.tellMotebehovBesvartJaMedForklaringTegn(motebehovSvar.forklaring!!.length, erInnloggetBrukerArbeidstaker)
             metrikk.tellMotebehovBesvartJaMedForklaringAntall(erInnloggetBrukerArbeidstaker)
         }
     }

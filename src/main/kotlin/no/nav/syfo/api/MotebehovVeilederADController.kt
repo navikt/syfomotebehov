@@ -3,7 +3,7 @@ package no.nav.syfo.api
 import no.nav.security.oidc.api.ProtectedWithClaims
 import no.nav.security.oidc.context.OIDCRequestContextHolder
 import no.nav.syfo.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.domain.rest.Motebehov
+import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.historikk.Historikk
 import no.nav.syfo.historikk.HistorikkService
 import no.nav.syfo.metric.Metrikk
