@@ -1,6 +1,6 @@
 package no.nav.syfo.mote
 
-import no.nav.syfo.metric.Metrikk
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.sts.StsConsumer
 import no.nav.syfo.util.bearerCredentials
 import org.slf4j.LoggerFactory
@@ -19,7 +19,7 @@ import javax.inject.Inject
 class MoterService @Inject constructor(
         private val template: RestTemplate,
         private val stsConsumer: StsConsumer,
-        private val metrikk: Metrikk
+        private val metric: Metric
 ) {
     fun erMoteOpprettetForArbeidstakerEtterDato(aktorId: String, startDato: LocalDateTime): Boolean {
         val stsToken = stsConsumer.token()
@@ -28,15 +28,15 @@ class MoterService @Inject constructor(
                 .pathSegment("system", aktorId, "harAktivtMote")
                 .toUriString()
         return try {
-            metrikk.tellHendelse("call_syfomoteadmin")
+            metric.tellHendelse("call_syfomoteadmin")
             val erMoteOpprettetEtterDato = template.postForObject(url, requestEntity, Boolean::class.java)
-            metrikk.tellHendelse("call_syfomoteadmin_success")
+            metric.tellHendelse("call_syfomoteadmin_success")
             erMoteOpprettetEtterDato
         } catch (e: HttpClientErrorException) {
             log.warn(SYFOMOTEADMIN_FEILMELDING_KLIENT)
             throw e
         } catch (e: HttpServerErrorException) {
-            metrikk.tellHendelse("call_syfomoteadmin_fail")
+            metric.tellHendelse("call_syfomoteadmin_fail")
             log.error(SYFOMOTEADMIN_FEILMELDING_SERVER, e)
             throw e
         } catch (e: RuntimeException) {

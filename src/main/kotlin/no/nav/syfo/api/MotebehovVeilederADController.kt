@@ -6,7 +6,7 @@ import no.nav.syfo.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.historikk.Historikk
 import no.nav.syfo.historikk.HistorikkService
-import no.nav.syfo.metric.Metrikk
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.oidc.OIDCIssuer.AZURE
 import no.nav.syfo.oidc.getSubjectInternAD
 import no.nav.syfo.motebehov.MotebehovService
@@ -22,7 +22,7 @@ import javax.ws.rs.ForbiddenException
 @RequestMapping(value = ["/api/internad/veileder"])
 class MotebehovVeilederADController @Inject constructor(
         private val oidcCtxHolder: OIDCRequestContextHolder,
-        private val metrikk: Metrikk,
+        private val metric: Metric,
         private val historikkService: HistorikkService,
         private val motebehovService: MotebehovService,
         private val veilederTilgangConsumer: VeilederTilgangConsumer
@@ -31,7 +31,7 @@ class MotebehovVeilederADController @Inject constructor(
     fun hentMotebehovListe(
             @RequestParam(name = "fnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
     ): List<Motebehov> {
-        metrikk.tellEndepunktKall("veileder_hent_motebehov")
+        metric.tellEndepunktKall("veileder_hent_motebehov")
         val fnr = Fodselsnummer(sykmeldtFnr)
         kastExceptionHvisIkkeTilgang(fnr)
         return motebehovService.hentMotebehovListe(Fodselsnummer(fnr.value))
@@ -41,7 +41,7 @@ class MotebehovVeilederADController @Inject constructor(
     fun hentMotebehovHistorikk(
             @RequestParam(name = "fnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
     ): List<Historikk> {
-        metrikk.tellEndepunktKall("veileder_hent_motebehov_historikk")
+        metric.tellEndepunktKall("veileder_hent_motebehov_historikk")
         val fnr = Fodselsnummer(sykmeldtFnr)
         kastExceptionHvisIkkeTilgang(fnr)
         return historikkService.hentHistorikkListe(fnr.value)
@@ -51,11 +51,11 @@ class MotebehovVeilederADController @Inject constructor(
     fun behandleMotebehov(
             @PathVariable(name = "fnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
     ) {
-        metrikk.tellEndepunktKall("veileder_behandle_motebehov_call")
+        metric.tellEndepunktKall("veileder_behandle_motebehov_call")
         val fnr = Fodselsnummer(sykmeldtFnr)
         kastExceptionHvisIkkeTilgang(fnr)
         motebehovService.behandleUbehandledeMotebehov(fnr, getSubjectInternAD(oidcCtxHolder))
-        metrikk.tellEndepunktKall("veileder_behandle_motebehov_success")
+        metric.tellEndepunktKall("veileder_behandle_motebehov_success")
     }
 
     private fun kastExceptionHvisIkkeTilgang(fnr: Fodselsnummer) {

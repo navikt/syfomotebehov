@@ -5,7 +5,7 @@ import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.oppfolgingstilfelle.kafka.KOppfolgingstilfellePeker
 import no.nav.syfo.oppfolgingstilfelle.syketilfelle.KOppfolgingstilfelle
 import no.nav.syfo.oppfolgingstilfelle.syketilfelle.SyketilfelleConsumer
-import no.nav.syfo.metric.Metrikk
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.database.PPersonOppfolgingstilfelle
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import org.springframework.stereotype.Service
@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @Service
 class OppfolgingstilfelleService @Inject constructor(
-        private val metric: Metrikk,
+        private val metric: Metric,
         private val oppfolgingstilfelleDAO: OppfolgingstilfelleDAO,
         private val syketilfelleConsumer: SyketilfelleConsumer
 ) {

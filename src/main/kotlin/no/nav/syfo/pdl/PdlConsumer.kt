@@ -1,7 +1,7 @@
 package no.nav.syfo.pdl
 
 import no.nav.syfo.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.metric.Metrikk
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.sts.StsConsumer
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate
 
 @Service
 class PdlConsumer(
-        private val metric: Metrikk,
+        private val metric: Metric,
         @Value("\${pdl.url}") private val pdlUrl: String,
         private val stsConsumer: StsConsumer,
         private val restTemplate: RestTemplate

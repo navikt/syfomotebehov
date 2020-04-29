@@ -2,7 +2,7 @@ package no.nav.syfo.exception
 
 import no.nav.security.spring.oidc.validation.interceptor.OIDCUnauthorizedException
 import no.nav.syfo.brukertilgang.RequestUnauthorizedException
-import no.nav.syfo.metric.Metrikk
+import no.nav.syfo.metric.Metric
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -17,7 +17,7 @@ import javax.ws.rs.ForbiddenException
 
 @ControllerAdvice
 class ControllerExceptionHandler @Inject constructor(
-        private val metrikk: Metrikk
+        private val metric: Metric
 ) {
     private val BAD_REQUEST_MSG = "Vi kunne ikke tolke inndataene"
     private val CONFLICT_MSG = "Dette oppsto en konflikt i tilstand"
@@ -79,7 +79,7 @@ class ControllerExceptionHandler @Inject constructor(
     }
 
     private fun handleExceptionInternal(ex: Exception, body: ApiError, headers: HttpHeaders, status: HttpStatus, request: WebRequest): ResponseEntity<ApiError> {
-        metrikk.tellHttpKall(status.value())
+        metric.tellHttpKall(status.value())
         if (!status.is2xxSuccessful) {
             if (HttpStatus.INTERNAL_SERVER_ERROR == status) {
                 log.error("Uventet feil: {} : {}", ex.javaClass.toString(), ex.message, ex)

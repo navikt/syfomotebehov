@@ -6,7 +6,7 @@ import no.nav.syfo.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.brukertilgang.BrukertilgangService
 import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.motebehov.MotebehovSvar
-import no.nav.syfo.metric.Metrikk
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.motebehov.NyttMotebehov
 import no.nav.syfo.oidc.OIDCIssuer
@@ -24,7 +24,7 @@ import javax.ws.rs.ForbiddenException
 @RequestMapping(value = ["/api/motebehov"])
 class MotebehovBrukerController @Inject constructor(
         private val contextHolder: OIDCRequestContextHolder,
-        private val metrikk: Metrikk,
+        private val metric: Metric,
         private val motebehovService: MotebehovService,
         private val brukertilgangService: BrukertilgangService
 ) {
@@ -67,12 +67,12 @@ class MotebehovBrukerController @Inject constructor(
     }
 
     private fun lagBesvarMotebehovMetrikk(motebehovSvar: MotebehovSvar, erInnloggetBrukerArbeidstaker: Boolean) {
-        metrikk.tellMotebehovBesvart(motebehovSvar.harMotebehov, erInnloggetBrukerArbeidstaker)
+        metric.tellMotebehovBesvart(motebehovSvar.harMotebehov, erInnloggetBrukerArbeidstaker)
         if (!motebehovSvar.harMotebehov) {
-            metrikk.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring!!.length, erInnloggetBrukerArbeidstaker)
+            metric.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring!!.length, erInnloggetBrukerArbeidstaker)
         } else if (!StringUtils.isEmpty(motebehovSvar.forklaring)) {
-            metrikk.tellMotebehovBesvartJaMedForklaringTegn(motebehovSvar.forklaring!!.length, erInnloggetBrukerArbeidstaker)
-            metrikk.tellMotebehovBesvartJaMedForklaringAntall(erInnloggetBrukerArbeidstaker)
+            metric.tellMotebehovBesvartJaMedForklaringTegn(motebehovSvar.forklaring!!.length, erInnloggetBrukerArbeidstaker)
+            metric.tellMotebehovBesvartJaMedForklaringAntall(erInnloggetBrukerArbeidstaker)
         }
     }
 

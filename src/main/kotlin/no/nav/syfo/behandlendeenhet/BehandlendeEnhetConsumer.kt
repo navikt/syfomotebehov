@@ -1,7 +1,7 @@
 package no.nav.syfo.behandlendeenhet
 
 import no.nav.syfo.cache.CacheConfig
-import no.nav.syfo.metric.Metrikk
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.sts.StsConsumer
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate
 
 @Service
 class BehandlendeEnhetConsumer(
-        private val metric: Metrikk,
+        private val metric: Metric,
         @Value("\${syfobehandlendeenhet.url}") private val baseUrl: String,
         private val stsConsumer: StsConsumer,
         private val template: RestTemplate

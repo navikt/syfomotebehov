@@ -4,7 +4,7 @@ import no.nav.syfo.aktorregister.AktorregisterConsumer
 import no.nav.syfo.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhetConsumer
 import no.nav.syfo.exception.ConflictException
-import no.nav.syfo.metric.Metrikk
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.database.PMotebehov
 import no.nav.syfo.oversikthendelse.OversikthendelseService
@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 @Service
 class MotebehovService @Inject constructor(
-        private val metrikk: Metrikk,
+        private val metric: Metric,
         private val aktorregisterConsumer: AktorregisterConsumer,
         private val behandlendeEnhetConsumer: BehandlendeEnhetConsumer,
         private val oversikthendelseService: OversikthendelseService,
@@ -31,7 +31,7 @@ class MotebehovService @Inject constructor(
             val behandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.value, null).enhetId
             oversikthendelseService.sendOversikthendelseBehandlet(arbeidstakerFnr, behandlendeEnhet)
         } else {
-            metrikk.tellHendelse("feil_behandle_motebehov_svar_eksiterer_ikke")
+            metric.tellHendelse("feil_behandle_motebehov_svar_eksiterer_ikke")
             log.warn("Ugyldig tilstand: Veileder {} forsøkte å behandle motebehovsvar som ikke eksisterer. Kaster Http-409", veilederIdent)
             throw ConflictException()
         }

@@ -1,6 +1,6 @@
 package no.nav.syfo.sts
 
-import no.nav.syfo.metric.Metrikk
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.util.basicCredentials
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 
 @Service
 class StsConsumer(
-        private val metric: Metrikk,
+        private val metric: Metric,
         @Value("\${security.token.service.rest.url}") private val baseUrl: String,
         @Value("\${srv.username}") private val username: String,
         @Value("\${srv.password}") private val password: String,

@@ -2,7 +2,7 @@ package no.nav.syfo.aktorregister
 
 import no.nav.syfo.aktorregister.domain.*
 import no.nav.syfo.cache.CacheConfig
-import no.nav.syfo.metric.Metrikk
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.sts.StsConsumer
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
@@ -19,7 +19,7 @@ import javax.inject.Inject
 @Service
 class AktorregisterConsumer @Inject constructor(
         @Value("\${aktorregister.rest.url}") private val baseUrl: String,
-        private val metrikk: Metrikk,
+        private val metric: Metric,
         private val restTemplate: RestTemplate,
         private val stsConsumer: StsConsumer
 ) {
@@ -48,10 +48,10 @@ class AktorregisterConsumer @Inject constructor(
                     responseType
             )
             val responseBody = response.body!!
-            metrikk.tellHendelse("call_aktorregister_success")
+            metric.tellHendelse("call_aktorregister_success")
             return responseBody
         } catch (e: RestClientResponseException) {
-            metrikk.tellHendelse("call_aktorregister_fail")
+            metric.tellHendelse("call_aktorregister_fail")
             val message = "Call to get Ident from Aktorregister failed with status HTTP-${e.rawStatusCode} for IdentType=${identType.name}"
             LOG.error(message)
             throw e

@@ -1,7 +1,7 @@
 package no.nav.syfo.mote
 
 import junit.framework.TestCase
-import no.nav.syfo.metric.Metrikk
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.sts.StsConsumer
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import org.junit.Assert
@@ -26,7 +26,7 @@ class MoterServiceTest {
     private lateinit var stsConsumer: StsConsumer
 
     @Mock
-    private lateinit var metrikk: Metrikk
+    private lateinit var metric: Metric
 
     @Mock
     private lateinit var template: RestTemplate

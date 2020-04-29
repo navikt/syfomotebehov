@@ -4,7 +4,7 @@ import no.nav.security.oidc.api.ProtectedWithClaims
 import no.nav.security.oidc.context.OIDCRequestContextHolder
 import no.nav.syfo.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.brukertilgang.BrukertilgangService
-import no.nav.syfo.metric.Metrikk
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.*
 import no.nav.syfo.oidc.OIDCIssuer
 import no.nav.syfo.oidc.OIDCUtil
@@ -21,7 +21,7 @@ import javax.ws.rs.ForbiddenException
 @RequestMapping(value = ["/api/v2/motebehov"])
 class MotebehovBrukerV2Controller @Inject constructor(
         private val contextHolder: OIDCRequestContextHolder,
-        private val metrikk: Metrikk,
+        private val metric: Metric,
         private val motebehovService: MotebehovService,
         private val motebehovStatusService: MotebehovStatusService,
         private val brukertilgangService: BrukertilgangService
@@ -35,10 +35,10 @@ class MotebehovBrukerV2Controller @Inject constructor(
         kastExceptionHvisIkkeTilgang(fnr.value)
 
         return if (virksomhetsnummer.isNotEmpty()) {
-            metrikk.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker")
+            metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker")
             motebehovStatusService.motebehovStatusForArbeidsgiver(fnr, virksomhetsnummer)
         } else {
-            metrikk.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver")
+            metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver")
             motebehovStatusService.motebehovStatusForArbeidstaker(fnr)
         }
     }
@@ -48,10 +48,10 @@ class MotebehovBrukerV2Controller @Inject constructor(
             @RequestBody nyttMotebehov: @Valid NyttMotebehov
     ) {
         val arbeidstakerFnr = if (nyttMotebehov.arbeidstakerFnr.isNullOrEmpty()) {
-            metrikk.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker")
+            metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker")
             OIDCUtil.fnrFraOIDCEkstern(contextHolder)
         } else {
-            metrikk.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
+            metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
             Fodselsnummer(nyttMotebehov.arbeidstakerFnr)
         }
         kastExceptionHvisIkkeTilgang(arbeidstakerFnr.value)
@@ -74,12 +74,12 @@ class MotebehovBrukerV2Controller @Inject constructor(
     }
 
     private fun lagBesvarMotebehovMetrikk(motebehovSvar: MotebehovSvar, erInnloggetBrukerArbeidstaker: Boolean) {
-        metrikk.tellMotebehovBesvart(motebehovSvar.harMotebehov, erInnloggetBrukerArbeidstaker)
+        metric.tellMotebehovBesvart(motebehovSvar.harMotebehov, erInnloggetBrukerArbeidstaker)
         if (!motebehovSvar.harMotebehov) {
-            metrikk.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring!!.length, erInnloggetBrukerArbeidstaker)
+            metric.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring!!.length, erInnloggetBrukerArbeidstaker)
         } else if (!StringUtils.isEmpty(motebehovSvar.forklaring)) {
-            metrikk.tellMotebehovBesvartJaMedForklaringTegn(motebehovSvar.forklaring!!.length, erInnloggetBrukerArbeidstaker)
-            metrikk.tellMotebehovBesvartJaMedForklaringAntall(erInnloggetBrukerArbeidstaker)
+            metric.tellMotebehovBesvartJaMedForklaringTegn(motebehovSvar.forklaring!!.length, erInnloggetBrukerArbeidstaker)
+            metric.tellMotebehovBesvartJaMedForklaringAntall(erInnloggetBrukerArbeidstaker)
         }
     }
 }

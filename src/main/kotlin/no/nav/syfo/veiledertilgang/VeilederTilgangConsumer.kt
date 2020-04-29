@@ -2,7 +2,7 @@ package no.nav.syfo.veiledertilgang
 
 import no.nav.security.oidc.context.OIDCRequestContextHolder
 import no.nav.syfo.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.metric.Metrikk
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.oidc.OIDCIssuer
 import no.nav.syfo.oidc.OIDCUtil
 import no.nav.syfo.util.*
@@ -19,7 +19,7 @@ import java.util.*
 @Service
 class VeilederTilgangConsumer(
         @Value("\${tilgangskontrollapi.url}") tilgangskontrollUrl: String,
-        private val metric: Metrikk,
+        private val metric: Metric,
         private val template: RestTemplate,
         private val oidcContextHolder: OIDCRequestContextHolder
 ) {

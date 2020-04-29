@@ -6,7 +6,7 @@ import org.springframework.stereotype.Controller
 import javax.inject.Inject
 
 @Controller
-class Metrikk @Inject constructor(
+class Metric @Inject constructor(
         private val registry: MeterRegistry
 ) {
     fun countOutgoingReponses(navn: String, statusCode: Int) {
@@ -78,7 +78,7 @@ class Metrikk @Inject constructor(
     }
 
     private fun addPrefix(navn: String): String {
-        val METRIKK_PREFIX = "syfomotebehov_"
-        return METRIKK_PREFIX + navn
+        val metricPrefix = "syfomotebehov_"
+        return metricPrefix + navn
     }
 }

@@ -2,7 +2,7 @@ package no.nav.syfo.oppfolgingstilfelle.syketilfelle
 
 import no.nav.syfo.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.brukertilgang.RequestUnauthorizedException
-import no.nav.syfo.metric.Metrikk
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.sts.StsConsumer
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate
 @Component
 class SyketilfelleConsumer(
         private val restTemplate: RestTemplate,
-        private val metrikk: Metrikk,
+        private val metric: Metric,
         private val stsConsumer: StsConsumer
 ) {
     fun oppfolgingstilfelle(
@@ -31,14 +31,14 @@ class SyketilfelleConsumer(
                     httpEntity,
                     KOppfolgingstilfelle::class.java
             )
-            metrikk.countOutgoingReponses(METRIC_CALL_SYFOSYKETILFELLE, response.statusCodeValue)
+            metric.countOutgoingReponses(METRIC_CALL_SYFOSYKETILFELLE, response.statusCodeValue)
             return if (response.statusCodeValue == 204) {
                 null
             } else {
                 return response.body!!
             }
         } catch (e: RestClientResponseException) {
-            metrikk.countOutgoingReponses(METRIC_CALL_SYFOSYKETILFELLE, e.rawStatusCode)
+            metric.countOutgoingReponses(METRIC_CALL_SYFOSYKETILFELLE, e.rawStatusCode)
             if (e.rawStatusCode == 401) {
                 throw RequestUnauthorizedException("Unauthorized request to get access to Ansatt from Syfobrukertilgang")
             } else {
