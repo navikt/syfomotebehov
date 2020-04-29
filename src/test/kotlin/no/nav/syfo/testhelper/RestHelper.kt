@@ -2,8 +2,9 @@ package no.nav.syfo.testhelper
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.syfo.behandlendeenhet.BehandlendeEnhet
+import no.nav.syfo.consumer.behandlendeenhet.BehandlendeEnhet
 import no.nav.syfo.testhelper.UserConstants.STS_TOKEN
+import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.util.basicCredentials
 import no.nav.syfo.util.bearerCredentials
 import org.springframework.http.*

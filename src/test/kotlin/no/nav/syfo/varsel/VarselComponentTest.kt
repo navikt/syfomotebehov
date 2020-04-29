@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.api.VarselController
-import no.nav.syfo.mote.MoterService
-import no.nav.syfo.sts.StsConsumer
+import no.nav.syfo.consumer.mote.MoteConsumer
+import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.testhelper.UserConstants
 import no.nav.syfo.testhelper.mockAndExpectSTSService
+import no.nav.syfo.varsel.api.VarselController
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -59,7 +59,7 @@ class VarselComponentTest {
     private lateinit var restTemplate: RestTemplate
 
     @Inject
-    private lateinit var moterService: MoterService
+    private lateinit var moteConsumer: MoteConsumer
 
     @Inject
     private lateinit var varselService: VarselService
@@ -124,7 +124,7 @@ class VarselComponentTest {
     @Throws(Exception::class)
     private fun mockSvarFraSyfomoteadmin(harAktivtMote: Boolean) {
         val svarFraSyfomoteadminJson = objectMapper.writeValueAsString(harAktivtMote)
-        val url = UriComponentsBuilder.fromHttpUrl(MoterService.SYFOMOTEADMIN_BASEURL)
+        val url = UriComponentsBuilder.fromHttpUrl(MoteConsumer.SYFOMOTEADMIN_BASEURL)
                 .pathSegment("system", UserConstants.ARBEIDSTAKER_AKTORID, "harAktivtMote")
                 .toUriString()
         mockRestServiceServer.expect(ExpectedCount.once(), MockRestRequestMatchers.requestTo(url))

@@ -2,9 +2,9 @@ package no.nav.syfo.testhelper
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.syfo.aktorregister.IdentType
-import no.nav.syfo.aktorregister.domain.Identinfo
-import no.nav.syfo.aktorregister.domain.IdentinfoListe
+import no.nav.syfo.consumer.aktorregister.IdentType
+import no.nav.syfo.consumer.aktorregister.domain.Identinfo
+import no.nav.syfo.consumer.aktorregister.domain.IdentinfoListe
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.util.bearerCredentials
 import org.springframework.http.*

@@ -7,8 +7,8 @@ import no.nav.security.oidc.context.OIDCRequestContextHolder
 import no.nav.security.oidc.context.OIDCValidationContext
 import no.nav.security.oidc.context.TokenContext
 import no.nav.security.oidc.test.support.JwtTokenGenerator
-import no.nav.syfo.oidc.OIDCIssuer
-import no.nav.syfo.oidc.OIDCIssuer.EKSTERN
+import no.nav.syfo.api.auth.OIDCIssuer
+import no.nav.syfo.api.auth.OIDCIssuer.EKSTERN
 import java.text.ParseException
 
 object OidcTestHelper {

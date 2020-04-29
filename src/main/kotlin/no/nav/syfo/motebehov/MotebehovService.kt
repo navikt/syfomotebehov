@@ -1,9 +1,9 @@
 package no.nav.syfo.motebehov
 
-import no.nav.syfo.aktorregister.AktorregisterConsumer
-import no.nav.syfo.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.behandlendeenhet.BehandlendeEnhetConsumer
-import no.nav.syfo.exception.ConflictException
+import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
+import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.consumer.behandlendeenhet.BehandlendeEnhetConsumer
+import no.nav.syfo.api.exception.ConflictException
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.database.PMotebehov

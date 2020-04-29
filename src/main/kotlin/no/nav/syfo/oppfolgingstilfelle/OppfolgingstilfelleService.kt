@@ -1,6 +1,6 @@
 package no.nav.syfo.oppfolgingstilfelle
 
-import no.nav.syfo.aktorregister.domain.AktorId
+import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.oppfolgingstilfelle.kafka.KOppfolgingstilfellePeker
 import no.nav.syfo.oppfolgingstilfelle.syketilfelle.KOppfolgingstilfelle

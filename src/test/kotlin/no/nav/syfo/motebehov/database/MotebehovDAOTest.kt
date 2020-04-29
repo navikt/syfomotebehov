@@ -1,7 +1,7 @@
 package no.nav.syfo.motebehov.database
 
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.testhelper.MotebehovGenerator
+import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER

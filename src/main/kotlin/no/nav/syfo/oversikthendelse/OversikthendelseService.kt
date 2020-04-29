@@ -1,6 +1,6 @@
 package no.nav.syfo.oversikthendelse
 
-import no.nav.syfo.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import javax.inject.Inject

@@ -1,9 +1,9 @@
 package no.nav.syfo.oppfolgingstilfelle.syketilfelle
 
-import no.nav.syfo.brukertilgang.BrukertilgangConsumer
-import no.nav.syfo.brukertilgang.RequestUnauthorizedException
+import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
+import no.nav.syfo.consumer.brukertilgang.RequestUnauthorizedException
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.sts.StsConsumer
+import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpEntity
