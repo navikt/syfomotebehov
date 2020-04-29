@@ -22,25 +22,39 @@ class MotebehovStatusService @Inject constructor(
         private val moterService: MoterService,
         private val oppfolgingstilfelleService: OppfolgingstilfelleService
 ) {
-    fun motebehovStatus(
+    fun motebehovStatusForArbeidstaker(
+            arbeidstakerFnr: Fodselsnummer
+    ): MotebehovStatus {
+        val arbeidstakerAktorId = AktorId(aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr))
+        val oppfolgingstilfeller: List<PersonOppfolgingstilfelle> = oppfolgingstilfelleService.getOppfolgingstilfeller(arbeidstakerAktorId)
+        val motebehovList: List<Motebehov> = motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr)
+
+        return motebehovStatus(oppfolgingstilfeller, motebehovList)
+    }
+
+    fun motebehovStatusForArbeidsgiver(
             arbeidstakerFnr: Fodselsnummer,
             virksomhetsnummer: String
     ): MotebehovStatus {
-        val motebehovList = if (virksomhetsnummer.isNotEmpty()) {
-            motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr, virksomhetsnummer)
-        } else {
-            motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr)
-        }
-        val arbeidstakerAktorId = aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr)
-        val oppfolgingstilfelle = oppfolgingstilfelleService.getOppfolgingstilfelle(
-                AktorId(arbeidstakerAktorId),
+        val arbeidstakerAktorId = AktorId(aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr))
+        val oppfolgingstilfeller = oppfolgingstilfelleService.getOppfolgingstilfeller(
+                arbeidstakerAktorId,
                 virksomhetsnummer
         )
-        return if (oppfolgingstilfelle != null && isMotebehovAvailable(oppfolgingstilfelle, motebehovList)) {
+        val motebehovList = motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr, virksomhetsnummer)
+
+        return motebehovStatus(oppfolgingstilfeller, motebehovList)
+    }
+
+    private fun motebehovStatus(
+            oppfolgingstilfeller: List<PersonOppfolgingstilfelle>,
+            motebehovList: List<Motebehov>
+    ): MotebehovStatus {
+        return if (oppfolgingstilfeller.any { isMotebehovAvailable(it, motebehovList) }) {
             MotebehovStatus(
                     true,
                     getMotebehovSkjemaType(),
-                    getMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList)
+                    getNewestMotebehovInOppfolgingstilfeller(oppfolgingstilfeller, motebehovList)
             )
         } else {
             MotebehovStatus(
@@ -56,31 +70,40 @@ class MotebehovStatusService @Inject constructor(
             false
         } else if (hasMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList)) {
             true
-        } else !moterService.erMoteOpprettetForArbeidstakerEtterDato(oppfolgingstilfelle.aktorId, oppfolgingstilfelle.fom.atStartOfDay())
-    }
-
-    private fun isDateInOppfolgingstilfelle(date: LocalDate, oppfolgingstilfelle: PersonOppfolgingstilfelle): Boolean {
-        return date.isAfter(oppfolgingstilfelle.fom.minusDays(1)) && date.isBefore(oppfolgingstilfelle.tom.plusDays(1))
+        } else {
+            !moterService.erMoteOpprettetForArbeidstakerEtterDato(oppfolgingstilfelle.aktorId, oppfolgingstilfelle.fom.atStartOfDay())
+        }
     }
 
     private fun isDialogmote2BehovAvailable(oppfolgingstilfelle: PersonOppfolgingstilfelle): Boolean {
-        val today = LocalDate.now()
-
         val startDialogmote2BehovAvailability = oppfolgingstilfelle.fom.plusDays(DAYS_START_DIALOGMOTE2)
         val endDialogmote2BehovAvailability = oppfolgingstilfelle.fom.plusDays(DAYS_END_DIALOGMOTE2)
+        val today = LocalDate.now()
 
         return today.isAfter(startDialogmote2BehovAvailability.minusDays(1)) && today.isBefore(endDialogmote2BehovAvailability)
     }
 
     private fun hasMotebehovInOppfolgingstilfelle(oppfolgingstilfelle: PersonOppfolgingstilfelle, motebehovList: List<Motebehov>): Boolean {
-        return getMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList) != null
+        return getNewestMotebehovInOppfolgingstilfeller(listOf(oppfolgingstilfelle), motebehovList) != null
     }
 
-    private fun getMotebehovInOppfolgingstilfelle(oppfolgingstilfelle: PersonOppfolgingstilfelle, motebehovList: List<Motebehov>): Motebehov? {
-        val motebehovInOppfolgingstilfelleList = motebehovList.filter {
-            isDateInOppfolgingstilfelle(it.opprettetDato.toLocalDate(), oppfolgingstilfelle)
+    private fun getNewestMotebehovInOppfolgingstilfeller(oppfolgingstilfeller: List<PersonOppfolgingstilfelle>, motebehovList: List<Motebehov>): Motebehov? {
+        if (motebehovList.isNotEmpty()) {
+            val newestMotebehov = motebehovList[0]
+            val isNewestMotebehovInOppfolgingstilfelle = oppfolgingstilfeller.any {
+                isDateInOppfolgingstilfelle(newestMotebehov.opprettetDato.toLocalDate(), it)
+            }
+            if (isNewestMotebehovInOppfolgingstilfelle) {
+                return newestMotebehov
+            }
+            return null
+        } else {
+            return null
         }
-        return if (motebehovInOppfolgingstilfelleList.isNotEmpty()) motebehovInOppfolgingstilfelleList[0] else null
+    }
+
+    private fun isDateInOppfolgingstilfelle(date: LocalDate, oppfolgingstilfelle: PersonOppfolgingstilfelle): Boolean {
+        return date.isAfter(oppfolgingstilfelle.fom.minusDays(1)) && date.isBefore(oppfolgingstilfelle.tom.plusDays(1))
     }
 
     private fun getMotebehovSkjemaType(): MotebehovSkjemaType {

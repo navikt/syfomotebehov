@@ -34,6 +34,21 @@ class OppfolgingstilfelleDAO @Inject constructor(
         )
     }
 
+    fun get(aktorId: String): List<PPersonOppfolgingstilfelle> {
+        val query = """
+            SELECT *
+            FROM oppfolgingstilfelle
+            WHERE aktoer_id = :aktorid
+            """.trimIndent()
+        val mapSql = MapSqlParameterSource()
+                .addValue("aktorid", aktorId)
+        return namedParameterJdbcTemplate.query(
+                query,
+                mapSql,
+                personOppfolgingstilfelleRowMapper
+        )
+    }
+
     fun update(oppfolgingstilfelle: KOppfolgingstilfelle) {
         val query = """
             UPDATE oppfolgingstilfelle
@@ -67,8 +82,8 @@ class OppfolgingstilfelleDAO @Inject constructor(
         return uuid
     }
 
-    fun nullstillOppfolgingstilfeller(aktorId: String, virksomhetsnummer: String): Int {
-        val oppfolgingstilfeller = get(aktorId, virksomhetsnummer)
+    fun nullstillOppfolgingstilfeller(aktorId: String): Int {
+        val oppfolgingstilfeller = get(aktorId)
         return if (oppfolgingstilfeller.isNotEmpty()) {
             val oppfolgingstilfelleIder: List<UUID> = oppfolgingstilfeller.map {
                 it.uuid

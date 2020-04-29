@@ -33,7 +33,14 @@ class MotebehovBrukerV2Controller @Inject constructor(
     ): MotebehovStatus {
         val fnr = if (StringUtils.isEmpty(arbeidstakerFnr)) OIDCUtil.fnrFraOIDCEkstern(contextHolder) else Fodselsnummer(arbeidstakerFnr!!)
         kastExceptionHvisIkkeTilgang(fnr.value)
-        return motebehovStatusService.motebehovStatus(fnr, virksomhetsnummer)
+
+        return if (virksomhetsnummer.isNotEmpty()) {
+            metrikk.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker")
+            motebehovStatusService.motebehovStatusForArbeidsgiver(fnr, virksomhetsnummer)
+        } else {
+            metrikk.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver")
+            motebehovStatusService.motebehovStatusForArbeidstaker(fnr)
+        }
     }
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -41,8 +48,12 @@ class MotebehovBrukerV2Controller @Inject constructor(
             @RequestBody nyttMotebehov: @Valid NyttMotebehov
     ) {
         val arbeidstakerFnr = if (nyttMotebehov.arbeidstakerFnr.isNullOrEmpty()) {
+            metrikk.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker")
             OIDCUtil.fnrFraOIDCEkstern(contextHolder)
-        } else Fodselsnummer(nyttMotebehov.arbeidstakerFnr)
+        } else {
+            metrikk.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
+            Fodselsnummer(nyttMotebehov.arbeidstakerFnr)
+        }
         kastExceptionHvisIkkeTilgang(arbeidstakerFnr.value)
 
         motebehovService.lagreMotebehov(
