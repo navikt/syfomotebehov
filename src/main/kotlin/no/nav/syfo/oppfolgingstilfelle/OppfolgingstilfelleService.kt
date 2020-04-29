@@ -42,22 +42,32 @@ class OppfolgingstilfelleService @Inject constructor(
         }
     }
 
-    fun getOppfolgingstilfelle(
+    fun getOppfolgingstilfeller(
             arbeidstakerAktorId: AktorId,
             orgnummer: String
-    ): PersonOppfolgingstilfelle? {
-        val pPersonOppfolgingstilfeller = oppfolgingstilfelleDAO.get(arbeidstakerAktorId.value, orgnummer)
-        return if (pPersonOppfolgingstilfeller.isNotEmpty()) {
-            val pPersonOppfolgingstilfelle = pPersonOppfolgingstilfeller[0]
-            PersonOppfolgingstilfelle(
-                    aktorId = pPersonOppfolgingstilfelle.aktorId,
-                    virksomhetsnummer = pPersonOppfolgingstilfelle.virksomhetsnummer,
-                    fom = pPersonOppfolgingstilfelle.fom,
-                    tom = pPersonOppfolgingstilfelle.tom
-            )
-        } else {
-            null
+    ): List<PersonOppfolgingstilfelle> {
+        return oppfolgingstilfelleDAO.get(arbeidstakerAktorId.value, orgnummer).map {
+            mapToPersonOppfolgingstilfelle(it)
         }
+    }
+
+    fun getOppfolgingstilfeller(
+            arbeidstakerAktorId: AktorId
+    ): List<PersonOppfolgingstilfelle> {
+        return oppfolgingstilfelleDAO.get(arbeidstakerAktorId.value).map {
+            mapToPersonOppfolgingstilfelle(it)
+        }
+    }
+
+    private fun mapToPersonOppfolgingstilfelle(
+            pPersonOppfolgingstilfelle: PPersonOppfolgingstilfelle
+    ): PersonOppfolgingstilfelle {
+        return PersonOppfolgingstilfelle(
+                aktorId = pPersonOppfolgingstilfelle.aktorId,
+                virksomhetsnummer = pPersonOppfolgingstilfelle.virksomhetsnummer,
+                fom = pPersonOppfolgingstilfelle.fom,
+                tom = pPersonOppfolgingstilfelle.tom
+        )
     }
 
     companion object {

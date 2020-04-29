@@ -21,6 +21,7 @@ import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
+import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER_2
 import org.assertj.core.api.Assertions
 import org.junit.After
 import org.junit.Assert
@@ -146,6 +147,27 @@ class MotebehovBrukerV2Test {
     }
 
     @Test
+    fun getAsArbeidstakerMotebehovStatusWithTodayOutsideOppfolgingstilfelle() {
+        loggUtAlle(oidcRequestContextHolder)
+        loggInnBruker(oidcRequestContextHolder, ARBEIDSTAKER_FNR)
+
+        oppfolgingstilfelleDAO.create(generateKOppfolgingstilfelle().copy(
+                tidslinje = listOf(
+                        generateKSyketilfelledag().copy(
+                                dag = LocalDate.now().minusDays(10)
+                        ),
+                        generateKSyketilfelledag().copy(
+                                dag = LocalDate.now().minusDays(1)
+                        )
+                )
+        ))
+        val motebehovStatus = motebehovController.motebehovStatus(null, "")
+        Assert.assertFalse(motebehovStatus.visMotebehov)
+        Assert.assertNull(motebehovStatus.skjemaType)
+        Assert.assertNull(motebehovStatus.motebehov)
+    }
+
+    @Test
     fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleBeforeDialogmote2StartDate() {
         oppfolgingstilfelleDAO.create(generateKOppfolgingstilfelle().copy(
                 tidslinje = listOf(
@@ -264,19 +286,34 @@ class MotebehovBrukerV2Test {
     }
 
     @Test
+    fun getAsArbeidstakerMotebehovStatusAndSendOversikthendelseWithMotebehovHarBehovTrue() {
+        oppfolgingstilfelleDAO.create(generateKOppfolgingstilfelle().copy(
+                aktorId = ARBEIDSTAKER_AKTORID,
+                orgnummer = VIRKSOMHETSNUMMER
+        ))
+        lagreOgHentMotebehovOgSendOversikthendelse(harBehov = true, getAsArbeidsgiver = false)
+    }
+
+
+    @Test
+    fun getAsArbeidstakerbehovStatusAndSendOversikthendelseWithMotebehovHarBehovFalse() {
+        oppfolgingstilfelleDAO.create(generateKOppfolgingstilfelle().copy(
+                aktorId = ARBEIDSTAKER_AKTORID,
+                orgnummer = VIRKSOMHETSNUMMER_2
+        ))
+        lagreOgHentMotebehovOgSendOversikthendelse(harBehov = false, getAsArbeidsgiver = false)
+    }
+
+    @Test
     fun getMotebehovStatusAndSendOversikthendelseWithMotebehovHarBehovTrue() {
         oppfolgingstilfelleDAO.create(generateKOppfolgingstilfelle())
-        mockSTS()
-        mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, ARBEIDSTAKER_FNR)
-        lagreOgHentMotebehovOgSendOversikthendelse(true)
+        lagreOgHentMotebehovOgSendOversikthendelse(harBehov = true, getAsArbeidsgiver = true)
     }
 
     @Test
     fun getMotebehovStatusAndSendOversikthendelseWithMotebehovHarBehovFalse() {
         oppfolgingstilfelleDAO.create(generateKOppfolgingstilfelle())
-        mockSTS()
-        mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, ARBEIDSTAKER_FNR)
-        lagreOgHentMotebehovOgSendOversikthendelse(false)
+        lagreOgHentMotebehovOgSendOversikthendelse(harBehov = false, getAsArbeidsgiver = true)
     }
 
     private fun mockSTS() {
@@ -285,19 +322,34 @@ class MotebehovBrukerV2Test {
         }
     }
 
-    private fun lagreOgHentMotebehovOgSendOversikthendelse(harBehov: Boolean) {
+    private fun lagreOgHentMotebehovOgSendOversikthendelse(harBehov: Boolean, getAsArbeidsgiver: Boolean) {
+        if (!getAsArbeidsgiver) {
+            mockRestServiceServer.reset()
+            loggUtAlle(oidcRequestContextHolder)
+            loggInnBruker(oidcRequestContextHolder, ARBEIDSTAKER_FNR)
+        }
+        mockSTS()
+        mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, ARBEIDSTAKER_FNR)
+
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(harBehov)
 
         motebehovController.lagreMotebehov(motebehovGenerator.lagNyttMotebehovFraAT().copy(
                 motebehovSvar = motebehovSvar
         ))
 
-        val motebehovStatus = motebehovController.motebehovStatus(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        val motebehovStatus = motebehovController.motebehovStatus(
+                if (getAsArbeidsgiver) ARBEIDSTAKER_FNR else null,
+                if (getAsArbeidsgiver) VIRKSOMHETSNUMMER else ""
+        )
         Assert.assertTrue(motebehovStatus.visMotebehov)
         Assert.assertEquals(MotebehovSkjemaType.SVAR_BEHOV, motebehovStatus.skjemaType)
-        val motebehov = motebehovStatus.motebehov
+        val motebehov = motebehovStatus.motebehov!!
         Assert.assertNotNull(motebehov)
-        Assertions.assertThat(motebehov!!.opprettetAv).isEqualTo(LEDER_AKTORID)
+        if (getAsArbeidsgiver) {
+            Assertions.assertThat(motebehov.opprettetAv).isEqualTo(LEDER_AKTORID)
+        } else {
+            Assertions.assertThat(motebehov.opprettetAv).isEqualTo(ARBEIDSTAKER_AKTORID)
+        }
         Assertions.assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
         Assertions.assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
         Assertions.assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(motebehovSvar)
@@ -311,7 +363,7 @@ class MotebehovBrukerV2Test {
 
     private fun cleanDB() {
         motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID)
-        oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(ARBEIDSTAKER_AKTORID, VIRKSOMHETSNUMMER)
+        oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(ARBEIDSTAKER_AKTORID)
     }
 }
 
