@@ -1,7 +1,6 @@
 package no.nav.syfo.oppfolgingstilfelle.database
 
 import no.nav.syfo.oppfolgingstilfelle.syketilfelle.KOppfolgingstilfelle
-import no.nav.syfo.util.DbUtil
 import no.nav.syfo.util.convert
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -66,6 +65,21 @@ class OppfolgingstilfelleDAO @Inject constructor(
                 .addValue("tom", convert(oppfolgingstilfelle.tidslinje.last().dag))
         namedParameterJdbcTemplate.update(query, mapSaveSql)
         return uuid
+    }
+
+    fun nullstillOppfolgingstilfeller(aktorId: String, virksomhetsnummer: String): Int {
+        val oppfolgingstilfeller = get(aktorId, virksomhetsnummer)
+        return if (oppfolgingstilfeller.isNotEmpty()) {
+            val oppfolgingstilfelleIder: List<UUID> = oppfolgingstilfeller.map {
+                it.uuid
+            }
+            namedParameterJdbcTemplate.update(
+                    "DELETE FROM oppfolgingstilfelle WHERE oppfolgingstilfelle_uuid IN (:oppfolgingstilfelleIder)",
+                    MapSqlParameterSource()
+                            .addValue("oppfolgingstilfelleIder", oppfolgingstilfelleIder))
+        } else {
+            0
+        }
     }
 
     val personOppfolgingstilfelleRowMapper = RowMapper { resultSet, _ ->

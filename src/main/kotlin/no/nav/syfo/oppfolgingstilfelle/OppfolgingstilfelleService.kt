@@ -1,10 +1,13 @@
 package no.nav.syfo.oppfolgingstilfelle
 
+import no.nav.syfo.aktorregister.domain.AktorId
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.oppfolgingstilfelle.kafka.KOppfolgingstilfellePeker
 import no.nav.syfo.oppfolgingstilfelle.syketilfelle.KOppfolgingstilfelle
 import no.nav.syfo.oppfolgingstilfelle.syketilfelle.SyketilfelleConsumer
 import no.nav.syfo.metric.Metrikk
+import no.nav.syfo.oppfolgingstilfelle.database.PPersonOppfolgingstilfelle
+import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import org.springframework.stereotype.Service
 import javax.inject.Inject
 
@@ -36,6 +39,24 @@ class OppfolgingstilfelleService @Inject constructor(
         } else {
             oppfolgingstilfelleDAO.update(oppfolgingstilfelle)
             metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE)
+        }
+    }
+
+    fun getOppfolgingstilfelle(
+            arbeidstakerAktorId: AktorId,
+            orgnummer: String
+    ): PersonOppfolgingstilfelle? {
+        val pPersonOppfolgingstilfeller = oppfolgingstilfelleDAO.get(arbeidstakerAktorId.value, orgnummer)
+        return if (pPersonOppfolgingstilfeller.isNotEmpty()) {
+            val pPersonOppfolgingstilfelle = pPersonOppfolgingstilfeller[0]
+            PersonOppfolgingstilfelle(
+                    aktorId = pPersonOppfolgingstilfelle.aktorId,
+                    virksomhetsnummer = pPersonOppfolgingstilfelle.virksomhetsnummer,
+                    fom = pPersonOppfolgingstilfelle.fom,
+                    tom = pPersonOppfolgingstilfelle.tom
+            )
+        } else {
+            null
         }
     }
 
