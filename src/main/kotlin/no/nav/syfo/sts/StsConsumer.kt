@@ -4,13 +4,12 @@ import no.nav.syfo.metric.Metric
 import no.nav.syfo.util.basicCredentials
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.*
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestTemplate
-import org.springframework.web.util.UriComponentsBuilder
-import org.springframework.web.util.UriComponentsBuilder.fromHttpUrl
 import java.time.LocalDateTime
 
 @Service
@@ -21,22 +20,18 @@ class StsConsumer(
         @Value("\${srv.password}") private val password: String,
         private val template: RestTemplate
 ) {
-    private val getStsTokenUriTemplate: UriComponentsBuilder = fromHttpUrl(getStsTokenUrl())
-
     private var cachedOidcToken: STSToken? = null
 
     fun token(): String {
         if (STSToken.shouldRenew(cachedOidcToken)) {
             val request = HttpEntity<Any>(authorizationHeader())
 
-            val stsTokenUri = getStsTokenUriTemplate.build().toUri()
-
             try {
-                val response = template.exchange<STSToken>(
-                        stsTokenUri,
+                val response = template.exchange(
+                        getStsTokenUrl(),
                         HttpMethod.GET,
                         request,
-                        object : ParameterizedTypeReference<STSToken>() {}
+                        STSToken::class.java
                 )
                 cachedOidcToken = response.body
                 metric.tellEndepunktKall(METRIC_CALL_STS_SUCCESS)

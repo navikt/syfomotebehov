@@ -15,7 +15,6 @@ import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
-import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDateTime
