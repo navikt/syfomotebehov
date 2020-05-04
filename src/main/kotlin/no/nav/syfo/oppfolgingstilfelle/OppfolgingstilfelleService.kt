@@ -20,13 +20,7 @@ class OppfolgingstilfelleService @Inject constructor(
     fun receiveKOppfolgingstilfellePeker(
             oppfolgingstilfellePeker: KOppfolgingstilfellePeker
     ) {
-        val oppfolgingstilfelle = syketilfelleConsumer.oppfolgingstilfelle(
-                oppfolgingstilfellePeker.aktorId,
-                oppfolgingstilfellePeker.orgnummer
-        )
-        if (oppfolgingstilfelle != null) {
-            createOrUpdateOppfolgingstilfelle(oppfolgingstilfelle)
-        }
+        return
     }
 
     fun createOrUpdateOppfolgingstilfelle(
