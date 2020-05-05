@@ -27,10 +27,7 @@ import no.nav.syfo.testhelper.generator.generateKOppfolgingstilfelle
 import no.nav.syfo.testhelper.generator.generateKSyketilfelledag
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import org.assertj.core.api.Assertions
-import org.junit.After
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import org.junit.*
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Value
@@ -124,6 +121,7 @@ class MotebehovBrukerV2Test {
         cleanDB()
     }
 
+    @Ignore
     @Test
     fun getMotebehovStatusWithNoOppfolgingstilfelle() {
         val motebehovStatus = motebehovController.motebehovStatus(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
@@ -132,6 +130,7 @@ class MotebehovBrukerV2Test {
         Assert.assertNull(motebehovStatus.motebehov)
     }
 
+    @Ignore
     @Test
     fun getMotebehovStatusWithTodayOutsideOppfolgingstilfelle() {
         oppfolgingstilfelleDAO.create(generateKOppfolgingstilfelle().copy(
@@ -150,6 +149,7 @@ class MotebehovBrukerV2Test {
         Assert.assertNull(motebehovStatus.motebehov)
     }
 
+    @Ignore
     @Test
     fun getAsArbeidstakerMotebehovStatusWithTodayOutsideOppfolgingstilfelle() {
         loggUtAlle(oidcRequestContextHolder)
@@ -171,6 +171,7 @@ class MotebehovBrukerV2Test {
         Assert.assertNull(motebehovStatus.motebehov)
     }
 
+    @Ignore
     @Test
     fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleBeforeDialogmote2StartDate() {
         oppfolgingstilfelleDAO.create(generateKOppfolgingstilfelle().copy(
@@ -189,6 +190,7 @@ class MotebehovBrukerV2Test {
         Assert.assertNull(motebehovStatus.motebehov)
     }
 
+    @Ignore
     @Test
     fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleAfterDialogmote2EndDate() {
         oppfolgingstilfelleDAO.create(generateKOppfolgingstilfelle().copy(
@@ -207,6 +209,7 @@ class MotebehovBrukerV2Test {
         Assert.assertNull(motebehovStatus.motebehov)
     }
 
+    @Ignore
     @Test
     fun getMotebehovStatusWithNoMotebehovAndNoMoteInsideInsideDialogmote2UpperLimit() {
         val kOppfolgingstilfelle = generateKOppfolgingstilfelle().copy(
@@ -232,6 +235,7 @@ class MotebehovBrukerV2Test {
         Assert.assertNull(motebehovStatus.motebehov)
     }
 
+    @Ignore
     @Test
     fun getMotebehovStatusWithNoMotebehovAndNoMoteInsideInsideDialogmote2LowerLimit() {
         val kOppfolgingstilfelle = generateKOppfolgingstilfelle().copy(
@@ -257,6 +261,7 @@ class MotebehovBrukerV2Test {
         Assert.assertNull(motebehovStatus.motebehov)
     }
 
+    @Ignore
     @Test
     fun getMotebehovStatusWithNoMotebehovAndNoMote() {
         val kOppfolgingstilfelle = generateKOppfolgingstilfelle()
@@ -273,6 +278,7 @@ class MotebehovBrukerV2Test {
         Assert.assertNull(motebehovStatus.motebehov)
     }
 
+    @Ignore
     @Test
     fun getMotebehovStatusWithNoMotebehovAndMote() {
         val kOppfolgingstilfelle = generateKOppfolgingstilfelle()
@@ -289,6 +295,7 @@ class MotebehovBrukerV2Test {
         Assert.assertNull(motebehovStatus.motebehov)
     }
 
+    @Ignore
     @Test
     fun getAsArbeidstakerMotebehovStatusAndSendOversikthendelseWithMotebehovHarBehovTrue() {
         oppfolgingstilfelleDAO.create(generateKOppfolgingstilfelle().copy(
@@ -298,7 +305,7 @@ class MotebehovBrukerV2Test {
         lagreOgHentMotebehovOgSendOversikthendelse(harBehov = true, getAsArbeidsgiver = false)
     }
 
-
+    @Ignore
     @Test
     fun getAsArbeidstakerbehovStatusAndSendOversikthendelseWithMotebehovHarBehovFalse() {
         oppfolgingstilfelleDAO.create(generateKOppfolgingstilfelle().copy(
@@ -308,12 +315,14 @@ class MotebehovBrukerV2Test {
         lagreOgHentMotebehovOgSendOversikthendelse(harBehov = false, getAsArbeidsgiver = false)
     }
 
+    @Ignore
     @Test
     fun getMotebehovStatusAndSendOversikthendelseWithMotebehovHarBehovTrue() {
         oppfolgingstilfelleDAO.create(generateKOppfolgingstilfelle())
         lagreOgHentMotebehovOgSendOversikthendelse(harBehov = true, getAsArbeidsgiver = true)
     }
 
+    @Ignore
     @Test
     fun getMotebehovStatusAndSendOversikthendelseWithMotebehovHarBehovFalse() {
         oppfolgingstilfelleDAO.create(generateKOppfolgingstilfelle())
