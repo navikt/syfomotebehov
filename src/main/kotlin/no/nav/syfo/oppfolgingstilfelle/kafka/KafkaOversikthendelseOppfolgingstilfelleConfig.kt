@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @Profile("remote")
 @Configuration
-class KafkaOppfolgingstilfelleConfig @Inject constructor() {
+class KafkaOversikthendelseOppfolgingstilfelleConfig @Inject constructor() {
 
     @Bean
     fun consumerFactory(properties: KafkaProperties): ConsumerFactory<String, String> {

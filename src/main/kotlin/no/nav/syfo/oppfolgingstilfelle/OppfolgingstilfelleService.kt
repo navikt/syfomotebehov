@@ -1,54 +1,51 @@
 package no.nav.syfo.oppfolgingstilfelle
 
-import no.nav.syfo.consumer.aktorregister.domain.AktorId
-import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
-import no.nav.syfo.oppfolgingstilfelle.kafka.KOppfolgingstilfellePeker
-import no.nav.syfo.oppfolgingstilfelle.syketilfelle.KOppfolgingstilfelle
-import no.nav.syfo.oppfolgingstilfelle.syketilfelle.SyketilfelleConsumer
+import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.metric.Metric
+import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.oppfolgingstilfelle.database.PPersonOppfolgingstilfelle
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
+import no.nav.syfo.oppfolgingstilfelle.kafka.KOversikthendelsetilfelle
 import org.springframework.stereotype.Service
 import javax.inject.Inject
 
 @Service
 class OppfolgingstilfelleService @Inject constructor(
         private val metric: Metric,
-        private val oppfolgingstilfelleDAO: OppfolgingstilfelleDAO,
-        private val syketilfelleConsumer: SyketilfelleConsumer
+        private val oppfolgingstilfelleDAO: OppfolgingstilfelleDAO
 ) {
-    fun receiveKOppfolgingstilfellePeker(
-            oppfolgingstilfellePeker: KOppfolgingstilfellePeker
+    fun receiveKOversikthendelsetilfelle(
+            oversikthendelsetilfelle: KOversikthendelsetilfelle
     ) {
-        return
+        createOrUpdateOppfolgingstilfelle(oversikthendelsetilfelle)
     }
 
     fun createOrUpdateOppfolgingstilfelle(
-            oppfolgingstilfelle: KOppfolgingstilfelle
+            oversikthendelsetilfelle: KOversikthendelsetilfelle
     ) {
-        val createNew = oppfolgingstilfelleDAO.get(oppfolgingstilfelle.aktorId, oppfolgingstilfelle.orgnummer).isEmpty();
+        val createNew = oppfolgingstilfelleDAO.get(Fodselsnummer(oversikthendelsetilfelle.fnr), oversikthendelsetilfelle.virksomhetsnummer).isEmpty();
         if (createNew) {
-            oppfolgingstilfelleDAO.create(oppfolgingstilfelle)
+            oppfolgingstilfelleDAO.create(oversikthendelsetilfelle)
             metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_CREATE)
         } else {
-            oppfolgingstilfelleDAO.update(oppfolgingstilfelle)
+            oppfolgingstilfelleDAO.update(oversikthendelsetilfelle)
             metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE)
         }
     }
 
     fun getOppfolgingstilfeller(
-            arbeidstakerAktorId: AktorId,
+            arbeidstakerFnr: Fodselsnummer,
             orgnummer: String
     ): List<PersonOppfolgingstilfelle> {
-        return oppfolgingstilfelleDAO.get(arbeidstakerAktorId.value, orgnummer).map {
+        return oppfolgingstilfelleDAO.get(arbeidstakerFnr, orgnummer).map {
             mapToPersonOppfolgingstilfelle(it)
         }
     }
 
     fun getOppfolgingstilfeller(
-            arbeidstakerAktorId: AktorId
+            arbeidstakerFnr: Fodselsnummer
     ): List<PersonOppfolgingstilfelle> {
-        return oppfolgingstilfelleDAO.get(arbeidstakerAktorId.value).map {
+        return oppfolgingstilfelleDAO.get(arbeidstakerFnr).map {
             mapToPersonOppfolgingstilfelle(it)
         }
     }
@@ -57,7 +54,7 @@ class OppfolgingstilfelleService @Inject constructor(
             pPersonOppfolgingstilfelle: PPersonOppfolgingstilfelle
     ): PersonOppfolgingstilfelle {
         return PersonOppfolgingstilfelle(
-                aktorId = pPersonOppfolgingstilfelle.aktorId,
+                fnr = pPersonOppfolgingstilfelle.fnr,
                 virksomhetsnummer = pPersonOppfolgingstilfelle.virksomhetsnummer,
                 fom = pPersonOppfolgingstilfelle.fom,
                 tom = pPersonOppfolgingstilfelle.tom

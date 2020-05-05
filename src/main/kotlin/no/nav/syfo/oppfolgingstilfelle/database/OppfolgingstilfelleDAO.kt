@@ -1,6 +1,7 @@
 package no.nav.syfo.oppfolgingstilfelle.database
 
-import no.nav.syfo.oppfolgingstilfelle.syketilfelle.KOppfolgingstilfelle
+import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.oppfolgingstilfelle.kafka.KOversikthendelsetilfelle
 import no.nav.syfo.util.convert
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -18,14 +19,14 @@ import javax.inject.Inject
 class OppfolgingstilfelleDAO @Inject constructor(
         private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 ) {
-    fun get(aktorId: String, virksomhetsnummer: String): List<PPersonOppfolgingstilfelle> {
+    fun get(fnr: Fodselsnummer, virksomhetsnummer: String): List<PPersonOppfolgingstilfelle> {
         val query = """
             SELECT *
             FROM oppfolgingstilfelle
-            WHERE aktoer_id = :aktorid AND virksomhetsnummer = :virksomhetsnummer
+            WHERE fnr = :fnr AND virksomhetsnummer = :virksomhetsnummer
             """.trimIndent()
         val mapSql = MapSqlParameterSource()
-                .addValue("aktorid", aktorId)
+                .addValue("fnr", fnr.value)
                 .addValue("virksomhetsnummer", virksomhetsnummer)
         return namedParameterJdbcTemplate.query(
                 query,
@@ -34,14 +35,14 @@ class OppfolgingstilfelleDAO @Inject constructor(
         )
     }
 
-    fun get(aktorId: String): List<PPersonOppfolgingstilfelle> {
+    fun get(fnr: Fodselsnummer): List<PPersonOppfolgingstilfelle> {
         val query = """
             SELECT *
             FROM oppfolgingstilfelle
-            WHERE aktoer_id = :aktorid
+            WHERE fnr = :fnr
             """.trimIndent()
         val mapSql = MapSqlParameterSource()
-                .addValue("aktorid", aktorId)
+                .addValue("fnr", fnr.value)
         return namedParameterJdbcTemplate.query(
                 query,
                 mapSql,
@@ -49,41 +50,41 @@ class OppfolgingstilfelleDAO @Inject constructor(
         )
     }
 
-    fun update(oppfolgingstilfelle: KOppfolgingstilfelle) {
+    fun update(oversikthendelsetilfelle: KOversikthendelsetilfelle) {
         val query = """
             UPDATE oppfolgingstilfelle
             SET sist_endret = :sistEndret, fom = :fom, tom = :tom
-            WHERE aktoer_id = :aktorId AND virksomhetsnummer = :virksomhetsnummer
+            WHERE fnr = :fnr AND virksomhetsnummer = :virksomhetsnummer
             """.trimIndent()
         val mapSaveSql = MapSqlParameterSource()
                 .addValue("sistEndret", convert(LocalDateTime.now()))
-                .addValue("fom", convert(oppfolgingstilfelle.tidslinje.first().dag))
-                .addValue("tom", convert(oppfolgingstilfelle.tidslinje.last().dag))
-                .addValue("aktorId", oppfolgingstilfelle.aktorId)
-                .addValue("virksomhetsnummer", oppfolgingstilfelle.orgnummer)
+                .addValue("fom", convert(oversikthendelsetilfelle.fom))
+                .addValue("tom", convert(oversikthendelsetilfelle.tom))
+                .addValue("fnr", oversikthendelsetilfelle.fnr)
+                .addValue("virksomhetsnummer", oversikthendelsetilfelle.virksomhetsnummer)
         namedParameterJdbcTemplate.update(query, mapSaveSql)
     }
 
-    fun create(oppfolgingstilfelle: KOppfolgingstilfelle): UUID {
+    fun create(oversikthendelsetilfelle: KOversikthendelsetilfelle): UUID {
         val uuid = UUID.randomUUID()
         val query = """
-            INSERT INTO oppfolgingstilfelle (oppfolgingstilfelle_uuid, opprettet, sist_endret, aktoer_id, virksomhetsnummer, fom, tom)
-            VALUES (:oppfolgingstilfelleUuid, :opprettet, :sistEndret, :aktorId, :virksomhetsnummer, :fom, :tom)
+            INSERT INTO oppfolgingstilfelle (oppfolgingstilfelle_uuid, opprettet, sist_endret, fnr, virksomhetsnummer, fom, tom)
+            VALUES (:oppfolgingstilfelleUuid, :opprettet, :sistEndret, :fnr, :virksomhetsnummer, :fom, :tom)
             """.trimIndent()
         val mapSaveSql = MapSqlParameterSource()
                 .addValue("oppfolgingstilfelleUuid", uuid.toString())
                 .addValue("opprettet", convert(LocalDateTime.now()))
                 .addValue("sistEndret", convert(LocalDateTime.now()))
-                .addValue("aktorId", oppfolgingstilfelle.aktorId)
-                .addValue("virksomhetsnummer", oppfolgingstilfelle.orgnummer)
-                .addValue("fom", convert(oppfolgingstilfelle.tidslinje.first().dag))
-                .addValue("tom", convert(oppfolgingstilfelle.tidslinje.last().dag))
+                .addValue("fnr", oversikthendelsetilfelle.fnr)
+                .addValue("virksomhetsnummer", oversikthendelsetilfelle.virksomhetsnummer)
+                .addValue("fom", convert(oversikthendelsetilfelle.fom))
+                .addValue("tom", convert(oversikthendelsetilfelle.tom))
         namedParameterJdbcTemplate.update(query, mapSaveSql)
         return uuid
     }
 
-    fun nullstillOppfolgingstilfeller(aktorId: String): Int {
-        val oppfolgingstilfeller = get(aktorId)
+    fun nullstillOppfolgingstilfeller(fnr: Fodselsnummer): Int {
+        val oppfolgingstilfeller = get(fnr)
         return if (oppfolgingstilfeller.isNotEmpty()) {
             val oppfolgingstilfelleIder: List<UUID> = oppfolgingstilfeller.map {
                 it.uuid
@@ -102,7 +103,7 @@ class OppfolgingstilfelleDAO @Inject constructor(
                 uuid = UUID.fromString(resultSet.getString("oppfolgingstilfelle_uuid")),
                 opprettet = resultSet.getTimestamp("opprettet").toLocalDateTime(),
                 sistEndret = resultSet.getTimestamp("sist_endret").toLocalDateTime(),
-                aktorId = resultSet.getString("aktoer_id"),
+                fnr = resultSet.getString("fnr"),
                 virksomhetsnummer = resultSet.getString("virksomhetsnummer"),
                 fom = convert(resultSet.getTimestamp("fom")),
                 tom = convert(resultSet.getTimestamp("tom"))

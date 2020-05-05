@@ -26,14 +26,14 @@ class OppfolgingstilfelleListener(
         private val oppfolgingstilfelleService: OppfolgingstilfelleService
 ) {
 
-    @KafkaListener(topics = [OPPFOLGINGSTILFELLE_TOPIC])
+    @KafkaListener(topics = [OVERSIKTHENDELSE_OPPFOLGINGSTILFELLE_TOPIC])
     fun oppfolgingstilfellePekerListener(
             consumerRecord: ConsumerRecord<String, String>,
             acknowledgment: Acknowledgment
     ) {
         try {
-            val kOppfolgingstilfellePeker: KOppfolgingstilfellePeker = map(consumerRecord.value())
-            oppfolgingstilfelleService.receiveKOppfolgingstilfellePeker(kOppfolgingstilfellePeker)
+            val kOversikthendelsetilfelle: KOversikthendelsetilfelle = map(consumerRecord.value())
+            oppfolgingstilfelleService.receiveKOversikthendelsetilfelle(kOversikthendelsetilfelle)
             acknowledgment.acknowledge()
         } catch (e: JsonProcessingException) {
             LOG.error("Kunne ikke deserialisere KOppfolgingstilfellePeker", e)
@@ -45,13 +45,13 @@ class OppfolgingstilfelleListener(
     }
 
     @Throws(IOException::class)
-    private fun map(string: String): KOppfolgingstilfellePeker {
-        return objectMapper.readValue(string, KOppfolgingstilfellePeker::class.java)
+    private fun map(string: String): KOversikthendelsetilfelle {
+        return objectMapper.readValue(string, KOversikthendelsetilfelle::class.java)
     }
 
     companion object {
         private val LOG = LoggerFactory.getLogger(OppfolgingstilfelleListener::class.java)
 
-        private const val OPPFOLGINGSTILFELLE_TOPIC = "aapen-syfo-oppfolgingstilfelle-v1"
+        private const val OVERSIKTHENDELSE_OPPFOLGINGSTILFELLE_TOPIC = "aapen-syfo-oversikthendelse-tilfelle-v1"
     }
 }

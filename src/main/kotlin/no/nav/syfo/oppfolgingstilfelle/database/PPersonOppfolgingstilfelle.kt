@@ -8,7 +8,7 @@ data class PPersonOppfolgingstilfelle(
         val uuid: UUID,
         val opprettet: LocalDateTime,
         val sistEndret: LocalDateTime,
-        val aktorId: String,
+        val fnr: String,
         val virksomhetsnummer: String,
         val fom: LocalDate,
         val tom: LocalDate
