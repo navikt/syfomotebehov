@@ -17,12 +17,6 @@ class OppfolgingstilfelleService @Inject constructor(
     fun receiveKOversikthendelsetilfelle(
             oversikthendelsetilfelle: KOversikthendelsetilfelle
     ) {
-        createOrUpdateOppfolgingstilfelle(oversikthendelsetilfelle)
-    }
-
-    fun createOrUpdateOppfolgingstilfelle(
-            oversikthendelsetilfelle: KOversikthendelsetilfelle
-    ) {
         val createNew = oppfolgingstilfelleDAO.get(Fodselsnummer(oversikthendelsetilfelle.fnr), oversikthendelsetilfelle.virksomhetsnummer).isEmpty();
         if (createNew) {
             oppfolgingstilfelleDAO.create(oversikthendelsetilfelle)
