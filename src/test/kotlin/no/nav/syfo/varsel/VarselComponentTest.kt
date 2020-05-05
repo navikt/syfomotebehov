@@ -4,9 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import no.nav.syfo.LocalApplication
+import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
+import no.nav.syfo.consumer.aktorregister.domain.AktorId
+import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.mote.MoteConsumer
 import no.nav.syfo.consumer.sts.StsConsumer
-import no.nav.syfo.testhelper.UserConstants
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
+import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
+import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
+import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
+import no.nav.syfo.testhelper.generator.generateMotebehovStatus
 import no.nav.syfo.testhelper.mockAndExpectSTSService
 import no.nav.syfo.varsel.api.VarselController
 import org.junit.After
@@ -17,6 +24,7 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
+import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -49,6 +57,12 @@ class VarselComponentTest {
     @Value("\${srv.password}")
     private lateinit var srvPassword: String
 
+    @MockBean
+    private lateinit var aktorregisterConsumer: AktorregisterConsumer
+
+    @MockBean
+    private lateinit var motebehovStatusService: MotebehovStatusService
+
     @Inject
     private lateinit var stsConsumer: StsConsumer
 
@@ -76,14 +90,18 @@ class VarselComponentTest {
             .registerModule(JavaTimeModule())
             .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
     private val motebehovsvarVarselInfo = MotebehovsvarVarselInfo(
-            sykmeldtAktorId = UserConstants.ARBEIDSTAKER_AKTORID,
-            orgnummer = UserConstants.VIRKSOMHETSNUMMER
+            sykmeldtAktorId = ARBEIDSTAKER_AKTORID,
+            orgnummer = VIRKSOMHETSNUMMER
     )
     private val argumentCaptor = ArgumentCaptor.forClass(KTredjepartsvarsel::class.java)
 
     @Before
     fun setUp() {
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
+        `when`(aktorregisterConsumer.getFnrForAktorId(AktorId(ARBEIDSTAKER_AKTORID)))
+                .thenReturn(ARBEIDSTAKER_FNR)
+        `when`(motebehovStatusService.motebehovStatusForArbeidsgiver(Fodselsnummer(ARBEIDSTAKER_FNR), VIRKSOMHETSNUMMER))
+                .thenReturn(generateMotebehovStatus)
     }
 
     @After
@@ -125,7 +143,7 @@ class VarselComponentTest {
     private fun mockSvarFraSyfomoteadmin(harAktivtMote: Boolean) {
         val svarFraSyfomoteadminJson = objectMapper.writeValueAsString(harAktivtMote)
         val url = UriComponentsBuilder.fromHttpUrl(MoteConsumer.SYFOMOTEADMIN_BASEURL)
-                .pathSegment("system", UserConstants.ARBEIDSTAKER_AKTORID, "harAktivtMote")
+                .pathSegment("system", ARBEIDSTAKER_AKTORID, "harAktivtMote")
                 .toUriString()
         mockRestServiceServer.expect(ExpectedCount.once(), MockRestRequestMatchers.requestTo(url))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
@@ -135,8 +153,8 @@ class VarselComponentTest {
     private fun verifySendtKtredjepartsvarsel(kTredjepartsvarsel: KTredjepartsvarsel) {
         Assert.assertEquals(kTredjepartsvarsel.type, VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name)
         Assert.assertNotNull(kTredjepartsvarsel.ressursId)
-        Assert.assertEquals(kTredjepartsvarsel.aktorId, UserConstants.ARBEIDSTAKER_AKTORID)
-        Assert.assertEquals(kTredjepartsvarsel.orgnummer, UserConstants.VIRKSOMHETSNUMMER)
+        Assert.assertEquals(kTredjepartsvarsel.aktorId, ARBEIDSTAKER_AKTORID)
+        Assert.assertEquals(kTredjepartsvarsel.orgnummer, VIRKSOMHETSNUMMER)
         Assert.assertNotNull(kTredjepartsvarsel.utsendelsestidspunkt)
     }
 }
