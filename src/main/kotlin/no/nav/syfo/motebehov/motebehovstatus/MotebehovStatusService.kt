@@ -1,7 +1,6 @@
 package no.nav.syfo.motebehov.motebehovstatus
 
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
-import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.mote.MoteConsumer
 import no.nav.syfo.motebehov.Motebehov
@@ -27,8 +26,7 @@ class MotebehovStatusService @Inject constructor(
     fun motebehovStatusForArbeidstaker(
             arbeidstakerFnr: Fodselsnummer
     ): MotebehovStatus {
-        val arbeidstakerAktorId = AktorId(aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr))
-        val oppfolgingstilfeller: List<PersonOppfolgingstilfelle> = oppfolgingstilfelleService.getOppfolgingstilfeller(arbeidstakerAktorId)
+        val oppfolgingstilfeller: List<PersonOppfolgingstilfelle> = oppfolgingstilfelleService.getOppfolgingstilfeller(arbeidstakerFnr)
         val motebehovList: List<Motebehov> = motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr)
 
         return motebehovStatus(oppfolgingstilfeller, motebehovList)
@@ -38,9 +36,8 @@ class MotebehovStatusService @Inject constructor(
             arbeidstakerFnr: Fodselsnummer,
             virksomhetsnummer: String
     ): MotebehovStatus {
-        val arbeidstakerAktorId = AktorId(aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr))
         val oppfolgingstilfeller = oppfolgingstilfelleService.getOppfolgingstilfeller(
-                arbeidstakerAktorId,
+                arbeidstakerFnr,
                 virksomhetsnummer
         )
         val motebehovList = motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr, virksomhetsnummer)
@@ -73,7 +70,8 @@ class MotebehovStatusService @Inject constructor(
         } else if (hasMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList)) {
             true
         } else {
-            !moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(oppfolgingstilfelle.aktorId, oppfolgingstilfelle.fom.atStartOfDay())
+            val arbeidstakerAktorId = aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(oppfolgingstilfelle.fnr))
+            !moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(arbeidstakerAktorId, oppfolgingstilfelle.fom.atStartOfDay())
         }
     }
 
