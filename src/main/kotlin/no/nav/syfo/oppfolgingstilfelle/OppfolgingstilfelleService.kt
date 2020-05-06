@@ -2,6 +2,7 @@ package no.nav.syfo.oppfolgingstilfelle
 
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.metric.Metric
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.oppfolgingstilfelle.database.PPersonOppfolgingstilfelle
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle

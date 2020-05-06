@@ -3,6 +3,7 @@ package no.nav.syfo.testhelper.generator
 import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.motebehov.MotebehovSvar
 import no.nav.syfo.motebehov.NyttMotebehov
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiver
 import no.nav.syfo.motebehov.database.PMotebehov
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
@@ -38,6 +39,13 @@ class MotebehovGenerator {
             tildeltEnhet = NAV_ENHET
     )
 
+    private val nyttMotebehovArbeidsgiver = NyttMotebehovArbeidsgiver(
+            arbeidstakerFnr = ARBEIDSTAKER_FNR,
+            virksomhetsnummer = VIRKSOMHETSNUMMER,
+            motebehovSvar = motebehovSvar,
+            tildeltEnhet = NAV_ENHET
+    )
+
     fun lagMotebehovSvar(harBehov: Boolean): MotebehovSvar {
         return motebehovSvar.copy(
                 harMotebehov = harBehov
@@ -46,6 +54,10 @@ class MotebehovGenerator {
 
     fun lagNyttMotebehovFraAT(): NyttMotebehov {
         return nyttMotebehovArbeidstaker.copy()
+    }
+
+    fun lagNyttMotebehovArbeidsgiver(): NyttMotebehovArbeidsgiver {
+        return nyttMotebehovArbeidsgiver.copy()
     }
 
     private val nyttPMotebehovArbeidstaker = PMotebehov(

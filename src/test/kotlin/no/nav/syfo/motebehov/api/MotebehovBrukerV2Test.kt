@@ -11,6 +11,7 @@ import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_DIALOGMOTE2
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_DIALOGMOTE2
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.oversikthendelse.OversikthendelseProducer
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker
@@ -20,7 +21,6 @@ import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
-import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER_2
 import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import no.nav.syfo.testhelper.generator.generateOversikthendelsetilfelle
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
@@ -127,7 +127,7 @@ class MotebehovBrukerV2Test {
 
     @Test
     fun getMotebehovStatusWithNoOppfolgingstilfelle() {
-        val motebehovStatus = motebehovController.motebehovStatus(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        val motebehovStatus = motebehovController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
         Assert.assertFalse(motebehovStatus.visMotebehov)
         Assert.assertNull(motebehovStatus.skjemaType)
         Assert.assertNull(motebehovStatus.motebehov)
@@ -139,7 +139,7 @@ class MotebehovBrukerV2Test {
                 fom = LocalDate.now().minusDays(10),
                 tom = LocalDate.now().minusDays(1)
         ))
-        val motebehovStatus = motebehovController.motebehovStatus(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        val motebehovStatus = motebehovController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
         Assert.assertFalse(motebehovStatus.visMotebehov)
         Assert.assertNull(motebehovStatus.skjemaType)
         Assert.assertNull(motebehovStatus.motebehov)
@@ -154,7 +154,7 @@ class MotebehovBrukerV2Test {
                 fom = LocalDate.now().minusDays(10),
                 tom = LocalDate.now().minusDays(1)
         ))
-        val motebehovStatus = motebehovController.motebehovStatus(null, "")
+        val motebehovStatus = motebehovController.motebehovStatusArbeidstaker()
         Assert.assertFalse(motebehovStatus.visMotebehov)
         Assert.assertNull(motebehovStatus.skjemaType)
         Assert.assertNull(motebehovStatus.motebehov)
@@ -166,7 +166,7 @@ class MotebehovBrukerV2Test {
                 fom = LocalDate.now().minusDays(DAYS_START_DIALOGMOTE2).plusDays(1),
                 tom = LocalDate.now().plusDays(1)
         ))
-        val motebehovStatus = motebehovController.motebehovStatus(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        val motebehovStatus = motebehovController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
         Assert.assertFalse(motebehovStatus.visMotebehov)
         Assert.assertNull(motebehovStatus.skjemaType)
         Assert.assertNull(motebehovStatus.motebehov)
@@ -178,7 +178,7 @@ class MotebehovBrukerV2Test {
                 fom = LocalDate.now().minusDays(DAYS_END_DIALOGMOTE2),
                 tom = LocalDate.now().plusDays(1)
         ))
-        val motebehovStatus = motebehovController.motebehovStatus(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        val motebehovStatus = motebehovController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
         Assert.assertFalse(motebehovStatus.visMotebehov)
         Assert.assertNull(motebehovStatus.skjemaType)
         Assert.assertNull(motebehovStatus.motebehov)
@@ -197,7 +197,7 @@ class MotebehovBrukerV2Test {
 
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
-        val motebehovStatus = motebehovController.motebehovStatus(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        val motebehovStatus = motebehovController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
         Assert.assertTrue(motebehovStatus.visMotebehov)
         Assert.assertEquals(MotebehovSkjemaType.SVAR_BEHOV, motebehovStatus.skjemaType)
         Assert.assertNull(motebehovStatus.motebehov)
@@ -216,7 +216,7 @@ class MotebehovBrukerV2Test {
 
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
-        val motebehovStatus = motebehovController.motebehovStatus(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        val motebehovStatus = motebehovController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
         Assert.assertTrue(motebehovStatus.visMotebehov)
         Assert.assertEquals(MotebehovSkjemaType.SVAR_BEHOV, motebehovStatus.skjemaType)
         Assert.assertNull(motebehovStatus.motebehov)
@@ -232,7 +232,7 @@ class MotebehovBrukerV2Test {
 
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
-        val motebehovStatus = motebehovController.motebehovStatus(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        val motebehovStatus = motebehovController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
         Assert.assertTrue(motebehovStatus.visMotebehov)
         Assert.assertEquals(MotebehovSkjemaType.SVAR_BEHOV, motebehovStatus.skjemaType)
         Assert.assertNull(motebehovStatus.motebehov)
@@ -248,7 +248,7 @@ class MotebehovBrukerV2Test {
 
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
-        val motebehovStatus = motebehovController.motebehovStatus(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        val motebehovStatus = motebehovController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
         Assert.assertFalse(motebehovStatus.visMotebehov)
         Assert.assertNull(motebehovStatus.skjemaType)
         Assert.assertNull(motebehovStatus.motebehov)
@@ -268,7 +268,7 @@ class MotebehovBrukerV2Test {
     fun getAsArbeidstakerbehovStatusAndSendOversikthendelseWithMotebehovHarBehovFalse() {
         oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
                 fnr = ARBEIDSTAKER_FNR,
-                virksomhetsnummer = VIRKSOMHETSNUMMER_2
+                virksomhetsnummer = VIRKSOMHETSNUMMER
         ))
         lagreOgHentMotebehovOgSendOversikthendelse(harBehov = false, getAsArbeidsgiver = false)
     }
@@ -303,14 +303,20 @@ class MotebehovBrukerV2Test {
 
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(harBehov)
 
-        motebehovController.lagreMotebehov(motebehovGenerator.lagNyttMotebehovFraAT().copy(
-                motebehovSvar = motebehovSvar
-        ))
+        val motebehovStatus: MotebehovStatus
+        if (!getAsArbeidsgiver) {
+            motebehovController.submitMotebehovArbeidstaker(motebehovSvar)
+            motebehovStatus = motebehovController.motebehovStatusArbeidstaker()
+        } else {
+            motebehovController.lagreMotebehovArbeidsgiver(motebehovGenerator.lagNyttMotebehovArbeidsgiver().copy(
+                    motebehovSvar = motebehovSvar
+            ))
+            motebehovStatus = motebehovController.motebehovStatusArbeidsgiver(
+                    ARBEIDSTAKER_FNR,
+                    VIRKSOMHETSNUMMER
+            )
+        }
 
-        val motebehovStatus = motebehovController.motebehovStatus(
-                if (getAsArbeidsgiver) ARBEIDSTAKER_FNR else null,
-                if (getAsArbeidsgiver) VIRKSOMHETSNUMMER else ""
-        )
         Assert.assertTrue(motebehovStatus.visMotebehov)
         Assert.assertEquals(MotebehovSkjemaType.SVAR_BEHOV, motebehovStatus.skjemaType)
         val motebehov = motebehovStatus.motebehov!!
