@@ -5,6 +5,7 @@ import no.nav.syfo.api.auth.OIDCIssuer.INTERN
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
 import no.nav.syfo.varsel.MotebehovsvarVarselInfo
 import no.nav.syfo.varsel.MotebehovsvarVarselInfoArbeidstaker
@@ -18,6 +19,7 @@ import javax.ws.rs.core.Response
 @RestController
 @RequestMapping(value = ["/api/varsel"])
 class VarselController @Inject constructor(
+        private val metric: Metric,
         private val aktorregisterConsumer: AktorregisterConsumer,
         private val motebehovStatusService: MotebehovStatusService,
         private val varselService: VarselService
@@ -42,8 +44,17 @@ class VarselController @Inject constructor(
     ): ResponseEntity<Boolean> {
         val arbeidstakerFnr = aktorregisterConsumer.getFnrForAktorId(AktorId(motebehovsvarVarselInfo.sykmeldtAktorId))
         val isVarselAvailableForMotebehov = motebehovStatusService.motebehovStatusForArbeidstaker(Fodselsnummer(arbeidstakerFnr)).visMotebehov
+        countMotebehovVarselAvailabilityArbeidstaker(isVarselAvailableForMotebehov)
         return ResponseEntity
                 .ok()
                 .body(isVarselAvailableForMotebehov)
+    }
+
+    private fun countMotebehovVarselAvailabilityArbeidstaker (countIsVarselAvailableForMotebehov: Boolean) {
+        if (countIsVarselAvailableForMotebehov) {
+            metric.tellHendelse("varsel_arbeidstaker_available_true")
+        } else {
+            metric.tellHendelse("varsel_arbeidstaker_available_false")
+        }
     }
 }
