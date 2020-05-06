@@ -32,7 +32,7 @@ class VarselService @Inject constructor(
         } else {
             val startDatoINyesteOppfolgingstilfelle = LocalDateTime.now().minusDays(MOTEBEHOV_VARSEL_DAGER.toLong())
             if (!moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(motebehovsvarVarselInfo.sykmeldtAktorId, startDatoINyesteOppfolgingstilfelle)) {
-                log.info("Sender varsel til naermeste leder")
+                metric.tellHendelse("varsel_leder_sent")
                 val kTredjepartsvarsel = mapTilKTredjepartsvarsel(motebehovsvarVarselInfo)
                 tredjepartsvarselProducer.sendTredjepartsvarselvarsel(kTredjepartsvarsel)
             } else {
