@@ -44,7 +44,7 @@ class MotebehovBrukerV2Controller @Inject constructor(
         return motebehovStatusService.motebehovStatusForArbeidsgiver(fnr, virksomhetsnummer)
     }
 
-    @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping(value = ["/motebehov"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun lagreMotebehovArbeidsgiver(
             @RequestBody nyttMotebehov: @Valid NyttMotebehovArbeidsgiver
     ) {
