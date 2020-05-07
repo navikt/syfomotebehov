@@ -7,6 +7,7 @@ import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
+import no.nav.syfo.motebehov.motebehovstatus.isSvarBehovVarselAvailable
 import no.nav.syfo.varsel.MotebehovsvarVarselInfo
 import no.nav.syfo.varsel.MotebehovsvarVarselInfoArbeidstaker
 import no.nav.syfo.varsel.VarselService
@@ -43,11 +44,11 @@ class VarselController @Inject constructor(
             @RequestBody motebehovsvarVarselInfo: MotebehovsvarVarselInfoArbeidstaker
     ): ResponseEntity<Boolean> {
         val arbeidstakerFnr = aktorregisterConsumer.getFnrForAktorId(AktorId(motebehovsvarVarselInfo.sykmeldtAktorId))
-        val isVarselAvailableForMotebehov = motebehovStatusService.motebehovStatusForArbeidstaker(Fodselsnummer(arbeidstakerFnr)).visMotebehov
-        countMotebehovVarselAvailabilityArbeidstaker(isVarselAvailableForMotebehov)
+        val isSvarBehovVarselAvailableForArbeidstaker = motebehovStatusService.motebehovStatusForArbeidstaker(Fodselsnummer(arbeidstakerFnr)).isSvarBehovVarselAvailable()
+        countMotebehovVarselAvailabilityArbeidstaker(isSvarBehovVarselAvailableForArbeidstaker)
         return ResponseEntity
                 .ok()
-                .body(isVarselAvailableForMotebehov)
+                .body(isSvarBehovVarselAvailableForArbeidstaker)
     }
 
     private fun countMotebehovVarselAvailabilityArbeidstaker (countIsVarselAvailableForMotebehov: Boolean) {

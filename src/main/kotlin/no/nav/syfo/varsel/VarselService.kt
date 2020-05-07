@@ -6,6 +6,7 @@ import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.mote.MoteConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
+import no.nav.syfo.motebehov.motebehovstatus.isSvarBehovVarselAvailable
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -22,11 +23,11 @@ class VarselService @Inject constructor(
 ) {
     fun sendVarselTilNaermesteLeder(motebehovsvarVarselInfo: MotebehovsvarVarselInfo) {
         val arbeidstakerFnr = aktorregisterConsumer.getFnrForAktorId(AktorId(motebehovsvarVarselInfo.sykmeldtAktorId))
-        val isVarselAvailableForMotebehov = motebehovStatusService.motebehovStatusForArbeidsgiver(
+        val isSvarBehovVarselAvailableForLeder = motebehovStatusService.motebehovStatusForArbeidsgiver(
                 Fodselsnummer(arbeidstakerFnr),
                 motebehovsvarVarselInfo.orgnummer
-        ).visMotebehov
-        if (!isVarselAvailableForMotebehov) {
+        ).isSvarBehovVarselAvailable()
+        if (!isSvarBehovVarselAvailableForLeder) {
             metric.tellHendelse("varsel_leder_not_sent_motebehov_not_available")
             log.info("Not sending Varsel to Narmeste Leder because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")
         } else {
