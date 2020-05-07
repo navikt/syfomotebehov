@@ -45,7 +45,7 @@ class MotebehovStatusService @Inject constructor(
         return motebehovStatus(oppfolgingstilfeller, motebehovList)
     }
 
-    public fun motebehovStatus(
+    fun motebehovStatus(
             oppfolgingstilfeller: List<PersonOppfolgingstilfelle>,
             motebehovList: List<Motebehov>
     ): MotebehovStatus {
