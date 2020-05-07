@@ -2,12 +2,10 @@ package no.nav.syfo.oppfolgingstilfelle
 
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
-import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
-import no.nav.syfo.oppfolgingstilfelle.database.PPersonOppfolgingstilfelle
-import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
+import no.nav.syfo.oppfolgingstilfelle.database.*
 import no.nav.syfo.oppfolgingstilfelle.kafka.KOversikthendelsetilfelle
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import javax.inject.Inject
 
 @Service
@@ -28,32 +26,39 @@ class OppfolgingstilfelleService @Inject constructor(
         }
     }
 
-    fun getOppfolgingstilfeller(
-            arbeidstakerFnr: Fodselsnummer,
-            orgnummer: String
-    ): List<PersonOppfolgingstilfelle> {
-        return oppfolgingstilfelleDAO.get(arbeidstakerFnr, orgnummer).map {
-            mapToPersonOppfolgingstilfelle(it)
-        }
-    }
-
-    fun getOppfolgingstilfeller(
+    fun getActiveOppfolgingstilfeller(
             arbeidstakerFnr: Fodselsnummer
-    ): List<PersonOppfolgingstilfelle> {
+    ): List<PersonVirksomhetOppfolgingstilfelle> {
         return oppfolgingstilfelleDAO.get(arbeidstakerFnr).map {
-            mapToPersonOppfolgingstilfelle(it)
+            it.mapToPersonVirksomhetOppfolgingstilfelle()
+        }.filter {
+            it.isDateInOppfolgingstilfelle(LocalDate.now())
         }
     }
 
-    private fun mapToPersonOppfolgingstilfelle(
-            pPersonOppfolgingstilfelle: PPersonOppfolgingstilfelle
-    ): PersonOppfolgingstilfelle {
-        return PersonOppfolgingstilfelle(
-                fnr = pPersonOppfolgingstilfelle.fnr,
-                virksomhetsnummer = pPersonOppfolgingstilfelle.virksomhetsnummer,
-                fom = pPersonOppfolgingstilfelle.fom,
-                tom = pPersonOppfolgingstilfelle.tom
-        )
+    fun getActiveOppfolgingstilfelle(
+            arbeidstakerFnr: Fodselsnummer
+    ): PersonOppfolgingstilfelle? {
+        val activeOppfolgingstilfeller = oppfolgingstilfelleDAO.get(arbeidstakerFnr).map {
+            it.mapToPersonOppfolgingstilfelle()
+        }.filter {
+            it.isDateInOppfolgingstilfelle(LocalDate.now())
+        }
+        return if (activeOppfolgingstilfeller.isNotEmpty()) {
+            if (activeOppfolgingstilfeller.size > 1) {
+                val minFom = activeOppfolgingstilfeller.minBy { it.fom }!!.fom
+                val maxTom = activeOppfolgingstilfeller.maxBy { it.tom }!!.tom
+                PersonOppfolgingstilfelle(
+                        fnr = arbeidstakerFnr,
+                        fom = minFom,
+                        tom = maxTom
+                )
+            } else {
+                activeOppfolgingstilfeller[0]
+            }
+        } else {
+            null
+        }
     }
 
     companion object {
