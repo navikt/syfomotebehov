@@ -8,3 +8,7 @@ data class MotebehovStatus(
         val skjemaType: MotebehovSkjemaType? = null,
         val motebehov: Motebehov? = null
 ) : Serializable
+
+fun MotebehovStatus.isSvarBehovVarselAvailable(): Boolean {
+    return this.visMotebehov && this.skjemaType == MotebehovSkjemaType.SVAR_BEHOV
+}
