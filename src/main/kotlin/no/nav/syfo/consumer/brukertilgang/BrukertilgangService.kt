@@ -1,5 +1,7 @@
 package no.nav.syfo.consumer.brukertilgang
 
+import no.nav.security.oidc.context.OIDCRequestContextHolder
+import no.nav.syfo.api.auth.OIDCUtil
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.cache.CacheConfig
 import no.nav.syfo.consumer.pdl.PdlConsumer
@@ -10,9 +12,18 @@ import javax.ws.rs.ForbiddenException
 
 @Service
 class BrukertilgangService @Inject constructor(
+        private val contextHolder: OIDCRequestContextHolder,
         private val brukertilgangConsumer: BrukertilgangConsumer,
         private val pdlConsumer: PdlConsumer
 ) {
+    fun kastExceptionHvisIkkeTilgang(fnr: String) {
+        val innloggetIdent = OIDCUtil.fnrFraOIDCEkstern(contextHolder).value
+        val harTilgang = harTilgangTilOppslaattBruker(innloggetIdent, fnr)
+        if (!harTilgang) {
+            throw ForbiddenException("Ikke tilgang")
+        }
+    }
+
     fun harTilgangTilOppslaattBruker(innloggetIdent: String, fnr: String): Boolean {
         return try {
             !(sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetIdent, fnr)

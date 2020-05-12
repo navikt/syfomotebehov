@@ -18,14 +18,11 @@ import no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker
 import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
-import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
-import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import no.nav.syfo.testhelper.generator.generateOversikthendelsetilfelle
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
-import no.nav.syfo.testhelper.mockAndExpectBrukertilgangRequest
 import no.nav.syfo.testhelper.mockAndExpectSTSService
 import org.assertj.core.api.Assertions
 import org.junit.After
@@ -34,6 +31,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
+import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -49,7 +47,7 @@ import javax.inject.Inject
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
-class MotebehovBrukerV2Test {
+class MotebehovArbeidstakerV2Test {
     @Value("\${syfobehandlendeenhet.url}")
     private lateinit var behandlendeenhetUrl: String
 
@@ -66,7 +64,7 @@ class MotebehovBrukerV2Test {
     private lateinit var srvPassword: String
 
     @Inject
-    private lateinit var motebehovController: MotebehovBrukerV2Controller
+    private lateinit var motebehovArbeidstakerController: MotebehovArbeidstakerV2Controller
 
     @Inject
     private lateinit var oidcRequestContextHolder: OIDCRequestContextHolder
@@ -104,13 +102,11 @@ class MotebehovBrukerV2Test {
 
     @Before
     fun setUp() {
-        Mockito.`when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(ARBEIDSTAKER_AKTORID)
-        Mockito.`when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(LEDER_FNR))).thenReturn(LEDER_AKTORID)
-        Mockito.`when`(pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(generatePdlHentPerson(null, null))
+        `when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(ARBEIDSTAKER_AKTORID)
+        `when`(pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(generatePdlHentPerson(null, null))
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
-        loggInnBruker(oidcRequestContextHolder, LEDER_FNR)
+        loggInnBruker(oidcRequestContextHolder, ARBEIDSTAKER_FNR)
         cleanDB()
-        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR)
     }
 
     @After
@@ -127,19 +123,7 @@ class MotebehovBrukerV2Test {
 
     @Test
     fun getMotebehovStatusWithNoOppfolgingstilfelle() {
-        val motebehovStatus = motebehovController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-        Assert.assertFalse(motebehovStatus.visMotebehov)
-        Assert.assertNull(motebehovStatus.skjemaType)
-        Assert.assertNull(motebehovStatus.motebehov)
-    }
-
-    @Test
-    fun getMotebehovStatusWithTodayOutsideOppfolgingstilfelle() {
-        oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
-                fom = LocalDate.now().minusDays(10),
-                tom = LocalDate.now().minusDays(1)
-        ))
-        val motebehovStatus = motebehovController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        val motebehovStatus = motebehovArbeidstakerController.motebehovStatusArbeidstaker()
         Assert.assertFalse(motebehovStatus.visMotebehov)
         Assert.assertNull(motebehovStatus.skjemaType)
         Assert.assertNull(motebehovStatus.motebehov)
@@ -154,7 +138,7 @@ class MotebehovBrukerV2Test {
                 fom = LocalDate.now().minusDays(10),
                 tom = LocalDate.now().minusDays(1)
         ))
-        val motebehovStatus = motebehovController.motebehovStatusArbeidstaker()
+        val motebehovStatus = motebehovArbeidstakerController.motebehovStatusArbeidstaker()
         Assert.assertFalse(motebehovStatus.visMotebehov)
         Assert.assertNull(motebehovStatus.skjemaType)
         Assert.assertNull(motebehovStatus.motebehov)
@@ -166,7 +150,7 @@ class MotebehovBrukerV2Test {
                 fom = LocalDate.now().minusDays(DAYS_START_DIALOGMOTE2).plusDays(1),
                 tom = LocalDate.now().plusDays(1)
         ))
-        val motebehovStatus = motebehovController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        val motebehovStatus = motebehovArbeidstakerController.motebehovStatusArbeidstaker()
         Assert.assertFalse(motebehovStatus.visMotebehov)
         Assert.assertNull(motebehovStatus.skjemaType)
         Assert.assertNull(motebehovStatus.motebehov)
@@ -178,7 +162,7 @@ class MotebehovBrukerV2Test {
                 fom = LocalDate.now().minusDays(DAYS_END_DIALOGMOTE2),
                 tom = LocalDate.now().plusDays(1)
         ))
-        val motebehovStatus = motebehovController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        val motebehovStatus = motebehovArbeidstakerController.motebehovStatusArbeidstaker()
         Assert.assertFalse(motebehovStatus.visMotebehov)
         Assert.assertNull(motebehovStatus.skjemaType)
         Assert.assertNull(motebehovStatus.motebehov)
@@ -190,14 +174,14 @@ class MotebehovBrukerV2Test {
                 fom = LocalDate.now().minusDays(DAYS_END_DIALOGMOTE2).plusDays(1),
                 tom = LocalDate.now().plusDays(1)
         )
-        Mockito.`when`(moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(
+        `when`(moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(
                 ARBEIDSTAKER_AKTORID,
                 kOppfolgingstilfelle.fom.atStartOfDay()
         )).thenReturn(false)
 
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
-        val motebehovStatus = motebehovController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        val motebehovStatus = motebehovArbeidstakerController.motebehovStatusArbeidstaker()
         Assert.assertTrue(motebehovStatus.visMotebehov)
         Assert.assertEquals(MotebehovSkjemaType.SVAR_BEHOV, motebehovStatus.skjemaType)
         Assert.assertNull(motebehovStatus.motebehov)
@@ -209,14 +193,14 @@ class MotebehovBrukerV2Test {
                 fom = LocalDate.now().minusDays(DAYS_START_DIALOGMOTE2),
                 tom = LocalDate.now().plusDays(1)
         )
-        Mockito.`when`(moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(
+        `when`(moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(
                 ARBEIDSTAKER_AKTORID,
                 kOppfolgingstilfelle.fom.atStartOfDay()
         )).thenReturn(false)
 
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
-        val motebehovStatus = motebehovController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        val motebehovStatus = motebehovArbeidstakerController.motebehovStatusArbeidstaker()
         Assert.assertTrue(motebehovStatus.visMotebehov)
         Assert.assertEquals(MotebehovSkjemaType.SVAR_BEHOV, motebehovStatus.skjemaType)
         Assert.assertNull(motebehovStatus.motebehov)
@@ -225,14 +209,14 @@ class MotebehovBrukerV2Test {
     @Test
     fun getMotebehovStatusWithNoMotebehovAndNoMote() {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle
-        Mockito.`when`(moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(
+        `when`(moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(
                 ARBEIDSTAKER_AKTORID,
                 kOppfolgingstilfelle.fom.atStartOfDay()
         )).thenReturn(false)
 
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
-        val motebehovStatus = motebehovController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        val motebehovStatus = motebehovArbeidstakerController.motebehovStatusArbeidstaker()
         Assert.assertTrue(motebehovStatus.visMotebehov)
         Assert.assertEquals(MotebehovSkjemaType.SVAR_BEHOV, motebehovStatus.skjemaType)
         Assert.assertNull(motebehovStatus.motebehov)
@@ -241,14 +225,14 @@ class MotebehovBrukerV2Test {
     @Test
     fun getMotebehovStatusWithNoMotebehovAndMote() {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle
-        Mockito.`when`(moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(
+        `when`(moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(
                 ARBEIDSTAKER_AKTORID,
                 kOppfolgingstilfelle.fom.atStartOfDay()
         )).thenReturn(true)
 
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
-        val motebehovStatus = motebehovController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        val motebehovStatus = motebehovArbeidstakerController.motebehovStatusArbeidstaker()
         Assert.assertFalse(motebehovStatus.visMotebehov)
         Assert.assertNull(motebehovStatus.skjemaType)
         Assert.assertNull(motebehovStatus.motebehov)
@@ -261,7 +245,7 @@ class MotebehovBrukerV2Test {
                 fnr = ARBEIDSTAKER_FNR,
                 virksomhetsnummer = VIRKSOMHETSNUMMER
         ))
-        lagreOgHentMotebehovOgSendOversikthendelse(harBehov = true, getAsArbeidsgiver = false)
+        lagreOgHentMotebehovOgSendOversikthendelse(harBehov = true)
     }
 
     @Test
@@ -270,20 +254,7 @@ class MotebehovBrukerV2Test {
                 fnr = ARBEIDSTAKER_FNR,
                 virksomhetsnummer = VIRKSOMHETSNUMMER
         ))
-        lagreOgHentMotebehovOgSendOversikthendelse(harBehov = false, getAsArbeidsgiver = false)
-    }
-
-
-    @Test
-    fun getMotebehovStatusAndSendOversikthendelseWithMotebehovHarBehovTrue() {
-        oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle)
-        lagreOgHentMotebehovOgSendOversikthendelse(harBehov = true, getAsArbeidsgiver = true)
-    }
-
-    @Test
-    fun getMotebehovStatusAndSendOversikthendelseWithMotebehovHarBehovFalse() {
-        oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle)
-        lagreOgHentMotebehovOgSendOversikthendelse(harBehov = false, getAsArbeidsgiver = true)
+        lagreOgHentMotebehovOgSendOversikthendelse(harBehov = false)
     }
 
     private fun mockSTS() {
@@ -292,40 +263,20 @@ class MotebehovBrukerV2Test {
         }
     }
 
-    private fun lagreOgHentMotebehovOgSendOversikthendelse(harBehov: Boolean, getAsArbeidsgiver: Boolean) {
-        if (!getAsArbeidsgiver) {
-            mockRestServiceServer.reset()
-            loggUtAlle(oidcRequestContextHolder)
-            loggInnBruker(oidcRequestContextHolder, ARBEIDSTAKER_FNR)
-        }
+    private fun lagreOgHentMotebehovOgSendOversikthendelse(harBehov: Boolean) {
         mockSTS()
         mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, ARBEIDSTAKER_FNR)
 
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(harBehov)
 
-        val motebehovStatus: MotebehovStatus
-        if (!getAsArbeidsgiver) {
-            motebehovController.submitMotebehovArbeidstaker(motebehovSvar)
-            motebehovStatus = motebehovController.motebehovStatusArbeidstaker()
-        } else {
-            motebehovController.lagreMotebehovArbeidsgiver(motebehovGenerator.lagNyttMotebehovArbeidsgiver().copy(
-                    motebehovSvar = motebehovSvar
-            ))
-            motebehovStatus = motebehovController.motebehovStatusArbeidsgiver(
-                    ARBEIDSTAKER_FNR,
-                    VIRKSOMHETSNUMMER
-            )
-        }
+        motebehovArbeidstakerController.submitMotebehovArbeidstaker(motebehovSvar)
+        val motebehovStatus: MotebehovStatus = motebehovArbeidstakerController.motebehovStatusArbeidstaker()
 
         Assert.assertTrue(motebehovStatus.visMotebehov)
         Assert.assertEquals(MotebehovSkjemaType.SVAR_BEHOV, motebehovStatus.skjemaType)
         val motebehov = motebehovStatus.motebehov!!
         Assert.assertNotNull(motebehov)
-        if (getAsArbeidsgiver) {
-            Assertions.assertThat(motebehov.opprettetAv).isEqualTo(LEDER_AKTORID)
-        } else {
-            Assertions.assertThat(motebehov.opprettetAv).isEqualTo(ARBEIDSTAKER_AKTORID)
-        }
+        Assertions.assertThat(motebehov.opprettetAv).isEqualTo(ARBEIDSTAKER_AKTORID)
         Assertions.assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
         Assertions.assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
         Assertions.assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(motebehovSvar)
@@ -335,7 +286,6 @@ class MotebehovBrukerV2Test {
             Mockito.verify(oversikthendelseProducer, Mockito.never()).sendOversikthendelse(any())
         }
     }
-
 
     private fun cleanDB() {
         motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID)

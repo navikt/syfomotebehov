@@ -2,6 +2,8 @@ package no.nav.syfo.metric
 
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tags
+import no.nav.syfo.motebehov.MotebehovSvar
+import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Controller
 import javax.inject.Inject
 
@@ -75,6 +77,16 @@ class Metric @Inject constructor(
                         "type", "info",
                         "kode", kode.toString())
         ).increment()
+    }
+
+    fun tellBesvarMotebehov(motebehovSvar: MotebehovSvar, erInnloggetBrukerArbeidstaker: Boolean) {
+        tellMotebehovBesvart(motebehovSvar.harMotebehov, erInnloggetBrukerArbeidstaker)
+        if (!motebehovSvar.harMotebehov) {
+            tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring!!.length, erInnloggetBrukerArbeidstaker)
+        } else if (!StringUtils.isEmpty(motebehovSvar.forklaring)) {
+            tellMotebehovBesvartJaMedForklaringTegn(motebehovSvar.forklaring!!.length, erInnloggetBrukerArbeidstaker)
+            tellMotebehovBesvartJaMedForklaringAntall(erInnloggetBrukerArbeidstaker)
+        }
     }
 
     private fun addPrefix(navn: String): String {
