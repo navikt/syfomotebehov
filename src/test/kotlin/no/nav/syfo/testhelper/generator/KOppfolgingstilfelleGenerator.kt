@@ -1,8 +1,8 @@
 package no.nav.syfo.testhelper.generator
 
 import no.nav.syfo.consumer.pdl.fullName
-import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
-import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_SVAR_BEHOV
+import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_DIALOGMOTE2
+import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_DIALOGMOTE2
 import no.nav.syfo.oppfolgingstilfelle.kafka.KOversikthendelsetilfelle
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.NAV_ENHET
@@ -18,8 +18,8 @@ val generateOversikthendelsetilfelle =
                 enhetId = NAV_ENHET,
                 virksomhetsnummer = VIRKSOMHETSNUMMER,
                 gradert = false,
-                fom = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV),
-                tom = LocalDate.now().plusDays(DAYS_END_SVAR_BEHOV),
+                fom = LocalDate.now().minusDays(DAYS_START_DIALOGMOTE2),
+                tom = LocalDate.now().plusDays(DAYS_END_DIALOGMOTE2),
                 tidspunkt = LocalDateTime.now(),
                 virksomhetsnavn = VIRKSOMHETSNAVN
         ).copy()

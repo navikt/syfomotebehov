@@ -54,5 +54,6 @@ class MotebehovArbeidstakerV2Controller @Inject constructor(
                 OIDCUtil.fnrFraOIDCEkstern(contextHolder),
                 nyttMotebehovSvar
         )
+        metric.tellBesvarMotebehov(nyttMotebehovSvar, true)
     }
 }

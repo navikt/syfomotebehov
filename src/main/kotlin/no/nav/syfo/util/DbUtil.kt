@@ -11,7 +11,7 @@ import java.util.*
 
 object DbUtil {
     private val LOG = LoggerFactory.getLogger(DbUtil::class.java)
-    const val MOTEBEHOVSVAR_GYLDIGHET_DAGER = 78 * 7
+    const val MOTEBEHOVSVAR_GYLDIGHET_DAGER = 10 * 7
 
     @JvmStatic
     fun convert(timestamp: Timestamp?): LocalDateTime? {

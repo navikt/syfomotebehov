@@ -2,12 +2,7 @@ package no.nav.syfo.testhelper
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.consumer.behandlendeenhet.BehandlendeEnhet
-import no.nav.syfo.consumer.mote.MoteConsumer
-import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
 import no.nav.syfo.testhelper.UserConstants.STS_TOKEN
 import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.util.basicCredentials
@@ -18,10 +13,6 @@ import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers
 import org.springframework.test.web.client.response.MockRestResponseCreators
 import org.springframework.web.util.UriComponentsBuilder
-
-private val objectMapper = ObjectMapper()
-        .registerModule(JavaTimeModule())
-        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
 
 fun mockAndExpectBrukertilgangRequest(mockRestServiceServer: MockRestServiceServer, brukertilgangUrl: String, ansattFnr: String) {
     val uriString = UriComponentsBuilder.fromHttpUrl(brukertilgangUrl)
@@ -61,32 +52,6 @@ fun mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer: MockRestServiceS
     }
 }
 
-fun mockAndExpectMoteadminHarAktivtMote(
-        mockRestServiceServer: MockRestServiceServer,
-        harAktivtMote: Boolean
-) {
-    val svarFraSyfomoteadminJson = objectMapper.writeValueAsString(harAktivtMote)
-    val url = UriComponentsBuilder.fromHttpUrl(MoteConsumer.SYFOMOTEADMIN_BASEURL)
-            .pathSegment("system", UserConstants.ARBEIDSTAKER_AKTORID, "harAktivtMote")
-            .toUriString()
-    mockRestServiceServer.expect(ExpectedCount.once(), MockRestRequestMatchers.requestTo(url))
-            .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
-            .andRespond(MockRestResponseCreators.withSuccess(svarFraSyfomoteadminJson, MediaType.APPLICATION_JSON))
-}
-
-fun mockAndExpectMoteadminIsMoteplanleggerActive(
-        mockRestServiceServer: MockRestServiceServer,
-        isMoteplanleggerActive: Boolean
-) {
-    val responseJson = objectMapper.writeValueAsString(isMoteplanleggerActive)
-    val url = UriComponentsBuilder.fromHttpUrl(MoteConsumer.SYFOMOTEADMIN_BASEURL)
-            .path("/system/moteplanlegger/aktiv")
-            .toUriString()
-    mockRestServiceServer.expect(ExpectedCount.once(), MockRestRequestMatchers.requestTo(url))
-            .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
-            .andRespond(MockRestResponseCreators.withSuccess(responseJson, MediaType.APPLICATION_JSON))
-}
-
 fun mockAndExpectSTSService(
         mockRestServiceServer: MockRestServiceServer,
         stsUrl: String,
@@ -106,21 +71,4 @@ fun mockAndExpectSTSService(
             .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
             .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, basicCredentials(username, password)))
             .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON))
-}
-
-fun mockAndExpectSyfoTilgangskontroll(
-        mockRestServiceServer: MockRestServiceServer,
-        tilgangskontrollUrl: String,
-        idToken: String,
-        fnr: String,
-        status: HttpStatus
-) {
-    val uriString = UriComponentsBuilder.fromHttpUrl(tilgangskontrollUrl)
-            .path(VeilederTilgangConsumer.TILGANG_TIL_BRUKER_VIA_AZURE_PATH)
-            .queryParam(VeilederTilgangConsumer.FNR, fnr)
-            .toUriString()
-    mockRestServiceServer.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(uriString))
-            .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-            .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer $idToken"))
-            .andRespond(MockRestResponseCreators.withStatus(status))
 }

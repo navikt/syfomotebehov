@@ -5,11 +5,8 @@ import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.mote.MoteConsumer
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.Motebehov
-import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
 import no.nav.syfo.motebehov.motebehovstatus.isSvarBehovVarselAvailable
-import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -20,18 +17,16 @@ import javax.inject.Inject
 class VarselService @Inject constructor(
         private val metric: Metric,
         private val aktorregisterConsumer: AktorregisterConsumer,
-        private val motebehovService: MotebehovService,
         private val motebehovStatusService: MotebehovStatusService,
         private val moteConsumer: MoteConsumer,
-        private val oppfolgingstilfelleService: OppfolgingstilfelleService,
         private val tredjepartsvarselProducer: TredjepartsvarselProducer
 ) {
     fun sendVarselTilNaermesteLeder(motebehovsvarVarselInfo: MotebehovsvarVarselInfo) {
         val arbeidstakerFnr = aktorregisterConsumer.getFnrForAktorId(AktorId(motebehovsvarVarselInfo.sykmeldtAktorId))
-        val isSvarBehovVarselAvailableForLeder = isSvarBehovVarselAvailableArbeidsgiver(
+        val isSvarBehovVarselAvailableForLeder = motebehovStatusService.motebehovStatusForArbeidsgiver(
                 Fodselsnummer(arbeidstakerFnr),
                 motebehovsvarVarselInfo.orgnummer
-        )
+        ).isSvarBehovVarselAvailable()
         if (!isSvarBehovVarselAvailableForLeder) {
             metric.tellHendelse("varsel_leder_not_sent_motebehov_not_available")
             log.info("Not sending Varsel to Narmeste Leder because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")
@@ -46,38 +41,6 @@ class VarselService @Inject constructor(
                 log.info("Sender ikke varsel til naermeste leder fordi moteplanleggeren er brukt i oppfolgingstilfellet")
             }
         }
-    }
-
-    fun isSvarBehovVarselAvailableArbeidstaker(arbeidstakerFnr: Fodselsnummer): Boolean {
-        return isSvarBehovVarselAvailable(
-                arbeidstakerFnr,
-                motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr)
-        )
-    }
-
-    fun isSvarBehovVarselAvailableArbeidsgiver(
-            arbeidstakerFnr: Fodselsnummer,
-            virksomhetsnummer: String
-    ): Boolean {
-        return isSvarBehovVarselAvailable(
-                arbeidstakerFnr,
-                motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr, virksomhetsnummer)
-        )
-    }
-
-    private fun isSvarBehovVarselAvailable(
-            arbeidstakerFnr: Fodselsnummer,
-            motebehovList: List<Motebehov>
-    ): Boolean {
-        val oppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelle(arbeidstakerFnr)
-        oppfolgingstilfelle?.let {
-            val motebehovStatus = motebehovStatusService.motebehovStatus(oppfolgingstilfelle, motebehovList)
-
-            return motebehovStatusService.getNewestMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList)?.let { newestMotebehov ->
-                return motebehovStatus.isSvarBehovVarselAvailable(newestMotebehov)
-            } ?: true
-        }
-        return false
     }
 
     private fun mapTilKTredjepartsvarsel(motebehovsvarVarselInfo: MotebehovsvarVarselInfo): KTredjepartsvarsel {

@@ -1,21 +1,16 @@
 package no.nav.syfo.consumer.mote
 
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
-import no.nav.syfo.util.*
+import no.nav.syfo.consumer.sts.StsConsumer
+import no.nav.syfo.util.bearerCredentials
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
-import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
-import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -49,49 +44,6 @@ class MoteConsumer @Inject constructor(
         }
     }
 
-    fun isMoteplanleggerActiveInOppfolgingstilfelle(oppfolgingstilfelle: PersonOppfolgingstilfelle): Boolean {
-        val stsToken = stsConsumer.token()
-        val httpEntity = entity(null, stsToken, oppfolgingstilfelle.fnr.value, oppfolgingstilfelle.fom.atStartOfDay())
-        try {
-            val response = template.exchange(
-                    getMoteadminUrl("/system/moteplanlegger/aktiv"),
-                    HttpMethod.POST,
-                    httpEntity,
-                    Boolean::class.java
-            )
-            val responseBody = response.body!!
-            metric.tellHendelse(METRIC_CALL_MOTEADMIN_MOTEPLANLEGGER_ACTIVE_SUCCESS)
-            return responseBody
-        } catch (e: RestClientResponseException) {
-            log.error("Request to get check if Moteplanlegger is active for Arbeidstaker failed with status: ${e.rawStatusCode} and message: ${e.responseBodyAsString}")
-            metric.tellHendelse(METRIC_CALL_MOTEADMIN_MOTEPLANLEGGER_ACTIVE_FAIL)
-            throw e
-        }
-    }
-
-    private fun getMoteadminUrl(subPath: String): String {
-        return "$SYFOMOTEADMIN_BASEURL$subPath"
-    }
-
-    private fun entity(
-            callId: String?,
-            token: String,
-            arbeidstakerIdent: String,
-            oppfolgingstilfelleStartDate: LocalDateTime
-    ): HttpEntity<LocalDateTime> {
-        val credentials = bearerCredentials(token)
-        val headers = HttpHeaders()
-        headers[HttpHeaders.AUTHORIZATION] = credentials
-        headers[NAV_CALL_ID_HEADER] = getOrCreateCallId(callId)
-        headers[NAV_CONSUMER_ID_HEADER] = APP_CONSUMER_ID
-        headers[NAV_PERSONIDENTER_HEADER] = arbeidstakerIdent
-
-        return HttpEntity(
-                oppfolgingstilfelleStartDate,
-                headers
-        )
-    }
-
     private fun authorizationHeader(token: String): HttpHeaders {
         val headers = HttpHeaders()
         headers.add(HttpHeaders.AUTHORIZATION, bearerCredentials(token))
@@ -101,11 +53,6 @@ class MoteConsumer @Inject constructor(
     companion object {
         private val log = LoggerFactory.getLogger(MoteConsumer::class.java)
         const val SYFOMOTEADMIN_BASEURL = "http://syfomoteadmin/syfomoteadmin/api"
-
-        private const val METRIC_CALL_MOTEADMIN_BASE = "call_behandlendeenhet"
-        private const val METRIC_CALL_MOTEADMIN_MOTEPLANLEGGER_ACTIVE_SUCCESS = "${METRIC_CALL_MOTEADMIN_BASE}_moteplanlegger_active_success"
-        private const val METRIC_CALL_MOTEADMIN_MOTEPLANLEGGER_ACTIVE_FAIL = "${METRIC_CALL_MOTEADMIN_BASE}_moteplanlegger_active_fail"
-
         private const val SYFOMOTEADMIN_FEILMELDING_GENERELL = "Klarte ikke hente om det er mote i oppfolgingstilfelle fra syfomoteadmin"
         private const val SYFOMOTEADMIN_FEILMELDING_KLIENT = "Fikk 4XX-feil ved henting av om det er mote i oppfolgingstilfelle fra syfomoteadmin"
         private const val SYFOMOTEADMIN_FEILMELDING_SERVER = "Fikk 5XX-feil ved henting av om det er mote i oppfolgingstilfelle fra syfomoteadmin"

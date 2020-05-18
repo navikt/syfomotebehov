@@ -6,7 +6,11 @@ import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.varsel.*
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
+import no.nav.syfo.motebehov.motebehovstatus.isSvarBehovVarselAvailable
+import no.nav.syfo.varsel.MotebehovsvarVarselInfo
+import no.nav.syfo.varsel.MotebehovsvarVarselInfoArbeidstaker
+import no.nav.syfo.varsel.VarselService
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -18,6 +22,7 @@ import javax.ws.rs.core.Response
 class VarselController @Inject constructor(
         private val metric: Metric,
         private val aktorregisterConsumer: AktorregisterConsumer,
+        private val motebehovStatusService: MotebehovStatusService,
         private val varselService: VarselService
 ) {
     @ResponseBody
@@ -39,14 +44,14 @@ class VarselController @Inject constructor(
             @RequestBody motebehovsvarVarselInfo: MotebehovsvarVarselInfoArbeidstaker
     ): ResponseEntity<Boolean> {
         val arbeidstakerFnr = aktorregisterConsumer.getFnrForAktorId(AktorId(motebehovsvarVarselInfo.sykmeldtAktorId))
-        val isSvarBehovVarselAvailableForArbeidstaker = varselService.isSvarBehovVarselAvailableArbeidstaker(Fodselsnummer(arbeidstakerFnr))
+        val isSvarBehovVarselAvailableForArbeidstaker = motebehovStatusService.motebehovStatusForArbeidstaker(Fodselsnummer(arbeidstakerFnr)).isSvarBehovVarselAvailable()
         countMotebehovVarselAvailabilityArbeidstaker(isSvarBehovVarselAvailableForArbeidstaker)
         return ResponseEntity
                 .ok()
                 .body(isSvarBehovVarselAvailableForArbeidstaker)
     }
 
-    private fun countMotebehovVarselAvailabilityArbeidstaker(countIsVarselAvailableForMotebehov: Boolean) {
+    private fun countMotebehovVarselAvailabilityArbeidstaker (countIsVarselAvailableForMotebehov: Boolean) {
         if (countIsVarselAvailableForMotebehov) {
             metric.tellHendelse("varsel_arbeidstaker_available_true")
         } else {
