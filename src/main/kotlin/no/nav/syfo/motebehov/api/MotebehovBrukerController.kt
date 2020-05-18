@@ -11,6 +11,7 @@ import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.motebehov.NyttMotebehov
 import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.api.auth.OIDCUtil
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import org.apache.commons.lang3.StringUtils
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
@@ -55,7 +56,7 @@ class MotebehovBrukerController @Inject constructor(
                 nyttMotebehov.virksomhetsnummer,
                 nyttMotebehov.motebehovSvar
         )
-        lagBesvarMotebehovMetrikk(nyttMotebehov.motebehovSvar, nyttMotebehov.arbeidstakerFnr.isNullOrEmpty())
+        lagBesvarMotebehovMetrikk(nyttMotebehov.motebehovSvar, false)
     }
 
     private fun kastExceptionHvisIkkeTilgang(fnr: String) {
@@ -67,7 +68,7 @@ class MotebehovBrukerController @Inject constructor(
     }
 
     private fun lagBesvarMotebehovMetrikk(motebehovSvar: MotebehovSvar, erInnloggetBrukerArbeidstaker: Boolean) {
-        metric.tellMotebehovBesvart(motebehovSvar.harMotebehov, erInnloggetBrukerArbeidstaker)
+        metric.tellMotebehovBesvart(MotebehovSkjemaType.SVAR_BEHOV, motebehovSvar.harMotebehov, erInnloggetBrukerArbeidstaker)
         if (!motebehovSvar.harMotebehov) {
             metric.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring!!.length, erInnloggetBrukerArbeidstaker)
         } else if (!StringUtils.isEmpty(motebehovSvar.forklaring)) {

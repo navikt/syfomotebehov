@@ -7,7 +7,7 @@ import no.nav.syfo.api.auth.OIDCUtil
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.MotebehovService
+import no.nav.syfo.motebehov.MotebehovOpfolgingstilfelleService
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiver
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
@@ -23,7 +23,7 @@ import javax.validation.constraints.Pattern
 class MotebehovArbeidsgiverV2Controller @Inject constructor(
         private val contextHolder: OIDCRequestContextHolder,
         private val metric: Metric,
-        private val motebehovService: MotebehovService,
+        private val motebehovOpfolgingstilfelleService: MotebehovOpfolgingstilfelleService,
         private val motebehovStatusService: MotebehovStatusService,
         private val brukertilgangService: BrukertilgangService
 ) {
@@ -54,12 +54,10 @@ class MotebehovArbeidsgiverV2Controller @Inject constructor(
         val arbeidstakerFnr = Fodselsnummer(nyttMotebehov.arbeidstakerFnr)
         brukertilgangService.kastExceptionHvisIkkeTilgang(arbeidstakerFnr.value)
 
-        motebehovService.lagreMotebehov(
+        motebehovOpfolgingstilfelleService.createMotehovForArbeidgiver(
                 OIDCUtil.fnrFraOIDCEkstern(contextHolder),
                 arbeidstakerFnr,
-                nyttMotebehov.virksomhetsnummer,
-                nyttMotebehov.motebehovSvar
+                nyttMotebehov
         )
-        metric.tellBesvarMotebehov(nyttMotebehov.motebehovSvar, nyttMotebehov.arbeidstakerFnr.isNullOrEmpty())
     }
 }
