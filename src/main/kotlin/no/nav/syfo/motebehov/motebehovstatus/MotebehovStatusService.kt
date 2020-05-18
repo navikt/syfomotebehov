@@ -199,8 +199,8 @@ class MotebehovStatusService @Inject constructor(
             motebehovList: List<Motebehov>
     ): Motebehov? {
         val motebehovListCreatedInOppfolgingstilfelle = motebehovList.filter { it.isCreatedInOppfolgingstilfelle(oppfolgingstilfelle) }
-        return if (motebehovList.isNotEmpty()) {
-            motebehovListCreatedInOppfolgingstilfelle[0]
+        return if (motebehovListCreatedInOppfolgingstilfelle.isNotEmpty()) {
+            motebehovListCreatedInOppfolgingstilfelle.first()
         } else {
             null
         }
