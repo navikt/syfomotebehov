@@ -37,8 +37,10 @@ class MotebehovOpfolgingstilfelleService @Inject constructor(
                 )
                 metric.tellBesvarMotebehov(motebehovStatus.skjemaType, nyttMotebehov.motebehovSvar, false)
             } else {
+                LOG.info("JTRACE:  ${nyttMotebehov.virksomhetsnummer} ${arbeidstakerFnr.value.substring(0, 4)}")
+                LOG.info("JTRACE: skjemaType ${motebehovStatus.skjemaType}")
                 metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSGIVER)
-                throwCreateMotebehovFailed("Failed to create Motebehov for Arbeidsgiver: Found no Virksomhetsnummer with active Oppfolgingstilfelle available for answer for ${nyttMotebehov.virksomhetsnummer}")
+                throwCreateMotebehovFailed("Failed to create Motebehov for Arbeidsgiver: Found no Virksomhetsnummer with active Oppfolgingstilfelle available for answer")
             }
         } else {
             metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSGIVER)
