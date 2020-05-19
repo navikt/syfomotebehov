@@ -40,16 +40,21 @@ class Metric @Inject constructor(
     }
 
     fun tellMotebehovBesvart(
+            activeOppfolgingstilfelle: PersonOppfolgingstilfelle?,
             motebehovSkjemaType: MotebehovSkjemaType?,
             harMotebehov: Boolean,
             erInnloggetBrukerArbeidstaker: Boolean
     ) {
+        val dayInOppfolgingstilfelleMotebehovCreated = if (activeOppfolgingstilfelle != null) {
+            ChronoUnit.DAYS.between(activeOppfolgingstilfelle.fom, LocalDate.now())
+        } else null
         val navn = if (erInnloggetBrukerArbeidstaker) "syfomotebehov_motebehov_besvart_at" else "syfomotebehov_motebehov_besvart"
         registry.counter(
                 navn,
                 Tags.of(
                         "type", "info",
                         "motebehov", if (harMotebehov) "ja" else "nei",
+                        "dag", dayInOppfolgingstilfelleMotebehovCreated?.toString().orEmpty()  ,
                         "skjematype", when (motebehovSkjemaType) {
                     MotebehovSkjemaType.MELD_BEHOV -> "meldbehov"
                     MotebehovSkjemaType.SVAR_BEHOV -> "svarbehov"
@@ -74,6 +79,7 @@ class Metric @Inject constructor(
                 Tags.of(
                         "type", "info",
                         "motebehov", if (harMotebehov) "ja" else "nei",
+                        "dag", dayInOppfolgingstilfelleMotebehovCreated.toString(),
                         "skjematype", when (motebehovSkjemaType) {
                     MotebehovSkjemaType.MELD_BEHOV -> "meldbehov"
                     MotebehovSkjemaType.SVAR_BEHOV -> "svarbehov"
@@ -123,6 +129,7 @@ class Metric @Inject constructor(
             erInnloggetBrukerArbeidstaker: Boolean
     ) {
         tellMotebehovBesvart(
+                activeOppfolgingstilfelle,
                 motebehovSkjemaType,
                 motebehovSvar.harMotebehov,
                 erInnloggetBrukerArbeidstaker

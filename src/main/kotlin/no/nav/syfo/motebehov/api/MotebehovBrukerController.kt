@@ -68,7 +68,7 @@ class MotebehovBrukerController @Inject constructor(
     }
 
     private fun lagBesvarMotebehovMetrikk(motebehovSvar: MotebehovSvar, erInnloggetBrukerArbeidstaker: Boolean) {
-        metric.tellMotebehovBesvart(MotebehovSkjemaType.SVAR_BEHOV, motebehovSvar.harMotebehov, erInnloggetBrukerArbeidstaker)
+        metric.tellMotebehovBesvart(null, MotebehovSkjemaType.SVAR_BEHOV, motebehovSvar.harMotebehov, erInnloggetBrukerArbeidstaker)
         if (!motebehovSvar.harMotebehov) {
             metric.tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring!!.length, erInnloggetBrukerArbeidstaker)
         } else if (!StringUtils.isEmpty(motebehovSvar.forklaring)) {
