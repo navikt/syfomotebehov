@@ -21,7 +21,8 @@ class MotebehovOpfolgingstilfelleService @Inject constructor(
             arbeidstakerFnr: Fodselsnummer,
             nyttMotebehov: NyttMotebehovArbeidsgiver
     ) {
-        if (oppfolgingstilfelleService.getActiveOppfolgingstilfelle(arbeidstakerFnr) != null) {
+        val activeOppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelle(arbeidstakerFnr)
+        if (activeOppfolgingstilfelle != null) {
             val motebehovStatus = motebehovStatusService.motebehovStatusForArbeidsgiver(arbeidstakerFnr, nyttMotebehov.virksomhetsnummer)
 
             val isActiveOppfolgingstilfelleAvailableForAnswer = motebehovStatus.visMotebehov
@@ -35,7 +36,12 @@ class MotebehovOpfolgingstilfelleService @Inject constructor(
                         nyttMotebehov.virksomhetsnummer,
                         nyttMotebehov.motebehovSvar
                 )
-                metric.tellBesvarMotebehov(motebehovStatus.skjemaType, nyttMotebehov.motebehovSvar, false)
+                metric.tellBesvarMotebehov(
+                        activeOppfolgingstilfelle,
+                        motebehovStatus.skjemaType,
+                        nyttMotebehov.motebehovSvar,
+                        false
+                )
             } else {
                 LOG.info("JTRACE:  ${nyttMotebehov.virksomhetsnummer} ${arbeidstakerFnr.value.substring(0, 4)}")
                 LOG.info("JTRACE: skjemaType ${motebehovStatus.skjemaType}")
@@ -70,7 +76,12 @@ class MotebehovOpfolgingstilfelleService @Inject constructor(
                 for (virksomhetsnummer in virksomhetsnummerList) {
                     motebehovService.lagreMotebehov(arbeidstakerFnr, arbeidstakerFnr, virksomhetsnummer, motebehovSvar)
                 }
-                metric.tellBesvarMotebehov(motebehovStatusForOppfolgingstilfelle.skjemaType, motebehovSvar, true)
+                metric.tellBesvarMotebehov(
+                        activeOppolgingstilfelle,
+                        motebehovStatusForOppfolgingstilfelle.skjemaType,
+                        motebehovSvar,
+                        true
+                )
             } else {
                 metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSTAKER)
                 throwCreateMotebehovFailed("Failed to create Motebehov for Arbeidstaker: Found no Virksomhetsnummer with active Oppfolgingstilfelle")
