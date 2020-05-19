@@ -4,8 +4,11 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tags
 import no.nav.syfo.motebehov.MotebehovSvar
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
+import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Controller
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @Controller
@@ -56,6 +59,30 @@ class Metric @Inject constructor(
         ).increment()
     }
 
+    fun countDayInOppfolgingstilfelleMotebehovCreated(
+            activeOppfolgingstilfelle: PersonOppfolgingstilfelle,
+            motebehovSkjemaType: MotebehovSkjemaType?,
+            harMotebehov: Boolean,
+            erInnloggetBrukerArbeidstaker: Boolean
+    ) {
+        val dayInOppfolgingstilfelleMotebehovCreated = ChronoUnit.DAYS.between(activeOppfolgingstilfelle.fom, LocalDate.now())
+        val navn = if (erInnloggetBrukerArbeidstaker) {
+            "syfomotebehov_motebehov_besvart_oppfolgingstilfelle_dag_at"
+        } else "syfomotebehov_motebehov_besvart_oppfolgingstilfelle_dag_ag"
+        registry.counter(
+                navn,
+                Tags.of(
+                        "type", "info",
+                        "motebehov", if (harMotebehov) "ja" else "nei",
+                        "skjematype", when (motebehovSkjemaType) {
+                    MotebehovSkjemaType.MELD_BEHOV -> "meldbehov"
+                    MotebehovSkjemaType.SVAR_BEHOV -> "svarbehov"
+                    else -> "null"
+                }
+                )
+        ).increment(dayInOppfolgingstilfelleMotebehovCreated.toDouble())
+    }
+
     fun tellMotebehovBesvartNeiAntallTegn(antallTegnIForklaring: Int, erInnloggetBrukerArbeidstaker: Boolean) {
         val navn = if (erInnloggetBrukerArbeidstaker) "syfomotebehov_motebehov_besvart_nei_forklaring_lengde_at" else "syfomotebehov_motebehov_besvart_nei_forklaring_lengde"
         registry.counter(
@@ -90,11 +117,18 @@ class Metric @Inject constructor(
     }
 
     fun tellBesvarMotebehov(
+            activeOppfolgingstilfelle: PersonOppfolgingstilfelle,
             motebehovSkjemaType: MotebehovSkjemaType?,
             motebehovSvar: MotebehovSvar,
             erInnloggetBrukerArbeidstaker: Boolean
     ) {
         tellMotebehovBesvart(
+                motebehovSkjemaType,
+                motebehovSvar.harMotebehov,
+                erInnloggetBrukerArbeidstaker
+        )
+        countDayInOppfolgingstilfelleMotebehovCreated(
+                activeOppfolgingstilfelle,
                 motebehovSkjemaType,
                 motebehovSvar.harMotebehov,
                 erInnloggetBrukerArbeidstaker
