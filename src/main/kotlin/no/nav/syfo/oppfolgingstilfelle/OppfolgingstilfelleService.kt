@@ -26,23 +26,27 @@ class OppfolgingstilfelleService @Inject constructor(
         }
     }
 
+    private fun getActivePOppfolgingstilfeller(
+            arbeidstakerFnr: Fodselsnummer
+    ): List<PPersonOppfolgingstilfelle> {
+        return oppfolgingstilfelleDAO.get(arbeidstakerFnr).filter {
+            it.isDateInOppfolgingstilfelle(LocalDate.now())
+        }
+    }
+
     fun getActiveOppfolgingstilfeller(
             arbeidstakerFnr: Fodselsnummer
     ): List<PersonVirksomhetOppfolgingstilfelle> {
-        return oppfolgingstilfelleDAO.get(arbeidstakerFnr).map {
+        return getActivePOppfolgingstilfeller(arbeidstakerFnr).map {
             it.mapToPersonVirksomhetOppfolgingstilfelle()
-        }.filter {
-            it.isDateInOppfolgingstilfelle(LocalDate.now())
         }
     }
 
     fun getActiveOppfolgingstilfelle(
             arbeidstakerFnr: Fodselsnummer
     ): PersonOppfolgingstilfelle? {
-        val activeOppfolgingstilfeller = oppfolgingstilfelleDAO.get(arbeidstakerFnr).map {
+        val activeOppfolgingstilfeller = getActivePOppfolgingstilfeller(arbeidstakerFnr).map {
             it.mapToPersonOppfolgingstilfelle()
-        }.filter {
-            it.isDateInOppfolgingstilfelle(LocalDate.now())
         }
         return if (activeOppfolgingstilfeller.isNotEmpty()) {
             if (activeOppfolgingstilfeller.size > 1) {

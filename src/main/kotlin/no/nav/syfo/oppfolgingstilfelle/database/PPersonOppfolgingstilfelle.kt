@@ -31,3 +31,7 @@ fun PPersonOppfolgingstilfelle.mapToPersonVirksomhetOppfolgingstilfelle(): Perso
             tom = this.tom
     )
 }
+
+fun PPersonOppfolgingstilfelle.isDateInOppfolgingstilfelle(date: LocalDate): Boolean {
+    return date.isAfter(this.fom.minusDays(1)) && date.isBefore(this.tom.plusDays(1))
+}
