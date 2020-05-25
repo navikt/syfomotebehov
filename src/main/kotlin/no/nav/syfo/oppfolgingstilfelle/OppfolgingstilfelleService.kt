@@ -26,26 +26,67 @@ class OppfolgingstilfelleService @Inject constructor(
         }
     }
 
-    private fun getActivePOppfolgingstilfeller(
-            arbeidstakerFnr: Fodselsnummer
-    ): List<PPersonOppfolgingstilfelle> {
-        return oppfolgingstilfelleDAO.get(arbeidstakerFnr).filter {
-            it.isDateInOppfolgingstilfelle(LocalDate.now())
-        }
-    }
-
     fun getActiveOppfolgingstilfeller(
             arbeidstakerFnr: Fodselsnummer
     ): List<PersonVirksomhetOppfolgingstilfelle> {
-        return getActivePOppfolgingstilfeller(arbeidstakerFnr).map {
+        return getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr).filter {
+            it.isDateInOppfolgingstilfelle(LocalDate.now())
+        }.map {
             it.mapToPersonVirksomhetOppfolgingstilfelle()
         }
     }
 
-    fun getActiveOppfolgingstilfelle(
+    fun getActiveOppfolgingstilfelleForArbeidsgiver(
+            arbeidstakerFnr: Fodselsnummer,
+            virksomhetsnummer: String
+    ): PersonOppfolgingstilfelle? {
+        val oppfolgingstilfelleList = getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr)
+        val oppfolgingstilfelleVirksomhet = oppfolgingstilfelleList.find { it.virksomhetsnummer == virksomhetsnummer }
+        return if (oppfolgingstilfelleVirksomhet != null && oppfolgingstilfelleVirksomhet.isDateInOppfolgingstilfelle(LocalDate.now())){
+            getActiveOppfolgingstilfelle(arbeidstakerFnr, oppfolgingstilfelleList)
+        } else {
+            null
+        }
+    }
+
+    fun getActiveOppfolgingstilfelleForArbeidstaker(
             arbeidstakerFnr: Fodselsnummer
     ): PersonOppfolgingstilfelle? {
-        val activeOppfolgingstilfeller = getActivePOppfolgingstilfeller(arbeidstakerFnr).map {
+        return getActiveOppfolgingstilfelle(arbeidstakerFnr, getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr))
+    }
+
+    private fun getPOppfolgingstilfellerInActiveOppfolgingstilfelle(
+            arbeidstakerFnr: Fodselsnummer
+    ): List<PPersonOppfolgingstilfelle> {
+        val oppfolgingstilfelleList = oppfolgingstilfelleDAO.get(arbeidstakerFnr)
+
+        val activeOppfolgingstilfelleList = oppfolgingstilfelleList.filter {
+            it.isDateInOppfolgingstilfelle(LocalDate.now())
+        }
+        val expiredOppfolgingstilfelleList = oppfolgingstilfelleList.filterNot {
+            it.isDateInOppfolgingstilfelle(LocalDate.now())
+        }
+        return when {
+            activeOppfolgingstilfelleList.isEmpty() -> {
+                emptyList()
+            }
+            expiredOppfolgingstilfelleList.isEmpty() -> {
+                activeOppfolgingstilfelleList
+            }
+            else -> {
+                val expiredOverlappingOppfolgingstilfelleList = expiredOppfolgingstilfelleList.filter { expiredOppfolgingstilfelle ->
+                    expiredOppfolgingstilfelle.tom.isAfter(activeOppfolgingstilfelleList.minBy { it.fom }!!.fom.minusDays(1))
+                }
+                activeOppfolgingstilfelleList.plus(expiredOverlappingOppfolgingstilfelleList)
+            }
+        }
+    }
+
+    private fun getActiveOppfolgingstilfelle(
+            arbeidstakerFnr: Fodselsnummer,
+            oppfolgingstilfelleList: List<PPersonOppfolgingstilfelle>
+    ): PersonOppfolgingstilfelle? {
+        val activeOppfolgingstilfeller = oppfolgingstilfelleList.map {
             it.mapToPersonOppfolgingstilfelle()
         }
         return if (activeOppfolgingstilfeller.isNotEmpty()) {

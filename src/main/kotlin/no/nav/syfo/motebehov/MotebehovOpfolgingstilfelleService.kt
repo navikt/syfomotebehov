@@ -21,7 +21,7 @@ class MotebehovOpfolgingstilfelleService @Inject constructor(
             arbeidstakerFnr: Fodselsnummer,
             nyttMotebehov: NyttMotebehovArbeidsgiver
     ) {
-        val activeOppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelle(arbeidstakerFnr)
+        val activeOppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, nyttMotebehov.virksomhetsnummer)
         if (activeOppfolgingstilfelle != null) {
             val motebehovStatus = motebehovStatusService.motebehovStatusForArbeidsgiver(arbeidstakerFnr, nyttMotebehov.virksomhetsnummer)
 
@@ -56,7 +56,7 @@ class MotebehovOpfolgingstilfelleService @Inject constructor(
 
     @Transactional
     fun createMotehovForArbeidstaker(arbeidstakerFnr: Fodselsnummer, motebehovSvar: MotebehovSvar) {
-        val activeOppolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelle(arbeidstakerFnr)
+        val activeOppolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
         if (activeOppolgingstilfelle != null) {
             val motebehovStatusForOppfolgingstilfelle = motebehovStatusService.motebehovStatusForArbeidstaker(arbeidstakerFnr)
 
