@@ -10,6 +10,7 @@ import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
 import no.nav.syfo.motebehov.motebehovstatus.isSvarBehovVarselAvailable
 import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
+import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -50,8 +51,8 @@ class VarselService @Inject constructor(
 
     fun isSvarBehovVarselAvailableArbeidstaker(arbeidstakerFnr: Fodselsnummer): Boolean {
         return isSvarBehovVarselAvailable(
-                arbeidstakerFnr,
-                motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr)
+                motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr),
+                oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
         )
     }
 
@@ -60,16 +61,15 @@ class VarselService @Inject constructor(
             virksomhetsnummer: String
     ): Boolean {
         return isSvarBehovVarselAvailable(
-                arbeidstakerFnr,
-                motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr, virksomhetsnummer)
+                motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr, virksomhetsnummer),
+                oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, virksomhetsnummer)
         )
     }
 
     private fun isSvarBehovVarselAvailable(
-            arbeidstakerFnr: Fodselsnummer,
-            motebehovList: List<Motebehov>
+            motebehovList: List<Motebehov>,
+            oppfolgingstilfelle: PersonOppfolgingstilfelle?
     ): Boolean {
-        val oppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelle(arbeidstakerFnr)
         oppfolgingstilfelle?.let {
             val motebehovStatus = motebehovStatusService.motebehovStatus(oppfolgingstilfelle, motebehovList)
 

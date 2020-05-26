@@ -153,6 +153,46 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
+    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpiredOppfolgingstilfelleNoOverlap() {
+        val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
+        oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
+                virksomhetsnummer = VIRKSOMHETSNUMMER,
+                fom = activeOppfolgingstilfelleStartDate.minusDays(2),
+                tom = activeOppfolgingstilfelleStartDate.minusDays(1)
+        ))
+        oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
+                virksomhetsnummer = UserConstants.VIRKSOMHETSNUMMER_2,
+                fom = activeOppfolgingstilfelleStartDate,
+                tom = LocalDate.now().plusDays(1)
+        ))
+        mockSTS()
+        mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
+
+        motebehovArbeidstakerController.motebehovStatusArbeidstaker()
+                .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
+    }
+
+    @Test
+    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpiredOppfolgingstilfelleWithOverlap() {
+        val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
+        oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
+                virksomhetsnummer = VIRKSOMHETSNUMMER,
+                fom = activeOppfolgingstilfelleStartDate.minusDays(2),
+                tom = activeOppfolgingstilfelleStartDate
+        ))
+        oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
+                virksomhetsnummer = UserConstants.VIRKSOMHETSNUMMER_2,
+                fom = activeOppfolgingstilfelleStartDate,
+                tom = LocalDate.now().plusDays(1)
+        ))
+        mockSTS()
+        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
+
+        motebehovArbeidstakerController.motebehovStatusArbeidstaker()
+                .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
+    }
+
+    @Test
     fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedBy2Oppfolgingstilfeller() {
         oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
                 virksomhetsnummer = VIRKSOMHETSNUMMER,

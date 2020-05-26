@@ -158,6 +158,66 @@ class MotebehovArbeidsgiverV2Test {
     }
 
     @Test
+    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpiredOppfolgingstilfelleNoOverlapVirksomhetWithoutActiveOppfolgingstilfelle() {
+        val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
+        oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
+                virksomhetsnummer = VIRKSOMHETSNUMMER,
+                fom = activeOppfolgingstilfelleStartDate.minusDays(2),
+                tom = activeOppfolgingstilfelleStartDate.minusDays(1)
+        ))
+        oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
+                virksomhetsnummer = VIRKSOMHETSNUMMER_2,
+                fom = activeOppfolgingstilfelleStartDate,
+                tom = LocalDate.now().plusDays(1)
+        ))
+        mockSTS()
+        mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
+
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+                .assertMotebehovStatus(false, null, null)
+    }
+
+    @Test
+    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpiredOppfolgingstilfelleNoOverlap() {
+        val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
+        oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
+                virksomhetsnummer = VIRKSOMHETSNUMMER_2,
+                fom = activeOppfolgingstilfelleStartDate.minusDays(2),
+                tom = activeOppfolgingstilfelleStartDate.minusDays(1)
+        ))
+        oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
+                virksomhetsnummer = VIRKSOMHETSNUMMER,
+                fom = activeOppfolgingstilfelleStartDate,
+                tom = LocalDate.now().plusDays(1)
+        ))
+        mockSTS()
+        mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
+
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+                .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
+    }
+
+    @Test
+    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpiredOppfolgingstilfelleWithOverlap() {
+        val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
+        oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
+                virksomhetsnummer = VIRKSOMHETSNUMMER_2,
+                fom = activeOppfolgingstilfelleStartDate.minusDays(2),
+                tom = activeOppfolgingstilfelleStartDate
+        ))
+        oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
+                virksomhetsnummer = VIRKSOMHETSNUMMER,
+                fom = activeOppfolgingstilfelleStartDate,
+                tom = LocalDate.now().plusDays(1)
+        ))
+        mockSTS()
+        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
+
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+                .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
+    }
+
+    @Test
     fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedBy2Oppfolgingstilfeller() {
         oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
                 virksomhetsnummer = VIRKSOMHETSNUMMER,

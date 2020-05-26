@@ -25,7 +25,7 @@ class MotebehovStatusService @Inject constructor(
     fun motebehovStatusForArbeidstaker(
             arbeidstakerFnr: Fodselsnummer
     ): MotebehovStatus {
-        val oppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelle(arbeidstakerFnr)
+        val oppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
         val motebehovList: List<Motebehov> = motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr)
 
         return motebehovStatus(oppfolgingstilfelle, motebehovList)
@@ -35,7 +35,7 @@ class MotebehovStatusService @Inject constructor(
             arbeidstakerFnr: Fodselsnummer,
             virksomhetsnummer: String
     ): MotebehovStatus {
-        val oppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelle(arbeidstakerFnr)
+        val oppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, virksomhetsnummer)
         val motebehovList = motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr, virksomhetsnummer)
 
         return motebehovStatus(oppfolgingstilfelle, motebehovList)
