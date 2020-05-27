@@ -1,5 +1,6 @@
 package no.nav.syfo.motebehov
 
+import no.nav.syfo.api.exception.ConflictException
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
@@ -46,7 +47,7 @@ class MotebehovOpfolgingstilfelleService @Inject constructor(
                 LOG.info("JTRACE:  ${nyttMotebehov.virksomhetsnummer} ${arbeidstakerFnr.value.substring(0, 4)}")
                 LOG.info("JTRACE: skjemaType ${motebehovStatus.skjemaType}")
                 metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSGIVER)
-                throwCreateMotebehovFailed("Failed to create Motebehov for Arbeidsgiver: Found no Virksomhetsnummer with active Oppfolgingstilfelle available for answer")
+                throwCreateMotebehovConflict("Failed to create Motebehov for Arbeidsgiver: Found no Virksomhetsnummer with active Oppfolgingstilfelle available for answer")
             }
         } else {
             metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSGIVER)
@@ -84,7 +85,7 @@ class MotebehovOpfolgingstilfelleService @Inject constructor(
                 )
             } else {
                 metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSTAKER)
-                throwCreateMotebehovFailed("Failed to create Motebehov for Arbeidstaker: Found no Virksomhetsnummer with active Oppfolgingstilfelle")
+                throwCreateMotebehovConflict("Failed to create Motebehov for Arbeidstaker: Found no Virksomhetsnummer with active Oppfolgingstilfelle")
             }
         } else {
             metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSTAKER)
@@ -92,9 +93,14 @@ class MotebehovOpfolgingstilfelleService @Inject constructor(
         }
     }
 
+    private fun throwCreateMotebehovConflict(errorMessage: String) {
+        LOG.warn(errorMessage)
+        throw ConflictException()
+    }
+
     private fun throwCreateMotebehovFailed(errorMessage: String) {
         LOG.error(errorMessage)
-        throw RuntimeException(errorMessage);
+        throw RuntimeException(errorMessage)
     }
 
     companion object {
