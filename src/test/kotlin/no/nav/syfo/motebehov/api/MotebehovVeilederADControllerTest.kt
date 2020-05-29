@@ -2,19 +2,18 @@ package no.nav.syfo.motebehov.api
 
 import no.nav.security.oidc.context.OIDCRequestContextHolder
 import no.nav.syfo.LocalApplication
+import no.nav.syfo.api.auth.OIDCIssuer.AZURE
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.motebehov.Motebehov
-import no.nav.syfo.motebehov.MotebehovSvar
-import no.nav.syfo.motebehov.NyttMotebehov
+import no.nav.syfo.consumer.pdl.PdlConsumer
+import no.nav.syfo.consumer.sts.StsConsumer
+import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
+import no.nav.syfo.motebehov.*
+import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.historikk.HistorikkService
 import no.nav.syfo.oversikthendelse.KOversikthendelse
-import no.nav.syfo.api.auth.OIDCIssuer.AZURE
 import no.nav.syfo.oversikthendelse.OversikthendelseProducer
-import no.nav.syfo.consumer.pdl.PdlConsumer
-import no.nav.syfo.motebehov.database.MotebehovDAO
-import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnVeilederAzure
 import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
@@ -27,15 +26,11 @@ import no.nav.syfo.testhelper.UserConstants.VEILEDER_2_ID
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
+import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import no.nav.syfo.testhelper.mockAndExpectBrukertilgangRequest
-import no.nav.syfo.testhelper.mockAndExpectSTSService
-import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
 import org.assertj.core.api.Assertions
-import org.junit.After
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import org.junit.*
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
@@ -43,9 +38,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.cache.CacheManager
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
+import org.springframework.http.*
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.support.SendResult
 import org.springframework.test.annotation.DirtiesContext
@@ -97,9 +90,6 @@ class MotebehovVeilederADControllerTest {
     private lateinit var motebehovDAO: MotebehovDAO
 
     @Inject
-    private lateinit var stsConsumer: StsConsumer
-
-    @Inject
     private lateinit var cacheManager: CacheManager
 
     @Inject
@@ -112,9 +102,14 @@ class MotebehovVeilederADControllerTest {
     private lateinit var pdlConsumer: PdlConsumer
 
     @MockBean
+    private lateinit var stsConsumer: StsConsumer
+
+    @MockBean
     private lateinit var kafkaTemplate: KafkaTemplate<String, Any>
 
     private lateinit var mockRestServiceServer: MockRestServiceServer
+
+    private val stsToken = generateStsToken().access_token
 
     @Before
     fun setUp() {
@@ -127,6 +122,7 @@ class MotebehovVeilederADControllerTest {
         Mockito.`when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(LEDER_FNR))).thenReturn(LEDER_AKTORID)
         Mockito.`when`(pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(generatePdlHentPerson(null, null))
         Mockito.`when`(pdlConsumer.person(Fodselsnummer(LEDER_FNR))).thenReturn(generatePdlHentPerson(null, null))
+        Mockito.`when`(stsConsumer.token()).thenReturn(stsToken)
     }
 
     @After
@@ -326,14 +322,7 @@ class MotebehovVeilederADControllerTest {
                 .andRespond(MockRestResponseCreators.withStatus(status))
     }
 
-    private fun mockSTS() {
-        if (!stsConsumer.isTokenCached()) {
-            mockAndExpectSTSService(mockRestServiceServer, stsUrl, srvUsername, srvPassword)
-        }
-    }
-
     private fun mockBehandlendEnhet(fnr: String) {
-        mockSTS()
         mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, fnr)
     }
 

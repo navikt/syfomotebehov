@@ -78,9 +78,6 @@ class MotebehovArbeidstakerV2Test {
     private lateinit var cacheManager: CacheManager
 
     @Inject
-    private lateinit var stsConsumer: StsConsumer
-
-    @Inject
     private lateinit var oppfolgingstilfelleDAO: OppfolgingstilfelleDAO
 
     @Inject
@@ -93,16 +90,22 @@ class MotebehovArbeidstakerV2Test {
     private lateinit var pdlConsumer: PdlConsumer
 
     @MockBean
+    private lateinit var stsConsumer: StsConsumer
+
+    @MockBean
     private lateinit var oversikthendelseProducer: OversikthendelseProducer
 
     private lateinit var mockRestServiceServer: MockRestServiceServer
 
     private val motebehovGenerator = MotebehovGenerator()
 
+    private val stsToken = generateStsToken().access_token
+
     @Before
     fun setUp() {
         `when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(ARBEIDSTAKER_AKTORID)
         `when`(pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(generatePdlHentPerson(null, null))
+        `when`(stsConsumer.token()).thenReturn(stsToken)
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
         loggInnBruker(oidcRequestContextHolder, ARBEIDSTAKER_FNR)
         cleanDB()
@@ -165,7 +168,6 @@ class MotebehovArbeidstakerV2Test {
                 fom = activeOppfolgingstilfelleStartDate,
                 tom = LocalDate.now().plusDays(1)
         ))
-        mockSTS()
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -185,7 +187,7 @@ class MotebehovArbeidstakerV2Test {
                 fom = activeOppfolgingstilfelleStartDate,
                 tom = LocalDate.now().plusDays(1)
         ))
-        mockSTS()
+
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -204,7 +206,6 @@ class MotebehovArbeidstakerV2Test {
                 fom = LocalDate.now().minusDays(2),
                 tom = LocalDate.now().plusDays(1)
         ))
-        mockSTS()
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -217,7 +218,6 @@ class MotebehovArbeidstakerV2Test {
                 fom = LocalDate.now(),
                 tom = LocalDate.now()
         ))
-        mockSTS()
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -230,7 +230,6 @@ class MotebehovArbeidstakerV2Test {
                 fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).minusDays(1),
                 tom = LocalDate.now()
         ))
-        mockSTS()
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -245,7 +244,6 @@ class MotebehovArbeidstakerV2Test {
         )
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
-        mockSTS()
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, true)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -260,7 +258,6 @@ class MotebehovArbeidstakerV2Test {
         )
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
-        mockSTS()
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
@@ -280,7 +277,6 @@ class MotebehovArbeidstakerV2Test {
         loggInnBruker(oidcRequestContextHolder, ARBEIDSTAKER_FNR)
 
         mockRestServiceServer.reset()
-        mockSTS()
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -296,12 +292,10 @@ class MotebehovArbeidstakerV2Test {
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
 
-        mockSTS()
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
         submitMotebehovAndSendOversikthendelse(motebehovSvar)
 
         mockRestServiceServer.reset()
-        mockSTS()
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, true)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -314,7 +308,6 @@ class MotebehovArbeidstakerV2Test {
                 fom = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1),
                 tom = LocalDate.now().plusDays(1)
         ))
-        mockSTS()
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -327,7 +320,6 @@ class MotebehovArbeidstakerV2Test {
                 fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV),
                 tom = LocalDate.now().plusDays(1)
         ))
-        mockSTS()
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -340,7 +332,6 @@ class MotebehovArbeidstakerV2Test {
                 fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).plusDays(1),
                 tom = LocalDate.now().plusDays(1)
         )
-        mockSTS()
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
 
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
@@ -359,12 +350,10 @@ class MotebehovArbeidstakerV2Test {
 
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
 
-        mockSTS()
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         submitMotebehovAndSendOversikthendelse(motebehovSvar)
 
         mockRestServiceServer.reset()
-        mockSTS()
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -377,7 +366,6 @@ class MotebehovArbeidstakerV2Test {
                 fom = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV),
                 tom = LocalDate.now().plusDays(1)
         )
-        mockSTS()
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
 
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
@@ -391,7 +379,6 @@ class MotebehovArbeidstakerV2Test {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
-        mockSTS()
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -403,7 +390,6 @@ class MotebehovArbeidstakerV2Test {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
-        mockSTS()
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -442,7 +428,6 @@ class MotebehovArbeidstakerV2Test {
                 tom = LocalDate.now().plusDays(1)
         ))
 
-        mockSTS()
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
         mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, ARBEIDSTAKER_FNR)
         mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, ARBEIDSTAKER_FNR)
@@ -456,14 +441,7 @@ class MotebehovArbeidstakerV2Test {
         Mockito.verify(oversikthendelseProducer, times(2)).sendOversikthendelse(any())
     }
 
-    private fun mockSTS() {
-        if (!stsConsumer.isTokenCached()) {
-            mockAndExpectSTSService(mockRestServiceServer, stsUrl, srvUsername, srvPassword)
-        }
-    }
-
     private fun submitMotebehovAndSendOversikthendelse(motebehovSvar: MotebehovSvar) {
-        mockSTS()
         mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, ARBEIDSTAKER_FNR)
 
         motebehovArbeidstakerController.submitMotebehovArbeidstaker(motebehovSvar)
@@ -475,10 +453,8 @@ class MotebehovArbeidstakerV2Test {
     }
 
     private fun lagreOgHentMotebehovOgSendOversikthendelse(harBehov: Boolean) {
-        mockSTS()
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
 
-        mockSTS()
         mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, ARBEIDSTAKER_FNR)
 
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(harBehov)
@@ -487,7 +463,6 @@ class MotebehovArbeidstakerV2Test {
 
         if (!harBehov) {
             mockRestServiceServer.reset()
-            mockSTS()
             mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         }
 
