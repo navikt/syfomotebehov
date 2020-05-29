@@ -240,7 +240,20 @@ class MotebehovArbeidsgiverV2Test {
     fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleDay1() {
         oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
                 fom = LocalDate.now(),
-                tom = LocalDate.now().plusDays(1)
+                tom = LocalDate.now()
+        ))
+        mockSTS()
+        mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
+
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+                .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
+    }
+
+    @Test
+    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleLastDay() {
+        oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
+                fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).minusDays(1),
+                tom = LocalDate.now()
         ))
         mockSTS()
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)

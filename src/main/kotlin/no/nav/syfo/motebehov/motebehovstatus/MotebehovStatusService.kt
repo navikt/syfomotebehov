@@ -143,7 +143,7 @@ class MotebehovStatusService @Inject constructor(
         val today = LocalDate.now()
 
         val isTodayInFirstMeldMotebehovPeriod = today.isAfter(oppfolgingstilfelle.fom.minusDays(1)) && today.isBefore(firstDateSvarBehovAvailability)
-        val isTodayInSecondMeldMotebehovPeriod = today.isAfter(lastDateSvarBehovAvailability) && today.isBefore(oppfolgingstilfelle.tom)
+        val isTodayInSecondMeldMotebehovPeriod = today.isAfter(lastDateSvarBehovAvailability) && today.isBefore(oppfolgingstilfelle.tom.plusDays(1))
 
         return isTodayInOppfolgingstilfelle(oppfolgingstilfelle) &&
                 (isTodayInFirstMeldMotebehovPeriod || isTodayInSecondMeldMotebehovPeriod)
