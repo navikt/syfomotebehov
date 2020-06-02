@@ -6,6 +6,7 @@ import no.nav.syfo.api.auth.OIDCIssuer.AZURE
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
@@ -28,7 +29,6 @@ import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
-import no.nav.syfo.testhelper.mockAndExpectBrukertilgangRequest
 import org.assertj.core.api.Assertions
 import org.junit.*
 import org.junit.runner.RunWith
@@ -65,9 +65,6 @@ class MotebehovVeilederADControllerTest {
     @Value("\${syfobehandlendeenhet.url}")
     private lateinit var behandlendeenhetUrl: String
 
-    @Value("\${syfobrukertilgang.url}")
-    private lateinit var brukertilgangUrl: String
-
     @Value("\${security.token.service.rest.url}")
     private lateinit var stsUrl: String
 
@@ -99,6 +96,9 @@ class MotebehovVeilederADControllerTest {
     private lateinit var aktorregisterConsumer: AktorregisterConsumer
 
     @MockBean
+    private lateinit var brukertilgangConsumer: BrukertilgangConsumer
+
+    @MockBean
     private lateinit var pdlConsumer: PdlConsumer
 
     @MockBean
@@ -120,6 +120,7 @@ class MotebehovVeilederADControllerTest {
         Mockito.`when`(aktorregisterConsumer.getFnrForAktorId(AktorId(LEDER_AKTORID))).thenReturn(LEDER_FNR)
         Mockito.`when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(ARBEIDSTAKER_AKTORID)
         Mockito.`when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(LEDER_FNR))).thenReturn(LEDER_AKTORID)
+        Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR)).thenReturn(true)
         Mockito.`when`(pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(generatePdlHentPerson(null, null))
         Mockito.`when`(pdlConsumer.person(Fodselsnummer(LEDER_FNR))).thenReturn(generatePdlHentPerson(null, null))
         Mockito.`when`(stsConsumer.token()).thenReturn(stsToken)
@@ -142,7 +143,6 @@ class MotebehovVeilederADControllerTest {
     @Test
     @Throws(ParseException::class)
     fun arbeidsgiverLagrerOgVeilederHenterMotebehov() {
-        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR)
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
         val nyttMotebehov = arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
 
@@ -181,7 +181,6 @@ class MotebehovVeilederADControllerTest {
     @Test
     @Throws(Exception::class)
     fun hentHistorikk() {
-        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR)
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
         mockRestServiceServer.reset()
@@ -211,7 +210,6 @@ class MotebehovVeilederADControllerTest {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true)
         mockRestServiceServer.reset()
-        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR)
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
         mockRestServiceServer.reset()
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID)
@@ -229,7 +227,6 @@ class MotebehovVeilederADControllerTest {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, false)
         mockRestServiceServer.reset()
-        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR)
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
         mockRestServiceServer.reset()
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID)
@@ -250,7 +247,6 @@ class MotebehovVeilederADControllerTest {
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true)
         behandleMotebehov(ARBEIDSTAKER_AKTORID, VEILEDER_ID)
         mockRestServiceServer.reset()
-        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR)
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
         mockRestServiceServer.reset()
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_2_ID)
