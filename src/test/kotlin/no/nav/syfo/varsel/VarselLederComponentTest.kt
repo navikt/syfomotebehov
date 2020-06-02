@@ -16,7 +16,6 @@ import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.generator.*
 import no.nav.syfo.testhelper.mockAndExpectMoteadminHarAktivtMote
-import no.nav.syfo.testhelper.mockAndExpectSTSService
 import no.nav.syfo.varsel.api.VarselController
 import org.junit.*
 import org.junit.runner.RunWith
@@ -61,9 +60,6 @@ class VarselLederComponentTest {
     private lateinit var oppfolgingstilfelleDAO: OppfolgingstilfelleDAO
 
     @Inject
-    private lateinit var stsConsumer: StsConsumer
-
-    @Inject
     private lateinit var varselController: VarselController
 
     @Inject
@@ -71,6 +67,9 @@ class VarselLederComponentTest {
 
     @MockBean
     private lateinit var kafkaTemplate: KafkaTemplate<String, Any>
+
+    @MockBean
+    private lateinit var stsConsumer: StsConsumer
 
     private lateinit var mockRestServiceServer: MockRestServiceServer
 
@@ -82,6 +81,8 @@ class VarselLederComponentTest {
     )
     private val argumentCaptor = ArgumentCaptor.forClass(KTredjepartsvarsel::class.java)
 
+    private val stsToken = generateStsToken().access_token
+
     @Before
     fun setUp() {
         cleanDB()
@@ -90,6 +91,7 @@ class VarselLederComponentTest {
                 .thenReturn(ARBEIDSTAKER_FNR)
         `when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR)))
                 .thenReturn(ARBEIDSTAKER_FNR)
+        `when`(stsConsumer.token()).thenReturn(stsToken)
     }
 
     @After
@@ -109,7 +111,6 @@ class VarselLederComponentTest {
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
                 .thenReturn(generateMotebehovStatus.copy(motebehov = null))
 
-        mockSTS()
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         `when`(kafkaTemplate.send(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.any(KTredjepartsvarsel::class.java))).thenReturn(Mockito.mock(ListenableFuture::class.java) as ListenableFuture<SendResult<String, Any>>?)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
@@ -134,7 +135,6 @@ class VarselLederComponentTest {
                         motebehov = null
                 ))
 
-        mockSTS()
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
         Mockito.verify(kafkaTemplate, Mockito.never()).send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
@@ -164,7 +164,6 @@ class VarselLederComponentTest {
                         motebehov = null
                 ))
 
-        mockSTS()
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
         Mockito.verify(kafkaTemplate, Mockito.never()).send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
@@ -194,7 +193,6 @@ class VarselLederComponentTest {
                         motebehov = null
                 ))
 
-        mockSTS()
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
         Mockito.verify(kafkaTemplate, Mockito.never()).send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
@@ -211,19 +209,12 @@ class VarselLederComponentTest {
         ))
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
                 .thenReturn(generateMotebehovStatus.copy(motebehov = null))
-        mockSTS()
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
         Mockito.verify(kafkaTemplate, Mockito.never()).send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
         Assert.assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
 
         mockRestServiceServer.verify()
-    }
-
-    private fun mockSTS() {
-        if (!stsConsumer.isTokenCached()) {
-            mockAndExpectSTSService(mockRestServiceServer, stsUrl, srvUsername, srvPassword)
-        }
     }
 
     private fun verifySendtKtredjepartsvarsel(kTredjepartsvarsel: KTredjepartsvarsel) {

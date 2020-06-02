@@ -4,11 +4,10 @@ import no.nav.security.oidc.context.OIDCRequestContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.oversikthendelse.OversikthendelseProducer
 import no.nav.syfo.consumer.pdl.PdlConsumer
-import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.consumer.sts.StsConsumer
-import no.nav.syfo.testhelper.*
+import no.nav.syfo.motebehov.database.MotebehovDAO
+import no.nav.syfo.oversikthendelse.OversikthendelseProducer
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker
 import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
@@ -16,12 +15,11 @@ import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
-import no.nav.syfo.testhelper.generator.MotebehovGenerator
-import no.nav.syfo.testhelper.generator.generatePdlHentPerson
+import no.nav.syfo.testhelper.generator.*
+import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
+import no.nav.syfo.testhelper.mockAndExpectBrukertilgangRequest
 import org.assertj.core.api.Assertions
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
+import org.junit.*
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Value
@@ -67,9 +65,6 @@ class MotebehovComponentTest {
     private lateinit var cacheManager: CacheManager
 
     @Inject
-    private lateinit var stsConsumer: StsConsumer
-
-    @Inject
     private lateinit var restTemplate: RestTemplate
 
     @MockBean
@@ -81,15 +76,21 @@ class MotebehovComponentTest {
     @MockBean
     private lateinit var oversikthendelseProducer: OversikthendelseProducer
 
+    @MockBean
+    private lateinit var stsConsumer: StsConsumer
+
     private lateinit var mockRestServiceServer: MockRestServiceServer
 
     private val motebehovGenerator = MotebehovGenerator()
+
+    private val stsToken = generateStsToken().access_token
 
     @Before
     fun setUp() {
         Mockito.`when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(ARBEIDSTAKER_AKTORID)
         Mockito.`when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(LEDER_FNR))).thenReturn(LEDER_AKTORID)
         Mockito.`when`(pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(generatePdlHentPerson(null, null))
+        Mockito.`when`(stsConsumer.token()).thenReturn(stsToken)
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
         loggInnBruker(oidcRequestContextHolder, LEDER_FNR)
         cleanDB()
@@ -110,22 +111,14 @@ class MotebehovComponentTest {
 
     @Test
     fun lagreOgHentMotebehovOgSendOversikthendelseVedSvarMedBehov() {
-        mockSTS()
         mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, ARBEIDSTAKER_FNR)
         lagreOgHentMotebehovOgSendOversikthendelse(true)
     }
 
     @Test
     fun lagreOgHentMotebehovOgSendOversikthendelseMedSvarUtenBehov() {
-        mockSTS()
         mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, ARBEIDSTAKER_FNR)
         lagreOgHentMotebehovOgSendOversikthendelse(false)
-    }
-
-    private fun mockSTS() {
-        if (!stsConsumer.isTokenCached()) {
-            mockAndExpectSTSService(mockRestServiceServer, stsUrl, srvUsername, srvPassword)
-        }
     }
 
     private fun lagreOgHentMotebehovOgSendOversikthendelse(harBehov: Boolean) {
@@ -161,4 +154,5 @@ private fun <T> any(): T {
     Mockito.any<T>()
     return uninitialized()
 }
+
 private fun <T> uninitialized(): T = null as T

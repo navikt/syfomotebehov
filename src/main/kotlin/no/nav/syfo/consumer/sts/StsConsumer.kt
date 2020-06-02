@@ -1,15 +1,14 @@
 package no.nav.syfo.consumer.sts
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.util.basicCredentials
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
+import org.springframework.http.*
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestClientResponseException
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.reactive.function.client.*
+import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 
 @Service
@@ -17,36 +16,42 @@ class StsConsumer(
         private val metric: Metric,
         @Value("\${security.token.service.rest.url}") private val baseUrl: String,
         @Value("\${srv.username}") private val username: String,
-        @Value("\${srv.password}") private val password: String,
-        private val template: RestTemplate
+        @Value("\${srv.password}") private val password: String
 ) {
     private var cachedOidcToken: STSToken? = null
 
+    private val webClient = WebClient
+            .builder()
+            .baseUrl(baseUrl)
+            .defaultHeader(HttpHeaders.AUTHORIZATION, basicCredentials(username, password))
+            .build()
+
     fun token(): String {
         if (STSToken.shouldRenew(cachedOidcToken)) {
-            val request = HttpEntity<Any>(authorizationHeader())
-
-            try {
-                val response = template.exchange(
-                        getStsTokenUrl(),
-                        HttpMethod.GET,
-                        request,
-                        STSToken::class.java
-                )
-                cachedOidcToken = response.body
-                metric.tellEndepunktKall(METRIC_CALL_STS_SUCCESS)
-            } catch (e: RestClientResponseException) {
-                LOG.error("Request to get STS failed with status: ${e.rawStatusCode} and message: ${e.responseBodyAsString}")
-                metric.tellHendelse(METRIC_CALL_STS_FAIL)
-                throw e
-            }
+            val response = webClient
+                    .get()
+                    .uri(getStsTokenUrl())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .onStatus({ obj: HttpStatus -> obj.is4xxClientError }) { response ->
+                        logError(response)
+                        Mono.error(RuntimeException("4xx"))
+                    }
+                    .onStatus({ obj: HttpStatus -> obj.is5xxServerError }) { response ->
+                        logError(response)
+                        Mono.error(RuntimeException("5xx"))
+                    }
+                    .bodyToMono<STSToken>()
+                    .block()
+            cachedOidcToken = response
+            metric.tellEndepunktKall(METRIC_CALL_STS_SUCCESS)
         }
-
         return cachedOidcToken!!.access_token
     }
 
-    fun isTokenCached(): Boolean {
-        return cachedOidcToken !== null
+    fun logError(response: ClientResponse) {
+        LOG.error("Request to get STS failed with status: ${response.statusCode()}")
+        metric.tellHendelse(METRIC_CALL_STS_FAIL)
     }
 
     companion object {
@@ -59,18 +64,14 @@ class StsConsumer(
     private fun getStsTokenUrl(): String {
         return "$baseUrl/rest/v1/sts/token?grant_type=client_credentials&scope=openid"
     }
-
-    private fun authorizationHeader(): HttpHeaders {
-        val credentials = basicCredentials(username, password)
-        val headers = HttpHeaders()
-        headers.add(HttpHeaders.AUTHORIZATION, credentials)
-        return headers
-    }
 }
 
 data class STSToken(
+        @JsonProperty(value = "access_token", required = true)
         val access_token: String,
+        @JsonProperty(value = "token_type", required = true)
         val token_type: String,
+        @JsonProperty(value = "expires_in", required = true)
         val expires_in: Int
 ) {
     // Expire 10 seconds before token expiration
