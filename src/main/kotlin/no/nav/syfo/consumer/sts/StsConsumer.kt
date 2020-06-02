@@ -50,7 +50,7 @@ class StsConsumer(
     }
 
     fun logError(response: ClientResponse) {
-        LOG.error("Request to get STS failed with status: ${response.statusCode()}")
+        LOG.error("Request to get STS failed with status: ${response.rawStatusCode()}")
         metric.tellHendelse(METRIC_CALL_STS_FAIL)
     }
 
