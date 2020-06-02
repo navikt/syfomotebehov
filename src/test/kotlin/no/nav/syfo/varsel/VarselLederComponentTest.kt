@@ -122,6 +122,27 @@ class VarselLederComponentTest {
 
     @Test
     @Throws(Exception::class)
+    fun sendVarselNaermesteLeder_no_varsel_oppfolgingstilfelle_meld_behov_no_meeting() {
+        val oppfolgingstilfelle = generatePersonOppfolgingstilfelleMeldBehovFirstPeriod
+        oppfolgingstilfelleDAO.create(generateKOversikthendelsetilfelle.copy(
+                fom = oppfolgingstilfelle.fom,
+                tom = oppfolgingstilfelle.tom
+        ))
+        `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
+                .thenReturn(generateMotebehovStatus.copy(
+                        visMotebehov = true,
+                        skjemaType = MotebehovSkjemaType.MELD_BEHOV,
+                        motebehov = null
+                ))
+
+        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
+        val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
+        Mockito.verify(kafkaTemplate, Mockito.never()).send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        Assert.assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun sendVarselNaermesteLeder_no_varsel_oppfolgingstilfelle_meld_behov() {
         val oppfolgingstilfelle = generatePersonOppfolgingstilfelleMeldBehovFirstPeriod
         oppfolgingstilfelleDAO.create(generateKOversikthendelsetilfelle.copy(

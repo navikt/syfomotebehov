@@ -75,7 +75,7 @@ class VarselService @Inject constructor(
 
             return motebehovStatusService.getNewestMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList)?.let { newestMotebehov ->
                 return motebehovStatus.isSvarBehovVarselAvailable(newestMotebehov)
-            } ?: true
+            } ?: motebehovStatus.isSvarBehovVarselAvailable()
         }
         return false
     }
