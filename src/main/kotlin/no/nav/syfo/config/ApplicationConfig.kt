@@ -7,6 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler
 import org.springframework.transaction.annotation.EnableTransactionManagement
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.reactive.function.client.WebClient
 
 @Configuration
 @EnableTransactionManagement
@@ -20,5 +21,12 @@ class ApplicationConfig {
     @Bean
     fun restTemplate(): RestTemplate {
         return RestTemplate()
+    }
+
+    @Bean
+    fun webClient(): WebClient {
+        return WebClient
+                .builder()
+                .build()
     }
 }

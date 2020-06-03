@@ -5,6 +5,7 @@ import no.nav.syfo.LocalApplication
 import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.motebehov.MotebehovSvar
@@ -50,9 +51,6 @@ class MotebehovArbeidsgiverV2Test {
     @Value("\${syfobehandlendeenhet.url}")
     private lateinit var behandlendeenhetUrl: String
 
-    @Value("\${syfobrukertilgang.url}")
-    private lateinit var brukertilgangUrl: String
-
     @Value("\${security.token.service.rest.url}")
     private lateinit var stsUrl: String
 
@@ -93,6 +91,9 @@ class MotebehovArbeidsgiverV2Test {
     private lateinit var pdlConsumer: PdlConsumer
 
     @MockBean
+    private lateinit var brukertilgangConsumer: BrukertilgangConsumer
+
+    @MockBean
     private lateinit var stsConsumer: StsConsumer
 
     @MockBean
@@ -108,12 +109,12 @@ class MotebehovArbeidsgiverV2Test {
     fun setUp() {
         `when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(ARBEIDSTAKER_AKTORID)
         `when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(LEDER_FNR))).thenReturn(LEDER_AKTORID)
+        `when`(brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR)).thenReturn(true)
         `when`(pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(generatePdlHentPerson(null, null))
         `when`(stsConsumer.token()).thenReturn(stsToken)
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
         loggInnBruker(oidcRequestContextHolder, LEDER_FNR)
         cleanDB()
-        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR)
     }
 
     @After
@@ -299,7 +300,7 @@ class MotebehovArbeidsgiverV2Test {
         loggInnBruker(oidcRequestContextHolder, LEDER_FNR)
 
         mockRestServiceServer.reset()
-        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR)
+
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
@@ -319,7 +320,6 @@ class MotebehovArbeidsgiverV2Test {
         submitMotebehovAndSendOversikthendelse(motebehovSvar)
 
         mockRestServiceServer.reset()
-        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR)
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, true)
 
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
@@ -377,7 +377,6 @@ class MotebehovArbeidsgiverV2Test {
         submitMotebehovAndSendOversikthendelse(motebehovSvar)
 
         mockRestServiceServer.reset()
-        mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR)
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
 
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
@@ -456,7 +455,6 @@ class MotebehovArbeidsgiverV2Test {
         ))
         if (!harBehov) {
             mockRestServiceServer.reset()
-            mockAndExpectBrukertilgangRequest(mockRestServiceServer, brukertilgangUrl, ARBEIDSTAKER_FNR)
             mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         }
 
