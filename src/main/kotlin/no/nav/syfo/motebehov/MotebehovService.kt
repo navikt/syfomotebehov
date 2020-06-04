@@ -7,6 +7,7 @@ import no.nav.syfo.consumer.behandlendeenhet.BehandlendeEnhetConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.database.PMotebehov
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.oversikthendelse.OversikthendelseService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -62,7 +63,13 @@ class MotebehovService @Inject constructor(
     }
 
     @Transactional
-    fun lagreMotebehov(innloggetFNR: Fodselsnummer, arbeidstakerFnr: Fodselsnummer, virksomhetsnummer: String, motebehovSvar: MotebehovSvar): UUID {
+    fun lagreMotebehov(
+            innloggetFNR: Fodselsnummer,
+            arbeidstakerFnr: Fodselsnummer,
+            virksomhetsnummer: String,
+            skjemaType: MotebehovSkjemaType,
+            motebehovSvar: MotebehovSvar
+    ): UUID {
         val innloggetBrukerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(innloggetFNR)
         val arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr)
         val arbeidstakerBehandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.value, null).enhetId
@@ -71,6 +78,7 @@ class MotebehovService @Inject constructor(
                 arbeidstakerAktoerId,
                 arbeidstakerBehandlendeEnhet,
                 virksomhetsnummer,
+                skjemaType,
                 motebehovSvar
         )
         val id = motebehovDAO.create(motebehov)
@@ -85,6 +93,7 @@ class MotebehovService @Inject constructor(
             arbeidstakerAktoerId: String,
             tildeltEnhet: String,
             virksomhetsnummer: String,
+            skjemaType: MotebehovSkjemaType,
             motebehovSvar: MotebehovSvar
     ): PMotebehov {
         return PMotebehov(
@@ -97,7 +106,8 @@ class MotebehovService @Inject constructor(
                 forklaring = motebehovSvar.forklaring,
                 tildeltEnhet = tildeltEnhet,
                 behandletVeilederIdent = null,
-                behandletTidspunkt = null
+                behandletTidspunkt = null,
+                skjemaType = skjemaType
         )
     }
 
@@ -115,7 +125,8 @@ class MotebehovService @Inject constructor(
                 ),
                 tildeltEnhet = pMotebehov.tildeltEnhet,
                 behandletTidspunkt = pMotebehov.behandletTidspunkt,
-                behandletVeilederIdent = pMotebehov.behandletVeilederIdent
+                behandletVeilederIdent = pMotebehov.behandletVeilederIdent,
+                skjemaType = pMotebehov.skjemaType
         )
     }
 

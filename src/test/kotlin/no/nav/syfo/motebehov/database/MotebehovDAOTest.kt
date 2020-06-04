@@ -34,7 +34,7 @@ class MotebehovDAOTest {
     }
 
     private fun insertPMotebehov(motebehov: PMotebehov) {
-        val sqlInsert = "INSERT INTO MOTEBEHOV VALUES('bae778f2-a085-11e8-98d0-529269fb1459', '" + motebehov.opprettetDato + "', '" + motebehov.opprettetAv + "', '" + motebehov.aktoerId + "', '" + motebehov.virksomhetsnummer + "', '" + '1' + "', '" + motebehov.forklaring + "', '" + motebehov.tildeltEnhet + "', null, null)"
+        val sqlInsert = "INSERT INTO MOTEBEHOV VALUES('bae778f2-a085-11e8-98d0-529269fb1459', '" + motebehov.opprettetDato + "', '" + motebehov.opprettetAv + "', '" + motebehov.aktoerId + "', '" + motebehov.virksomhetsnummer + "', '" + '1' + "', '" + motebehov.forklaring + "', '" + motebehov.tildeltEnhet + "', null, null, null)"
         jdbcTemplate.update(sqlInsert)
     }
 
@@ -53,6 +53,7 @@ class MotebehovDAOTest {
         Assertions.assertThat(motebehovFraDb.harMotebehov).isEqualTo(pMotebehov.harMotebehov)
         Assertions.assertThat(motebehovFraDb.forklaring).isEqualTo(pMotebehov.forklaring)
         Assertions.assertThat(motebehovFraDb.tildeltEnhet).isEqualTo(pMotebehov.tildeltEnhet)
+        Assertions.assertThat(motebehovFraDb.skjemaType).isEqualTo(pMotebehov.skjemaType)
     }
 
     @Test

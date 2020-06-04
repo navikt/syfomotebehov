@@ -1,7 +1,6 @@
 package no.nav.syfo.motebehov
 
-import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
-import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_SVAR_BEHOV
+import no.nav.syfo.motebehov.motebehovstatus.*
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import java.io.Serializable
 import java.time.LocalDateTime
@@ -17,7 +16,8 @@ data class Motebehov(
         val motebehovSvar: MotebehovSvar,
         val tildeltEnhet: String? = null,
         val behandletTidspunkt: LocalDateTime? = null,
-        val behandletVeilederIdent: String? = null
+        val behandletVeilederIdent: String? = null,
+        val skjemaType: MotebehovSkjemaType? = null
 ) : Serializable
 
 fun Motebehov.isUbehandlet() : Boolean {
