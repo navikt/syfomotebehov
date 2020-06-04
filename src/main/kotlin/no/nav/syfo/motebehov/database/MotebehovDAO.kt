@@ -1,5 +1,6 @@
 package no.nav.syfo.motebehov.database
 
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.util.DbUtil.hentTidligsteDatoForGyldigMotebehovSvar
 import no.nav.syfo.util.DbUtil.sanitizeUserInput
 import no.nav.syfo.util.convert
@@ -17,7 +18,6 @@ import java.sql.Types
 import java.time.LocalDateTime
 import java.util.*
 import java.util.UUID
-
 
 @Service
 @Transactional
@@ -42,20 +42,13 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
 
     fun create(motebehov: PMotebehov): UUID {
         val uuid = UUID.randomUUID()
-        val lagreSql = "INSERT INTO motebehov VALUES(" +
-                ":uuid, " +
-                ":opprettet_dato, " +
-                ":opprettet_av, " +
-                ":aktoer_id, " +
-                ":virksomhetsnummer, " +
-                ":har_motebehov, " +
-                ":forklaring," +
-                ":tildelt_enhet," +
-                ":behandlet_tidspunkt," +
-                ":behandlet_veileder_ident" +
-                ")"
+        val lagreSql = """
+            INSERT INTO motebehov (motebehov_uuid, opprettet_dato, opprettet_av, aktoer_id, virksomhetsnummer, har_motebehov, forklaring, tildelt_enhet, behandlet_tidspunkt, behandlet_veileder_ident, skjematype)
+            VALUES (
+                :motebehov_uuid, :opprettet_dato, :opprettet_av, :aktoer_id, :virksomhetsnummer, :har_motebehov, :forklaring, :tildelt_enhet, :behandlet_tidspunkt, :behandlet_veileder_ident, :skjematype)
+            """.trimIndent()
         val mapLagreSql = MapSqlParameterSource()
-                .addValue("uuid", uuid.toString())
+                .addValue("motebehov_uuid", uuid.toString())
                 .addValue("opprettet_av", motebehov.opprettetAv)
                 .addValue("opprettet_dato", convert(LocalDateTime.now()))
                 .addValue("aktoer_id", motebehov.aktoerId)
@@ -65,6 +58,7 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
                 .addValue("tildelt_enhet", motebehov.tildeltEnhet)
                 .addValue("behandlet_tidspunkt", convertNullable(motebehov.behandletTidspunkt))
                 .addValue("behandlet_veileder_ident", motebehov.behandletVeilederIdent)
+                .addValue("skjematype", motebehov.skjemaType?.name)
         namedParameterJdbcTemplate.update(lagreSql, mapLagreSql)
         return uuid
     }
@@ -96,7 +90,8 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
                         forklaring = rs.getString("forklaring"),
                         tildeltEnhet = rs.getString("tildelt_enhet"),
                         behandletTidspunkt = convertNullable(rs.getTimestamp("behandlet_tidspunkt")),
-                        behandletVeilederIdent = rs.getString("behandlet_veileder_ident")
+                        behandletVeilederIdent = rs.getString("behandlet_veileder_ident"),
+                        skjemaType = rs.getString("skjematype")?.let { MotebehovSkjemaType.valueOf(it) }
                 )
             }
     }
