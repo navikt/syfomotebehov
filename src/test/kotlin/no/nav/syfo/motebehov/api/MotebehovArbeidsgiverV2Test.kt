@@ -470,6 +470,7 @@ class MotebehovArbeidsgiverV2Test {
         Assertions.assertThat(motebehov.opprettetAv).isEqualTo(LEDER_AKTORID)
         Assertions.assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
         Assertions.assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
+        Assertions.assertThat(motebehov.skjemaType).isEqualTo(motebehovStatus.skjemaType)
         Assertions.assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(motebehovSvar)
         if (harBehov) {
             Mockito.verify(oversikthendelseProducer).sendOversikthendelse(any())

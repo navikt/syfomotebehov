@@ -30,11 +30,12 @@ class MotebehovOpfolgingstilfelleService @Inject constructor(
                     && motebehovStatus.skjemaType != null
                     && motebehovStatus.motebehov == null
 
-            if (isActiveOppfolgingstilfelleAvailableForAnswer) {
+            if (isActiveOppfolgingstilfelleAvailableForAnswer && motebehovStatus.skjemaType != null) {
                 motebehovService.lagreMotebehov(
                         innloggetFnr,
                         arbeidstakerFnr,
                         nyttMotebehov.virksomhetsnummer,
+                        motebehovStatus.skjemaType,
                         nyttMotebehov.motebehovSvar
                 )
                 metric.tellBesvarMotebehov(
@@ -73,9 +74,15 @@ class MotebehovOpfolgingstilfelleService @Inject constructor(
                 emptyList()
             }
 
-            if (virksomhetsnummerList.isNotEmpty()) {
+            if (virksomhetsnummerList.isNotEmpty() && motebehovStatusForOppfolgingstilfelle.skjemaType != null) {
                 for (virksomhetsnummer in virksomhetsnummerList) {
-                    motebehovService.lagreMotebehov(arbeidstakerFnr, arbeidstakerFnr, virksomhetsnummer, motebehovSvar)
+                    motebehovService.lagreMotebehov(
+                            arbeidstakerFnr,
+                            arbeidstakerFnr,
+                            virksomhetsnummer,
+                            motebehovStatusForOppfolgingstilfelle.skjemaType,
+                            motebehovSvar
+                    )
                 }
                 metric.tellBesvarMotebehov(
                         activeOppolgingstilfelle,

@@ -54,6 +54,7 @@ class MotebehovBrukerController @Inject constructor(
                 OIDCUtil.fnrFraOIDCEkstern(contextHolder),
                 arbeidstakerFnr,
                 nyttMotebehov.virksomhetsnummer,
+                MotebehovSkjemaType.SVAR_BEHOV,
                 nyttMotebehov.motebehovSvar
         )
         lagBesvarMotebehovMetrikk(nyttMotebehov.motebehovSvar, false)
