@@ -68,6 +68,7 @@ class Metric @Inject constructor(
             activeOppfolgingstilfelle: PersonOppfolgingstilfelle,
             motebehovSkjemaType: MotebehovSkjemaType?,
             harMotebehov: Boolean,
+            harForklaring: Boolean,
             erInnloggetBrukerArbeidstaker: Boolean
     ) {
         val dayInOppfolgingstilfelleMotebehovCreated = ChronoUnit.DAYS.between(activeOppfolgingstilfelle.fom, LocalDate.now())
@@ -79,6 +80,7 @@ class Metric @Inject constructor(
                 Tags.of(
                         "type", "info",
                         "motebehov", if (harMotebehov) "ja" else "nei",
+                        "forklaring", if (harForklaring) "ja" else "nei",
                         "dag", dayInOppfolgingstilfelleMotebehovCreated.toString(),
                         "skjematype", when (motebehovSkjemaType) {
                     MotebehovSkjemaType.MELD_BEHOV -> "meldbehov"
@@ -138,6 +140,7 @@ class Metric @Inject constructor(
                 activeOppfolgingstilfelle,
                 motebehovSkjemaType,
                 motebehovSvar.harMotebehov,
+                !StringUtils.isEmpty(motebehovSvar.forklaring),
                 erInnloggetBrukerArbeidstaker
         )
         if (!motebehovSvar.harMotebehov) {
