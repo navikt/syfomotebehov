@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 version = "1.0.0"
 
-val kotlinLibVersion = "1.3.50"
+val kotlinLibVersion = "1.3.72"
 val kotlinJacksonVersion = "2.9.8"
 val flywayVersion = "5.1.4"
 val h2Version = "1.4.197"
@@ -13,7 +13,7 @@ val oidcSupportVersion = "0.2.18"
 val ojdbcVersion = "19.3.0.0"
 
 plugins {
-    kotlin("jvm") version "1.3.50"
+    kotlin("jvm") version "1.3.72"
     id("java")
     id("org.jetbrains.kotlin.plugin.allopen") version "1.3.50"
     id("com.github.johnrengelman.shadow") version "5.2.0"
