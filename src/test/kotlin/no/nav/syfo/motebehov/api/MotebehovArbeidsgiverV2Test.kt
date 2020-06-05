@@ -51,17 +51,8 @@ class MotebehovArbeidsgiverV2Test {
     @Value("\${syfobehandlendeenhet.url}")
     private lateinit var behandlendeenhetUrl: String
 
-    @Value("\${security.token.service.rest.url}")
-    private lateinit var stsUrl: String
-
     @Value("\${tilgangskontrollapi.url}")
     private lateinit var tilgangskontrollUrl: String
-
-    @Value("\${srv.username}")
-    private lateinit var srvUsername: String
-
-    @Value("\${srv.password}")
-    private lateinit var srvPassword: String
 
     @Inject
     private lateinit var motebehovArbeidsgiverController: MotebehovArbeidsgiverV2Controller
