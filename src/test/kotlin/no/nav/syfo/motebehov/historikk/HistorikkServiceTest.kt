@@ -60,7 +60,7 @@ class HistorikkServiceTest {
     }
 
     @Test
-    fun hentHistorikkServiceSkalReturnereHistorikkAvForskjelligeTyper() {
+    suspend fun hentHistorikkServiceSkalReturnereHistorikkAvForskjelligeTyper() {
         val motebehov1 = motebehovGenerator.generateMotebehov().copy(
             opprettetAv = NL3_AKTORID,
             opprettetDato = LocalDateTime.now(),

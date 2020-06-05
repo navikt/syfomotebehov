@@ -28,7 +28,7 @@ class MotebehovVeilederADController @Inject constructor(
     private val veilederTilgangConsumer: VeilederTilgangConsumer
 ) {
     @GetMapping(value = ["/motebehov"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun hentMotebehovListe(
+    suspend fun hentMotebehovListe(
         @RequestParam(name = "fnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
     ): List<Motebehov> {
         metric.tellEndepunktKall("veileder_hent_motebehov")
@@ -38,7 +38,7 @@ class MotebehovVeilederADController @Inject constructor(
     }
 
     @GetMapping(value = ["/historikk"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun hentMotebehovHistorikk(
+    suspend fun hentMotebehovHistorikk(
         @RequestParam(name = "fnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
     ): List<Historikk> {
         metric.tellEndepunktKall("veileder_hent_motebehov_historikk")
@@ -48,7 +48,7 @@ class MotebehovVeilederADController @Inject constructor(
     }
 
     @PostMapping(value = ["/motebehov/{fnr}/behandle"])
-    fun behandleMotebehov(
+    suspend fun behandleMotebehov(
         @PathVariable(name = "fnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
     ) {
         metric.tellEndepunktKall("veileder_behandle_motebehov_call")
@@ -58,7 +58,7 @@ class MotebehovVeilederADController @Inject constructor(
         metric.tellEndepunktKall("veileder_behandle_motebehov_success")
     }
 
-    private fun kastExceptionHvisIkkeTilgang(fnr: Fodselsnummer) {
+    private suspend fun kastExceptionHvisIkkeTilgang(fnr: Fodselsnummer) {
         if (!veilederTilgangConsumer.sjekkVeiledersTilgangTilPerson(fnr)) {
             throw ForbiddenException("Veilederen har ikke tilgang til denne personen")
         }

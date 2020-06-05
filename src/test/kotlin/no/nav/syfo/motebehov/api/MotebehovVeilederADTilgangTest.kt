@@ -1,5 +1,6 @@
 package no.nav.syfo.motebehov.api
 
+import kotlinx.coroutines.test.runBlockingTest
 import no.nav.security.oidc.context.OIDCRequestContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.api.auth.OIDCIssuer.AZURE
@@ -58,26 +59,38 @@ class MotebehovVeilederADTilgangTest {
     // Innvilget tilgang testes gjennom @MotebehovVeilederADControllerTest.arbeidsgiverLagrerOgVeilederHenterMotebehov
     @Test
     @Throws(ParseException::class)
-    fun veilederNektesTilgang() {
+    suspend fun veilederNektesTilgang() {
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.FORBIDDEN)
-        assertThrows<ForbiddenException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
+        assertThrows<ForbiddenException> {
+            runBlockingTest {
+                motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
+            }
+        }
     }
 
     @Test
     @Throws(ParseException::class)
-    fun klientFeilMotTilgangskontroll() {
+    suspend fun klientFeilMotTilgangskontroll() {
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.BAD_REQUEST)
-        assertThrows<HttpClientErrorException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
+        assertThrows<HttpClientErrorException> {
+            runBlockingTest {
+                motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
+            }
+        }
     }
 
     @Test
     @Throws(ParseException::class)
-    fun tekniskFeilITilgangskontroll() {
+    suspend fun tekniskFeilITilgangskontroll() {
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.INTERNAL_SERVER_ERROR)
-        assertThrows<HttpServerErrorException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
+        assertThrows<HttpServerErrorException> {
+            runBlockingTest {
+                motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
+            }
+        }
     }
 
     private fun mockSvarFraSyfoTilgangskontroll(fnr: String, status: HttpStatus) {

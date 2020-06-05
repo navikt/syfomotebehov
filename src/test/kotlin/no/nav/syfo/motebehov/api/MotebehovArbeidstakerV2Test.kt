@@ -1,5 +1,6 @@
 package no.nav.syfo.motebehov.api
 
+import kotlinx.coroutines.runBlocking
 import no.nav.security.oidc.context.OIDCRequestContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.api.auth.OIDCIssuer
@@ -240,7 +241,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle, MeldBehov Submitted And Behandlet`() {
+    fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle, MeldBehov Submitted And Behandlet`() = runBlocking() {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
             fom = LocalDate.now(),
             tom = LocalDate.now().plusDays(1)

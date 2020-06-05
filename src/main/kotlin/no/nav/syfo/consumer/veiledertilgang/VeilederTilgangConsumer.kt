@@ -11,53 +11,44 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.reactive.function.client.*
 import org.springframework.web.util.UriComponentsBuilder
-import java.net.URI
 import java.util.*
 
 @Service
 class VeilederTilgangConsumer(
     @Value("\${tilgangskontrollapi.url}") tilgangskontrollUrl: String,
     private val metric: Metric,
-    private val template: RestTemplate,
+    private val webClient: WebClient,
     private val oidcContextHolder: OIDCRequestContextHolder
 ) {
     private val tilgangTilBrukerViaAzureUriTemplate: UriComponentsBuilder
 
-    fun sjekkVeiledersTilgangTilPerson(fnr: Fodselsnummer): Boolean {
+    suspend fun sjekkVeiledersTilgangTilPerson(fnr: Fodselsnummer): Boolean {
         val tilgangTilBrukerViaAzureUriMedFnr = tilgangTilBrukerViaAzureUriTemplate.build(Collections.singletonMap(FNR, fnr.value))
-        return checkAccess(tilgangTilBrukerViaAzureUriMedFnr, OIDCIssuer.AZURE)
-    }
-
-    private fun checkAccess(uri: URI, oidcIssuer: String): Boolean {
-        val httpEntity = entity(oidcIssuer)
-        return try {
-            template.exchange(
-                uri,
-                HttpMethod.GET,
-                httpEntity,
-                String::class.java
-            )
-            true
-        } catch (e: HttpClientErrorException) {
-            if (e.rawStatusCode == 403) {
+        val callId = createCallId()
+        val reponse = webClient
+            .get()
+            .uri(tilgangTilBrukerViaAzureUriMedFnr)
+            .accept(MediaType.APPLICATION_JSON)
+            .header(HttpHeaders.AUTHORIZATION, bearerCredentials(OIDCUtil.tokenFraOIDC(oidcContextHolder, OIDCIssuer.AZURE)))
+            .header(NAV_CALL_ID_HEADER, callId)
+            .header(NAV_CONSUMER_ID_HEADER, APP_CONSUMER_ID)
+            .awaitExchange()
+        val statusCode = HttpStatus.resolve(reponse.rawStatusCode()) ?: HttpStatus.INTERNAL_SERVER_ERROR
+        return when {
+            statusCode.is2xxSuccessful -> {
+                reponse.awaitBody()
+            }
+            statusCode.value() == 403 -> {
                 false
-            } else {
+            }
+            else -> {
                 metric.tellHendelse(METRIC_CALL_VEILEDERTILGANG_USER_FAIL)
-                LOG.error("Error requesting ansatt access from syfobrukertilgang with status-${e.rawStatusCode} callId-${httpEntity.headers[NAV_CALL_ID_HEADER]}: ", e)
-                throw e
+                LOG.error("Error requesting ansatt access from syfobrukertilgang with status-$statusCode callId-$callId")
+                throw HttpClientErrorException(statusCode)
             }
         }
-    }
-
-    private fun entity(issuer: String): HttpEntity<String> {
-        val headers = HttpHeaders()
-        headers.accept = listOf(MediaType.APPLICATION_JSON)
-        headers[HttpHeaders.AUTHORIZATION] = bearerCredentials(OIDCUtil.tokenFraOIDC(oidcContextHolder, issuer))
-        headers[NAV_CALL_ID_HEADER] = createCallId()
-        headers[NAV_CONSUMER_ID_HEADER] = APP_CONSUMER_ID
-        return HttpEntity(headers)
     }
 
     companion object {

@@ -17,7 +17,7 @@ class HistorikkService @Inject constructor(
     private val motebehovService: MotebehovService,
     private val pdlConsumer: PdlConsumer
 ) {
-    fun hentHistorikkListe(arbeidstakerFnr: String): List<Historikk> {
+    suspend fun hentHistorikkListe(arbeidstakerFnr: String): List<Historikk> {
         val motebehovListe = motebehovService.hentMotebehovListe(Fodselsnummer(arbeidstakerFnr))
 
         val historikkListe = hentOpprettetMotebehov(motebehovListe)
@@ -25,7 +25,7 @@ class HistorikkService @Inject constructor(
         return historikkListe
     }
 
-    private fun hentOpprettetMotebehov(motebehovListe: List<Motebehov>): MutableList<Historikk> {
+    private suspend fun hentOpprettetMotebehov(motebehovListe: List<Motebehov>): MutableList<Historikk> {
         return motebehovListe.map {
             Historikk(
                 opprettetAv = it.opprettetAv,
@@ -40,7 +40,7 @@ class HistorikkService @Inject constructor(
         return pdlConsumer.person(createdByFnr)?.fullName() ?: ""
     }
 
-    private fun hentBehandlendeMotebehovHistorikk(motebehovListe: List<Motebehov>): List<Historikk> {
+    private suspend fun hentBehandlendeMotebehovHistorikk(motebehovListe: List<Motebehov>): List<Historikk> {
         return motebehovListe
             .stream()
             .filter { motebehov -> !motebehov.behandletVeilederIdent.isNullOrEmpty() && motebehov.behandletTidspunkt != null }

@@ -267,7 +267,7 @@ class MotebehovArbeidsgiverV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleMeldBehovSubmittedAndBehandlet() {
+    suspend fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleMeldBehovSubmittedAndBehandlet() {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
             fom = LocalDate.now(),
             tom = LocalDate.now().plusDays(1)

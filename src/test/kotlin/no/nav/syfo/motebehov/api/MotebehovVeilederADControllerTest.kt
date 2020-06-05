@@ -1,5 +1,7 @@
 package no.nav.syfo.motebehov.api
 
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
 import no.nav.security.oidc.context.OIDCRequestContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.api.auth.OIDCIssuer.AZURE
@@ -51,7 +53,6 @@ import org.springframework.test.web.client.response.MockRestResponseCreators
 import org.springframework.util.concurrent.ListenableFuture
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
-import java.lang.RuntimeException
 import java.text.ParseException
 import java.time.LocalDateTime
 import java.util.function.Consumer
@@ -144,7 +145,7 @@ class MotebehovVeilederADControllerTest {
 
     @Test
     @Throws(ParseException::class)
-    fun arbeidsgiverLagrerOgVeilederHenterMotebehov() {
+    fun arbeidsgiverLagrerOgVeilederHenterMotebehov() = runBlocking<Unit> {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
         val nyttMotebehov = arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
 
@@ -163,7 +164,7 @@ class MotebehovVeilederADControllerTest {
 
     @Test
     @Throws(ParseException::class)
-    fun sykmeldtLagrerOgVeilederHenterMotebehov() {
+    fun sykmeldtLagrerOgVeilederHenterMotebehov() = runBlocking<Unit> {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
         val nyttMotebehov = sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true)
 
@@ -182,7 +183,7 @@ class MotebehovVeilederADControllerTest {
 
     @Test
     @Throws(Exception::class)
-    fun hentHistorikk() {
+    fun hentHistorikk() = runBlocking<Unit> {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
         mockRestServiceServer.reset()
@@ -208,7 +209,7 @@ class MotebehovVeilederADControllerTest {
 
     @Test
     @Throws(ParseException::class)
-    fun hentMotebehovUbehandlet() {
+    fun hentMotebehovUbehandlet() = runBlocking<Unit> {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true)
         mockRestServiceServer.reset()
@@ -225,7 +226,7 @@ class MotebehovVeilederADControllerTest {
 
     @Test
     @Throws(ParseException::class)
-    fun behandleKunMotebehovMedBehovForMote() {
+    fun behandleKunMotebehovMedBehovForMote() = runBlocking<Unit> {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, false)
         mockRestServiceServer.reset()
@@ -244,7 +245,7 @@ class MotebehovVeilederADControllerTest {
 
     @Test
     @Throws(ParseException::class)
-    fun behandleMotebehovUlikVeilederBehandler() {
+    fun behandleMotebehovUlikVeilederBehandler() = runBlocking<Unit> {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true)
         behandleMotebehov(ARBEIDSTAKER_AKTORID, VEILEDER_ID)
@@ -272,7 +273,11 @@ class MotebehovVeilederADControllerTest {
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_2_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
 
-        assertThrows<RuntimeException> { motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR) }
+        assertThrows<RuntimeException> {
+            runBlockingTest {
+                motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
+            }
+        }
     }
 
     private fun arbeidsgiverLagrerMotebehov(lederFnr: String, arbeidstakerFnr: String, virksomhetsnummer: String): NyttMotebehov {
