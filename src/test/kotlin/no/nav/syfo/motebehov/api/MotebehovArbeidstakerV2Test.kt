@@ -112,13 +112,13 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithNoOppfolgingstilfelle() {
+    fun `get MotebehovStatus With No Oppfolgingstilfelle`() {
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
                 .assertMotebehovStatus(false, null, null)
     }
 
     @Test
-    fun getMotebehovStatusWithTodayOutsideOppfolgingstilfelleStart() {
+    fun `get MotebehovStatus With Today Outside OppfolgingstilfelleStart`() {
         loggUtAlle(oidcRequestContextHolder)
         loggInnBruker(oidcRequestContextHolder, ARBEIDSTAKER_FNR)
 
@@ -131,7 +131,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithTodayOutsideOppfolgingstilfelleEnd() {
+    fun `get MotebehovStatus With Today Outside OppfolgingstilfelleEnd`() {
         loggUtAlle(oidcRequestContextHolder)
         loggInnBruker(oidcRequestContextHolder, ARBEIDSTAKER_FNR)
 
@@ -144,7 +144,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpiredOppfolgingstilfelleNoOverlap() {
+    fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle Merged By Active And Expired Oppfolgingstilfelle No Overlap`() {
         val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
         oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
                 virksomhetsnummer = VIRKSOMHETSNUMMER,
@@ -163,7 +163,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpiredOppfolgingstilfelleWithOverlap() {
+    fun `getMotebehovStatus With Today Inside Oppfolgingstilfelle Merged By Active And Expired Oppfolgingstilfelle With Overlap`() {
         val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
         oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
                 virksomhetsnummer = VIRKSOMHETSNUMMER,
@@ -183,7 +183,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedBy2Oppfolgingstilfeller() {
+    fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle Merged By 2 Oppfolgingstilfeller`() {
         oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
                 virksomhetsnummer = VIRKSOMHETSNUMMER,
                 fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).minusDays(1),
@@ -201,7 +201,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleDay1() {
+    fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle Day1`() {
         oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
                 fom = LocalDate.now(),
                 tom = LocalDate.now()
@@ -213,7 +213,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleLastDay() {
+    fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle LastDay`() {
         oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
                 fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).minusDays(1),
                 tom = LocalDate.now()
@@ -225,7 +225,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleMeldBehovMoteplanleggerActive() {
+    fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle, MeldBehov Moteplanlegger Active`() {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
                 fom = LocalDate.now(),
                 tom = LocalDate.now().plusDays(1)
@@ -239,7 +239,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleMeldBehovSubmittedAndBehandlet() {
+    fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle, MeldBehov Submitted And Behandlet`() {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
                 fom = LocalDate.now(),
                 tom = LocalDate.now().plusDays(1)
@@ -272,7 +272,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleMedBehovMoteplanleggerActiveMeldBehovSubmitted() {
+    fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle MeldBehov, Moteplanlegger Active, MeldBehov Submitted`() {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
                 fom = LocalDate.now(),
                 tom = LocalDate.now().plusDays(1)
@@ -291,7 +291,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleBeforeSvarBehovStartDate() {
+    fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle Before SvarBehov StartDate`() {
         oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
                 fom = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1),
                 tom = LocalDate.now().plusDays(1)
@@ -303,7 +303,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleAfterSvarBehovEndDate() {
+    fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle After SvarBehov EndDate`() {
         oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
                 fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV),
                 tom = LocalDate.now().plusDays(1)
@@ -315,7 +315,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithNoMotebehovAndMoteInsideSvarBehovUpperLimit() {
+    fun `get MotebehovStatus With No Motebehov And Mote Inside SvarBehov Upper Limit`() {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
                 fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).plusDays(1),
                 tom = LocalDate.now().plusDays(1)
@@ -329,7 +329,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithSvarBehovAndMoteCreated() {
+    fun `get MotebehovStatus with SvarBehov and Mote created`() {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
                 fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).plusDays(1),
                 tom = LocalDate.now().plusDays(1)
@@ -349,7 +349,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithNoMotebehovAndNoMoteInsideSvarBehovLowerLimit() {
+    fun `get MotebehovStatus with no Motebehov and no Mote inside SvarBehov lower limit`() {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
                 fom = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV),
                 tom = LocalDate.now().plusDays(1)
@@ -363,7 +363,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithNoMotebehovAndNoMote() {
+    fun `get MotebehovStatus with no Motebehov and no Mote`() {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
@@ -374,7 +374,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithNoMotebehovAndMote() {
+    fun `get MotebehovStatus with no Motebehov and Mote`() {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
@@ -386,7 +386,7 @@ class MotebehovArbeidstakerV2Test {
 
 
     @Test
-    fun getMotebehovStatusAndSendOversikthendelseWithMotebehovHarBehovTrue() {
+    fun `get MotebehovStatus and sendOversikthendelse with Motebehov harBehov=true`() {
         oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
                 fnr = ARBEIDSTAKER_FNR,
                 virksomhetsnummer = VIRKSOMHETSNUMMER
@@ -395,7 +395,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun getMotebehovStatusAndSendOversikthendelseWithMotebehovHarBehovFalse() {
+    fun `get MotebehovStatus and SendOversikthendelse with Motebehov harBehov=false`() {
         oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
                 fnr = ARBEIDSTAKER_FNR,
                 virksomhetsnummer = VIRKSOMHETSNUMMER
@@ -404,7 +404,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun submitMotebehovMultipleActiveOppfolgingstilfeller() {
+    fun `submitMotebehov multiple active Oppfolgingstilfeller`() {
         oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
                 virksomhetsnummer = VIRKSOMHETSNUMMER,
                 fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).minusDays(1),
