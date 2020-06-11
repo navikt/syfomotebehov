@@ -36,6 +36,9 @@ Enhetstester er satt opp med in-memory db og kan kjøres på vanlig vis: **mvn t
 Applikasjonen pakkes til en stor jar vha spring-boot-maven-plugin, og bygges med docker. Applikasjonen kan kjøres opp 
 lokalt på docker hvis jdbc-url legges på path.
 
+### Lint
+Kjør `./gradlew --continue ktlintCheck`
+
 ### Pipeline
 
 Pipeline er på Github Action.
