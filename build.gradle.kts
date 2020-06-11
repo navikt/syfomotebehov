@@ -19,6 +19,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "5.2.0"
     id("org.springframework.boot") version "2.2.7.RELEASE"
     id("io.spring.dependency-management") version "1.0.9.RELEASE"
+    id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
 }
 
 buildscript {
