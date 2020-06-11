@@ -17,7 +17,7 @@ import javax.inject.Inject
 @Transactional
 @Repository
 class OppfolgingstilfelleDAO @Inject constructor(
-        private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
+    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 ) {
     fun get(fnr: Fodselsnummer, virksomhetsnummer: String): List<PPersonOppfolgingstilfelle> {
         val query = """
@@ -26,12 +26,12 @@ class OppfolgingstilfelleDAO @Inject constructor(
             WHERE fnr = :fnr AND virksomhetsnummer = :virksomhetsnummer
             """.trimIndent()
         val mapSql = MapSqlParameterSource()
-                .addValue("fnr", fnr.value)
-                .addValue("virksomhetsnummer", virksomhetsnummer)
+            .addValue("fnr", fnr.value)
+            .addValue("virksomhetsnummer", virksomhetsnummer)
         return namedParameterJdbcTemplate.query(
-                query,
-                mapSql,
-                personOppfolgingstilfelleRowMapper
+            query,
+            mapSql,
+            personOppfolgingstilfelleRowMapper
         )
     }
 
@@ -42,11 +42,11 @@ class OppfolgingstilfelleDAO @Inject constructor(
             WHERE fnr = :fnr
             """.trimIndent()
         val mapSql = MapSqlParameterSource()
-                .addValue("fnr", fnr.value)
+            .addValue("fnr", fnr.value)
         return namedParameterJdbcTemplate.query(
-                query,
-                mapSql,
-                personOppfolgingstilfelleRowMapper
+            query,
+            mapSql,
+            personOppfolgingstilfelleRowMapper
         )
     }
 
@@ -57,11 +57,11 @@ class OppfolgingstilfelleDAO @Inject constructor(
             WHERE fnr = :fnr AND virksomhetsnummer = :virksomhetsnummer
             """.trimIndent()
         val mapSaveSql = MapSqlParameterSource()
-                .addValue("sistEndret", convert(LocalDateTime.now()))
-                .addValue("fom", convert(oversikthendelsetilfelle.fom))
-                .addValue("tom", convert(oversikthendelsetilfelle.tom))
-                .addValue("fnr", oversikthendelsetilfelle.fnr)
-                .addValue("virksomhetsnummer", oversikthendelsetilfelle.virksomhetsnummer)
+            .addValue("sistEndret", convert(LocalDateTime.now()))
+            .addValue("fom", convert(oversikthendelsetilfelle.fom))
+            .addValue("tom", convert(oversikthendelsetilfelle.tom))
+            .addValue("fnr", oversikthendelsetilfelle.fnr)
+            .addValue("virksomhetsnummer", oversikthendelsetilfelle.virksomhetsnummer)
         namedParameterJdbcTemplate.update(query, mapSaveSql)
     }
 
@@ -72,13 +72,13 @@ class OppfolgingstilfelleDAO @Inject constructor(
             VALUES (:oppfolgingstilfelleUuid, :opprettet, :sistEndret, :fnr, :virksomhetsnummer, :fom, :tom)
             """.trimIndent()
         val mapSaveSql = MapSqlParameterSource()
-                .addValue("oppfolgingstilfelleUuid", uuid.toString())
-                .addValue("opprettet", convert(LocalDateTime.now()))
-                .addValue("sistEndret", convert(LocalDateTime.now()))
-                .addValue("fnr", oversikthendelsetilfelle.fnr)
-                .addValue("virksomhetsnummer", oversikthendelsetilfelle.virksomhetsnummer)
-                .addValue("fom", convert(oversikthendelsetilfelle.fom))
-                .addValue("tom", convert(oversikthendelsetilfelle.tom))
+            .addValue("oppfolgingstilfelleUuid", uuid.toString())
+            .addValue("opprettet", convert(LocalDateTime.now()))
+            .addValue("sistEndret", convert(LocalDateTime.now()))
+            .addValue("fnr", oversikthendelsetilfelle.fnr)
+            .addValue("virksomhetsnummer", oversikthendelsetilfelle.virksomhetsnummer)
+            .addValue("fom", convert(oversikthendelsetilfelle.fom))
+            .addValue("tom", convert(oversikthendelsetilfelle.tom))
         namedParameterJdbcTemplate.update(query, mapSaveSql)
         return uuid
     }
@@ -90,9 +90,9 @@ class OppfolgingstilfelleDAO @Inject constructor(
                 it.uuid
             }
             namedParameterJdbcTemplate.update(
-                    "DELETE FROM oppfolgingstilfelle WHERE oppfolgingstilfelle_uuid IN (:oppfolgingstilfelleIder)",
-                    MapSqlParameterSource()
-                            .addValue("oppfolgingstilfelleIder", oppfolgingstilfelleIder))
+                "DELETE FROM oppfolgingstilfelle WHERE oppfolgingstilfelle_uuid IN (:oppfolgingstilfelleIder)",
+                MapSqlParameterSource()
+                    .addValue("oppfolgingstilfelleIder", oppfolgingstilfelleIder))
         } else {
             0
         }
@@ -100,13 +100,13 @@ class OppfolgingstilfelleDAO @Inject constructor(
 
     val personOppfolgingstilfelleRowMapper = RowMapper { resultSet, _ ->
         PPersonOppfolgingstilfelle(
-                uuid = UUID.fromString(resultSet.getString("oppfolgingstilfelle_uuid")),
-                opprettet = resultSet.getTimestamp("opprettet").toLocalDateTime(),
-                sistEndret = resultSet.getTimestamp("sist_endret").toLocalDateTime(),
-                fnr = resultSet.getString("fnr"),
-                virksomhetsnummer = resultSet.getString("virksomhetsnummer"),
-                fom = convert(resultSet.getTimestamp("fom")),
-                tom = convert(resultSet.getTimestamp("tom"))
+            uuid = UUID.fromString(resultSet.getString("oppfolgingstilfelle_uuid")),
+            opprettet = resultSet.getTimestamp("opprettet").toLocalDateTime(),
+            sistEndret = resultSet.getTimestamp("sist_endret").toLocalDateTime(),
+            fnr = resultSet.getString("fnr"),
+            virksomhetsnummer = resultSet.getString("virksomhetsnummer"),
+            fom = convert(resultSet.getTimestamp("fom")),
+            tom = convert(resultSet.getTimestamp("tom"))
         )
     }
 }

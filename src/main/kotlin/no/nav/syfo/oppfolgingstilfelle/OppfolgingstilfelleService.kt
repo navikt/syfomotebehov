@@ -10,13 +10,13 @@ import javax.inject.Inject
 
 @Service
 class OppfolgingstilfelleService @Inject constructor(
-        private val metric: Metric,
-        private val oppfolgingstilfelleDAO: OppfolgingstilfelleDAO
+    private val metric: Metric,
+    private val oppfolgingstilfelleDAO: OppfolgingstilfelleDAO
 ) {
     fun receiveKOversikthendelsetilfelle(
-            oversikthendelsetilfelle: KOversikthendelsetilfelle
+        oversikthendelsetilfelle: KOversikthendelsetilfelle
     ) {
-        val createNew = oppfolgingstilfelleDAO.get(Fodselsnummer(oversikthendelsetilfelle.fnr), oversikthendelsetilfelle.virksomhetsnummer).isEmpty();
+        val createNew = oppfolgingstilfelleDAO.get(Fodselsnummer(oversikthendelsetilfelle.fnr), oversikthendelsetilfelle.virksomhetsnummer).isEmpty()
         if (createNew) {
             oppfolgingstilfelleDAO.create(oversikthendelsetilfelle)
             metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_CREATE)
@@ -27,7 +27,7 @@ class OppfolgingstilfelleService @Inject constructor(
     }
 
     fun getActiveOppfolgingstilfeller(
-            arbeidstakerFnr: Fodselsnummer
+        arbeidstakerFnr: Fodselsnummer
     ): List<PersonVirksomhetOppfolgingstilfelle> {
         return getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr).filter {
             it.isDateInOppfolgingstilfelle(LocalDate.now())
@@ -37,12 +37,12 @@ class OppfolgingstilfelleService @Inject constructor(
     }
 
     fun getActiveOppfolgingstilfelleForArbeidsgiver(
-            arbeidstakerFnr: Fodselsnummer,
-            virksomhetsnummer: String
+        arbeidstakerFnr: Fodselsnummer,
+        virksomhetsnummer: String
     ): PersonOppfolgingstilfelle? {
         val oppfolgingstilfelleList = getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr)
         val oppfolgingstilfelleVirksomhet = oppfolgingstilfelleList.find { it.virksomhetsnummer == virksomhetsnummer }
-        return if (oppfolgingstilfelleVirksomhet != null && oppfolgingstilfelleVirksomhet.isDateInOppfolgingstilfelle(LocalDate.now())){
+        return if (oppfolgingstilfelleVirksomhet != null && oppfolgingstilfelleVirksomhet.isDateInOppfolgingstilfelle(LocalDate.now())) {
             getActiveOppfolgingstilfelle(arbeidstakerFnr, oppfolgingstilfelleList)
         } else {
             null
@@ -50,13 +50,13 @@ class OppfolgingstilfelleService @Inject constructor(
     }
 
     fun getActiveOppfolgingstilfelleForArbeidstaker(
-            arbeidstakerFnr: Fodselsnummer
+        arbeidstakerFnr: Fodselsnummer
     ): PersonOppfolgingstilfelle? {
         return getActiveOppfolgingstilfelle(arbeidstakerFnr, getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr))
     }
 
     private fun getPOppfolgingstilfellerInActiveOppfolgingstilfelle(
-            arbeidstakerFnr: Fodselsnummer
+        arbeidstakerFnr: Fodselsnummer
     ): List<PPersonOppfolgingstilfelle> {
         val oppfolgingstilfelleList = oppfolgingstilfelleDAO.get(arbeidstakerFnr)
 
@@ -83,8 +83,8 @@ class OppfolgingstilfelleService @Inject constructor(
     }
 
     private fun getActiveOppfolgingstilfelle(
-            arbeidstakerFnr: Fodselsnummer,
-            oppfolgingstilfelleList: List<PPersonOppfolgingstilfelle>
+        arbeidstakerFnr: Fodselsnummer,
+        oppfolgingstilfelleList: List<PPersonOppfolgingstilfelle>
     ): PersonOppfolgingstilfelle? {
         val activeOppfolgingstilfeller = oppfolgingstilfelleList.map {
             it.mapToPersonOppfolgingstilfelle()
@@ -94,9 +94,9 @@ class OppfolgingstilfelleService @Inject constructor(
                 val minFom = activeOppfolgingstilfeller.minBy { it.fom }!!.fom
                 val maxTom = activeOppfolgingstilfeller.maxBy { it.tom }!!.tom
                 PersonOppfolgingstilfelle(
-                        fnr = arbeidstakerFnr,
-                        fom = minFom,
-                        tom = maxTom
+                    fnr = arbeidstakerFnr,
+                    fom = minFom,
+                    tom = maxTom
                 )
             } else {
                 activeOppfolgingstilfeller[0]

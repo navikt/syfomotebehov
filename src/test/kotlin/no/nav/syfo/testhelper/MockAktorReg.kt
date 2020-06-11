@@ -26,25 +26,25 @@ fun mockAktorId(fnr: String): String {
 
 fun mockAndExpectAktorregRequest(mockRestServiceServer: MockRestServiceServer, baseUrl: String) {
     val uriString = UriComponentsBuilder.fromHttpUrl(baseUrl)
-            .path("/identer")
-            .queryParam("gjeldende", true)
-            .toUriString()
+        .path("/identer")
+        .queryParam("gjeldende", true)
+        .toUriString()
     try {
         val map = mapOf(ARBEIDSTAKER_FNR to IdentinfoListe(
-                listOf(Identinfo(
-                        ident = ARBEIDSTAKER_FNR,
-                        identgruppe = IdentType.NorskIdent.name,
-                        gjeldende = true
-                )),
-                feilmelding = null
+            listOf(Identinfo(
+                ident = ARBEIDSTAKER_FNR,
+                identgruppe = IdentType.NorskIdent.name,
+                gjeldende = true
+            )),
+            feilmelding = null
         ))
 
         val json = ObjectMapper().writeValueAsString(map)
 
         mockRestServiceServer.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(uriString))
-                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-                .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, bearerCredentials(UserConstants.STS_TOKEN)))
-                .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON))
+            .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+            .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, bearerCredentials(UserConstants.STS_TOKEN)))
+            .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON))
     } catch (e: JsonProcessingException) {
         e.printStackTrace()
     }

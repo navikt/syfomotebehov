@@ -1,9 +1,9 @@
 package no.nav.syfo.consumer.aktorregister
 
-import no.nav.syfo.consumer.aktorregister.domain.*
 import no.nav.syfo.cache.CacheConfig
-import no.nav.syfo.metric.Metric
+import no.nav.syfo.consumer.aktorregister.domain.*
 import no.nav.syfo.consumer.sts.StsConsumer
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -18,10 +18,10 @@ import javax.inject.Inject
 
 @Service
 class AktorregisterConsumer @Inject constructor(
-        @Value("\${aktorregister.rest.url}") private val baseUrl: String,
-        private val metric: Metric,
-        private val restTemplate: RestTemplate,
-        private val stsConsumer: StsConsumer
+    @Value("\${aktorregister.rest.url}") private val baseUrl: String,
+    private val metric: Metric,
+    private val restTemplate: RestTemplate,
+    private val stsConsumer: StsConsumer
 ) {
     private val responseType: ParameterizedTypeReference<Map<String, IdentinfoListe>> = object : ParameterizedTypeReference<Map<String, IdentinfoListe>>() {}
 
@@ -42,10 +42,10 @@ class AktorregisterConsumer @Inject constructor(
         val uriString = UriComponentsBuilder.fromHttpUrl("$baseUrl/identer").queryParam("gjeldende", true).toUriString()
         try {
             val response = restTemplate.exchange(
-                    uriString,
-                    HttpMethod.GET,
-                    entity,
-                    responseType
+                uriString,
+                HttpMethod.GET,
+                entity,
+                responseType
             )
             val responseBody = response.body!!
             metric.tellHendelse("call_aktorregister_success")

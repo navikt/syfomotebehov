@@ -75,6 +75,7 @@ class MotebehovComponentTest {
 
     @MockBean
     private lateinit var brukertilgangConsumer: BrukertilgangConsumer
+
     @MockBean
     private lateinit var stsConsumer: StsConsumer
 
@@ -101,10 +102,10 @@ class MotebehovComponentTest {
         loggUtAlle(oidcRequestContextHolder)
         mockRestServiceServer.reset()
         cacheManager.cacheNames
-                .forEach(Consumer { cacheName: String ->
-                    val cache = cacheManager.getCache(cacheName)
-                    cache?.clear()
-                })
+            .forEach(Consumer { cacheName: String ->
+                val cache = cacheManager.getCache(cacheName)
+                cache?.clear()
+            })
         cleanDB()
     }
 
@@ -125,7 +126,7 @@ class MotebehovComponentTest {
 
         // Lagre
         motebehovController.lagreMotebehov(motebehovGenerator.lagNyttMotebehovFraAT().copy(
-                motebehovSvar = motebehovSvar
+            motebehovSvar = motebehovSvar
         ))
 
         // Hent
@@ -147,7 +148,6 @@ class MotebehovComponentTest {
         motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID)
     }
 }
-
 
 private fun <T> any(): T {
     Mockito.any<T>()

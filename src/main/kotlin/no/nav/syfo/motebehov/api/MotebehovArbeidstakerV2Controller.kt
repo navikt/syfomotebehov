@@ -19,15 +19,15 @@ import javax.validation.Valid
 @ProtectedWithClaims(issuer = OIDCIssuer.EKSTERN, claimMap = ["acr=Level4"])
 @RequestMapping(value = ["/api/v2/arbeidstaker"])
 class MotebehovArbeidstakerV2Controller @Inject constructor(
-        private val contextHolder: OIDCRequestContextHolder,
-        private val metric: Metric,
-        private val motebehovStatusService: MotebehovStatusService,
-        private val motebehovOpfolgingstilfelleService: MotebehovOpfolgingstilfelleService,
-        private val brukertilgangService: BrukertilgangService
+    private val contextHolder: OIDCRequestContextHolder,
+    private val metric: Metric,
+    private val motebehovStatusService: MotebehovStatusService,
+    private val motebehovOpfolgingstilfelleService: MotebehovOpfolgingstilfelleService,
+    private val brukertilgangService: BrukertilgangService
 ) {
     @GetMapping(
-            value = ["/motebehov"],
-            produces = [MediaType.APPLICATION_JSON_VALUE]
+        value = ["/motebehov"],
+        produces = [MediaType.APPLICATION_JSON_VALUE]
     )
     fun motebehovStatusArbeidstaker(): MotebehovStatus {
         val fnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
@@ -38,12 +38,12 @@ class MotebehovArbeidstakerV2Controller @Inject constructor(
     }
 
     @PostMapping(
-            value = ["/motebehov"],
-            consumes = [MediaType.APPLICATION_JSON_VALUE],
-            produces = [MediaType.APPLICATION_JSON_VALUE]
+        value = ["/motebehov"],
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE]
     )
     fun submitMotebehovArbeidstaker(
-            @RequestBody nyttMotebehovSvar: @Valid MotebehovSvar
+        @RequestBody nyttMotebehovSvar: @Valid MotebehovSvar
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker")
 
@@ -51,8 +51,8 @@ class MotebehovArbeidstakerV2Controller @Inject constructor(
         brukertilgangService.kastExceptionHvisIkkeTilgang(arbeidstakerFnr.value)
 
         motebehovOpfolgingstilfelleService.createMotehovForArbeidstaker(
-                OIDCUtil.fnrFraOIDCEkstern(contextHolder),
-                nyttMotebehovSvar
+            OIDCUtil.fnrFraOIDCEkstern(contextHolder),
+            nyttMotebehovSvar
         )
     }
 }

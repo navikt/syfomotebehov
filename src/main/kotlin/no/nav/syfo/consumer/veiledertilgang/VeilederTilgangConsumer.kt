@@ -1,10 +1,10 @@
 package no.nav.syfo.consumer.veiledertilgang
 
 import no.nav.security.oidc.context.OIDCRequestContextHolder
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.metric.Metric
 import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.api.auth.OIDCUtil
+import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -18,10 +18,10 @@ import java.util.*
 
 @Service
 class VeilederTilgangConsumer(
-        @Value("\${tilgangskontrollapi.url}") tilgangskontrollUrl: String,
-        private val metric: Metric,
-        private val template: RestTemplate,
-        private val oidcContextHolder: OIDCRequestContextHolder
+    @Value("\${tilgangskontrollapi.url}") tilgangskontrollUrl: String,
+    private val metric: Metric,
+    private val template: RestTemplate,
+    private val oidcContextHolder: OIDCRequestContextHolder
 ) {
     private val tilgangTilBrukerViaAzureUriTemplate: UriComponentsBuilder
 
@@ -34,10 +34,10 @@ class VeilederTilgangConsumer(
         val httpEntity = entity(oidcIssuer)
         return try {
             template.exchange(
-                    uri,
-                    HttpMethod.GET,
-                    httpEntity,
-                    String::class.java
+                uri,
+                HttpMethod.GET,
+                httpEntity,
+                String::class.java
             )
             true
         } catch (e: HttpClientErrorException) {
@@ -73,7 +73,7 @@ class VeilederTilgangConsumer(
 
     init {
         tilgangTilBrukerViaAzureUriTemplate = UriComponentsBuilder.fromHttpUrl(tilgangskontrollUrl)
-                .path(TILGANG_TIL_BRUKER_VIA_AZURE_PATH)
-                .queryParam(FNR, FNR_PLACEHOLDER)
+            .path(TILGANG_TIL_BRUKER_VIA_AZURE_PATH)
+            .queryParam(FNR, FNR_PLACEHOLDER)
     }
 }

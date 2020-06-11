@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class Toggle(
-        @Value("\${toggle.enable.nullstill:false}") enableNullstill: Boolean
+    @Value("\${toggle.enable.nullstill:false}") enableNullstill: Boolean
 ) {
     companion object {
         var enableNullstill = false

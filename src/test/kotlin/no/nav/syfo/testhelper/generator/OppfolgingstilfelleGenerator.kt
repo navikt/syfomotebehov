@@ -13,41 +13,41 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 val generateKOversikthendelsetilfelle = KOversikthendelsetilfelle(
-        fnr = ARBEIDSTAKER_FNR,
-        navn = PERSON_FULL_NAME,
-        enhetId = NAV_ENHET,
-        virksomhetsnummer = VIRKSOMHETSNUMMER,
-        virksomhetsnavn = VIRKSOMHETSNAVN,
-        gradert = false,
-        fom = LocalDate.now(),
-        tom = LocalDate.now(),
-        tidspunkt = LocalDateTime.now().minusMinutes(10)
+    fnr = ARBEIDSTAKER_FNR,
+    navn = PERSON_FULL_NAME,
+    enhetId = NAV_ENHET,
+    virksomhetsnummer = VIRKSOMHETSNUMMER,
+    virksomhetsnavn = VIRKSOMHETSNAVN,
+    gradert = false,
+    fom = LocalDate.now(),
+    tom = LocalDate.now(),
+    tidspunkt = LocalDateTime.now().minusMinutes(10)
 ).copy()
 
 val generateKOversikthendelsetilfelleMeldBehovFirstPeriod = generateKOversikthendelsetilfelle.copy(
-        fom = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1),
-        tom = LocalDate.now().plusDays(1)
+    fom = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1),
+    tom = LocalDate.now().plusDays(1)
 ).copy()
 
 val generateKOversikthendelsetilfelleSvarBehov = generateKOversikthendelsetilfelle.copy(
-        fom = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV),
-        tom = LocalDate.now().plusDays(1)
+    fom = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV),
+    tom = LocalDate.now().plusDays(1)
 ).copy()
 
 val generatePersonOppfolgingstilfelle = PersonOppfolgingstilfelle(
-        fnr = Fodselsnummer(ARBEIDSTAKER_FNR),
-        fom = LocalDate.now(),
-        tom = LocalDate.now()
+    fnr = Fodselsnummer(ARBEIDSTAKER_FNR),
+    fom = LocalDate.now(),
+    tom = LocalDate.now()
 ).copy()
 
 val generatePersonOppfolgingstilfelleMeldBehovFirstPeriod = generatePersonOppfolgingstilfelle.copy(
-        fnr = Fodselsnummer(ARBEIDSTAKER_FNR),
-        fom = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1),
-        tom = LocalDate.now().plusDays(1)
+    fnr = Fodselsnummer(ARBEIDSTAKER_FNR),
+    fom = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1),
+    tom = LocalDate.now().plusDays(1)
 ).copy()
 
 val generatePersonOppfolgingstilfelleSvarBehov = generatePersonOppfolgingstilfelle.copy(
-        fnr = Fodselsnummer(ARBEIDSTAKER_FNR),
-        fom = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV),
-        tom = LocalDate.now().plusDays(1)
+    fnr = Fodselsnummer(ARBEIDSTAKER_FNR),
+    fom = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV),
+    tom = LocalDate.now().plusDays(1)
 ).copy()

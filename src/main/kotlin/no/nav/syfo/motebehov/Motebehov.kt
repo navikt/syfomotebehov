@@ -7,29 +7,29 @@ import java.time.LocalDateTime
 import java.util.*
 
 data class Motebehov(
-        val id: UUID,
-        val opprettetDato: LocalDateTime,
-        val aktorId: String,
-        val opprettetAv: String,
-        val arbeidstakerFnr: String,
-        val virksomhetsnummer: String,
-        val motebehovSvar: MotebehovSvar,
-        val tildeltEnhet: String? = null,
-        val behandletTidspunkt: LocalDateTime? = null,
-        val behandletVeilederIdent: String? = null,
-        val skjemaType: MotebehovSkjemaType? = null
+    val id: UUID,
+    val opprettetDato: LocalDateTime,
+    val aktorId: String,
+    val opprettetAv: String,
+    val arbeidstakerFnr: String,
+    val virksomhetsnummer: String,
+    val motebehovSvar: MotebehovSvar,
+    val tildeltEnhet: String? = null,
+    val behandletTidspunkt: LocalDateTime? = null,
+    val behandletVeilederIdent: String? = null,
+    val skjemaType: MotebehovSkjemaType? = null
 ) : Serializable
 
-fun Motebehov.isUbehandlet() : Boolean {
+fun Motebehov.isUbehandlet(): Boolean {
     return this.motebehovSvar.harMotebehov && this.behandletVeilederIdent.isNullOrEmpty()
 }
 
-fun Motebehov.isCreatedInOppfolgingstilfelle(oppfolgingstilfelle: PersonOppfolgingstilfelle) : Boolean {
+fun Motebehov.isCreatedInOppfolgingstilfelle(oppfolgingstilfelle: PersonOppfolgingstilfelle): Boolean {
     val createdDate = this.opprettetDato.toLocalDate()
     return createdDate.isAfter(oppfolgingstilfelle.fom.minusDays(1)) && createdDate.isBefore(oppfolgingstilfelle.tom.plusDays(1))
 }
 
-fun Motebehov.isSvarBehovForOppfolgingstilfelle(oppfolgingstilfelle: PersonOppfolgingstilfelle) : Boolean {
+fun Motebehov.isSvarBehovForOppfolgingstilfelle(oppfolgingstilfelle: PersonOppfolgingstilfelle): Boolean {
     val firstDateSvarBehovAvailability = oppfolgingstilfelle.fom.plusDays(DAYS_START_SVAR_BEHOV)
     val lastDateSvarBehovAvailability = oppfolgingstilfelle.fom.plusDays(DAYS_END_SVAR_BEHOV).minusDays(1)
     val createdDate = this.opprettetDato.toLocalDate()

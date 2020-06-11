@@ -1,10 +1,10 @@
 package no.nav.syfo.motebehov.database
 
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
+import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
@@ -60,8 +60,8 @@ class MotebehovDAOTest {
     @Throws(java.lang.Exception::class)
     fun hentMotebehovListeForOgOpprettetAvArbeidstakerIkkeGyldig() {
         val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
-                opprettetDato = motebehovGenerator.getOpprettetDato(false),
-                opprettetAv = ARBEIDSTAKER_AKTORID
+            opprettetDato = motebehovGenerator.getOpprettetDato(false),
+            opprettetAv = ARBEIDSTAKER_AKTORID
         )
         insertPMotebehov(pMotebehov)
         val motebehovListe = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(ARBEIDSTAKER_AKTORID)
@@ -72,8 +72,8 @@ class MotebehovDAOTest {
     @Throws(java.lang.Exception::class)
     fun hentMotebehovListeForOgOpprettetAvArbeidstakerGyldig() {
         val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
-                opprettetDato = motebehovGenerator.getOpprettetDato(true),
-                opprettetAv = ARBEIDSTAKER_AKTORID
+            opprettetDato = motebehovGenerator.getOpprettetDato(true),
+            opprettetAv = ARBEIDSTAKER_AKTORID
         )
         insertPMotebehov(pMotebehov)
         val motebehovListe = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(ARBEIDSTAKER_AKTORID)
@@ -88,8 +88,8 @@ class MotebehovDAOTest {
     @Throws(java.lang.Exception::class)
     fun hentMotebehovListeForArbeidstakerOpprettetAvLederIkkeGyldig() {
         val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
-                opprettetDato = motebehovGenerator.getOpprettetDato(false),
-                opprettetAv = LEDER_AKTORID
+            opprettetDato = motebehovGenerator.getOpprettetDato(false),
+            opprettetAv = LEDER_AKTORID
         )
         insertPMotebehov(pMotebehov)
         val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(ARBEIDSTAKER_AKTORID, VIRKSOMHETSNUMMER)
@@ -100,8 +100,8 @@ class MotebehovDAOTest {
     @Throws(java.lang.Exception::class)
     fun hentMotebehovListeForArbeidstakerOpprettetAvLederGyldig() {
         val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
-                opprettetDato = motebehovGenerator.getOpprettetDato(true),
-                opprettetAv = LEDER_AKTORID
+            opprettetDato = motebehovGenerator.getOpprettetDato(true),
+            opprettetAv = LEDER_AKTORID
         )
         insertPMotebehov(pMotebehov)
         val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(ARBEIDSTAKER_AKTORID, VIRKSOMHETSNUMMER)

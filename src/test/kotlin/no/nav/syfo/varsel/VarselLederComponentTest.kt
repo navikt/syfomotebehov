@@ -76,8 +76,8 @@ class VarselLederComponentTest {
     private val motebehovGenerator = MotebehovGenerator()
 
     private val motebehovsvarVarselInfo = MotebehovsvarVarselInfo(
-            sykmeldtAktorId = ARBEIDSTAKER_AKTORID,
-            orgnummer = VIRKSOMHETSNUMMER
+        sykmeldtAktorId = ARBEIDSTAKER_AKTORID,
+        orgnummer = VIRKSOMHETSNUMMER
     )
     private val argumentCaptor = ArgumentCaptor.forClass(KTredjepartsvarsel::class.java)
 
@@ -88,9 +88,9 @@ class VarselLederComponentTest {
         cleanDB()
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
         `when`(aktorregisterConsumer.getFnrForAktorId(AktorId(ARBEIDSTAKER_AKTORID)))
-                .thenReturn(ARBEIDSTAKER_FNR)
+            .thenReturn(ARBEIDSTAKER_FNR)
         `when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR)))
-                .thenReturn(ARBEIDSTAKER_FNR)
+            .thenReturn(ARBEIDSTAKER_FNR)
         `when`(stsConsumer.token()).thenReturn(stsToken)
     }
 
@@ -105,11 +105,11 @@ class VarselLederComponentTest {
     fun sendVarselNaermesteLeder_skal_sende_varsel_til_NL_hvis_ikke_mote() {
         val oppfolgingstilfelle = generatePersonOppfolgingstilfelleSvarBehov
         oppfolgingstilfelleDAO.create(generateKOversikthendelsetilfelle.copy(
-                fom = oppfolgingstilfelle.fom,
-                tom = oppfolgingstilfelle.tom
+            fom = oppfolgingstilfelle.fom,
+            tom = oppfolgingstilfelle.tom
         ))
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
-                .thenReturn(generateMotebehovStatus.copy(motebehov = null))
+            .thenReturn(generateMotebehovStatus.copy(motebehov = null))
 
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         `when`(kafkaTemplate.send(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.any(KTredjepartsvarsel::class.java))).thenReturn(Mockito.mock(ListenableFuture::class.java) as ListenableFuture<SendResult<String, Any>>?)
@@ -125,15 +125,15 @@ class VarselLederComponentTest {
     fun sendVarselNaermesteLeder_no_varsel_oppfolgingstilfelle_meld_behov_no_meeting() {
         val oppfolgingstilfelle = generatePersonOppfolgingstilfelleMeldBehovFirstPeriod
         oppfolgingstilfelleDAO.create(generateKOversikthendelsetilfelle.copy(
-                fom = oppfolgingstilfelle.fom,
-                tom = oppfolgingstilfelle.tom
+            fom = oppfolgingstilfelle.fom,
+            tom = oppfolgingstilfelle.tom
         ))
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
-                .thenReturn(generateMotebehovStatus.copy(
-                        visMotebehov = true,
-                        skjemaType = MotebehovSkjemaType.MELD_BEHOV,
-                        motebehov = null
-                ))
+            .thenReturn(generateMotebehovStatus.copy(
+                visMotebehov = true,
+                skjemaType = MotebehovSkjemaType.MELD_BEHOV,
+                motebehov = null
+            ))
 
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
@@ -146,15 +146,15 @@ class VarselLederComponentTest {
     fun sendVarselNaermesteLeder_no_varsel_oppfolgingstilfelle_meld_behov() {
         val oppfolgingstilfelle = generatePersonOppfolgingstilfelleMeldBehovFirstPeriod
         oppfolgingstilfelleDAO.create(generateKOversikthendelsetilfelle.copy(
-                fom = oppfolgingstilfelle.fom,
-                tom = oppfolgingstilfelle.tom
+            fom = oppfolgingstilfelle.fom,
+            tom = oppfolgingstilfelle.tom
         ))
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
-                .thenReturn(generateMotebehovStatus.copy(
-                        visMotebehov = true,
-                        skjemaType = MotebehovSkjemaType.MELD_BEHOV,
-                        motebehov = null
-                ))
+            .thenReturn(generateMotebehovStatus.copy(
+                visMotebehov = true,
+                skjemaType = MotebehovSkjemaType.MELD_BEHOV,
+                motebehov = null
+            ))
 
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
@@ -167,23 +167,23 @@ class VarselLederComponentTest {
     fun sendVarselNaermesteLeder_no_varsel_oppfolgingstilfelle_svar_behov_motebehov_behandlet() {
         val oppfolgingstilfelle = generatePersonOppfolgingstilfelleSvarBehov
         oppfolgingstilfelleDAO.create(generateKOversikthendelsetilfelle.copy(
-                fom = oppfolgingstilfelle.fom,
-                tom = oppfolgingstilfelle.tom
+            fom = oppfolgingstilfelle.fom,
+            tom = oppfolgingstilfelle.tom
         ))
         val newestMotebehov = motebehovGenerator.generateMotebehov().copy(
-                opprettetAv = LEDER_AKTORID,
-                behandletVeilederIdent = VEILEDER_ID
+            opprettetAv = LEDER_AKTORID,
+            behandletVeilederIdent = VEILEDER_ID
         )
         `when`(motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(Fodselsnummer(ARBEIDSTAKER_FNR), VIRKSOMHETSNUMMER))
-                .thenReturn(listOf(newestMotebehov))
+            .thenReturn(listOf(newestMotebehov))
         `when`(motebehovStatusService.getNewestMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, listOf(newestMotebehov)))
-                .thenReturn(newestMotebehov)
+            .thenReturn(newestMotebehov)
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, listOf(newestMotebehov)))
-                .thenReturn(generateMotebehovStatus.copy(
-                        visMotebehov = true,
-                        skjemaType = MotebehovSkjemaType.MELD_BEHOV,
-                        motebehov = null
-                ))
+            .thenReturn(generateMotebehovStatus.copy(
+                visMotebehov = true,
+                skjemaType = MotebehovSkjemaType.MELD_BEHOV,
+                motebehov = null
+            ))
 
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
@@ -196,23 +196,23 @@ class VarselLederComponentTest {
     fun sendVarselNaermesteLeder_no_varsel_oppfolgingstilfelle_svar_behov_motebehov_ubehandlet() {
         val oppfolgingstilfelle = generatePersonOppfolgingstilfelleSvarBehov
         oppfolgingstilfelleDAO.create(generateKOversikthendelsetilfelle.copy(
-                fom = oppfolgingstilfelle.fom,
-                tom = oppfolgingstilfelle.tom
+            fom = oppfolgingstilfelle.fom,
+            tom = oppfolgingstilfelle.tom
         ))
         val newestMotebehov = motebehovGenerator.generateMotebehov().copy(
-                opprettetAv = LEDER_AKTORID,
-                behandletVeilederIdent = null
+            opprettetAv = LEDER_AKTORID,
+            behandletVeilederIdent = null
         )
         `when`(motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(Fodselsnummer(ARBEIDSTAKER_FNR), VIRKSOMHETSNUMMER))
-                .thenReturn(listOf(newestMotebehov))
+            .thenReturn(listOf(newestMotebehov))
         `when`(motebehovStatusService.getNewestMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, listOf(newestMotebehov)))
-                .thenReturn(newestMotebehov)
+            .thenReturn(newestMotebehov)
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, listOf(newestMotebehov)))
-                .thenReturn(generateMotebehovStatus.copy(
-                        visMotebehov = true,
-                        skjemaType = MotebehovSkjemaType.MELD_BEHOV,
-                        motebehov = null
-                ))
+            .thenReturn(generateMotebehovStatus.copy(
+                visMotebehov = true,
+                skjemaType = MotebehovSkjemaType.MELD_BEHOV,
+                motebehov = null
+            ))
 
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
@@ -225,11 +225,11 @@ class VarselLederComponentTest {
     fun sendVarselNaermesteLeder_skal_ikke_sende_varsel_til_NL_hvis_mote_finnes() {
         val oppfolgingstilfelle = generatePersonOppfolgingstilfelleSvarBehov
         oppfolgingstilfelleDAO.create(generateKOversikthendelsetilfelle.copy(
-                fom = oppfolgingstilfelle.fom,
-                tom = oppfolgingstilfelle.tom
+            fom = oppfolgingstilfelle.fom,
+            tom = oppfolgingstilfelle.tom
         ))
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
-                .thenReturn(generateMotebehovStatus.copy(motebehov = null))
+            .thenReturn(generateMotebehovStatus.copy(motebehov = null))
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
         Mockito.verify(kafkaTemplate, Mockito.never()).send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())

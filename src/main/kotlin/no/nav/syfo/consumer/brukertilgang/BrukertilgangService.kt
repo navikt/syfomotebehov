@@ -2,8 +2,8 @@ package no.nav.syfo.consumer.brukertilgang
 
 import no.nav.security.oidc.context.OIDCRequestContextHolder
 import no.nav.syfo.api.auth.OIDCUtil
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.cache.CacheConfig
+import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
@@ -12,9 +12,9 @@ import javax.ws.rs.ForbiddenException
 
 @Service
 class BrukertilgangService @Inject constructor(
-        private val contextHolder: OIDCRequestContextHolder,
-        private val brukertilgangConsumer: BrukertilgangConsumer,
-        private val pdlConsumer: PdlConsumer
+    private val contextHolder: OIDCRequestContextHolder,
+    private val brukertilgangConsumer: BrukertilgangConsumer,
+    private val pdlConsumer: PdlConsumer
 ) {
     fun kastExceptionHvisIkkeTilgang(fnr: String) {
         val innloggetIdent = OIDCUtil.fnrFraOIDCEkstern(contextHolder).value
@@ -26,8 +26,8 @@ class BrukertilgangService @Inject constructor(
 
     fun harTilgangTilOppslaattBruker(innloggetIdent: String, fnr: String): Boolean {
         return try {
-            !(sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetIdent, fnr)
-                    || pdlConsumer.isKode6(Fodselsnummer(fnr)))
+            !(sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetIdent, fnr) ||
+                pdlConsumer.isKode6(Fodselsnummer(fnr)))
         } catch (e: ForbiddenException) {
             false
         }
@@ -37,5 +37,4 @@ class BrukertilgangService @Inject constructor(
     fun sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetIdent: String, oppslaattFnr: String): Boolean {
         return !(oppslaattFnr == innloggetIdent || brukertilgangConsumer.hasAccessToAnsatt(oppslaattFnr))
     }
-
 }

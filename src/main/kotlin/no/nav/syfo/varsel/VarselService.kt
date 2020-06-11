@@ -19,19 +19,19 @@ import javax.inject.Inject
 
 @Service
 class VarselService @Inject constructor(
-        private val metric: Metric,
-        private val aktorregisterConsumer: AktorregisterConsumer,
-        private val motebehovService: MotebehovService,
-        private val motebehovStatusService: MotebehovStatusService,
-        private val moteConsumer: MoteConsumer,
-        private val oppfolgingstilfelleService: OppfolgingstilfelleService,
-        private val tredjepartsvarselProducer: TredjepartsvarselProducer
+    private val metric: Metric,
+    private val aktorregisterConsumer: AktorregisterConsumer,
+    private val motebehovService: MotebehovService,
+    private val motebehovStatusService: MotebehovStatusService,
+    private val moteConsumer: MoteConsumer,
+    private val oppfolgingstilfelleService: OppfolgingstilfelleService,
+    private val tredjepartsvarselProducer: TredjepartsvarselProducer
 ) {
     fun sendVarselTilNaermesteLeder(motebehovsvarVarselInfo: MotebehovsvarVarselInfo) {
         val arbeidstakerFnr = aktorregisterConsumer.getFnrForAktorId(AktorId(motebehovsvarVarselInfo.sykmeldtAktorId))
         val isSvarBehovVarselAvailableForLeder = isSvarBehovVarselAvailableArbeidsgiver(
-                Fodselsnummer(arbeidstakerFnr),
-                motebehovsvarVarselInfo.orgnummer
+            Fodselsnummer(arbeidstakerFnr),
+            motebehovsvarVarselInfo.orgnummer
         )
         if (!isSvarBehovVarselAvailableForLeder) {
             metric.tellHendelse("varsel_leder_not_sent_motebehov_not_available")
@@ -51,24 +51,24 @@ class VarselService @Inject constructor(
 
     fun isSvarBehovVarselAvailableArbeidstaker(arbeidstakerFnr: Fodselsnummer): Boolean {
         return isSvarBehovVarselAvailable(
-                motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr),
-                oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
+            motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr),
+            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
         )
     }
 
     fun isSvarBehovVarselAvailableArbeidsgiver(
-            arbeidstakerFnr: Fodselsnummer,
-            virksomhetsnummer: String
+        arbeidstakerFnr: Fodselsnummer,
+        virksomhetsnummer: String
     ): Boolean {
         return isSvarBehovVarselAvailable(
-                motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr, virksomhetsnummer),
-                oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, virksomhetsnummer)
+            motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr, virksomhetsnummer),
+            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, virksomhetsnummer)
         )
     }
 
     private fun isSvarBehovVarselAvailable(
-            motebehovList: List<Motebehov>,
-            oppfolgingstilfelle: PersonOppfolgingstilfelle?
+        motebehovList: List<Motebehov>,
+        oppfolgingstilfelle: PersonOppfolgingstilfelle?
     ): Boolean {
         oppfolgingstilfelle?.let {
             val motebehovStatus = motebehovStatusService.motebehovStatus(oppfolgingstilfelle, motebehovList)
@@ -82,11 +82,11 @@ class VarselService @Inject constructor(
 
     private fun mapTilKTredjepartsvarsel(motebehovsvarVarselInfo: MotebehovsvarVarselInfo): KTredjepartsvarsel {
         return KTredjepartsvarsel(
-                type = VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name,
-                ressursId = UUID.randomUUID().toString(),
-                aktorId = motebehovsvarVarselInfo.sykmeldtAktorId,
-                orgnummer = motebehovsvarVarselInfo.orgnummer,
-                utsendelsestidspunkt = LocalDateTime.now()
+            type = VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name,
+            ressursId = UUID.randomUUID().toString(),
+            aktorId = motebehovsvarVarselInfo.sykmeldtAktorId,
+            orgnummer = motebehovsvarVarselInfo.orgnummer,
+            utsendelsestidspunkt = LocalDateTime.now()
         )
     }
 

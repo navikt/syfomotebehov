@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 @Service
 class OversikthendelseService @Inject constructor(
-        private val oversikthendelseProducer: OversikthendelseProducer
+    private val oversikthendelseProducer: OversikthendelseProducer
 ) {
     fun sendOversikthendelseMottatt(arbeidstakerFnr: Fodselsnummer, tildeltEnhet: String) {
         sendOversikthendelse(arbeidstakerFnr, tildeltEnhet, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT)
@@ -24,10 +24,10 @@ class OversikthendelseService @Inject constructor(
 
     private fun map2KOversikthendelse(fnr: Fodselsnummer, tildeltEnhet: String, oversikthendelseType: OversikthendelseType): KOversikthendelse {
         return KOversikthendelse(
-                fnr = fnr.value,
-                hendelseId = oversikthendelseType.name,
-                enhetId = tildeltEnhet,
-                tidspunkt = LocalDateTime.now()
+            fnr = fnr.value,
+            hendelseId = oversikthendelseType.name,
+            enhetId = tildeltEnhet,
+            tidspunkt = LocalDateTime.now()
         )
     }
 }

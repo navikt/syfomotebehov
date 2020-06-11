@@ -1,21 +1,13 @@
 package no.nav.syfo.consumer.brukertilgang
 
-import no.nav.security.oidc.context.OIDCClaims
-import no.nav.security.oidc.context.OIDCRequestContextHolder
-import no.nav.security.oidc.context.OIDCValidationContext
-import no.nav.security.oidc.context.TokenContext
+import no.nav.security.oidc.context.*
 import no.nav.security.oidc.test.support.JwtTokenGenerator
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.api.auth.OIDCIssuer.EKSTERN
+import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.pdl.PdlConsumer
-import org.junit.After
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import org.junit.*
 import org.junit.runner.RunWith
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.Mockito
+import org.mockito.*
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)

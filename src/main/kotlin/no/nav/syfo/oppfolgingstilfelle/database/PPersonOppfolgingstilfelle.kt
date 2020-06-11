@@ -6,29 +6,29 @@ import java.time.LocalDateTime
 import java.util.*
 
 data class PPersonOppfolgingstilfelle(
-        val uuid: UUID,
-        val opprettet: LocalDateTime,
-        val sistEndret: LocalDateTime,
-        val fnr: String,
-        val virksomhetsnummer: String,
-        val fom: LocalDate,
-        val tom: LocalDate
+    val uuid: UUID,
+    val opprettet: LocalDateTime,
+    val sistEndret: LocalDateTime,
+    val fnr: String,
+    val virksomhetsnummer: String,
+    val fom: LocalDate,
+    val tom: LocalDate
 )
 
 fun PPersonOppfolgingstilfelle.mapToPersonOppfolgingstilfelle(): PersonOppfolgingstilfelle {
     return PersonOppfolgingstilfelle(
-            fnr = Fodselsnummer(this.fnr),
-            fom = this.fom,
-            tom = this.tom
+        fnr = Fodselsnummer(this.fnr),
+        fom = this.fom,
+        tom = this.tom
     )
 }
 
 fun PPersonOppfolgingstilfelle.mapToPersonVirksomhetOppfolgingstilfelle(): PersonVirksomhetOppfolgingstilfelle {
     return PersonVirksomhetOppfolgingstilfelle(
-            fnr = this.fnr,
-            virksomhetsnummer = this.virksomhetsnummer,
-            fom = this.fom,
-            tom = this.tom
+        fnr = this.fnr,
+        virksomhetsnummer = this.virksomhetsnummer,
+        fom = this.fom,
+        tom = this.tom
     )
 }
 

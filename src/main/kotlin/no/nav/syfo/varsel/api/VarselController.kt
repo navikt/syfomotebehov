@@ -6,44 +6,50 @@ import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.varsel.*
+import no.nav.syfo.varsel.MotebehovsvarVarselInfo
+import no.nav.syfo.varsel.MotebehovsvarVarselInfoArbeidstaker
+import no.nav.syfo.varsel.VarselService
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseBody
+import org.springframework.web.bind.annotation.RestController
 import javax.inject.Inject
 import javax.ws.rs.core.Response
 
 @RestController
 @RequestMapping(value = ["/api/varsel"])
 class VarselController @Inject constructor(
-        private val metric: Metric,
-        private val aktorregisterConsumer: AktorregisterConsumer,
-        private val varselService: VarselService
+    private val metric: Metric,
+    private val aktorregisterConsumer: AktorregisterConsumer,
+    private val varselService: VarselService
 ) {
     @ResponseBody
     @ProtectedWithClaims(issuer = INTERN, claimMap = ["sub=srvsyfoservice"])
     @PostMapping(value = ["/naermesteleder"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun sendVarselNaermesteLeder(
-            @RequestBody motebehovsvarVarselInfo: MotebehovsvarVarselInfo
+        @RequestBody motebehovsvarVarselInfo: MotebehovsvarVarselInfo
     ): Response {
         varselService.sendVarselTilNaermesteLeder(motebehovsvarVarselInfo)
         return Response
-                .ok()
-                .build()
+            .ok()
+            .build()
     }
 
     @ResponseBody
     @ProtectedWithClaims(issuer = INTERN, claimMap = ["sub=srvsyfoservice"])
     @PostMapping(value = ["/availability/arbeidstaker"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun motebehovVarselAvailabilityArbeidstaker(
-            @RequestBody motebehovsvarVarselInfo: MotebehovsvarVarselInfoArbeidstaker
+        @RequestBody motebehovsvarVarselInfo: MotebehovsvarVarselInfoArbeidstaker
     ): ResponseEntity<Boolean> {
         val arbeidstakerFnr = aktorregisterConsumer.getFnrForAktorId(AktorId(motebehovsvarVarselInfo.sykmeldtAktorId))
         val isSvarBehovVarselAvailableForArbeidstaker = varselService.isSvarBehovVarselAvailableArbeidstaker(Fodselsnummer(arbeidstakerFnr))
         countMotebehovVarselAvailabilityArbeidstaker(isSvarBehovVarselAvailableForArbeidstaker)
         return ResponseEntity
-                .ok()
-                .body(isSvarBehovVarselAvailableForArbeidstaker)
+            .ok()
+            .body(isSvarBehovVarselAvailableForArbeidstaker)
     }
 
     private fun countMotebehovVarselAvailabilityArbeidstaker(countIsVarselAvailableForMotebehov: Boolean) {

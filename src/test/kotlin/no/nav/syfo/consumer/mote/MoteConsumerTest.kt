@@ -1,8 +1,8 @@
 package no.nav.syfo.consumer.mote
 
 import junit.framework.TestCase
-import no.nav.syfo.metric.Metric
 import no.nav.syfo.consumer.sts.StsConsumer
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import org.junit.Assert
 import org.junit.Before

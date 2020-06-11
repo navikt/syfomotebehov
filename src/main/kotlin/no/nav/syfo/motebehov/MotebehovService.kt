@@ -19,11 +19,11 @@ import javax.inject.Inject
 
 @Service
 class MotebehovService @Inject constructor(
-        private val metric: Metric,
-        private val aktorregisterConsumer: AktorregisterConsumer,
-        private val behandlendeEnhetConsumer: BehandlendeEnhetConsumer,
-        private val oversikthendelseService: OversikthendelseService,
-        private val motebehovDAO: MotebehovDAO
+    private val metric: Metric,
+    private val aktorregisterConsumer: AktorregisterConsumer,
+    private val behandlendeEnhetConsumer: BehandlendeEnhetConsumer,
+    private val oversikthendelseService: OversikthendelseService,
+    private val motebehovDAO: MotebehovDAO
 ) {
     @Transactional
     fun behandleUbehandledeMotebehov(arbeidstakerFnr: Fodselsnummer, veilederIdent: String) {
@@ -41,45 +41,45 @@ class MotebehovService @Inject constructor(
     fun hentMotebehovListe(arbeidstakerFnr: Fodselsnummer): List<Motebehov> {
         val arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr)
         return motebehovDAO.hentMotebehovListeForAktoer(arbeidstakerAktoerId)
-                .stream()
-                .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
-                .collect(Collectors.toList())
+            .stream()
+            .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
+            .collect(Collectors.toList())
     }
 
     fun hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr: Fodselsnummer): List<Motebehov> {
         val arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(arbeidstakerFnr.value))
         return motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktoerId)
-                .stream()
-                .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
-                .collect(Collectors.toList())
+            .stream()
+            .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
+            .collect(Collectors.toList())
     }
 
     fun hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr: Fodselsnummer, virksomhetsnummer: String): List<Motebehov> {
         val arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(arbeidstakerFnr.value))
         return motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerAktoerId, virksomhetsnummer)
-                .stream()
-                .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
-                .collect(Collectors.toList())
+            .stream()
+            .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
+            .collect(Collectors.toList())
     }
 
     @Transactional
     fun lagreMotebehov(
-            innloggetFNR: Fodselsnummer,
-            arbeidstakerFnr: Fodselsnummer,
-            virksomhetsnummer: String,
-            skjemaType: MotebehovSkjemaType,
-            motebehovSvar: MotebehovSvar
+        innloggetFNR: Fodselsnummer,
+        arbeidstakerFnr: Fodselsnummer,
+        virksomhetsnummer: String,
+        skjemaType: MotebehovSkjemaType,
+        motebehovSvar: MotebehovSvar
     ): UUID {
         val innloggetBrukerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(innloggetFNR)
         val arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr)
         val arbeidstakerBehandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.value, null).enhetId
         val motebehov = mapNyttMotebehovToPMotebehov(
-                innloggetBrukerAktoerId,
-                arbeidstakerAktoerId,
-                arbeidstakerBehandlendeEnhet,
-                virksomhetsnummer,
-                skjemaType,
-                motebehovSvar
+            innloggetBrukerAktoerId,
+            arbeidstakerAktoerId,
+            arbeidstakerBehandlendeEnhet,
+            virksomhetsnummer,
+            skjemaType,
+            motebehovSvar
         )
         val id = motebehovDAO.create(motebehov)
         if (motebehovSvar.harMotebehov) {
@@ -89,44 +89,44 @@ class MotebehovService @Inject constructor(
     }
 
     private fun mapNyttMotebehovToPMotebehov(
-            innloggetAktoerId: String,
-            arbeidstakerAktoerId: String,
-            tildeltEnhet: String,
-            virksomhetsnummer: String,
-            skjemaType: MotebehovSkjemaType,
-            motebehovSvar: MotebehovSvar
+        innloggetAktoerId: String,
+        arbeidstakerAktoerId: String,
+        tildeltEnhet: String,
+        virksomhetsnummer: String,
+        skjemaType: MotebehovSkjemaType,
+        motebehovSvar: MotebehovSvar
     ): PMotebehov {
         return PMotebehov(
-                uuid = UUID.randomUUID(),
-                opprettetDato = LocalDateTime.now(),
-                opprettetAv = innloggetAktoerId,
-                aktoerId = arbeidstakerAktoerId,
-                virksomhetsnummer = virksomhetsnummer,
-                harMotebehov = motebehovSvar.harMotebehov,
-                forklaring = motebehovSvar.forklaring,
-                tildeltEnhet = tildeltEnhet,
-                behandletVeilederIdent = null,
-                behandletTidspunkt = null,
-                skjemaType = skjemaType
+            uuid = UUID.randomUUID(),
+            opprettetDato = LocalDateTime.now(),
+            opprettetAv = innloggetAktoerId,
+            aktoerId = arbeidstakerAktoerId,
+            virksomhetsnummer = virksomhetsnummer,
+            harMotebehov = motebehovSvar.harMotebehov,
+            forklaring = motebehovSvar.forklaring,
+            tildeltEnhet = tildeltEnhet,
+            behandletVeilederIdent = null,
+            behandletTidspunkt = null,
+            skjemaType = skjemaType
         )
     }
 
     private fun mapPMotebehovToMotebehov(arbeidstakerFnr: Fodselsnummer, pMotebehov: PMotebehov): Motebehov {
         return Motebehov(
-                id = pMotebehov.uuid,
-                opprettetDato = pMotebehov.opprettetDato,
-                aktorId = pMotebehov.aktoerId,
-                opprettetAv = pMotebehov.opprettetAv,
-                arbeidstakerFnr = arbeidstakerFnr.value,
-                virksomhetsnummer = pMotebehov.virksomhetsnummer,
-                motebehovSvar = MotebehovSvar(
-                        harMotebehov = pMotebehov.harMotebehov,
-                        forklaring = pMotebehov.forklaring
-                ),
-                tildeltEnhet = pMotebehov.tildeltEnhet,
-                behandletTidspunkt = pMotebehov.behandletTidspunkt,
-                behandletVeilederIdent = pMotebehov.behandletVeilederIdent,
-                skjemaType = pMotebehov.skjemaType
+            id = pMotebehov.uuid,
+            opprettetDato = pMotebehov.opprettetDato,
+            aktorId = pMotebehov.aktoerId,
+            opprettetAv = pMotebehov.opprettetAv,
+            arbeidstakerFnr = arbeidstakerFnr.value,
+            virksomhetsnummer = pMotebehov.virksomhetsnummer,
+            motebehovSvar = MotebehovSvar(
+                harMotebehov = pMotebehov.harMotebehov,
+                forklaring = pMotebehov.forklaring
+            ),
+            tildeltEnhet = pMotebehov.tildeltEnhet,
+            behandletTidspunkt = pMotebehov.behandletTidspunkt,
+            behandletVeilederIdent = pMotebehov.behandletVeilederIdent,
+            skjemaType = pMotebehov.skjemaType
         )
     }
 

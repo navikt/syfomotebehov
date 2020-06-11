@@ -48,17 +48,17 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
                 :motebehov_uuid, :opprettet_dato, :opprettet_av, :aktoer_id, :virksomhetsnummer, :har_motebehov, :forklaring, :tildelt_enhet, :behandlet_tidspunkt, :behandlet_veileder_ident, :skjematype)
             """.trimIndent()
         val mapLagreSql = MapSqlParameterSource()
-                .addValue("motebehov_uuid", uuid.toString())
-                .addValue("opprettet_av", motebehov.opprettetAv)
-                .addValue("opprettet_dato", convert(LocalDateTime.now()))
-                .addValue("aktoer_id", motebehov.aktoerId)
-                .addValue("virksomhetsnummer", motebehov.virksomhetsnummer)
-                .addValue("har_motebehov", motebehov.harMotebehov)
-                .addValue("forklaring", SqlLobValue(sanitizeUserInput(motebehov.forklaring)), Types.CLOB)
-                .addValue("tildelt_enhet", motebehov.tildeltEnhet)
-                .addValue("behandlet_tidspunkt", convertNullable(motebehov.behandletTidspunkt))
-                .addValue("behandlet_veileder_ident", motebehov.behandletVeilederIdent)
-                .addValue("skjematype", motebehov.skjemaType?.name)
+            .addValue("motebehov_uuid", uuid.toString())
+            .addValue("opprettet_av", motebehov.opprettetAv)
+            .addValue("opprettet_dato", convert(LocalDateTime.now()))
+            .addValue("aktoer_id", motebehov.aktoerId)
+            .addValue("virksomhetsnummer", motebehov.virksomhetsnummer)
+            .addValue("har_motebehov", motebehov.harMotebehov)
+            .addValue("forklaring", SqlLobValue(sanitizeUserInput(motebehov.forklaring)), Types.CLOB)
+            .addValue("tildelt_enhet", motebehov.tildeltEnhet)
+            .addValue("behandlet_tidspunkt", convertNullable(motebehov.behandletTidspunkt))
+            .addValue("behandlet_veileder_ident", motebehov.behandletVeilederIdent)
+            .addValue("skjematype", motebehov.skjemaType?.name)
         namedParameterJdbcTemplate.update(lagreSql, mapLagreSql)
         return uuid
     }
@@ -69,9 +69,9 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
                 it.uuid
             }
             namedParameterJdbcTemplate.update(
-                    "DELETE FROM motebehov WHERE motebehov_uuid IN (:motebehovIder)",
-                    MapSqlParameterSource()
-                            .addValue("motebehovIder", motebehovIder))
+                "DELETE FROM motebehov WHERE motebehov_uuid IN (:motebehovIder)",
+                MapSqlParameterSource()
+                    .addValue("motebehovIder", motebehovIder))
         } else {
             0
         }
@@ -81,17 +81,17 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
         private val innsendingRowMapper: RowMapper<PMotebehov>
             get() = RowMapper { rs: ResultSet, _: Int ->
                 PMotebehov(
-                        uuid = UUID.fromString(rs.getString("motebehov_uuid")),
-                        opprettetDato = rs.getTimestamp("opprettet_dato").toLocalDateTime(),
-                        opprettetAv = rs.getString("opprettet_av"),
-                        aktoerId = rs.getString("aktoer_id"),
-                        virksomhetsnummer = rs.getString("virksomhetsnummer"),
-                        harMotebehov = rs.getBoolean("har_motebehov"),
-                        forklaring = rs.getString("forklaring"),
-                        tildeltEnhet = rs.getString("tildelt_enhet"),
-                        behandletTidspunkt = convertNullable(rs.getTimestamp("behandlet_tidspunkt")),
-                        behandletVeilederIdent = rs.getString("behandlet_veileder_ident"),
-                        skjemaType = rs.getString("skjematype")?.let { MotebehovSkjemaType.valueOf(it) }
+                    uuid = UUID.fromString(rs.getString("motebehov_uuid")),
+                    opprettetDato = rs.getTimestamp("opprettet_dato").toLocalDateTime(),
+                    opprettetAv = rs.getString("opprettet_av"),
+                    aktoerId = rs.getString("aktoer_id"),
+                    virksomhetsnummer = rs.getString("virksomhetsnummer"),
+                    harMotebehov = rs.getBoolean("har_motebehov"),
+                    forklaring = rs.getString("forklaring"),
+                    tildeltEnhet = rs.getString("tildelt_enhet"),
+                    behandletTidspunkt = convertNullable(rs.getTimestamp("behandlet_tidspunkt")),
+                    behandletVeilederIdent = rs.getString("behandlet_veileder_ident"),
+                    skjemaType = rs.getString("skjematype")?.let { MotebehovSkjemaType.valueOf(it) }
                 )
             }
     }
