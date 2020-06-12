@@ -3,7 +3,6 @@ import com.github.jengelman.gradle.plugins.shadow.transformers.PropertiesFileTra
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "no.nav.syfo"
-version = "1.0.0"
 
 object Versions {
     const val kotlinLibVersion = "1.3.72"
@@ -81,12 +80,6 @@ dependencies {
 tasks {
     withType<Jar> {
         manifest.attributes["Main-Class"] = "no.nav.syfo.ApplicationKt"
-    }
-
-    create("printVersion") {
-        doLast {
-            println(project.version)
-        }
     }
 
     withType<ShadowJar> {
