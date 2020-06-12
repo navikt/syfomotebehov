@@ -5,12 +5,14 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 version = "1.0.0"
 
-val kotlinLibVersion = "1.3.72"
-val kotlinJacksonVersion = "2.9.8"
-val flywayVersion = "5.1.4"
-val h2Version = "1.4.197"
-val oidcSupportVersion = "0.2.18"
-val ojdbcVersion = "19.3.0.0"
+object Versions {
+    const val kotlinLibVersion = "1.3.72"
+    const val kotlinJacksonVersion = "2.9.8"
+    const val flywayVersion = "5.1.4"
+    const val h2Version = "1.4.197"
+    const val oidcSupportVersion = "0.2.18"
+    const val ojdbcVersion = "19.3.0.0"
+}
 
 plugins {
     kotlin("jvm") version "1.3.72"
@@ -42,9 +44,9 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinLibVersion")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinLibVersion")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$kotlinJacksonVersion")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlinLibVersion}")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlinLibVersion}")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.kotlinJacksonVersion}")
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -57,11 +59,11 @@ dependencies {
 
     implementation("io.micrometer:micrometer-registry-prometheus:1.0.6")
 
-    implementation("no.nav.security:oidc-spring-support:$oidcSupportVersion")
+    implementation("no.nav.security:oidc-spring-support:${Versions.oidcSupportVersion}")
 
-    implementation("com.oracle.ojdbc:ojdbc8:$ojdbcVersion")
+    implementation("com.oracle.ojdbc:ojdbc8:${Versions.ojdbcVersion}")
     implementation("org.springframework.kafka:spring-kafka")
-    implementation("org.flywaydb:flyway-core:$flywayVersion")
+    implementation("org.flywaydb:flyway-core:${Versions.flywayVersion}")
     implementation("javax.inject:javax.inject:1")
     implementation("org.slf4j:slf4j-api:1.7.25")
     implementation("net.logstash.logback:logstash-logback-encoder:4.10")
@@ -70,10 +72,10 @@ dependencies {
     implementation("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
-    testImplementation("no.nav.security:oidc-test-support:$oidcSupportVersion")
+    testImplementation("no.nav.security:oidc-test-support:${Versions.oidcSupportVersion}")
     testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("com.h2database:h2:$h2Version")
+    testImplementation("com.h2database:h2:${Versions.h2Version}")
 }
 
 tasks {
