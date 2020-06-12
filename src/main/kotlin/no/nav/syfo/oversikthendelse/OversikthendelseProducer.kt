@@ -8,14 +8,14 @@ import javax.inject.Inject
 
 @Component
 class OversikthendelseProducer @Inject constructor(
-        private val kafkaTemplate: KafkaTemplate<String, Any>
+    private val kafkaTemplate: KafkaTemplate<String, Any>
 ) {
     fun sendOversikthendelse(kOversikthendelse: KOversikthendelse) {
         try {
             kafkaTemplate.send(
-                    OVERSIKTHENDELSE_TOPIC,
-                    UUID.randomUUID().toString(),
-                    kOversikthendelse
+                OVERSIKTHENDELSE_TOPIC,
+                UUID.randomUUID().toString(),
+                kOversikthendelse
             ).get()
             log.info("Legger oversikthendelse med id {} på kø for enhet {}", kOversikthendelse.hendelseId, kOversikthendelse.enhetId)
         } catch (e: Exception) {

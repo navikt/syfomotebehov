@@ -1,9 +1,7 @@
 package no.nav.syfo.oppfolgingstilfelle.kafka
 
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Profile
+import org.springframework.context.annotation.*
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
@@ -21,10 +19,10 @@ class KafkaOversikthendelseOppfolgingstilfelleConfig @Inject constructor() {
 
     @Bean
     fun kafkaListenerContainerFactory(
-            consumerFactory: ConsumerFactory<String, String>
+        consumerFactory: ConsumerFactory<String, String>
     ): ConcurrentKafkaListenerContainerFactory<String, String> {
         return ConcurrentKafkaListenerContainerFactory<String, String>().apply {
-            this.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE;
+            this.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
             this.consumerFactory = consumerFactory
         }
     }

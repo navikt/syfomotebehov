@@ -12,37 +12,37 @@ import javax.inject.Inject
 
 @Service
 class MotebehovOpfolgingstilfelleService @Inject constructor(
-        private val metric: Metric,
-        private val motebehovService: MotebehovService,
-        private val motebehovStatusService: MotebehovStatusService,
-        private val oppfolgingstilfelleService: OppfolgingstilfelleService
+    private val metric: Metric,
+    private val motebehovService: MotebehovService,
+    private val motebehovStatusService: MotebehovStatusService,
+    private val oppfolgingstilfelleService: OppfolgingstilfelleService
 ) {
     fun createMotehovForArbeidgiver(
-            innloggetFnr: Fodselsnummer,
-            arbeidstakerFnr: Fodselsnummer,
-            nyttMotebehov: NyttMotebehovArbeidsgiver
+        innloggetFnr: Fodselsnummer,
+        arbeidstakerFnr: Fodselsnummer,
+        nyttMotebehov: NyttMotebehovArbeidsgiver
     ) {
         val activeOppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, nyttMotebehov.virksomhetsnummer)
         if (activeOppfolgingstilfelle != null) {
             val motebehovStatus = motebehovStatusService.motebehovStatusForArbeidsgiver(arbeidstakerFnr, nyttMotebehov.virksomhetsnummer)
 
-            val isActiveOppfolgingstilfelleAvailableForAnswer = motebehovStatus.visMotebehov
-                    && motebehovStatus.skjemaType != null
-                    && motebehovStatus.motebehov == null
+            val isActiveOppfolgingstilfelleAvailableForAnswer = motebehovStatus.visMotebehov &&
+                motebehovStatus.skjemaType != null &&
+                motebehovStatus.motebehov == null
 
             if (isActiveOppfolgingstilfelleAvailableForAnswer && motebehovStatus.skjemaType != null) {
                 motebehovService.lagreMotebehov(
-                        innloggetFnr,
-                        arbeidstakerFnr,
-                        nyttMotebehov.virksomhetsnummer,
-                        motebehovStatus.skjemaType,
-                        nyttMotebehov.motebehovSvar
+                    innloggetFnr,
+                    arbeidstakerFnr,
+                    nyttMotebehov.virksomhetsnummer,
+                    motebehovStatus.skjemaType,
+                    nyttMotebehov.motebehovSvar
                 )
                 metric.tellBesvarMotebehov(
-                        activeOppfolgingstilfelle,
-                        motebehovStatus.skjemaType,
-                        nyttMotebehov.motebehovSvar,
-                        false
+                    activeOppfolgingstilfelle,
+                    motebehovStatus.skjemaType,
+                    nyttMotebehov.motebehovSvar,
+                    false
                 )
             } else {
                 LOG.info("JTRACE:  ${nyttMotebehov.virksomhetsnummer} ${arbeidstakerFnr.value.substring(0, 4)}")
@@ -62,9 +62,9 @@ class MotebehovOpfolgingstilfelleService @Inject constructor(
         if (activeOppolgingstilfelle != null) {
             val motebehovStatusForOppfolgingstilfelle = motebehovStatusService.motebehovStatusForArbeidstaker(arbeidstakerFnr)
 
-            val isActiveOppfolgingstilfelleAvailableForAnswer = motebehovStatusForOppfolgingstilfelle.visMotebehov
-                    && motebehovStatusForOppfolgingstilfelle.skjemaType != null
-                    && motebehovStatusForOppfolgingstilfelle.motebehov == null
+            val isActiveOppfolgingstilfelleAvailableForAnswer = motebehovStatusForOppfolgingstilfelle.visMotebehov &&
+                motebehovStatusForOppfolgingstilfelle.skjemaType != null &&
+                motebehovStatusForOppfolgingstilfelle.motebehov == null
 
             val virksomhetsnummerList = if (isActiveOppfolgingstilfelleAvailableForAnswer) {
                 oppfolgingstilfelleService.getActiveOppfolgingstilfeller(arbeidstakerFnr).map {
@@ -77,18 +77,18 @@ class MotebehovOpfolgingstilfelleService @Inject constructor(
             if (virksomhetsnummerList.isNotEmpty() && motebehovStatusForOppfolgingstilfelle.skjemaType != null) {
                 for (virksomhetsnummer in virksomhetsnummerList) {
                     motebehovService.lagreMotebehov(
-                            arbeidstakerFnr,
-                            arbeidstakerFnr,
-                            virksomhetsnummer,
-                            motebehovStatusForOppfolgingstilfelle.skjemaType,
-                            motebehovSvar
+                        arbeidstakerFnr,
+                        arbeidstakerFnr,
+                        virksomhetsnummer,
+                        motebehovStatusForOppfolgingstilfelle.skjemaType,
+                        motebehovSvar
                     )
                 }
                 metric.tellBesvarMotebehov(
-                        activeOppolgingstilfelle,
-                        motebehovStatusForOppfolgingstilfelle.skjemaType,
-                        motebehovSvar,
-                        true
+                    activeOppolgingstilfelle,
+                    motebehovStatusForOppfolgingstilfelle.skjemaType,
+                    motebehovSvar,
+                    true
                 )
             } else {
                 metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSTAKER)

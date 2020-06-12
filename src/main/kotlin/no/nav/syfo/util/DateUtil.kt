@@ -5,7 +5,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 fun convert(localDateTime: LocalDateTime): Timestamp =
-        Timestamp.valueOf(localDateTime)
+    Timestamp.valueOf(localDateTime)
 
 fun convertNullable(localDateTime: LocalDateTime?): Timestamp? {
     return if (localDateTime != null) {
@@ -16,11 +16,11 @@ fun convertNullable(localDateTime: LocalDateTime?): Timestamp? {
 }
 
 fun convert(localDate: LocalDate): Timestamp =
-        Timestamp.valueOf(localDate.atStartOfDay())
+    Timestamp.valueOf(localDate.atStartOfDay())
 
 fun convertNullable(timestamp: Timestamp?): LocalDateTime? {
     return timestamp?.toLocalDateTime()
 }
 
 fun convert(timestamp: Timestamp): LocalDate =
-        timestamp.toLocalDateTime().toLocalDate()
+    timestamp.toLocalDateTime().toLocalDate()

@@ -2,15 +2,12 @@ package no.nav.syfo.motebehov.api
 
 import no.nav.security.oidc.api.ProtectedWithClaims
 import no.nav.security.oidc.context.OIDCRequestContextHolder
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
-import no.nav.syfo.motebehov.Motebehov
-import no.nav.syfo.motebehov.MotebehovSvar
-import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.MotebehovService
-import no.nav.syfo.motebehov.NyttMotebehov
 import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.api.auth.OIDCUtil
+import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
+import no.nav.syfo.metric.Metric
+import no.nav.syfo.motebehov.*
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import org.apache.commons.lang3.StringUtils
 import org.springframework.http.MediaType
@@ -24,15 +21,15 @@ import javax.ws.rs.ForbiddenException
 @ProtectedWithClaims(issuer = OIDCIssuer.EKSTERN, claimMap = ["acr=Level4"])
 @RequestMapping(value = ["/api/motebehov"])
 class MotebehovBrukerController @Inject constructor(
-        private val contextHolder: OIDCRequestContextHolder,
-        private val metric: Metric,
-        private val motebehovService: MotebehovService,
-        private val brukertilgangService: BrukertilgangService
+    private val contextHolder: OIDCRequestContextHolder,
+    private val metric: Metric,
+    private val motebehovService: MotebehovService,
+    private val brukertilgangService: BrukertilgangService
 ) {
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentMotebehovListe(
-            @RequestParam(name = "fnr") arbeidstakerFnr: @Pattern(regexp = "^[0-9]{11}$") String?,
-            @RequestParam(name = "virksomhetsnummer") virksomhetsnummer: String
+        @RequestParam(name = "fnr") arbeidstakerFnr: @Pattern(regexp = "^[0-9]{11}$") String?,
+        @RequestParam(name = "virksomhetsnummer") virksomhetsnummer: String
     ): List<Motebehov> {
         val fnr = if (StringUtils.isEmpty(arbeidstakerFnr)) OIDCUtil.fnrFraOIDCEkstern(contextHolder) else Fodselsnummer(arbeidstakerFnr!!)
         kastExceptionHvisIkkeTilgang(fnr.value)
@@ -43,7 +40,7 @@ class MotebehovBrukerController @Inject constructor(
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun lagreMotebehov(
-            @RequestBody nyttMotebehov: @Valid NyttMotebehov
+        @RequestBody nyttMotebehov: @Valid NyttMotebehov
     ) {
         val arbeidstakerFnr = if (nyttMotebehov.arbeidstakerFnr.isNullOrEmpty()) {
             OIDCUtil.fnrFraOIDCEkstern(contextHolder)
@@ -51,11 +48,11 @@ class MotebehovBrukerController @Inject constructor(
         kastExceptionHvisIkkeTilgang(arbeidstakerFnr.value)
 
         motebehovService.lagreMotebehov(
-                OIDCUtil.fnrFraOIDCEkstern(contextHolder),
-                arbeidstakerFnr,
-                nyttMotebehov.virksomhetsnummer,
-                MotebehovSkjemaType.SVAR_BEHOV,
-                nyttMotebehov.motebehovSvar
+            OIDCUtil.fnrFraOIDCEkstern(contextHolder),
+            arbeidstakerFnr,
+            nyttMotebehov.virksomhetsnummer,
+            MotebehovSkjemaType.SVAR_BEHOV,
+            nyttMotebehov.motebehovSvar
         )
         lagBesvarMotebehovMetrikk(nyttMotebehov.motebehovSvar, false)
     }
@@ -77,5 +74,4 @@ class MotebehovBrukerController @Inject constructor(
             metric.tellMotebehovBesvartJaMedForklaringAntall(erInnloggetBrukerArbeidstaker)
         }
     }
-
 }

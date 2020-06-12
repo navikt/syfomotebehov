@@ -1,8 +1,8 @@
 package no.nav.syfo.consumer.behandlendeenhet
 
 import no.nav.syfo.cache.CacheConfig
-import no.nav.syfo.metric.Metric
 import no.nav.syfo.consumer.sts.StsConsumer
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -14,10 +14,10 @@ import org.springframework.web.client.RestTemplate
 
 @Service
 class BehandlendeEnhetConsumer(
-        private val metric: Metric,
-        @Value("\${syfobehandlendeenhet.url}") private val baseUrl: String,
-        private val stsConsumer: StsConsumer,
-        private val template: RestTemplate
+    private val metric: Metric,
+    @Value("\${syfobehandlendeenhet.url}") private val baseUrl: String,
+    private val stsConsumer: StsConsumer,
+    private val template: RestTemplate
 ) {
 
     @Cacheable(cacheNames = [CacheConfig.CACHENAME_BEHANDLENDEENHET_FNR], key = "#fnr", condition = "#fnr != null")
@@ -27,10 +27,10 @@ class BehandlendeEnhetConsumer(
         val httpEntity = entity(callId, bearer)
         try {
             val response = template.exchange<BehandlendeEnhet>(
-                    getBehandlendeEnhetUrl(fnr),
-                    HttpMethod.GET,
-                    httpEntity,
-                    BehandlendeEnhet::class.java
+                getBehandlendeEnhetUrl(fnr),
+                HttpMethod.GET,
+                httpEntity,
+                BehandlendeEnhet::class.java
             )
             val responseBody = response.body!!
             metric.countOutgoingReponses(METRIC_CALL_BEHANDLENDEENHET, response.statusCodeValue)

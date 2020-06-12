@@ -14,35 +14,35 @@ import reactor.core.publisher.Mono
 
 @Service
 class BrukertilgangConsumer(
-        private val oidcContextHolder: OIDCRequestContextHolder,
-        private val webClient: WebClient,
-        private val metric: Metric,
-        @Value("\${syfobrukertilgang.url}") private val baseUrl: String
+    private val oidcContextHolder: OIDCRequestContextHolder,
+    private val webClient: WebClient,
+    private val metric: Metric,
+    @Value("\${syfobrukertilgang.url}") private val baseUrl: String
 ) {
     fun hasAccessToAnsatt(ansattFnr: String): Boolean {
         val callId = createCallId()
         val response = webClient
-                .get()
-                .uri(arbeidstakerUrl(ansattFnr))
-                .header(HttpHeaders.AUTHORIZATION, bearerCredentials(OIDCUtil.tokenFraOIDC(oidcContextHolder, OIDCIssuer.EKSTERN)))
-                .header(NAV_CALL_ID_HEADER, callId)
-                .header(NAV_CONSUMER_ID_HEADER, APP_CONSUMER_ID)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .onStatus({ obj: HttpStatus -> obj.value() == 401 }) { response ->
-                    metric.countOutgoingReponses(METRIC_CALL_BRUKERTILGANG, response.rawStatusCode())
-                    Mono.error(RequestUnauthorizedException("Unauthorized request to get access to Ansatt from Syfobrukertilgang"))
-                }
-                .onStatus({ obj: HttpStatus -> obj.is4xxClientError }) { response ->
-                    logError(response, callId)
-                    Mono.error(RuntimeException("4xx"))
-                }
-                .onStatus({ obj: HttpStatus -> obj.is5xxServerError }) { response ->
-                    logError(response, callId)
-                    Mono.error(RuntimeException("5xx"))
-                }
-                .bodyToMono<Boolean>()
-                .block()
+            .get()
+            .uri(arbeidstakerUrl(ansattFnr))
+            .header(HttpHeaders.AUTHORIZATION, bearerCredentials(OIDCUtil.tokenFraOIDC(oidcContextHolder, OIDCIssuer.EKSTERN)))
+            .header(NAV_CALL_ID_HEADER, callId)
+            .header(NAV_CONSUMER_ID_HEADER, APP_CONSUMER_ID)
+            .accept(MediaType.APPLICATION_JSON)
+            .retrieve()
+            .onStatus({ obj: HttpStatus -> obj.value() == 401 }) { response ->
+                metric.countOutgoingReponses(METRIC_CALL_BRUKERTILGANG, response.rawStatusCode())
+                Mono.error(RequestUnauthorizedException("Unauthorized request to get access to Ansatt from Syfobrukertilgang"))
+            }
+            .onStatus({ obj: HttpStatus -> obj.is4xxClientError }) { response ->
+                logError(response, callId)
+                Mono.error(RuntimeException("4xx"))
+            }
+            .onStatus({ obj: HttpStatus -> obj.is5xxServerError }) { response ->
+                logError(response, callId)
+                Mono.error(RuntimeException("5xx"))
+            }
+            .bodyToMono<Boolean>()
+            .block()
         metric.countOutgoingReponses(METRIC_CALL_BRUKERTILGANG, 200)
         return response ?: false
     }

@@ -2,10 +2,7 @@ package no.nav.syfo.testhelper
 
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
-import no.nav.security.oidc.context.OIDCClaims
-import no.nav.security.oidc.context.OIDCRequestContextHolder
-import no.nav.security.oidc.context.OIDCValidationContext
-import no.nav.security.oidc.context.TokenContext
+import no.nav.security.oidc.context.*
 import no.nav.security.oidc.test.support.JwtTokenGenerator
 import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.api.auth.OIDCIssuer.EKSTERN

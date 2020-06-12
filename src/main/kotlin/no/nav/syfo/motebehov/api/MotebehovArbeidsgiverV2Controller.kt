@@ -21,19 +21,19 @@ import javax.validation.constraints.Pattern
 @ProtectedWithClaims(issuer = OIDCIssuer.EKSTERN, claimMap = ["acr=Level4"])
 @RequestMapping(value = ["/api/v2"])
 class MotebehovArbeidsgiverV2Controller @Inject constructor(
-        private val contextHolder: OIDCRequestContextHolder,
-        private val metric: Metric,
-        private val motebehovOpfolgingstilfelleService: MotebehovOpfolgingstilfelleService,
-        private val motebehovStatusService: MotebehovStatusService,
-        private val brukertilgangService: BrukertilgangService
+    private val contextHolder: OIDCRequestContextHolder,
+    private val metric: Metric,
+    private val motebehovOpfolgingstilfelleService: MotebehovOpfolgingstilfelleService,
+    private val motebehovStatusService: MotebehovStatusService,
+    private val brukertilgangService: BrukertilgangService
 ) {
     @GetMapping(
-            value = ["/motebehov"],
-            produces = [MediaType.APPLICATION_JSON_VALUE]
+        value = ["/motebehov"],
+        produces = [MediaType.APPLICATION_JSON_VALUE]
     )
     fun motebehovStatusArbeidsgiver(
-            @RequestParam(name = "fnr") arbeidstakerFnr: @Pattern(regexp = "^[0-9]{11}$") String,
-            @RequestParam(name = "virksomhetsnummer") virksomhetsnummer: String
+        @RequestParam(name = "fnr") arbeidstakerFnr: @Pattern(regexp = "^[0-9]{11}$") String,
+        @RequestParam(name = "virksomhetsnummer") virksomhetsnummer: String
     ): MotebehovStatus {
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver")
         val fnr = Fodselsnummer(arbeidstakerFnr)
@@ -43,21 +43,21 @@ class MotebehovArbeidsgiverV2Controller @Inject constructor(
     }
 
     @PostMapping(
-            value = ["/motebehov"],
-            consumes = [MediaType.APPLICATION_JSON_VALUE],
-            produces = [MediaType.APPLICATION_JSON_VALUE]
+        value = ["/motebehov"],
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE]
     )
     fun lagreMotebehovArbeidsgiver(
-            @RequestBody nyttMotebehov: @Valid NyttMotebehovArbeidsgiver
+        @RequestBody nyttMotebehov: @Valid NyttMotebehovArbeidsgiver
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
         val arbeidstakerFnr = Fodselsnummer(nyttMotebehov.arbeidstakerFnr)
         brukertilgangService.kastExceptionHvisIkkeTilgang(arbeidstakerFnr.value)
 
         motebehovOpfolgingstilfelleService.createMotehovForArbeidgiver(
-                OIDCUtil.fnrFraOIDCEkstern(contextHolder),
-                arbeidstakerFnr,
-                nyttMotebehov
+            OIDCUtil.fnrFraOIDCEkstern(contextHolder),
+            arbeidstakerFnr,
+            nyttMotebehov
         )
     }
 }

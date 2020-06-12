@@ -4,10 +4,7 @@ import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.NAV_ENHET
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.Mockito
+import org.mockito.*
 import org.mockito.junit.MockitoJUnitRunner
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.support.SendResult
@@ -26,10 +23,10 @@ class OversikthendelseProducerTest {
     fun sendOversikthendelse() {
         Mockito.`when`(kafkaTemplate.send(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.any(KOversikthendelse::class.java))).thenReturn(Mockito.mock(ListenableFuture::class.java) as ListenableFuture<SendResult<String, Any>>?)
         val kOversikthendelse = KOversikthendelse(
-                fnr = ARBEIDSTAKER_FNR,
-                hendelseId = OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
-                enhetId = NAV_ENHET,
-                tidspunkt = LocalDateTime.now()
+            fnr = ARBEIDSTAKER_FNR,
+            hendelseId = OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+            enhetId = NAV_ENHET,
+            tidspunkt = LocalDateTime.now()
         )
         oversikthendelseProducer.sendOversikthendelse(kOversikthendelse)
         Mockito.verify(kafkaTemplate).send(ArgumentMatchers.eq(OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC), ArgumentMatchers.anyString(), ArgumentMatchers.same(kOversikthendelse))
@@ -39,10 +36,10 @@ class OversikthendelseProducerTest {
     fun sendOversikthendelseMotebehovSvarBehandlet() {
         Mockito.`when`(kafkaTemplate.send(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.any(KOversikthendelse::class.java))).thenReturn(Mockito.mock(ListenableFuture::class.java) as ListenableFuture<SendResult<String, Any>>?)
         val kOversikthendelse = KOversikthendelse(
-                fnr = ARBEIDSTAKER_FNR,
-                hendelseId = OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name,
-                enhetId = NAV_ENHET,
-                tidspunkt = LocalDateTime.now()
+            fnr = ARBEIDSTAKER_FNR,
+            hendelseId = OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name,
+            enhetId = NAV_ENHET,
+            tidspunkt = LocalDateTime.now()
         )
         oversikthendelseProducer.sendOversikthendelse(kOversikthendelse)
         Mockito.verify(kafkaTemplate).send(ArgumentMatchers.eq(OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC), ArgumentMatchers.anyString(), ArgumentMatchers.same(kOversikthendelse))

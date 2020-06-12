@@ -3,14 +3,12 @@ package no.nav.syfo.motebehov.api
 import no.nav.security.oidc.context.OIDCRequestContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.api.auth.OIDCIssuer.AZURE
+import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnVeilederAzure
 import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
-import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
+import org.junit.*
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
@@ -21,9 +19,7 @@ import org.springframework.test.web.client.ExpectedCount
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers
 import org.springframework.test.web.client.response.MockRestResponseCreators
-import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.HttpServerErrorException
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.*
 import org.springframework.web.util.UriComponentsBuilder
 import java.text.ParseException
 import javax.inject.Inject
@@ -86,13 +82,13 @@ class MotebehovVeilederADTilgangTest {
 
     private fun mockSvarFraSyfoTilgangskontroll(fnr: String, status: HttpStatus) {
         val uriString = UriComponentsBuilder.fromHttpUrl(tilgangskontrollUrl)
-                .path(VeilederTilgangConsumer.TILGANG_TIL_BRUKER_VIA_AZURE_PATH)
-                .queryParam(VeilederTilgangConsumer.FNR, fnr)
-                .toUriString()
+            .path(VeilederTilgangConsumer.TILGANG_TIL_BRUKER_VIA_AZURE_PATH)
+            .queryParam(VeilederTilgangConsumer.FNR, fnr)
+            .toUriString()
         val idToken = oidcRequestContextHolder.oidcValidationContext.getToken(AZURE).idToken
         mockRestServiceServer.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(uriString))
-                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-                .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer $idToken"))
-                .andRespond(MockRestResponseCreators.withStatus(status))
+            .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+            .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer $idToken"))
+            .andRespond(MockRestResponseCreators.withStatus(status))
     }
 }

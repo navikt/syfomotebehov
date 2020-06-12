@@ -19,6 +19,7 @@ object DbUtil {
     }
 
     private val sanitizer = HtmlPolicyBuilder().toFactory()
+
     @JvmStatic
     fun sanitizeUserInput(userinput: String?): String {
         val sanitizedInput = StringEscapeUtils.unescapeHtml4(sanitizer.sanitize(StringEscapeUtils.unescapeHtml4(userinput)))

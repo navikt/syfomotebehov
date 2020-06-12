@@ -15,21 +15,21 @@ import org.springframework.stereotype.Component
 import java.io.IOException
 
 private val objectMapper = ObjectMapper()
-        .registerModule(JavaTimeModule())
-        .registerModule(KotlinModule())
-        .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true)
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    .registerModule(JavaTimeModule())
+    .registerModule(KotlinModule())
+    .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true)
+    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
 @Profile("remote")
 @Component
 class OppfolgingstilfelleListener(
-        private val oppfolgingstilfelleService: OppfolgingstilfelleService
+    private val oppfolgingstilfelleService: OppfolgingstilfelleService
 ) {
 
     @KafkaListener(topics = [OVERSIKTHENDELSE_OPPFOLGINGSTILFELLE_TOPIC])
     fun oppfolgingstilfellePekerListener(
-            consumerRecord: ConsumerRecord<String, String>,
-            acknowledgment: Acknowledgment
+        consumerRecord: ConsumerRecord<String, String>,
+        acknowledgment: Acknowledgment
     ) {
         try {
             val kOversikthendelsetilfelle: KOversikthendelsetilfelle = map(consumerRecord.value())

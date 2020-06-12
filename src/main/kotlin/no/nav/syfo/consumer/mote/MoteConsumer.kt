@@ -1,36 +1,29 @@
 package no.nav.syfo.consumer.mote
 
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
+import org.springframework.http.*
 import org.springframework.stereotype.Service
-import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.HttpServerErrorException
-import org.springframework.web.client.RestClientResponseException
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.*
 import org.springframework.web.util.UriComponentsBuilder
-import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.inject.Inject
 
 @Service
 class MoteConsumer @Inject constructor(
-        private val template: RestTemplate,
-        private val stsConsumer: StsConsumer,
-        private val metric: Metric
+    private val template: RestTemplate,
+    private val stsConsumer: StsConsumer,
+    private val metric: Metric
 ) {
     fun erMoteOpprettetForArbeidstakerEtterDato(aktorId: String, startDato: LocalDateTime): Boolean {
         val stsToken = stsConsumer.token()
         val requestEntity = HttpEntity(startDato, authorizationHeader(stsToken))
         val url = UriComponentsBuilder.fromHttpUrl(SYFOMOTEADMIN_BASEURL)
-                .pathSegment("system", aktorId, "harAktivtMote")
-                .toUriString()
+            .pathSegment("system", aktorId, "harAktivtMote")
+            .toUriString()
         return try {
             metric.tellHendelse("call_syfomoteadmin")
             val erMoteOpprettetEtterDato = template.postForObject(url, requestEntity, Boolean::class.java)
@@ -54,10 +47,10 @@ class MoteConsumer @Inject constructor(
         val httpEntity = entity(null, stsToken, oppfolgingstilfelle.fnr.value, oppfolgingstilfelle.fom.atStartOfDay())
         try {
             val response = template.exchange(
-                    getMoteadminUrl("/system/moteplanlegger/aktiv"),
-                    HttpMethod.POST,
-                    httpEntity,
-                    Boolean::class.java
+                getMoteadminUrl("/system/moteplanlegger/aktiv"),
+                HttpMethod.POST,
+                httpEntity,
+                Boolean::class.java
             )
             val responseBody = response.body!!
             metric.tellHendelse(METRIC_CALL_MOTEADMIN_MOTEPLANLEGGER_ACTIVE_SUCCESS)
@@ -74,10 +67,10 @@ class MoteConsumer @Inject constructor(
     }
 
     private fun entity(
-            callId: String?,
-            token: String,
-            arbeidstakerIdent: String,
-            oppfolgingstilfelleStartDate: LocalDateTime
+        callId: String?,
+        token: String,
+        arbeidstakerIdent: String,
+        oppfolgingstilfelleStartDate: LocalDateTime
     ): HttpEntity<LocalDateTime> {
         val credentials = bearerCredentials(token)
         val headers = HttpHeaders()
@@ -87,8 +80,8 @@ class MoteConsumer @Inject constructor(
         headers[NAV_PERSONIDENTER_HEADER] = arbeidstakerIdent
 
         return HttpEntity(
-                oppfolgingstilfelleStartDate,
-                headers
+            oppfolgingstilfelleStartDate,
+            headers
         )
     }
 

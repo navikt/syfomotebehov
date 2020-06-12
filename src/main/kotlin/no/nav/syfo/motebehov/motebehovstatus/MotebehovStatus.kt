@@ -5,20 +5,20 @@ import no.nav.syfo.motebehov.isUbehandlet
 import java.io.Serializable
 
 data class MotebehovStatus(
-        val visMotebehov: Boolean,
-        val skjemaType: MotebehovSkjemaType? = null,
-        val motebehov: Motebehov? = null
+    val visMotebehov: Boolean,
+    val skjemaType: MotebehovSkjemaType? = null,
+    val motebehov: Motebehov? = null
 ) : Serializable
 
 fun MotebehovStatus.isSvarBehovVarselAvailable(): Boolean {
-    return this.visMotebehov
-            && this.skjemaType == MotebehovSkjemaType.SVAR_BEHOV
-            && this.motebehov == null
+    return this.visMotebehov &&
+        this.skjemaType == MotebehovSkjemaType.SVAR_BEHOV &&
+        this.motebehov == null
 }
 
 fun MotebehovStatus.isSvarBehovVarselAvailable(newestMotebehov: Motebehov): Boolean {
-    return this.visMotebehov
-            && this.skjemaType == MotebehovSkjemaType.SVAR_BEHOV
-            && this.motebehov == null
-            && !newestMotebehov.isUbehandlet()
+    return this.visMotebehov &&
+        this.skjemaType == MotebehovSkjemaType.SVAR_BEHOV &&
+        this.motebehov == null &&
+        !newestMotebehov.isUbehandlet()
 }

@@ -26,7 +26,7 @@ class ApplicationConfig {
     @Bean
     fun webClient(): WebClient {
         return WebClient
-                .builder()
-                .build()
+            .builder()
+            .build()
     }
 }

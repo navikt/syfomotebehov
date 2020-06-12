@@ -1,8 +1,8 @@
 package no.nav.syfo.consumer.pdl
 
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.metric.Metric
 import no.nav.syfo.consumer.sts.StsConsumer
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -15,10 +15,10 @@ import org.springframework.web.client.RestTemplate
 
 @Service
 class PdlConsumer(
-        private val metric: Metric,
-        @Value("\${pdl.url}") private val pdlUrl: String,
-        private val stsConsumer: StsConsumer,
-        private val restTemplate: RestTemplate
+    private val metric: Metric,
+    @Value("\${pdl.url}") private val pdlUrl: String,
+    private val stsConsumer: StsConsumer,
+    private val restTemplate: RestTemplate
 ) {
     fun person(fnr: Fodselsnummer): PdlHentPerson? {
         metric.tellHendelse("call_pdl")
@@ -27,10 +27,10 @@ class PdlConsumer(
         val entity = createRequestEntity(PdlRequest(query, Variables(fnr.value)))
         try {
             val pdlPerson = restTemplate.exchange<PdlPersonResponse>(
-                    pdlUrl,
-                    HttpMethod.POST,
-                    entity,
-                    object : ParameterizedTypeReference<PdlPersonResponse>() {}
+                pdlUrl,
+                HttpMethod.POST,
+                entity,
+                object : ParameterizedTypeReference<PdlPersonResponse>() {}
             )
 
             val pdlPersonReponse = pdlPerson.body!!

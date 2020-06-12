@@ -13,36 +13,36 @@ import java.time.LocalDateTime
 
 @Service
 class StsConsumer(
-        private val metric: Metric,
-        @Value("\${security.token.service.rest.url}") private val baseUrl: String,
-        @Value("\${srv.username}") private val username: String,
-        @Value("\${srv.password}") private val password: String
+    private val metric: Metric,
+    @Value("\${security.token.service.rest.url}") private val baseUrl: String,
+    @Value("\${srv.username}") private val username: String,
+    @Value("\${srv.password}") private val password: String
 ) {
     private var cachedOidcToken: STSToken? = null
 
     private val webClient = WebClient
-            .builder()
-            .baseUrl(baseUrl)
-            .defaultHeader(HttpHeaders.AUTHORIZATION, basicCredentials(username, password))
-            .build()
+        .builder()
+        .baseUrl(baseUrl)
+        .defaultHeader(HttpHeaders.AUTHORIZATION, basicCredentials(username, password))
+        .build()
 
     fun token(): String {
         if (STSToken.shouldRenew(cachedOidcToken)) {
             val response = webClient
-                    .get()
-                    .uri(getStsTokenUrl())
-                    .accept(MediaType.APPLICATION_JSON)
-                    .retrieve()
-                    .onStatus({ obj: HttpStatus -> obj.is4xxClientError }) { response ->
-                        logError(response)
-                        Mono.error(RuntimeException("4xx"))
-                    }
-                    .onStatus({ obj: HttpStatus -> obj.is5xxServerError }) { response ->
-                        logError(response)
-                        Mono.error(RuntimeException("5xx"))
-                    }
-                    .bodyToMono<STSToken>()
-                    .block()
+                .get()
+                .uri(getStsTokenUrl())
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .onStatus({ obj: HttpStatus -> obj.is4xxClientError }) { response ->
+                    logError(response)
+                    Mono.error(RuntimeException("4xx"))
+                }
+                .onStatus({ obj: HttpStatus -> obj.is5xxServerError }) { response ->
+                    logError(response)
+                    Mono.error(RuntimeException("5xx"))
+                }
+                .bodyToMono<STSToken>()
+                .block()
             cachedOidcToken = response
             metric.tellEndepunktKall(METRIC_CALL_STS_SUCCESS)
         }
@@ -67,12 +67,12 @@ class StsConsumer(
 }
 
 data class STSToken(
-        @JsonProperty(value = "access_token", required = true)
-        val access_token: String,
-        @JsonProperty(value = "token_type", required = true)
-        val token_type: String,
-        @JsonProperty(value = "expires_in", required = true)
-        val expires_in: Int
+    @JsonProperty(value = "access_token", required = true)
+    val access_token: String,
+    @JsonProperty(value = "token_type", required = true)
+    val token_type: String,
+    @JsonProperty(value = "expires_in", required = true)
+    val expires_in: Int
 ) {
     // Expire 10 seconds before token expiration
 

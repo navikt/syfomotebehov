@@ -17,7 +17,7 @@ import javax.ws.rs.ForbiddenException
 
 @ControllerAdvice
 class ControllerExceptionHandler @Inject constructor(
-        private val metric: Metric
+    private val metric: Metric
 ) {
     private val BAD_REQUEST_MSG = "Vi kunne ikke tolke inndataene"
     private val CONFLICT_MSG = "Dette oppsto en konflikt i tilstand"

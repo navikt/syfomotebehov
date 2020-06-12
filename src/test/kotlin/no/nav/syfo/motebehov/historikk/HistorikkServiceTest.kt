@@ -5,9 +5,9 @@ import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.pdl.*
 import no.nav.syfo.motebehov.MotebehovService
-import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import no.nav.syfo.testhelper.UserConstants
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
+import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import org.assertj.core.api.Assertions
 import org.junit.Before
@@ -35,20 +35,20 @@ class HistorikkServiceTest {
     private val motebehovGenerator = MotebehovGenerator()
 
     private val pdlPersonResponseNL1 = generatePdlHentPerson(
-            PdlPersonNavn(
-                    UserConstants.PERSON_NAME_FIRST,
-                    UserConstants.PERSON_NAME_MIDDLE,
-                    UserConstants.PERSON_NAME_LAST
-            ),
-            null
+        PdlPersonNavn(
+            UserConstants.PERSON_NAME_FIRST,
+            UserConstants.PERSON_NAME_MIDDLE,
+            UserConstants.PERSON_NAME_LAST
+        ),
+        null
     )
     private val pdlPersonResponseNL3 = generatePdlHentPerson(
-            PdlPersonNavn(
-                    UserConstants.PERSON_NAME_FIRST,
-                    UserConstants.PERSON_NAME_MIDDLE,
-                    UserConstants.PERSON_NAME_LAST
-            ),
-            null
+        PdlPersonNavn(
+            UserConstants.PERSON_NAME_FIRST,
+            UserConstants.PERSON_NAME_MIDDLE,
+            UserConstants.PERSON_NAME_LAST
+        ),
+        null
     )
 
     @Before
@@ -62,20 +62,20 @@ class HistorikkServiceTest {
     @Test
     fun hentHistorikkServiceSkalReturnereHistorikkAvForskjelligeTyper() {
         val motebehov1 = motebehovGenerator.generateMotebehov().copy(
-                opprettetAv = NL3_AKTORID,
-                opprettetDato = LocalDateTime.now(),
-                behandletVeilederIdent = VEILEDER_ID,
-                behandletTidspunkt = LocalDateTime.now()
+            opprettetAv = NL3_AKTORID,
+            opprettetDato = LocalDateTime.now(),
+            behandletVeilederIdent = VEILEDER_ID,
+            behandletTidspunkt = LocalDateTime.now()
         )
         val motebehov2 = motebehovGenerator.generateMotebehov().copy(
-                opprettetAv = NL1_AKTORID,
-                opprettetDato = LocalDateTime.now().minusMinutes(2L),
-                behandletVeilederIdent = VEILEDER_ID,
-                behandletTidspunkt = LocalDateTime.now()
+            opprettetAv = NL1_AKTORID,
+            opprettetDato = LocalDateTime.now().minusMinutes(2L),
+            behandletVeilederIdent = VEILEDER_ID,
+            behandletTidspunkt = LocalDateTime.now()
         )
         Mockito.`when`(motebehovService.hentMotebehovListe(Fodselsnummer(SM_FNR))).thenReturn(listOf(
-                motebehov1,
-                motebehov2
+            motebehov1,
+            motebehov2
         ))
         val historikkForSykmeldt = historikkService.hentHistorikkListe(SM_FNR)
         Assertions.assertThat(historikkForSykmeldt.size).isEqualTo(4)

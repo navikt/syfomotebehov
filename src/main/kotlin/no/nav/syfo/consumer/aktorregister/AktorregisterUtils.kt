@@ -8,9 +8,9 @@ fun currentIdentFromAktorregisterResponse(response: Map<String, IdentinfoListe?>
     val identinfoListe = response[desiredUsersIdent]
     throwExceptionIfErrorOrNoUser(identinfoListe)
     val currentIdentinfo = identinfoListe!!.identer.stream()
-            .filter { identinfo: Identinfo -> identinfo.gjeldende && desiredIdentType.name == identinfo.identgruppe }
-            .findAny()
-            .orElse(null)
+        .filter { identinfo: Identinfo -> identinfo.gjeldende && desiredIdentType.name == identinfo.identgruppe }
+        .findAny()
+        .orElse(null)
     if (currentIdentinfo == null || currentIdentinfo.ident.isEmpty()) {
         throw NoCurrentIdentForAktor("Tried getting ident for aktor")
     } else {

@@ -133,10 +133,10 @@ class MotebehovVeilederADControllerTest {
         loggUtAlle(oidcRequestContextHolder)
         mockRestServiceServer.reset()
         cacheManager.cacheNames
-                .forEach(Consumer { cacheName: String ->
-                    val cache = cacheManager.getCache(cacheName)
-                    cache?.clear()
-                })
+            .forEach(Consumer { cacheName: String ->
+                val cache = cacheManager.getCache(cacheName)
+                cache?.clear()
+            })
         cleanDB()
     }
 
@@ -275,13 +275,13 @@ class MotebehovVeilederADControllerTest {
     private fun arbeidsgiverLagrerMotebehov(lederFnr: String, arbeidstakerFnr: String, virksomhetsnummer: String): NyttMotebehov {
         loggInnBruker(oidcRequestContextHolder, lederFnr)
         val motebehovSvar = MotebehovSvar(
-                harMotebehov = true,
-                forklaring = ""
+            harMotebehov = true,
+            forklaring = ""
         )
         val nyttMotebehov = NyttMotebehov(
-                arbeidstakerFnr = arbeidstakerFnr,
-                virksomhetsnummer = virksomhetsnummer,
-                motebehovSvar = motebehovSvar
+            arbeidstakerFnr = arbeidstakerFnr,
+            virksomhetsnummer = virksomhetsnummer,
+            motebehovSvar = motebehovSvar
         )
         motebehovController.lagreMotebehov(nyttMotebehov)
         return nyttMotebehov
@@ -290,13 +290,13 @@ class MotebehovVeilederADControllerTest {
     private fun sykmeldtLagrerMotebehov(sykmeldtFnr: String, virksomhetsnummer: String, harBehov: Boolean): NyttMotebehov {
         loggInnBruker(oidcRequestContextHolder, sykmeldtFnr)
         val motebehovSvar = MotebehovSvar(
-                harMotebehov = harBehov,
-                forklaring = ""
+            harMotebehov = harBehov,
+            forklaring = ""
         )
         val nyttMotebehov = NyttMotebehov(
-                arbeidstakerFnr = sykmeldtFnr,
-                virksomhetsnummer = virksomhetsnummer,
-                motebehovSvar = motebehovSvar
+            arbeidstakerFnr = sykmeldtFnr,
+            virksomhetsnummer = virksomhetsnummer,
+            motebehovSvar = motebehovSvar
         )
         motebehovController.lagreMotebehov(nyttMotebehov)
         return nyttMotebehov
@@ -308,14 +308,14 @@ class MotebehovVeilederADControllerTest {
 
     private fun mockSvarFraSyfoTilgangskontroll(fnr: String, status: HttpStatus) {
         val uriString = UriComponentsBuilder.fromHttpUrl(tilgangskontrollUrl)
-                .path(VeilederTilgangConsumer.TILGANG_TIL_BRUKER_VIA_AZURE_PATH)
-                .queryParam(VeilederTilgangConsumer.FNR, fnr)
-                .toUriString()
+            .path(VeilederTilgangConsumer.TILGANG_TIL_BRUKER_VIA_AZURE_PATH)
+            .queryParam(VeilederTilgangConsumer.FNR, fnr)
+            .toUriString()
         val idToken = oidcRequestContextHolder.oidcValidationContext.getToken(AZURE).idToken
         mockRestServiceServer.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(uriString))
-                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-                .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer $idToken"))
-                .andRespond(MockRestResponseCreators.withStatus(status))
+            .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+            .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer $idToken"))
+            .andRespond(MockRestResponseCreators.withStatus(status))
     }
 
     private fun mockBehandlendEnhet(fnr: String) {
