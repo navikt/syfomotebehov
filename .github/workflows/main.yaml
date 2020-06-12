@@ -1,14 +1,14 @@
-name: master
-on:
-  push:
-    branches:
-      - master
+name: main
+
+on: push
 
 env:
+  APP_NAME: syfomotebehov
   IMAGE: docker.pkg.github.com/${{ github.repository }}/syfomotebehov:${{ github.sha }}
+  COMMITER_NAME: ${{ github.event.pusher.name }}
 
 jobs:
-  build-push-deploy:
+  build:
     name: Checkout code and create docker tag
     runs-on: ubuntu-latest
     steps:
@@ -17,7 +17,7 @@ jobs:
         with:
           java-version: '11.x'
       - name: Checkout code
-        uses: actions/checkout@master
+        uses: actions/checkout@v1
       - uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
@@ -56,20 +56,40 @@ jobs:
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}
           echo ${IMAGE}
-      - name: Deploy to Dev
-        uses: nais/deploy/actions/deploy@master
+
+  deploy-dev:
+    if: github.ref == 'refs/heads/master'
+    name: Deploy to NAIS Dev-sbs
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
           RESOURCE: naiserator-dev.yaml
-      - name: Deploy to Prod
-        uses: nais/deploy/actions/deploy@master
+
+  deploy-prod:
+    if: github.ref == 'refs/heads/master'
+    name: Deploy to NAIS Prod-sbs
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-fss
           RESOURCE: naiserator-prod.yaml
-      - name: Pling!
-        env:
-          COMMITER_NAME: ${{ github.event.pusher.name }}
-        run: curl -s "https://syfoping.herokuapp.com/regDeploy?deployedBy=$COMMITER_NAME&app=$APP_NAME"
+
+  pling:
+    if: github.ref == 'refs/heads/master'
+    name: Pling!
+    needs: deploy-prod
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pling
+        run: |
+          curl -s "https://syfoping.herokuapp.com/regDeploy?deployedBy=${COMMITER_NAME}&app=${APP_NAME}"
 
