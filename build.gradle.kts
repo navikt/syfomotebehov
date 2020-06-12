@@ -5,7 +5,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 
 object Versions {
-    const val kotlinLibVersion = "1.3.72"
     const val kotlinJacksonVersion = "2.9.8"
     const val flywayVersion = "5.1.4"
     const val h2Version = "1.4.197"
@@ -43,8 +42,8 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlinLibVersion}")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlinLibVersion}")
+    implementation(kotlin("stdlib"))
+    implementation(kotlin("reflect"))
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.kotlinJacksonVersion}")
 
     implementation("org.springframework.boot:spring-boot-starter-web")
