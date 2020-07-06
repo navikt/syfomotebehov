@@ -7,7 +7,6 @@ group = "no.nav.syfo"
 object Versions {
     const val kotlinJacksonVersion = "2.9.8"
     const val flywayVersion = "5.1.4"
-    const val h2Version = "1.4.197"
     const val oidcSupportVersion = "0.2.18"
     const val ojdbcVersion = "19.3.0.0"
 }
@@ -17,7 +16,7 @@ plugins {
     id("java")
     id("org.jetbrains.kotlin.plugin.allopen") version "1.3.50"
     id("com.github.johnrengelman.shadow") version "6.0.0"
-    id("org.springframework.boot") version "2.2.7.RELEASE"
+    id("org.springframework.boot") version "2.2.8.RELEASE"
     id("io.spring.dependency-management") version "1.0.9.RELEASE"
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
 }
@@ -71,7 +70,7 @@ dependencies {
     testImplementation("no.nav.security:oidc-test-support:${Versions.oidcSupportVersion}")
     testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("com.h2database:h2:${Versions.h2Version}")
+    testImplementation("com.h2database:h2")
 }
 
 tasks {
