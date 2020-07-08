@@ -5,16 +5,16 @@ no.nav.security:
     issuers: selvbetjening,intern,veileder
     issuer:
       selvbetjening:
-        discoveryurl: <syfonais>
-        accepted_audience: <syfonais>
+        discoveryurl: <naiserator>
+        accepted_audience: <naiserator>
         cookie_name: selvbetjening-idtoken
       intern:
-        discoveryurl: <syfonais>
+        discoveryurl: <naiserator>
         accepted_audience: modiabrukerdialog-p,modiabrukerdialog-q1,veilarblogin-p,veilarblogin-q1,fpsak-frontend-p,fpsak-frontend-q1,fplos-p,fplos-q1
         cookie_name: ID_token
       veileder:
-        discoveryurl: <syfonais>
-        accepted_audience: <syfonais>
+        discoveryurl: <naiserator>
+        accepted_audience: <naiserator>
         cookie_name: isso-idtoken
 
 logging.config: classpath:logback-spring.xml
