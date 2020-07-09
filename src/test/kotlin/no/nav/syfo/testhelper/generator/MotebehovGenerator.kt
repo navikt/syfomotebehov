@@ -8,7 +8,7 @@ import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.NAV_ENHET
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
-import no.nav.syfo.util.DbUtil
+import no.nav.syfo.util.MOTEBEHOVSVAR_GYLDIGHET_DAGER
 import java.time.LocalDateTime
 import java.util.*
 
@@ -69,7 +69,7 @@ class MotebehovGenerator {
     )
 
     fun getOpprettetDato(erGyldig: Boolean): LocalDateTime {
-        return if (erGyldig) LocalDateTime.now().minusDays(DbUtil.MOTEBEHOVSVAR_GYLDIGHET_DAGER.toLong()) else LocalDateTime.now().minusDays(DbUtil.MOTEBEHOVSVAR_GYLDIGHET_DAGER + 1.toLong())
+        return if (erGyldig) LocalDateTime.now().minusDays(MOTEBEHOVSVAR_GYLDIGHET_DAGER.toLong()) else LocalDateTime.now().minusDays(MOTEBEHOVSVAR_GYLDIGHET_DAGER + 1.toLong())
     }
 
     fun generatePmotebehov(): PMotebehov {

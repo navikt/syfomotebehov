@@ -18,9 +18,8 @@ fun convertNullable(localDateTime: LocalDateTime?): Timestamp? {
 fun convert(localDate: LocalDate): Timestamp =
     Timestamp.valueOf(localDate.atStartOfDay())
 
-fun convertNullable(timestamp: Timestamp?): LocalDateTime? {
-    return timestamp?.toLocalDateTime()
-}
+fun convertNullable(timestamp: Timestamp?): LocalDateTime? =
+    timestamp?.toLocalDateTime()
 
 fun convert(timestamp: Timestamp): LocalDate =
     timestamp.toLocalDateTime().toLocalDate()

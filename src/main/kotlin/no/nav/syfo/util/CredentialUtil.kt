@@ -6,6 +6,4 @@ fun basicCredentials(credentialUsername: String, credentialPassword: String): St
     return "Basic " + Base64.getEncoder().encodeToString(java.lang.String.format("%s:%s", credentialUsername, credentialPassword).toByteArray())
 }
 
-fun bearerCredentials(token: String): String {
-    return "Bearer $token"
-}
+fun bearerCredentials(token: String) = "Bearer $token"

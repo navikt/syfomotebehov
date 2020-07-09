@@ -1,10 +1,10 @@
 package no.nav.syfo.motebehov.database
 
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
-import no.nav.syfo.util.DbUtil.hentTidligsteDatoForGyldigMotebehovSvar
 import no.nav.syfo.util.DbUtil.sanitizeUserInput
 import no.nav.syfo.util.convert
 import no.nav.syfo.util.convertNullable
+import no.nav.syfo.util.hentTidligsteDatoForGyldigMotebehovSvar
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource

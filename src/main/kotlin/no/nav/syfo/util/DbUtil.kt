@@ -4,19 +4,16 @@ import org.apache.commons.lang3.StringEscapeUtils
 import org.owasp.html.HtmlPolicyBuilder
 import org.slf4j.LoggerFactory
 import java.sql.Timestamp
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.util.*
+import java.time.*
+
+const val MOTEBEHOVSVAR_GYLDIGHET_DAGER = 78 * 7
+
+fun hentTidligsteDatoForGyldigMotebehovSvar(): Timestamp? {
+    return convert(LocalDateTime.of(LocalDate.now().minusDays(MOTEBEHOVSVAR_GYLDIGHET_DAGER.toLong()), LocalTime.MIN))
+}
 
 object DbUtil {
     private val LOG = LoggerFactory.getLogger(DbUtil::class.java)
-    const val MOTEBEHOVSVAR_GYLDIGHET_DAGER = 78 * 7
-
-    @JvmStatic
-    fun convert(timestamp: Timestamp?): LocalDateTime? {
-        return Optional.ofNullable(timestamp).map { obj: Timestamp -> obj.toLocalDateTime() }.orElse(null)
-    }
 
     private val sanitizer = HtmlPolicyBuilder().toFactory()
 
@@ -31,10 +28,5 @@ object DbUtil {
     """.trimIndent(), userinput, sanitizedInput)
         }
         return sanitizedInput
-    }
-
-    @JvmStatic
-    fun hentTidligsteDatoForGyldigMotebehovSvar(): Timestamp? {
-        return convert(LocalDateTime.of(LocalDate.now().minusDays(MOTEBEHOVSVAR_GYLDIGHET_DAGER.toLong()), LocalTime.MIN))
     }
 }
