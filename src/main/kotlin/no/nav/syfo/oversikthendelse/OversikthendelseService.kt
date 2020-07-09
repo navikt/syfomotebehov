@@ -22,12 +22,14 @@ class OversikthendelseService @Inject constructor(
         oversikthendelseProducer.sendOversikthendelse(kOversikthendelse)
     }
 
-    private fun map2KOversikthendelse(fnr: Fodselsnummer, tildeltEnhet: String, oversikthendelseType: OversikthendelseType): KOversikthendelse {
-        return KOversikthendelse(
-            fnr = fnr.value,
-            hendelseId = oversikthendelseType.name,
-            enhetId = tildeltEnhet,
-            tidspunkt = LocalDateTime.now()
-        )
-    }
+    private fun map2KOversikthendelse(
+        fnr: Fodselsnummer,
+        tildeltEnhet: String,
+        oversikthendelseType: OversikthendelseType
+    ) = KOversikthendelse(
+        fnr = fnr.value,
+        hendelseId = oversikthendelseType.name,
+        enhetId = tildeltEnhet,
+        tidspunkt = LocalDateTime.now()
+    )
 }

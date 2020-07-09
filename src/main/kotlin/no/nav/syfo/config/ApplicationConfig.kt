@@ -14,19 +14,13 @@ import org.springframework.web.reactive.function.client.WebClient
 @EnableScheduling
 class ApplicationConfig {
     @Bean
-    fun taskScheduler(): TaskScheduler {
-        return ConcurrentTaskScheduler()
-    }
+    fun taskScheduler(): TaskScheduler = ConcurrentTaskScheduler()
 
     @Bean
-    fun restTemplate(): RestTemplate {
-        return RestTemplate()
-    }
+    fun restTemplate() = RestTemplate()
 
     @Bean
-    fun webClient(): WebClient {
-        return WebClient
-            .builder()
-            .build()
-    }
+    fun webClient() = WebClient
+        .builder()
+        .build()
 }

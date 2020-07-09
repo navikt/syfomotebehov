@@ -61,9 +61,7 @@ class StsConsumer(
         const val METRIC_CALL_STS_FAIL = "call_sts_fail"
     }
 
-    private fun getStsTokenUrl(): String {
-        return "$baseUrl/rest/v1/sts/token?grant_type=client_credentials&scope=openid"
-    }
+    private fun getStsTokenUrl() = "$baseUrl/rest/v1/sts/token?grant_type=client_credentials&scope=openid"
 }
 
 data class STSToken(

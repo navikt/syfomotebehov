@@ -62,9 +62,7 @@ class MoteConsumer @Inject constructor(
         }
     }
 
-    private fun getMoteadminUrl(subPath: String): String {
-        return "$SYFOMOTEADMIN_BASEURL$subPath"
-    }
+    private fun getMoteadminUrl(subPath: String) = "$SYFOMOTEADMIN_BASEURL$subPath"
 
     private fun entity(
         callId: String?,

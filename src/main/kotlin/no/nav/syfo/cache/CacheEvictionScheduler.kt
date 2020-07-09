@@ -11,9 +11,7 @@ class CacheEvictionScheduler @Inject constructor(
     private val cachemanager: CacheManager
 ) {
     @Scheduled(fixedRate = HOUR_MS.toLong())
-    fun evictAllCachesAtInteval() {
-        evictAllCaches()
-    }
+    fun evictAllCachesAtInteval() = evictAllCaches()
 
     private fun evictAllCaches() {
         cachemanager.cacheNames

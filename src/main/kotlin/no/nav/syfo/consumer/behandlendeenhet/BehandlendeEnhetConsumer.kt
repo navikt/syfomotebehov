@@ -42,9 +42,7 @@ class BehandlendeEnhetConsumer(
         }
     }
 
-    private fun getBehandlendeEnhetUrl(bruker: String): String {
-        return "$baseUrl/api/$bruker"
-    }
+    private fun getBehandlendeEnhetUrl(bruker: String) = "$baseUrl/api/$bruker"
 
     private fun entity(callId: String?, token: String): HttpEntity<String> {
         val credentials = bearerCredentials(token)

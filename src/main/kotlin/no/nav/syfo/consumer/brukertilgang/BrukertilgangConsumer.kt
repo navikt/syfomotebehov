@@ -52,9 +52,7 @@ class BrukertilgangConsumer(
         LOG.error("Error requesting ansatt access from syfobrukertilgang with callId callId")
     }
 
-    private fun arbeidstakerUrl(ansattFnr: String): String {
-        return "$baseUrl/api/v1/tilgang/ansatt/$ansattFnr"
-    }
+    private fun arbeidstakerUrl(ansattFnr: String) = "$baseUrl/api/v1/tilgang/ansatt/$ansattFnr"
 
     companion object {
         private val LOG = LoggerFactory.getLogger(BrukertilgangConsumer::class.java)
