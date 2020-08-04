@@ -2,16 +2,16 @@ package no.nav.syfo.oversikthendelse
 
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.NAV_ENHET
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.*
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.support.SendResult
 import org.springframework.util.concurrent.ListenableFuture
 import java.time.LocalDateTime
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(MockitoExtension::class)
 class OversikthendelseProducerTest {
     @Mock
     private lateinit var kafkaTemplate: KafkaTemplate<String, Any>

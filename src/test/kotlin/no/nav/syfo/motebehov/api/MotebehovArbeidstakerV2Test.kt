@@ -22,8 +22,9 @@ import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.assertion.assertMotebehovStatus
 import no.nav.syfo.testhelper.generator.*
 import org.assertj.core.api.Assertions
-import org.junit.*
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.times
@@ -33,14 +34,14 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.cache.CacheManager
 import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 import java.util.function.Consumer
 import javax.inject.Inject
 
-@RunWith(SpringRunner::class)
+@ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
 class MotebehovArbeidstakerV2Test {
@@ -89,7 +90,7 @@ class MotebehovArbeidstakerV2Test {
 
     private val stsToken = generateStsToken().access_token
 
-    @Before
+    @BeforeEach
     fun setUp() {
         `when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(ARBEIDSTAKER_AKTORID)
         `when`(pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(generatePdlHentPerson(null, null))
@@ -99,7 +100,7 @@ class MotebehovArbeidstakerV2Test {
         cleanDB()
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         loggUtAlle(oidcRequestContextHolder)
         mockRestServiceServer.reset()
@@ -424,7 +425,7 @@ class MotebehovArbeidstakerV2Test {
 
         val motebehovList = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(ARBEIDSTAKER_AKTORID)
 
-        Assert.assertEquals(2, motebehovList.size)
+        assertEquals(2, motebehovList.size)
         Mockito.verify(oversikthendelseProducer, times(2)).sendOversikthendelse(any())
     }
 
@@ -455,10 +456,10 @@ class MotebehovArbeidstakerV2Test {
 
         val motebehovStatus: MotebehovStatus = motebehovArbeidstakerController.motebehovStatusArbeidstaker()
 
-        Assert.assertTrue(motebehovStatus.visMotebehov)
-        Assert.assertEquals(MotebehovSkjemaType.SVAR_BEHOV, motebehovStatus.skjemaType)
+        assertTrue(motebehovStatus.visMotebehov)
+        assertEquals(MotebehovSkjemaType.SVAR_BEHOV, motebehovStatus.skjemaType)
         val motebehov = motebehovStatus.motebehov!!
-        Assert.assertNotNull(motebehov)
+        assertNotNull(motebehov)
         Assertions.assertThat(motebehov.opprettetAv).isEqualTo(ARBEIDSTAKER_AKTORID)
         Assertions.assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
         Assertions.assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)

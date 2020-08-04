@@ -17,8 +17,10 @@ import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.generator.*
 import no.nav.syfo.testhelper.mockAndExpectMoteadminHarAktivtMote
 import no.nav.syfo.varsel.api.VarselController
-import org.junit.*
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.*
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Value
@@ -28,13 +30,13 @@ import org.springframework.http.HttpStatus
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.support.SendResult
 import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.util.concurrent.ListenableFuture
 import org.springframework.web.client.RestTemplate
 import javax.inject.Inject
 
-@RunWith(SpringRunner::class)
+@ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
 class VarselLederComponentTest {
@@ -83,7 +85,7 @@ class VarselLederComponentTest {
 
     private val stsToken = generateStsToken().access_token
 
-    @Before
+    @BeforeEach
     fun setUp() {
         cleanDB()
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
@@ -94,7 +96,7 @@ class VarselLederComponentTest {
         `when`(stsConsumer.token()).thenReturn(stsToken)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         mockRestServiceServer.reset()
         cleanDB()
@@ -117,7 +119,7 @@ class VarselLederComponentTest {
         Mockito.verify(kafkaTemplate).send(ArgumentMatchers.eq(TredjepartsvarselProducer.TREDJEPARTSVARSEL_TOPIC), ArgumentMatchers.anyString(), argumentCaptor.capture())
         val sendtKTredjepartsvarsel = argumentCaptor.value
         verifySendtKtredjepartsvarsel(sendtKTredjepartsvarsel)
-        Assert.assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
+        assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
     }
 
     @Test
@@ -138,7 +140,7 @@ class VarselLederComponentTest {
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
         Mockito.verify(kafkaTemplate, Mockito.never()).send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        Assert.assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
+        assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
     }
 
     @Test
@@ -159,7 +161,7 @@ class VarselLederComponentTest {
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
         Mockito.verify(kafkaTemplate, Mockito.never()).send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        Assert.assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
+        assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
     }
 
     @Test
@@ -188,7 +190,7 @@ class VarselLederComponentTest {
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
         Mockito.verify(kafkaTemplate, Mockito.never()).send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        Assert.assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
+        assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
     }
 
     @Test
@@ -217,7 +219,7 @@ class VarselLederComponentTest {
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
         Mockito.verify(kafkaTemplate, Mockito.never()).send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        Assert.assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
+        assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
     }
 
     @Test
@@ -233,17 +235,17 @@ class VarselLederComponentTest {
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
         Mockito.verify(kafkaTemplate, Mockito.never()).send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        Assert.assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
+        assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
 
         mockRestServiceServer.verify()
     }
 
     private fun verifySendtKtredjepartsvarsel(kTredjepartsvarsel: KTredjepartsvarsel) {
-        Assert.assertEquals(kTredjepartsvarsel.type, VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name)
-        Assert.assertNotNull(kTredjepartsvarsel.ressursId)
-        Assert.assertEquals(kTredjepartsvarsel.aktorId, ARBEIDSTAKER_AKTORID)
-        Assert.assertEquals(kTredjepartsvarsel.orgnummer, VIRKSOMHETSNUMMER)
-        Assert.assertNotNull(kTredjepartsvarsel.utsendelsestidspunkt)
+        assertEquals(kTredjepartsvarsel.type, VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name)
+        assertNotNull(kTredjepartsvarsel.ressursId)
+        assertEquals(kTredjepartsvarsel.aktorId, ARBEIDSTAKER_AKTORID)
+        assertEquals(kTredjepartsvarsel.orgnummer, VIRKSOMHETSNUMMER)
+        assertNotNull(kTredjepartsvarsel.utsendelsestidspunkt)
     }
 
     private fun cleanDB() {

@@ -30,8 +30,9 @@ import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import org.assertj.core.api.Assertions
-import org.junit.*
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Value
@@ -42,7 +43,7 @@ import org.springframework.http.*
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.support.SendResult
 import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.client.ExpectedCount
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers
@@ -50,12 +51,13 @@ import org.springframework.test.web.client.response.MockRestResponseCreators
 import org.springframework.util.concurrent.ListenableFuture
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
+import java.lang.RuntimeException
 import java.text.ParseException
 import java.time.LocalDateTime
 import java.util.function.Consumer
 import javax.inject.Inject
 
-@RunWith(SpringRunner::class)
+@ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
 class MotebehovVeilederADControllerTest {
@@ -111,7 +113,7 @@ class MotebehovVeilederADControllerTest {
 
     private val stsToken = generateStsToken().access_token
 
-    @Before
+    @BeforeEach
     fun setUp() {
         cleanDB()
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
@@ -126,7 +128,7 @@ class MotebehovVeilederADControllerTest {
         Mockito.`when`(stsConsumer.token()).thenReturn(stsToken)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         // Verify all expectations met
         mockRestServiceServer.verify()
@@ -235,7 +237,7 @@ class MotebehovVeilederADControllerTest {
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
         Assertions.assertThat(motebehovListe[0].behandletTidspunkt).isNull()
         Assertions.assertThat(motebehovListe[0].behandletVeilederIdent).isEqualTo(null)
-        Assert.assertNotNull(motebehovListe[1].behandletTidspunkt)
+        assertNotNull(motebehovListe[1].behandletTidspunkt)
         Assertions.assertThat(motebehovListe[1].behandletVeilederIdent).isEqualTo(VEILEDER_ID)
         Mockito.verify(kafkaTemplate, Mockito.times(2)).send(ArgumentMatchers.eq(OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC), ArgumentMatchers.anyString(), ArgumentMatchers.any())
     }
@@ -253,14 +255,14 @@ class MotebehovVeilederADControllerTest {
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
         val motebehovListe1 = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
-        Assert.assertNotNull(motebehovListe1[0].behandletTidspunkt)
+        assertNotNull(motebehovListe1[0].behandletTidspunkt)
         Assertions.assertThat(motebehovListe1[0].behandletVeilederIdent).isEqualTo(VEILEDER_ID)
-        Assert.assertNotNull(motebehovListe1[1].behandletTidspunkt)
+        assertNotNull(motebehovListe1[1].behandletTidspunkt)
         Assertions.assertThat(motebehovListe1[1].behandletVeilederIdent).isEqualTo(VEILEDER_2_ID)
         Mockito.verify(kafkaTemplate, Mockito.times(3)).send(ArgumentMatchers.eq(OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC), ArgumentMatchers.anyString(), ArgumentMatchers.any())
     }
 
-    @Test(expected = RuntimeException::class)
+    @Test
     @Throws(ParseException::class)
     fun behandleIkkeEksiterendeMotebehov() {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
@@ -269,7 +271,8 @@ class MotebehovVeilederADControllerTest {
         mockRestServiceServer.reset()
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_2_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
-        motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
+
+        assertThrows<RuntimeException> { motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR) }
     }
 
     private fun arbeidsgiverLagrerMotebehov(lederFnr: String, arbeidstakerFnr: String, virksomhetsnummer: String): NyttMotebehov {

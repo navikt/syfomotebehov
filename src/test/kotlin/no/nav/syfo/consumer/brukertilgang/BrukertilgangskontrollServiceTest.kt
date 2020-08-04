@@ -5,12 +5,12 @@ import no.nav.security.oidc.test.support.JwtTokenGenerator
 import no.nav.syfo.api.auth.OIDCIssuer.EKSTERN
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.pdl.PdlConsumer
-import org.junit.*
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.*
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.*
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.junit.jupiter.MockitoExtension
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(MockitoExtension::class)
 class BrukertilgangskontrollServiceTest {
     @Mock
     private lateinit var oidcRequestContextHolder: OIDCRequestContextHolder
@@ -24,13 +24,13 @@ class BrukertilgangskontrollServiceTest {
     @InjectMocks
     private lateinit var tilgangskontrollService: BrukertilgangService
 
-    @Before
+    @BeforeEach
     fun setup() {
         mockOIDC(INNLOGGET_FNR)
         Mockito.`when`(pdlConsumer.isKode6(Fodselsnummer(SPOR_OM_FNR))).thenReturn(false)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         oidcRequestContextHolder.oidcValidationContext = null
     }
@@ -40,47 +40,47 @@ class BrukertilgangskontrollServiceTest {
         Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(true)
         Mockito.`when`(pdlConsumer.isKode6(Fodselsnummer(SPOR_OM_FNR))).thenReturn(true)
         val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR)
-        Assert.assertEquals(false, tilgang)
+        Assertions.assertEquals(false, tilgang)
     }
 
     @Test
     fun harTilgangTilOppslaattBrukerGirTrueNaarManSporOmSegSelv() {
         val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, INNLOGGET_FNR)
-        Assert.assertEquals(true, tilgang)
+        Assertions.assertEquals(true, tilgang)
     }
 
     @Test
     fun harTilgangTilOppslaattBrukerGirTrueNaarManSporOmEnAnsatt() {
         Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(true)
         val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR)
-        Assert.assertEquals(true, tilgang)
+        Assertions.assertEquals(true, tilgang)
     }
 
     @Test
     fun harTilgangTilOppslaattBrukerGirFalseNaarManSporOmEnSomIkkeErSegSelvOgIkkeAnsatt() {
         Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(false)
         val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR)
-        Assert.assertEquals(false, tilgang)
+        Assertions.assertEquals(false, tilgang)
     }
 
     @Test
     fun sporOmNoenAndreEnnSegSelvGirFalseNaarManSporOmSegSelv() {
         val tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, INNLOGGET_FNR)
-        Assert.assertEquals(false, tilgang)
+        Assertions.assertEquals(false, tilgang)
     }
 
     @Test
     fun sporOmNoenAndreEnnSegSelvGirFalseNaarManSporOmEnAnsatt() {
         Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(true)
         val tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, SPOR_OM_FNR)
-        Assert.assertEquals(false, tilgang)
+        Assertions.assertEquals(false, tilgang)
     }
 
     @Test
     fun sporOmNoenAndreEnnSegSelvGirTrueNaarManSporOmEnSomIkkeErSegSelvOgIkkeAnsatt() {
         Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(false)
         val tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, SPOR_OM_FNR)
-        Assert.assertEquals(true, tilgang)
+        Assertions.assertEquals(true, tilgang)
     }
 
     private fun mockOIDC(subject: String) {

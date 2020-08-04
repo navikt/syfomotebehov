@@ -6,16 +6,16 @@ import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import org.assertj.core.api.Assertions
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import javax.inject.Inject
 
-@RunWith(SpringRunner::class)
+@ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
 class MotebehovDAOTest {
@@ -27,7 +27,7 @@ class MotebehovDAOTest {
 
     private val motebehovGenerator = MotebehovGenerator()
 
-    @Before
+    @BeforeEach
     fun cleanup() {
         val sqlDeleteAll = "DELETE FROM MOTEBEHOV"
         jdbcTemplate.update(sqlDeleteAll)

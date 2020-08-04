@@ -1,15 +1,15 @@
 package no.nav.syfo.varsel
 
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.*
-import org.mockito.junit.MockitoJUnitRunner
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.support.SendResult
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.util.concurrent.ListenableFuture
 import java.time.LocalDateTime
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(SpringExtension::class)
 class TredjepartsvarselProducerTest {
     @Mock
     private lateinit var kafkaTemplate: KafkaTemplate<String, Any>
