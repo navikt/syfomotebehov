@@ -8,6 +8,7 @@ object Versions {
     const val junitJupiterVersion = "5.6.0"
     const val kotlinJacksonVersion = "2.9.8"
     const val flywayVersion = "5.1.4"
+    const val mockkVersion = "1.9.3"
     const val oidcSupportVersion = "0.2.18"
     const val ojdbcVersion = "19.3.0.0"
 }
@@ -68,6 +69,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.5")
     implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:20171016.1")
 
+    testImplementation("io.mockk:mockk:${Versions.mockkVersion}")
     testImplementation("org.junit.jupiter:junit-jupiter:${Versions.junitJupiterVersion}")
     testImplementation("no.nav.security:oidc-test-support:${Versions.oidcSupportVersion}")
     testImplementation("org.springframework.kafka:spring-kafka-test")
@@ -96,5 +98,11 @@ tasks {
 
     named<KotlinCompile>("compileTestKotlin") {
         kotlinOptions.jvmTarget = "1.8"
+    }
+
+    withType<Test> {
+        useJUnitPlatform {
+            includeEngines("junit-jupiter")
+        }
     }
 }

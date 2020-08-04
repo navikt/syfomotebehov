@@ -32,6 +32,17 @@ object OidcTestHelper {
     }
 
     @JvmStatic
+    fun getValidationContext(subject: String): OIDCValidationContext {
+        val jwt = JwtTokenGenerator.createSignedJWT(subject)
+        val issuer = EKSTERN
+        val tokenContext = TokenContext(issuer, jwt.serialize())
+        val oidcClaims = OIDCClaims(jwt)
+        val oidcValidationContext = OIDCValidationContext()
+        oidcValidationContext.addValidatedToken(issuer, tokenContext, oidcClaims)
+        return oidcValidationContext
+    }
+
+    @JvmStatic
     fun loggUtAlle(oidcRequestContextHolder: OIDCRequestContextHolder) {
         oidcRequestContextHolder.oidcValidationContext = null
     }

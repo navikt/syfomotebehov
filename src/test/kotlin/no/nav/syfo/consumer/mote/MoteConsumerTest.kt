@@ -1,54 +1,50 @@
 package no.nav.syfo.consumer.mote
 
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import org.junit.jupiter.api.*
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.*
-import org.mockito.junit.jupiter.MockitoExtension
-import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDateTime
 
-@ExtendWith(MockitoExtension::class)
 class MoteConsumerTest {
-    @Mock
-    private lateinit var stsConsumer: StsConsumer
+    private val metric = mockk<Metric>()
+    private val stsConsumer = mockk<StsConsumer>()
+    private val template = mockk<RestTemplate>()
 
-    @Mock
-    private lateinit var metric: Metric
+    private val moteConsumer = MoteConsumer(
+        stsConsumer = stsConsumer,
+        metric = metric,
+        template = template
+    )
 
-    @Mock
-    private lateinit var template: RestTemplate
-
-    @InjectMocks
-    private lateinit var moteConsumer: MoteConsumer
-
-    private val START_DATO = LocalDateTime.now().minusDays(30)
+    private val startDate = LocalDateTime.now().minusDays(30)
 
     @BeforeEach
     fun setUp() {
-        Mockito.`when`(stsConsumer.token()).thenReturn("token")
+        every { stsConsumer.token() } returns "token"
+        every { metric.tellHendelse(any()) } returns Unit
     }
 
     @Test
     fun harArbeidstakerMoteIOppfolgingstilfelle_skal_returnere_true_hvis_moteplanlegger_er_brukt() {
-        Mockito.`when`(template.postForObject(ArgumentMatchers.anyString(), ArgumentMatchers.any(HttpEntity::class.java), ArgumentMatchers.any<Class<Any>>())).thenReturn(true)
-        Assertions.assertTrue(moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(ARBEIDSTAKER_AKTORID, START_DATO))
+        every { template.postForObject(any<String>(), any(), any<Class<Any>>()) } returns true
+        Assertions.assertTrue(moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(ARBEIDSTAKER_AKTORID, startDate))
     }
 
     @Test
     fun harArbeidstakerMoteIOppfolgingstilfelle_skal_returnere_false_hvis_moteplanlegger_ikke_er_brukt() {
-        Mockito.`when`(template.postForObject(ArgumentMatchers.anyString(), ArgumentMatchers.any(HttpEntity::class.java), ArgumentMatchers.any<Class<Any>>())).thenReturn(false)
-        Assertions.assertFalse(moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(ARBEIDSTAKER_AKTORID, START_DATO))
+        every { template.postForObject(any<String>(), any(), any<Class<Any>>()) } returns false
+        Assertions.assertFalse(moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(ARBEIDSTAKER_AKTORID, startDate))
     }
 
     @Test
     fun harArbeidstakerMoteIOppfolgingstilfelle_skal_kaste_HttpServerErrorException_hvis_kall_til_syfomoteadmin_feiler() {
-        Mockito.`when`(template.postForObject(ArgumentMatchers.anyString(), ArgumentMatchers.any(HttpEntity::class.java), ArgumentMatchers.any<Class<Any>>())).thenThrow(HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR))
-        assertThrows<HttpServerErrorException> { moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(ARBEIDSTAKER_AKTORID, START_DATO) }
+        every { template.postForObject(any<String>(), any(), any<Class<Any>>()) }.throws(HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR))
+        assertThrows<HttpServerErrorException> { moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(ARBEIDSTAKER_AKTORID, startDate) }
     }
 }
