@@ -10,14 +10,14 @@ import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import org.assertj.core.api.Assertions
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.*
-import org.mockito.junit.MockitoJUnitRunner
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDateTime
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(SpringExtension::class)
 class HistorikkServiceTest {
 
     @Mock
@@ -51,7 +51,7 @@ class HistorikkServiceTest {
         null
     )
 
-    @Before
+    @BeforeEach
     fun setup() {
         Mockito.`when`(aktorregisterConsumer.getFnrForAktorId(AktorId(NL1_AKTORID))).thenReturn(NL1_FNR)
         Mockito.`when`(aktorregisterConsumer.getFnrForAktorId(AktorId(NL3_AKTORID))).thenReturn(NL3_FNR)

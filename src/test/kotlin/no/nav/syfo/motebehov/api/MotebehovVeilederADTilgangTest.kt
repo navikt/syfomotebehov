@@ -8,13 +8,13 @@ import no.nav.syfo.testhelper.OidcTestHelper.loggInnVeilederAzure
 import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
-import org.junit.*
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.*
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.*
 import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.client.ExpectedCount
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers
@@ -25,7 +25,7 @@ import java.text.ParseException
 import javax.inject.Inject
 import javax.ws.rs.ForbiddenException
 
-@RunWith(SpringRunner::class)
+@ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
 class MotebehovVeilederADTilgangTest {
@@ -43,12 +43,12 @@ class MotebehovVeilederADTilgangTest {
 
     private lateinit var mockRestServiceServer: MockRestServiceServer
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         // Verify all expectations met
         mockRestServiceServer.verify()
@@ -56,28 +56,28 @@ class MotebehovVeilederADTilgangTest {
     }
 
     // Innvilget tilgang testes gjennom @MotebehovVeilederADControllerTest.arbeidsgiverLagrerOgVeilederHenterMotebehov
-    @Test(expected = ForbiddenException::class)
+    @Test
     @Throws(ParseException::class)
     fun veilederNektesTilgang() {
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.FORBIDDEN)
-        motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
+        assertThrows<ForbiddenException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
     }
 
-    @Test(expected = HttpClientErrorException::class)
+    @Test
     @Throws(ParseException::class)
     fun klientFeilMotTilgangskontroll() {
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.BAD_REQUEST)
-        motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
+        assertThrows<HttpClientErrorException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
     }
 
-    @Test(expected = HttpServerErrorException::class)
+    @Test
     @Throws(ParseException::class)
     fun tekniskFeilITilgangskontroll() {
         loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.INTERNAL_SERVER_ERROR)
-        motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
+        assertThrows<HttpServerErrorException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
     }
 
     private fun mockSvarFraSyfoTilgangskontroll(fnr: String, status: HttpStatus) {

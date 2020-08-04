@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 
 object Versions {
+    const val junitJupiterVersion = "5.6.0"
     const val kotlinJacksonVersion = "2.9.8"
     const val flywayVersion = "5.1.4"
     const val oidcSupportVersion = "0.2.18"
@@ -67,9 +68,12 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.5")
     implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:20171016.1")
 
+    testImplementation("org.junit.jupiter:junit-jupiter:${Versions.junitJupiterVersion}")
     testImplementation("no.nav.security:oidc-test-support:${Versions.oidcSupportVersion}")
     testImplementation("org.springframework.kafka:spring-kafka-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude(module = "junit")
+    }
     testImplementation("com.h2database:h2")
 }
 
