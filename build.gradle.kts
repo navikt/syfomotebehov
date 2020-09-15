@@ -8,8 +8,7 @@ object Versions {
     const val junitJupiterVersion = "5.6.0"
     const val kotlinJacksonVersion = "2.9.8"
     const val flywayVersion = "5.1.4"
-    const val nimbusSDKVersion = "7.0.3"
-    const val oidcSupportVersion = "0.2.18"
+    const val tokenSupportVersion = "1.3.0"
     const val ojdbcVersion = "19.3.0.0"
 }
 
@@ -58,8 +57,7 @@ dependencies {
 
     implementation("io.micrometer:micrometer-registry-prometheus:1.0.6")
 
-    implementation("com.nimbusds:oauth2-oidc-sdk:${Versions.nimbusSDKVersion}")
-    implementation("no.nav.security:oidc-spring-support:${Versions.oidcSupportVersion}")
+    implementation("no.nav.security:token-validation-spring:${Versions.tokenSupportVersion}")
 
     implementation("com.oracle.ojdbc:ojdbc8:${Versions.ojdbcVersion}")
     implementation("org.springframework.kafka:spring-kafka")
@@ -71,7 +69,7 @@ dependencies {
     implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:20171016.1")
 
     testImplementation("org.junit.jupiter:junit-jupiter:${Versions.junitJupiterVersion}")
-    testImplementation("no.nav.security:oidc-test-support:${Versions.oidcSupportVersion}")
+    testImplementation("no.nav.security:token-validation-test-support:${Versions.tokenSupportVersion}")
     testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "junit")
@@ -93,10 +91,10 @@ tasks {
     }
 
     named<KotlinCompile>("compileKotlin") {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = "11"
     }
 
     named<KotlinCompile>("compileTestKotlin") {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = "11"
     }
 }

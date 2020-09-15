@@ -1,6 +1,6 @@
 package no.nav.syfo
 
-import no.nav.security.oidc.test.support.spring.TokenGeneratorConfiguration
+import no.nav.security.token.support.test.spring.TokenGeneratorConfiguration
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 

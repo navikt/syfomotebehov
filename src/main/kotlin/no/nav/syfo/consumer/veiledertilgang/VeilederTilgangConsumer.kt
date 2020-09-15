@@ -1,6 +1,6 @@
 package no.nav.syfo.consumer.veiledertilgang
 
-import no.nav.security.oidc.context.OIDCRequestContextHolder
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.api.auth.OIDCUtil
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
@@ -21,7 +21,7 @@ class VeilederTilgangConsumer(
     @Value("\${tilgangskontrollapi.url}") tilgangskontrollUrl: String,
     private val metric: Metric,
     private val template: RestTemplate,
-    private val oidcContextHolder: OIDCRequestContextHolder
+    private val oidcContextHolder: TokenValidationContextHolder
 ) {
     private val tilgangTilBrukerViaAzureUriTemplate: UriComponentsBuilder
 

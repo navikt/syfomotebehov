@@ -1,6 +1,6 @@
 package no.nav.syfo.consumer.brukertilgang
 
-import no.nav.security.oidc.context.OIDCRequestContextHolder
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.OIDCUtil
 import no.nav.syfo.cache.CacheConfig
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
@@ -12,7 +12,7 @@ import javax.ws.rs.ForbiddenException
 
 @Service
 class BrukertilgangService @Inject constructor(
-    private val contextHolder: OIDCRequestContextHolder,
+    private val contextHolder: TokenValidationContextHolder,
     private val brukertilgangConsumer: BrukertilgangConsumer,
     private val pdlConsumer: PdlConsumer
 ) {

@@ -1,6 +1,6 @@
 package no.nav.syfo.varsel.api
 
-import no.nav.security.oidc.api.ProtectedWithClaims
+import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.syfo.api.auth.OIDCIssuer.INTERN
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.AktorId

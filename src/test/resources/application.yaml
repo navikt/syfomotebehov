@@ -40,8 +40,7 @@ srv.password: "bur"
 toggle.enable:
   nullstill: true
 
-no.nav.security.oidc:
-  issuers: selvbetjening
+no.nav.security.jwt:
   issuer:
     selvbetjening.discoveryurl: http://metadata
     selvbetjening.accepted_audience: aud-localhost
