@@ -6,7 +6,7 @@ metadata:
   labels:
     team: teamsykefravr
 spec:
-  image: docker.pkg.github.com/navikt/syfomotebehov/syfomotebehov:590840cf68ea755e8ba1094717738ce5f9fa7d50
+  image: {{ image }}
   port: 8080
   team: teamsykefravr
   liveness:
