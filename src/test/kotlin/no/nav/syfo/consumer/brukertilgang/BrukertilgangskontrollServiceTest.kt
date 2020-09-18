@@ -1,7 +1,9 @@
 package no.nav.syfo.consumer.brukertilgang
 
-import no.nav.security.oidc.context.*
-import no.nav.security.oidc.test.support.JwtTokenGenerator
+import no.nav.security.token.support.core.context.TokenValidationContext
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import no.nav.security.token.support.core.jwt.JwtToken
+import no.nav.security.token.support.test.JwtTokenGenerator
 import no.nav.syfo.api.auth.OIDCIssuer.EKSTERN
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.pdl.PdlConsumer
@@ -13,7 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension
 @ExtendWith(MockitoExtension::class)
 class BrukertilgangskontrollServiceTest {
     @Mock
-    private lateinit var oidcRequestContextHolder: OIDCRequestContextHolder
+    private lateinit var contextHolder: TokenValidationContextHolder
 
     @Mock
     private lateinit var brukertilgangConsumer: BrukertilgangConsumer
@@ -32,7 +34,7 @@ class BrukertilgangskontrollServiceTest {
 
     @AfterEach
     fun tearDown() {
-        oidcRequestContextHolder.oidcValidationContext = null
+        contextHolder.tokenValidationContext = null
     }
 
     @Test
@@ -84,13 +86,12 @@ class BrukertilgangskontrollServiceTest {
     }
 
     private fun mockOIDC(subject: String) {
-        val jwt = JwtTokenGenerator.createSignedJWT(subject)
-        val issuer: String = EKSTERN
-        val tokenContext = TokenContext(issuer, jwt.serialize())
-        val oidcClaims = OIDCClaims(jwt)
-        val oidcValidationContext = OIDCValidationContext()
-        oidcValidationContext.addValidatedToken(issuer, tokenContext, oidcClaims)
-        oidcRequestContextHolder.oidcValidationContext = oidcValidationContext
+        val jwt = JwtToken(JwtTokenGenerator.createSignedJWT(subject).serialize())
+        val issuer = EKSTERN
+        val issuerTokenMap = HashMap<String, JwtToken>()
+        issuerTokenMap[issuer] = jwt
+        val context = TokenValidationContext(issuerTokenMap)
+        contextHolder.tokenValidationContext = context
     }
 
     companion object {

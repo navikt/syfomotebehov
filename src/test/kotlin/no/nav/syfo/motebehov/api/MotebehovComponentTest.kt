@@ -1,6 +1,6 @@
 package no.nav.syfo.motebehov.api
 
-import no.nav.security.oidc.context.OIDCRequestContextHolder
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
@@ -53,7 +53,7 @@ class MotebehovComponentTest {
     private lateinit var motebehovController: MotebehovBrukerController
 
     @Inject
-    private lateinit var oidcRequestContextHolder: OIDCRequestContextHolder
+    private lateinit var contextHolder: TokenValidationContextHolder
 
     @Inject
     private lateinit var motebehovDAO: MotebehovDAO
@@ -93,13 +93,13 @@ class MotebehovComponentTest {
         Mockito.`when`(pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(generatePdlHentPerson(null, null))
         Mockito.`when`(stsConsumer.token()).thenReturn(stsToken)
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
-        loggInnBruker(oidcRequestContextHolder, LEDER_FNR)
+        loggInnBruker(contextHolder, LEDER_FNR)
         cleanDB()
     }
 
     @AfterEach
     fun tearDown() {
-        loggUtAlle(oidcRequestContextHolder)
+        loggUtAlle(contextHolder)
         mockRestServiceServer.reset()
         cacheManager.cacheNames
             .forEach(Consumer { cacheName: String ->

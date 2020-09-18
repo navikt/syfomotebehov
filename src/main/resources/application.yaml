@@ -1,21 +1,20 @@
 app.name: syfomotebehov
 
 no.nav.security:
-  oidc:
-    issuers: selvbetjening,intern,veileder
+  jwt:
     issuer:
       selvbetjening:
         discoveryurl: <naiserator>
         accepted_audience: <naiserator>
-        cookie_name: selvbetjening-idtoken
+        cookiename: selvbetjening-idtoken
       intern:
         discoveryurl: <naiserator>
         accepted_audience: modiabrukerdialog-p,modiabrukerdialog-q1,veilarblogin-p,veilarblogin-q1,fpsak-frontend-p,fpsak-frontend-q1,fplos-p,fplos-q1
-        cookie_name: ID_token
+        cookiename: ID_token
       veileder:
         discoveryurl: <naiserator>
         accepted_audience: <naiserator>
-        cookie_name: isso-idtoken
+        cookiename: isso-idtoken
 
 logging.config: classpath:logback-spring.xml
 

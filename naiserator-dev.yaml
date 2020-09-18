@@ -6,7 +6,7 @@ metadata:
   labels:
     team: teamsykefravr
 spec:
-  image: {{ image }}
+  image: docker.pkg.github.com/navikt/syfomotebehov/syfomotebehov:590840cf68ea755e8ba1094717738ce5f9fa7d50
   port: 8080
   team: teamsykefravr
   liveness:
@@ -63,15 +63,15 @@ spec:
       value: https://security-token-service.nais.preprod.local
     - name: SYFOBEHANDLENDEENHET_URL
       value: https://syfobehandlendeenhet.nais.preprod.local
-    - name: NO_NAV_SECURITY_OIDC_ISSUER_SELVBETJENING_ACCEPTEDAUDIENCE
+    - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_ACCEPTEDAUDIENCE
       value: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
-    - name: NO_NAV_SECURITY_OIDC_ISSUER_SELVBETJENING_DISCOVERYURL
+    - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_DISCOVERYURL
       value: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
-    - name: NO_NAV_SECURITY_OIDC_ISSUER_INTERN_DISCOVERYURL
+    - name: NO_NAV_SECURITY_JWT_ISSUER_INTERN_DISCOVERYURL
       value: https://isso-q.adeo.no:443/isso/oauth2/.well-known/openid-configuration
-    - name: NO_NAV_SECURITY_OIDC_ISSUER_VEILEDER_DISCOVERYURL
+    - name: NO_NAV_SECURITY_JWT_ISSUER_VEILEDER_DISCOVERYURL
       value: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/.well-known/openid-configuration
-    - name: NO_NAV_SECURITY_OIDC_ISSUER_VEILEDER_ACCEPTEDAUDIENCE
+    - name: NO_NAV_SECURITY_JWT_ISSUER_VEILEDER_ACCEPTEDAUDIENCE
       value: 38e07d31-659d-4595-939a-f18dce3446c5
     - name: KAFKA_ENV_NAME
       value: q1

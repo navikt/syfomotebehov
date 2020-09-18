@@ -1,7 +1,7 @@
 package no.nav.syfo.motebehov.api
 
-import no.nav.security.oidc.api.ProtectedWithClaims
-import no.nav.security.oidc.context.OIDCRequestContextHolder
+import no.nav.security.token.support.core.api.ProtectedWithClaims
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.api.auth.OIDCUtil
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
@@ -21,7 +21,7 @@ import javax.ws.rs.ForbiddenException
 @ProtectedWithClaims(issuer = OIDCIssuer.EKSTERN, claimMap = ["acr=Level4"])
 @RequestMapping(value = ["/api/motebehov"])
 class MotebehovBrukerController @Inject constructor(
-    private val contextHolder: OIDCRequestContextHolder,
+    private val contextHolder: TokenValidationContextHolder,
     private val metric: Metric,
     private val motebehovService: MotebehovService,
     private val brukertilgangService: BrukertilgangService

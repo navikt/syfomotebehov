@@ -1,6 +1,6 @@
 package no.nav.syfo.motebehov.api
 
-import no.nav.security.oidc.api.Unprotected
+import no.nav.security.token.support.core.api.Unprotected
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.toggle.Toggle
 import org.slf4j.LoggerFactory

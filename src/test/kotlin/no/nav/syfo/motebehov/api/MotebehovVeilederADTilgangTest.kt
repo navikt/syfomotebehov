@@ -1,6 +1,6 @@
 package no.nav.syfo.motebehov.api
 
-import no.nav.security.oidc.context.OIDCRequestContextHolder
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.api.auth.OIDCIssuer.AZURE
 import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
@@ -36,7 +36,7 @@ class MotebehovVeilederADTilgangTest {
     private lateinit var motebehovVeilederController: MotebehovVeilederADController
 
     @Inject
-    private lateinit var oidcRequestContextHolder: OIDCRequestContextHolder
+    private lateinit var contextHolder: TokenValidationContextHolder
 
     @Inject
     private lateinit var restTemplate: RestTemplate
@@ -52,14 +52,14 @@ class MotebehovVeilederADTilgangTest {
     fun tearDown() {
         // Verify all expectations met
         mockRestServiceServer.verify()
-        loggUtAlle(oidcRequestContextHolder)
+        loggUtAlle(contextHolder)
     }
 
     // Innvilget tilgang testes gjennom @MotebehovVeilederADControllerTest.arbeidsgiverLagrerOgVeilederHenterMotebehov
     @Test
     @Throws(ParseException::class)
     fun veilederNektesTilgang() {
-        loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID)
+        loggInnVeilederAzure(contextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.FORBIDDEN)
         assertThrows<ForbiddenException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
     }
@@ -67,7 +67,7 @@ class MotebehovVeilederADTilgangTest {
     @Test
     @Throws(ParseException::class)
     fun klientFeilMotTilgangskontroll() {
-        loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID)
+        loggInnVeilederAzure(contextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.BAD_REQUEST)
         assertThrows<HttpClientErrorException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
     }
@@ -75,7 +75,7 @@ class MotebehovVeilederADTilgangTest {
     @Test
     @Throws(ParseException::class)
     fun tekniskFeilITilgangskontroll() {
-        loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID)
+        loggInnVeilederAzure(contextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.INTERNAL_SERVER_ERROR)
         assertThrows<HttpServerErrorException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
     }
@@ -85,7 +85,7 @@ class MotebehovVeilederADTilgangTest {
             .path(VeilederTilgangConsumer.TILGANG_TIL_BRUKER_VIA_AZURE_PATH)
             .queryParam(VeilederTilgangConsumer.FNR, fnr)
             .toUriString()
-        val idToken = oidcRequestContextHolder.oidcValidationContext.getToken(AZURE).idToken
+        val idToken = contextHolder.tokenValidationContext.getJwtToken(AZURE).tokenAsString
         mockRestServiceServer.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(uriString))
             .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
             .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer $idToken"))

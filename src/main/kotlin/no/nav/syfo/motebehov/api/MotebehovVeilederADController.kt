@@ -1,7 +1,7 @@
 package no.nav.syfo.motebehov.api
 
-import no.nav.security.oidc.api.ProtectedWithClaims
-import no.nav.security.oidc.context.OIDCRequestContextHolder
+import no.nav.security.token.support.core.api.ProtectedWithClaims
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.OIDCIssuer.AZURE
 import no.nav.syfo.api.auth.getSubjectInternAD
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
@@ -21,7 +21,7 @@ import javax.ws.rs.ForbiddenException
 @ProtectedWithClaims(issuer = AZURE)
 @RequestMapping(value = ["/api/internad/veileder"])
 class MotebehovVeilederADController @Inject constructor(
-    private val oidcCtxHolder: OIDCRequestContextHolder,
+    private val contextHolder: TokenValidationContextHolder,
     private val metric: Metric,
     private val historikkService: HistorikkService,
     private val motebehovService: MotebehovService,
@@ -54,7 +54,7 @@ class MotebehovVeilederADController @Inject constructor(
         metric.tellEndepunktKall("veileder_behandle_motebehov_call")
         val fnr = Fodselsnummer(sykmeldtFnr)
         kastExceptionHvisIkkeTilgang(fnr)
-        motebehovService.behandleUbehandledeMotebehov(fnr, getSubjectInternAD(oidcCtxHolder))
+        motebehovService.behandleUbehandledeMotebehov(fnr, getSubjectInternAD(contextHolder))
         metric.tellEndepunktKall("veileder_behandle_motebehov_success")
     }
 

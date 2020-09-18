@@ -1,6 +1,6 @@
 package no.nav.syfo.motebehov.api
 
-import no.nav.security.oidc.context.OIDCRequestContextHolder
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
@@ -62,7 +62,7 @@ class MotebehovArbeidsgiverV2Test {
     private lateinit var motebehovVeilederController: MotebehovVeilederADController
 
     @Inject
-    private lateinit var oidcRequestContextHolder: OIDCRequestContextHolder
+    private lateinit var contextHolder: TokenValidationContextHolder
 
     @Inject
     private lateinit var motebehovDAO: MotebehovDAO
@@ -105,13 +105,13 @@ class MotebehovArbeidsgiverV2Test {
         `when`(pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(generatePdlHentPerson(null, null))
         `when`(stsConsumer.token()).thenReturn(stsToken)
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
-        loggInnBruker(oidcRequestContextHolder, LEDER_FNR)
+        loggInnBruker(contextHolder, LEDER_FNR)
         cleanDB()
     }
 
     @AfterEach
     fun tearDown() {
-        loggUtAlle(oidcRequestContextHolder)
+        loggUtAlle(contextHolder)
         mockRestServiceServer.reset()
         cacheManager.cacheNames
             .forEach(Consumer { cacheName: String ->
@@ -129,8 +129,8 @@ class MotebehovArbeidsgiverV2Test {
 
     @Test
     fun getMotebehovStatusWithTodayOutsideOppfolgingstilfelleStart() {
-        loggUtAlle(oidcRequestContextHolder)
-        loggInnBruker(oidcRequestContextHolder, ARBEIDSTAKER_FNR)
+        loggUtAlle(contextHolder)
+        loggInnBruker(contextHolder, ARBEIDSTAKER_FNR)
 
         oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
             fom = LocalDate.now().plusDays(1),
@@ -142,8 +142,8 @@ class MotebehovArbeidsgiverV2Test {
 
     @Test
     fun getMotebehovStatusWithTodayOutsideOppfolgingstilfelleEnd() {
-        loggUtAlle(oidcRequestContextHolder)
-        loggInnBruker(oidcRequestContextHolder, ARBEIDSTAKER_FNR)
+        loggUtAlle(contextHolder)
+        loggInnBruker(contextHolder, ARBEIDSTAKER_FNR)
 
         oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle.copy(
             fom = LocalDate.now().minusDays(10),
@@ -279,17 +279,17 @@ class MotebehovArbeidsgiverV2Test {
         submitMotebehovAndSendOversikthendelse(motebehovSvar)
 
         mockRestServiceServer.reset()
-        loggUtAlle(oidcRequestContextHolder)
-        loggInnVeilederAzure(oidcRequestContextHolder, VEILEDER_ID)
+        loggUtAlle(contextHolder)
+        loggInnVeilederAzure(contextHolder, VEILEDER_ID)
         mockAndExpectSyfoTilgangskontroll(
             mockRestServiceServer,
             tilgangskontrollUrl,
-            oidcRequestContextHolder.oidcValidationContext.getToken(OIDCIssuer.AZURE).idToken,
+            contextHolder.tokenValidationContext.getJwtToken(OIDCIssuer.AZURE).tokenAsString,
             ARBEIDSTAKER_FNR,
             HttpStatus.OK
         )
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
-        loggInnBruker(oidcRequestContextHolder, LEDER_FNR)
+        loggInnBruker(contextHolder, LEDER_FNR)
 
         mockRestServiceServer.reset()
 
