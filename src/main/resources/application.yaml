@@ -4,8 +4,8 @@ no.nav.security:
   jwt:
     issuer:
       selvbetjening:
-        discoveryurl: <naiserator>
-        accepted_audience: <naiserator>
+        discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
+        accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
         cookiename: selvbetjening-idtoken
       intern:
         discoveryurl: <naiserator>
