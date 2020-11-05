@@ -37,10 +37,8 @@ class OppfolgingstilfelleListener(
             acknowledgment.acknowledge()
         } catch (e: JsonProcessingException) {
             LOG.error("OppfolgingstilfellePekerListener: Kunne ikke deserialisere KOppfolgingstilfellePeker", e)
-            throw RuntimeException("Kunne ikke deserialisere KOppfolgingstilfellePeker")
         } catch (e: Exception) {
             LOG.error("OppfolgingstilfellePekerListener: Uventet feil ved lesing av KOppfolgingstilfellePeker", e)
-            throw RuntimeException("Uventet feil lesing av KOppfolgingstilfellePeker")
         }
     }
 
