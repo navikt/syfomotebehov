@@ -38,6 +38,8 @@ spec:
     - "https://app-q1.adeo.no/syfomotebehov"
   vault:
     enabled: true
+  envFrom:
+    - configmap: loginservice-idporten
   env:
     - name: APP_NAME
       value: "syfomotebehov"
@@ -63,10 +65,6 @@ spec:
       value: https://security-token-service.nais.preprod.local
     - name: SYFOBEHANDLENDEENHET_URL
       value: https://syfobehandlendeenhet.nais.preprod.local
-    - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_ACCEPTEDAUDIENCE
-      value: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
-    - name: NO_NAV_SECURITY_JWT_ISSUER_SELVBETJENING_DISCOVERYURL
-      value: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
     - name: NO_NAV_SECURITY_JWT_ISSUER_INTERN_DISCOVERYURL
       value: https://isso-q.adeo.no:443/isso/oauth2/.well-known/openid-configuration
     - name: NO_NAV_SECURITY_JWT_ISSUER_VEILEDER_DISCOVERYURL
