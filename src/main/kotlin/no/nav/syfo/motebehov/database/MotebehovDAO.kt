@@ -23,6 +23,12 @@ import java.util.UUID
 @Transactional
 @Repository
 class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate, private val jdbcTemplate: JdbcTemplate) {
+    fun hentUbehandledeMotebehovSvar2019(): List<PMotebehov> {
+        return Optional.ofNullable(
+            jdbcTemplate.query("SELECT * FROM motebehov WHERE behandlet_tidspunkt IS NULL AND har_motebehov = 1 AND opprettet_dato <= to_date('31-12-2019', 'dd-MM-yyyy')", innsendingRowMapper)
+        ).orElse(emptyList())
+    }
+
     fun hentMotebehovListeForAktoer(aktoerId: String): List<PMotebehov> {
         return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ?", innsendingRowMapper, aktoerId)).orElse(emptyList())
     }

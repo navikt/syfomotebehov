@@ -55,3 +55,5 @@ dev: true
 syfobehandlendeenhet.url: "https://syfobehandlendeenhet"
 tilgangskontrollapi.url: "https://www.ikke.no"
 security.token.service.rest.url: "https://security-token-service"
+
+elector.path: "www.kanskje.no"
