@@ -306,7 +306,10 @@ class MotebehovVeilederADControllerTest {
     }
 
     private fun behandleMotebehov(aktoerId: String, veileder: String) {
-        motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(aktoerId, veileder)
+        val ubehandledeMotebehov = motebehovDAO.hentUbehandledeMotebehov(aktoerId)
+        ubehandledeMotebehov.forEach {
+            motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(it.uuid, veileder)
+        }
     }
 
     private fun mockSvarFraSyfoTilgangskontroll(fnr: String, status: HttpStatus) {

@@ -138,9 +138,9 @@ class MotebehovComponentTest {
         Assertions.assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
         Assertions.assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(motebehovSvar)
         if (harBehov) {
-            Mockito.verify(oversikthendelseProducer).sendOversikthendelse(any())
+            Mockito.verify(oversikthendelseProducer).sendOversikthendelse(any(), any())
         } else {
-            Mockito.verify(oversikthendelseProducer, Mockito.never()).sendOversikthendelse(any())
+            Mockito.verify(oversikthendelseProducer, Mockito.never()).sendOversikthendelse(any(), any())
         }
     }
 

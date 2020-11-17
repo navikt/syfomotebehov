@@ -430,9 +430,9 @@ class MotebehovArbeidsgiverV2Test {
             motebehovSvar = motebehovSvar
         ))
         if (motebehovSvar.harMotebehov) {
-            Mockito.verify(oversikthendelseProducer).sendOversikthendelse(any())
+            Mockito.verify(oversikthendelseProducer).sendOversikthendelse(any(), any())
         } else {
-            Mockito.verify(oversikthendelseProducer, Mockito.never()).sendOversikthendelse(any())
+            Mockito.verify(oversikthendelseProducer, Mockito.never()).sendOversikthendelse(any(), any())
         }
     }
 
@@ -465,9 +465,9 @@ class MotebehovArbeidsgiverV2Test {
         Assertions.assertThat(motebehov.skjemaType).isEqualTo(motebehovStatus.skjemaType)
         Assertions.assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(motebehovSvar)
         if (harBehov) {
-            Mockito.verify(oversikthendelseProducer).sendOversikthendelse(any())
+            Mockito.verify(oversikthendelseProducer).sendOversikthendelse(any(), any())
         } else {
-            Mockito.verify(oversikthendelseProducer, Mockito.never()).sendOversikthendelse(any())
+            Mockito.verify(oversikthendelseProducer, Mockito.never()).sendOversikthendelse(any(), any())
         }
     }
 

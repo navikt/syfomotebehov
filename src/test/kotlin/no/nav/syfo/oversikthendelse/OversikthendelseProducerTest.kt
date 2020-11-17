@@ -10,6 +10,7 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.support.SendResult
 import org.springframework.util.concurrent.ListenableFuture
 import java.time.LocalDateTime
+import java.util.*
 
 @ExtendWith(MockitoExtension::class)
 class OversikthendelseProducerTest {
@@ -28,7 +29,7 @@ class OversikthendelseProducerTest {
             enhetId = NAV_ENHET,
             tidspunkt = LocalDateTime.now()
         )
-        oversikthendelseProducer.sendOversikthendelse(kOversikthendelse)
+        oversikthendelseProducer.sendOversikthendelse(UUID.randomUUID(), kOversikthendelse)
         Mockito.verify(kafkaTemplate).send(ArgumentMatchers.eq(OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC), ArgumentMatchers.anyString(), ArgumentMatchers.same(kOversikthendelse))
     }
 
@@ -41,7 +42,7 @@ class OversikthendelseProducerTest {
             enhetId = NAV_ENHET,
             tidspunkt = LocalDateTime.now()
         )
-        oversikthendelseProducer.sendOversikthendelse(kOversikthendelse)
+        oversikthendelseProducer.sendOversikthendelse(UUID.randomUUID(), kOversikthendelse)
         Mockito.verify(kafkaTemplate).send(ArgumentMatchers.eq(OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC), ArgumentMatchers.anyString(), ArgumentMatchers.same(kOversikthendelse))
     }
 }

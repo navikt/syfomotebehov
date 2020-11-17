@@ -3,23 +3,37 @@ package no.nav.syfo.oversikthendelse
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
+import java.util.*
 import javax.inject.Inject
 
 @Service
 class OversikthendelseService @Inject constructor(
     private val oversikthendelseProducer: OversikthendelseProducer
 ) {
-    fun sendOversikthendelseMottatt(arbeidstakerFnr: Fodselsnummer, tildeltEnhet: String) {
-        sendOversikthendelse(arbeidstakerFnr, tildeltEnhet, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT)
+    fun sendOversikthendelseMottatt(
+        motebehovUUID: UUID,
+        arbeidstakerFnr: Fodselsnummer,
+        tildeltEnhet: String
+    ) {
+        sendOversikthendelse(motebehovUUID, arbeidstakerFnr, tildeltEnhet, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT)
     }
 
-    fun sendOversikthendelseBehandlet(arbeidstakerFnr: Fodselsnummer, tildeltEnhet: String) {
-        sendOversikthendelse(arbeidstakerFnr, tildeltEnhet, OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET)
+    fun sendOversikthendelseBehandlet(
+        motebehovUUID: UUID,
+        arbeidstakerFnr: Fodselsnummer,
+        tildeltEnhet: String
+    ) {
+        sendOversikthendelse(motebehovUUID, arbeidstakerFnr, tildeltEnhet, OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET)
     }
 
-    private fun sendOversikthendelse(fnr: Fodselsnummer, tildeltEnhet: String, oversikthendelseType: OversikthendelseType) {
+    private fun sendOversikthendelse(
+        motebehovUUID: UUID,
+        fnr: Fodselsnummer,
+        tildeltEnhet: String,
+        oversikthendelseType: OversikthendelseType
+    ) {
         val kOversikthendelse = map2KOversikthendelse(fnr, tildeltEnhet, oversikthendelseType)
-        oversikthendelseProducer.sendOversikthendelse(kOversikthendelse)
+        oversikthendelseProducer.sendOversikthendelse(motebehovUUID, kOversikthendelse)
     }
 
     private fun map2KOversikthendelse(

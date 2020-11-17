@@ -35,9 +35,16 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
         return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av != ? AND virksomhetsnummer = ? AND opprettet_dato >= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar())).orElse(emptyList())
     }
 
-    fun oppdaterUbehandledeMotebehovTilBehandlet(aktoerId: String, veilederIdent: String): Int {
-        val oppdaterSql = "UPDATE motebehov SET behandlet_tidspunkt = ?, behandlet_veileder_ident = ? WHERE aktoer_id = ? AND har_motebehov = 1 AND behandlet_veileder_ident IS NULL"
-        return jdbcTemplate.update(oppdaterSql, convert(LocalDateTime.now()), veilederIdent, aktoerId)
+    fun hentUbehandledeMotebehov(aktoerId: String): List<PMotebehov> {
+        return Optional.ofNullable(jdbcTemplate.query("WHERE aktoer_id = ? AND har_motebehov = 1 AND behandlet_veileder_ident IS NULL", innsendingRowMapper, aktoerId)).orElse(emptyList())
+    }
+
+    fun oppdaterUbehandledeMotebehovTilBehandlet(
+        motebehovUUID: UUID,
+        veilederIdent: String
+    ): Int {
+        val oppdaterSql = "UPDATE motebehov SET behandlet_tidspunkt = ?, behandlet_veileder_ident = ? WHERE motebehov_uuid = ? AND har_motebehov = 1 AND behandlet_veileder_ident IS NULL"
+        return jdbcTemplate.update(oppdaterSql, convert(LocalDateTime.now()), veilederIdent, motebehovUUID.toString())
     }
 
     fun create(motebehov: PMotebehov): UUID {
