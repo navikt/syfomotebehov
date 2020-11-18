@@ -46,17 +46,26 @@ class MotebehovService @Inject constructor(
 
     @Transactional
     fun behandleUbehandledeMotebehovBatch(arbeidstakerFnr: Fodselsnummer, veilederIdent: String) {
-        val behandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.value, null).enhetId
         val systemVeilederIdent = "X000000"
-        if (veilederIdent == systemVeilederIdent) {
-            log.info("FIX-BATCH-TRACE: found enhet $behandlendeEnhet")
-        }
-        val antallOppdateringer = motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr), veilederIdent)
-        if (antallOppdateringer > 0) {
-            oversikthendelseService.sendOversikthendelseBehandlet(arbeidstakerFnr, behandlendeEnhet)
+        val arbeidstakerAktorId = aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr)
+        val pMotebehovUbehandletList = motebehovDAO.hentUbehandledeMotebehov(arbeidstakerAktorId)
+        if (pMotebehovUbehandletList.isNotEmpty()) {
+            val behandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.value, null).enhetId
+            pMotebehovUbehandletList.forEach { pMotebehov ->
+                val antallOppdatering = motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(pMotebehov.uuid, systemVeilederIdent)
+                if (antallOppdatering == 1) {
+                    oversikthendelseService.sendOversikthendelseBehandlet(pMotebehov.uuid, arbeidstakerFnr, behandlendeEnhet)
+                }
+            }
         } else {
-            log.warn("FIX-BATCH-TRACE: Ugyldig tilstand: Veileder {} forsøkte å behandle motebehovsvar som ikke eksisterer. Kaster Http-409", veilederIdent)
+            log.warn("FIX-BATCH-TRACE: Ugyldig tilstand: Veileder {} forsøkte å behandle motebehovsvar som ikke eksisterer. Kaster Http-409", systemVeilederIdent)
         }
+    }
+
+    @Transactional
+    fun resendeBehandledeMotebehovBatch(pMotebehov: PMotebehov, arbeidstakerFnr: Fodselsnummer) {
+        val behandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.value, null).enhetId
+        oversikthendelseService.sendOversikthendelseBehandlet(pMotebehov.uuid, arbeidstakerFnr, behandlendeEnhet)
     }
 
     fun hentMotebehovListe(arbeidstakerFnr: Fodselsnummer): List<Motebehov> {
