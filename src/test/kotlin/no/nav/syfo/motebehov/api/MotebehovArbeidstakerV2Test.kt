@@ -426,7 +426,7 @@ class MotebehovArbeidstakerV2Test {
         val motebehovList = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(ARBEIDSTAKER_AKTORID)
 
         assertEquals(2, motebehovList.size)
-        Mockito.verify(oversikthendelseProducer, times(2)).sendOversikthendelse(any())
+        Mockito.verify(oversikthendelseProducer, times(2)).sendOversikthendelse(any(), any())
     }
 
     private fun submitMotebehovAndSendOversikthendelse(motebehovSvar: MotebehovSvar) {
@@ -434,9 +434,9 @@ class MotebehovArbeidstakerV2Test {
 
         motebehovArbeidstakerController.submitMotebehovArbeidstaker(motebehovSvar)
         if (motebehovSvar.harMotebehov) {
-            Mockito.verify(oversikthendelseProducer).sendOversikthendelse(any())
+            Mockito.verify(oversikthendelseProducer).sendOversikthendelse(any(), any())
         } else {
-            Mockito.verify(oversikthendelseProducer, Mockito.never()).sendOversikthendelse(any())
+            Mockito.verify(oversikthendelseProducer, Mockito.never()).sendOversikthendelse(any(), any())
         }
     }
 
@@ -466,9 +466,9 @@ class MotebehovArbeidstakerV2Test {
         Assertions.assertThat(motebehov.skjemaType).isEqualTo(motebehovStatus.skjemaType)
         Assertions.assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(motebehovSvar)
         if (harBehov) {
-            Mockito.verify(oversikthendelseProducer).sendOversikthendelse(any())
+            Mockito.verify(oversikthendelseProducer).sendOversikthendelse(any(), any())
         } else {
-            Mockito.verify(oversikthendelseProducer, Mockito.never()).sendOversikthendelse(any())
+            Mockito.verify(oversikthendelseProducer, Mockito.never()).sendOversikthendelse(any(), any())
         }
     }
 

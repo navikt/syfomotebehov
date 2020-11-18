@@ -27,10 +27,16 @@ class MotebehovService @Inject constructor(
 ) {
     @Transactional
     fun behandleUbehandledeMotebehov(arbeidstakerFnr: Fodselsnummer, veilederIdent: String) {
-        val antallOppdateringer = motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr), veilederIdent)
-        if (antallOppdateringer > 0) {
+        val arbeidstakerAktorId = aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr)
+        val pMotebehovUbehandletList = motebehovDAO.hentUbehandledeMotebehov(arbeidstakerAktorId)
+        if (pMotebehovUbehandletList.isNotEmpty()) {
             val behandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.value, null).enhetId
-            oversikthendelseService.sendOversikthendelseBehandlet(arbeidstakerFnr, behandlendeEnhet)
+            pMotebehovUbehandletList.forEach { pMotebehov ->
+                val antallOppdatering = motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(pMotebehov.uuid, veilederIdent)
+                if (antallOppdatering == 1) {
+                    oversikthendelseService.sendOversikthendelseBehandlet(pMotebehov.uuid, arbeidstakerFnr, behandlendeEnhet)
+                }
+            }
         } else {
             metric.tellHendelse("feil_behandle_motebehov_svar_eksiterer_ikke")
             log.warn("Ugyldig tilstand: Veileder {} forsøkte å behandle motebehovsvar som ikke eksisterer. Kaster Http-409", veilederIdent)
@@ -83,7 +89,7 @@ class MotebehovService @Inject constructor(
         )
         val id = motebehovDAO.create(motebehov)
         if (motebehovSvar.harMotebehov) {
-            oversikthendelseService.sendOversikthendelseMottatt(arbeidstakerFnr, arbeidstakerBehandlendeEnhet)
+            oversikthendelseService.sendOversikthendelseMottatt(id, arbeidstakerFnr, arbeidstakerBehandlendeEnhet)
         }
         return id
     }
