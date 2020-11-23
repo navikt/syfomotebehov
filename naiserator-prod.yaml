@@ -38,6 +38,13 @@ spec:
     - "https://app.adeo.no/syfomotebehov"
   vault:
     enabled: true
+    paths:
+      - kvPath: "/oracle/data/prod/creds/syfomotebehov_p-user"
+        mountPath: "/secrets/syfomotebehovdb/credentials"
+      - kvPath: "/oracle/data/prod/config/syfomotebehov_p"
+        mountPath: "/secrets/syfomotebehovdb/config"
+      - kvPath: "/kv/prod/fss/syfomotebehov/default"
+        mountPath: "/var/run/secrets/nais.io/vault"
   envFrom:
     - configmap: loginservice-idporten
   env:
