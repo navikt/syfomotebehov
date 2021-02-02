@@ -57,3 +57,6 @@ på alerts.yaml og deretter kjøre:
 For å se status på syfomotebehov sine alerts kan man kjøre:
 `kubectl describe alert syfomotebehov-alerts`.
 Dokumentasjon for Alerterator ligger her: https://doc.nais.io/observability/alerts
+
+## Kontakt
+Team eSYFO - #esyfo
