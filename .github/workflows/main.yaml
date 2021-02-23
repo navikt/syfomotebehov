@@ -3,9 +3,7 @@ name: main
 on: push
 
 env:
-  APP_NAME: syfomotebehov
   IMAGE: docker.pkg.github.com/${{ github.repository }}/syfomotebehov:${{ github.sha }}
-  COMMITER_NAME: ${{ github.event.pusher.name }}
 
 jobs:
   build:
@@ -87,9 +85,15 @@ jobs:
     if: github.ref == 'refs/heads/master'
     name: Pling!
     needs: deploy-prod
+    env:
+      APP: ${{ github.event.repository.name }}
+      AUTHOR: ${{ github.event.pusher.name }}
+      MESSAGE: ${{ github.event.head_commit.message }}
     runs-on: ubuntu-latest
     steps:
       - name: Pling
         run: |
-          curl -s "https://syfoping.herokuapp.com/regDeploy?deployedBy=${COMMITER_NAME}&app=${APP_NAME}"
-
+          curl -s -H "Content-Type: application/json" \
+          -X POST \
+          -d '{"app":"'"$APP"'", "author":"'"$AUTHOR"'", "message":"'"$MESSAGE"'"'} \
+          https://syfoping.herokuapp.com/deploy
