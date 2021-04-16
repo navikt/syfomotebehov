@@ -8,7 +8,7 @@ metadata:
 spec:
   receivers:
     slack:
-      channel: '#veden-alerts'
+      channel: '#esyfo-alarm'
       prependText: '<!here> | '
   alerts:
     - alert: SYFOMOTEBEHOV IS DOWN!
@@ -24,7 +24,7 @@ spec:
       action: "Sjekk i Grafana eller logger at {{ $labels.backend }} returnerer mange 500-feil"
       severity: danger
     - alert: HIGH RATIO OF HTTP 4XX RESPONSE
-      expr: (100 * (sum by (backend) (rate(traefik_backend_requests_total{code=~"^5\\d\\d", backend=~"syfomotebehov.nais.adeo..+"}[5m])) / sum by (backend) (rate(traefik_backend_requests_total{backend=~"syfomotebehov.nais.adeo..+"}[5m])))) > 10
+      expr: (100 * (sum by (backend) (rate(traefik_backend_requests_total{code=~"^4\\d\\d", backend=~"syfomotebehov.nais.adeo..+"}[5m])) / sum by (backend) (rate(traefik_backend_requests_total{backend=~"syfomotebehov.nais.adeo..+"}[5m])))) > 10
       for: 5m
       description: "App {{ $labels.app }} har en høy 400 feil {{ $labels.kubernetes_namespace }}"
       action: "Sjekk i Grafana eller logger at {{ $labels.backend }} returnerer mange 400-feil"
