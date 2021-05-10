@@ -71,6 +71,17 @@ jobs:
           CLUSTER: dev-fss
           RESOURCE: naiserator-dev.yaml
 
+      # Notify Slack
+      - name: Unsuccessful deploy notification dev
+        if: failure()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_TITLE: 'Unsuccesful deployment - `dev` :crying_cat_face:'
+          SLACK_MESSAGE: '`${{ github.event.repository.name }}` failed to deploy to dev.'
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          MSG_MINIMAL: commit
+          SLACK_COLOR: ${{ job.status }}
+
   deploy-prod:
     if: github.ref == 'refs/heads/master'
     name: Deploy to NAIS Prod-fss
@@ -83,6 +94,17 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-fss
           RESOURCE: naiserator-prod.yaml
+
+      # Notify Slack
+      - name: Unsuccessful deploy notification prod
+        if: failure()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_TITLE: 'Unsuccesful deployment :crying_cat_face:'
+          SLACK_MESSAGE: '`${{ github.event.repository.name }}` failed to deploy to prod.'
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          MSG_MINIMAL: commit
+          SLACK_COLOR: ${{ job.status }}
 
   pling:
     if: github.ref == 'refs/heads/master'
