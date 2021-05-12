@@ -1,0 +1,82 @@
+name: Deploy to preprod
+
+on: workflow_dispatch
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}:${{ github.sha }}
+
+jobs:
+  build:
+    name: Checkout code and create docker tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup java
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11.x'
+      - name: Checkout code
+        uses: actions/checkout@v1
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-cache-${{ hashFiles('build.gradle.kts') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-cache-
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-wrapper-
+      - name: Run lint
+        env:
+          ORG_GRADLE_PROJECT_githubUser: x-access-token
+          ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./gradlew --continue ktlintCheck
+      - name: Run tests
+        env:
+          ORG_GRADLE_PROJECT_githubUser: x-access-token
+          ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./gradlew test
+      - name: Build jar
+        env:
+          ORG_GRADLE_PROJECT_githubUser: x-access-token
+          ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./gradlew shadowJar -x test
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@ab80d026d4753220c4243394c07c7d80f9638d06 # Use commit-sha1 instead of tag for security concerns
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and publish Docker image
+        run: |
+          docker build --tag ${IMAGE} .
+          docker push ${IMAGE}
+          echo ${IMAGE}
+
+  deploy-dev:
+    name: Deploy to NAIS Dev-fss
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-fss
+          RESOURCE: naiserator-dev.yaml
+
+      # Notify Slack
+      - name: Unsuccessful deploy notification dev
+        if: failure()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_TITLE: 'Unsuccesful deployment - `dev` :crying_cat_face:'
+          SLACK_MESSAGE: '`${{ github.event.repository.name }}` failed to deploy to dev.'
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          MSG_MINIMAL: commit
+          SLACK_COLOR: ${{ job.status }}
