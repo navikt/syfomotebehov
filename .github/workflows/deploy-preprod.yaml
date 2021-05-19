@@ -1,6 +1,6 @@
-name: main
+name: Deploy to preprod
 
-on: push
+on: workflow_dispatch
 
 env:
   IMAGE: ghcr.io/${{ github.repository }}:${{ github.sha }}
@@ -53,7 +53,6 @@ jobs:
           echo ${IMAGE}
 
   deploy-dev:
-    if: github.ref == 'refs/heads/master'
     name: Deploy to NAIS Dev-fss
     needs: build
     runs-on: ubuntu-latest
@@ -75,43 +74,3 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           MSG_MINIMAL: commit
           SLACK_COLOR: ${{ job.status }}
-
-  deploy-prod:
-    if: github.ref == 'refs/heads/master'
-    name: Deploy to NAIS Prod-fss
-    needs: deploy-dev
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: prod-fss
-          RESOURCE: naiserator-prod.yaml
-
-      # Notify Slack
-      - name: Unsuccessful deploy notification prod
-        if: failure()
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_TITLE: 'Unsuccesful deployment :crying_cat_face:'
-          SLACK_MESSAGE: '`${{ github.event.repository.name }}` failed to deploy to prod.'
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          MSG_MINIMAL: commit
-          SLACK_COLOR: ${{ job.status }}
-
-  pling:
-    if: github.ref == 'refs/heads/master'
-    name: Pling!
-    needs: deploy-prod
-    runs-on: ubuntu-latest
-    steps:
-      - name: Pling
-        run: |
-          APP=${{ github.event.repository.name }}
-          AUTHOR=${{ github.event.pusher.name }}
-          MESSAGE=$(echo "${{ github.event.head_commit.message }}" | tr -d '\n\r')
-          curl -s -H "Content-Type: application/json" \
-          -X POST \
-          -d '{"app":"'"$APP"'", "author":"'"$AUTHOR"'", "message":"'"$MESSAGE"'"}' \
-          https://syfoping.herokuapp.com/deploy
