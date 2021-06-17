@@ -91,7 +91,7 @@ class MoteConsumer @Inject constructor(
 
     companion object {
         private val log = LoggerFactory.getLogger(MoteConsumer::class.java)
-        const val SYFOMOTEADMIN_BASEURL = "http://syfomoteadmin/syfomoteadmin/api"
+        const val SYFOMOTEADMIN_BASEURL = "http://syfomoteadmin.teamsykefravr/syfomoteadmin/api"
 
         private const val METRIC_CALL_MOTEADMIN_BASE = "call_behandlendeenhet"
         private const val METRIC_CALL_MOTEADMIN_MOTEPLANLEGGER_ACTIVE_SUCCESS = "${METRIC_CALL_MOTEADMIN_BASE}_moteplanlegger_active_success"
