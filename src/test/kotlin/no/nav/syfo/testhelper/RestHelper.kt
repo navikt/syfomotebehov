@@ -5,12 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import no.nav.syfo.consumer.behandlendeenhet.BehandlendeEnhet
-import no.nav.syfo.consumer.mote.MoteConsumer
 import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
 import no.nav.syfo.testhelper.UserConstants.STS_TOKEN
 import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.util.basicCredentials
 import no.nav.syfo.util.bearerCredentials
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
 import org.springframework.test.web.client.ExpectedCount
 import org.springframework.test.web.client.MockRestServiceServer
@@ -21,6 +21,9 @@ import org.springframework.web.util.UriComponentsBuilder
 private val objectMapper = ObjectMapper()
     .registerModule(JavaTimeModule())
     .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+
+@Value("\${syfomoteadmin.url}")
+private lateinit var syfomoteadminUrl: String
 
 fun mockAndExpectBrukertilgangRequest(mockRestServiceServer: MockRestServiceServer, brukertilgangUrl: String, ansattFnr: String) {
     val uriString = UriComponentsBuilder.fromHttpUrl(brukertilgangUrl)
@@ -64,7 +67,7 @@ fun mockAndExpectMoteadminHarAktivtMote(
     harAktivtMote: Boolean
 ) {
     val svarFraSyfomoteadminJson = objectMapper.writeValueAsString(harAktivtMote)
-    val url = UriComponentsBuilder.fromHttpUrl(MoteConsumer.SYFOMOTEADMIN_BASEURL)
+    val url = UriComponentsBuilder.fromHttpUrl(syfomoteadminUrl)
         .pathSegment("system", UserConstants.ARBEIDSTAKER_AKTORID, "harAktivtMote")
         .toUriString()
     mockRestServiceServer.expect(ExpectedCount.once(), MockRestRequestMatchers.requestTo(url))
@@ -77,7 +80,7 @@ fun mockAndExpectMoteadminIsMoteplanleggerActive(
     isMoteplanleggerActive: Boolean
 ) {
     val responseJson = objectMapper.writeValueAsString(isMoteplanleggerActive)
-    val url = UriComponentsBuilder.fromHttpUrl(MoteConsumer.SYFOMOTEADMIN_BASEURL)
+    val url = UriComponentsBuilder.fromHttpUrl(syfomoteadminUrl)
         .path("/system/moteplanlegger/aktiv")
         .toUriString()
     mockRestServiceServer.expect(ExpectedCount.once(), MockRestRequestMatchers.requestTo(url))

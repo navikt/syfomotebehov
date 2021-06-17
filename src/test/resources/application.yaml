@@ -53,5 +53,6 @@ nais.cluster.name: 'local'
 dev: true
 
 syfobehandlendeenhet.url: "https://syfobehandlendeenhet"
+syfomoteadmin.url: "https://syfomoteadmin"
 tilgangskontrollapi.url: "https://www.ikke.no"
 security.token.service.rest.url: "https://security-token-service"
