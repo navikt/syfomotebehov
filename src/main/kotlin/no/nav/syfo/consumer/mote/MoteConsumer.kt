@@ -5,6 +5,7 @@ import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
 import org.springframework.stereotype.Service
 import org.springframework.web.client.*
@@ -16,12 +17,13 @@ import javax.inject.Inject
 class MoteConsumer @Inject constructor(
     private val template: RestTemplate,
     private val stsConsumer: StsConsumer,
-    private val metric: Metric
+    private val metric: Metric,
+    @Value("\${syfomoteadmin.url}") val baseUrl: String
 ) {
     fun erMoteOpprettetForArbeidstakerEtterDato(aktorId: String, startDato: LocalDateTime): Boolean {
         val stsToken = stsConsumer.token()
         val requestEntity = HttpEntity(startDato, authorizationHeader(stsToken))
-        val url = UriComponentsBuilder.fromHttpUrl(SYFOMOTEADMIN_BASEURL)
+        val url = UriComponentsBuilder.fromHttpUrl(baseUrl)
             .pathSegment("system", aktorId, "harAktivtMote")
             .toUriString()
         return try {
@@ -62,7 +64,7 @@ class MoteConsumer @Inject constructor(
         }
     }
 
-    private fun getMoteadminUrl(subPath: String) = "$SYFOMOTEADMIN_BASEURL$subPath"
+    private fun getMoteadminUrl(subPath: String) = "$baseUrl$subPath"
 
     private fun entity(
         callId: String?,
@@ -91,7 +93,6 @@ class MoteConsumer @Inject constructor(
 
     companion object {
         private val log = LoggerFactory.getLogger(MoteConsumer::class.java)
-        const val SYFOMOTEADMIN_BASEURL = "http://syfomoteadmin.teamsykefravr/syfomoteadmin/api"
 
         private const val METRIC_CALL_MOTEADMIN_BASE = "call_behandlendeenhet"
         private const val METRIC_CALL_MOTEADMIN_MOTEPLANLEGGER_ACTIVE_SUCCESS = "${METRIC_CALL_MOTEADMIN_BASE}_moteplanlegger_active_success"
