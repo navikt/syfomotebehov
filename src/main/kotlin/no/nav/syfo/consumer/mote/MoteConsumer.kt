@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @Service
 class MoteConsumer @Inject constructor(
-    private val template: RestTemplate,
+    private val restTemplate: RestTemplate,
     private val stsConsumer: StsConsumer,
     private val metric: Metric,
     @Value("\${syfomoteadmin.url}") val baseUrl: String
@@ -30,7 +30,7 @@ class MoteConsumer @Inject constructor(
             log.info("URL!: $url")
             log.info("Body: ${requestEntity.body}")
             metric.tellHendelse("call_syfomoteadmin")
-            val erMoteOpprettetEtterDato = template.postForObject(url, requestEntity, Boolean::class.java)
+            val erMoteOpprettetEtterDato = restTemplate.postForObject(url, requestEntity, Boolean::class.java)
             metric.tellHendelse("call_syfomoteadmin_success")
             erMoteOpprettetEtterDato
         } catch (e: HttpClientErrorException) {
@@ -50,7 +50,7 @@ class MoteConsumer @Inject constructor(
         val stsToken = stsConsumer.token()
         val httpEntity = entity(null, stsToken, oppfolgingstilfelle.fnr.value, oppfolgingstilfelle.fom.atStartOfDay())
         try {
-            val response = template.exchange(
+            val response = restTemplate.exchange(
                 getMoteadminUrl("/system/moteplanlegger/aktiv"),
                 HttpMethod.POST,
                 httpEntity,
