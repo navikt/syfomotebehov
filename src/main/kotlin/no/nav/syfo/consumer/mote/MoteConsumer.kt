@@ -28,6 +28,7 @@ class MoteConsumer @Inject constructor(
             .toUriString()
         return try {
             log.info("URL!: $url")
+            log.info("Body: ${requestEntity.body}")
             metric.tellHendelse("call_syfomoteadmin")
             val erMoteOpprettetEtterDato = template.postForObject(url, requestEntity, Boolean::class.java)
             metric.tellHendelse("call_syfomoteadmin_success")
