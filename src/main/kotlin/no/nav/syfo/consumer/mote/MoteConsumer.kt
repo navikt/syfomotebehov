@@ -27,6 +27,7 @@ class MoteConsumer @Inject constructor(
             .pathSegment("system", aktorId, "harAktivtMote")
             .toUriString()
         return try {
+            log.info("URL!: $url")
             metric.tellHendelse("call_syfomoteadmin")
             val erMoteOpprettetEtterDato = template.postForObject(url, requestEntity, Boolean::class.java)
             metric.tellHendelse("call_syfomoteadmin_success")
