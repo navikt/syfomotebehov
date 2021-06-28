@@ -2,9 +2,9 @@ apiVersion: "nais.io/v1"
 kind: "Alert"
 metadata:
   name: syfomotebehov-alerts
-  namespace: default
+  namespace: team-esyfo
   labels:
-    team: teamsykefravr
+    team: team-esyfo
 spec:
   receivers:
     slack:

@@ -52,7 +52,7 @@ også tilgjengelig i tester. Du kan logge inn og kjøre spørringer på:
 ## Alerterator
 Syfomotebehov er satt opp med alerterator, slik når appen er nede vil det sendes en varsling til Slack kanalene #veden-alerts.
 Spec'en for alerts ligger i filen alerts.yaml. Hvis man ønsker å forandre på hvilke varsler som skal sendes må man forandre
-på alerts.yaml og deretter kjøre:
+på alerts.yaml og så deploye alerts i NAIS av pipeline. Evt. kan man kjøre:
 `kubectl apply -f alerts.yaml`.
 For å se status på syfomotebehov sine alerts kan man kjøre:
 `kubectl describe alert syfomotebehov-alerts`.
