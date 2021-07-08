@@ -37,6 +37,21 @@ spec:
     - "https://syfomotebehov.intern.nav.no"
     - "https://syfomotebehov.nais.adeo.no"
     - "https://app.adeo.no/syfomotebehov"
+  accessPolicy:
+    inbound:
+      rules:
+        - application: syfomodiaperson
+          namespace: teamsykefravr
+          cluster: prod-fss
+  azure:
+    application:
+      enabled: true
+      tenant: nav.no
+      replyURLs:
+        - "https://syfomotebehov.intern.nav.no/oauth2/callback"
+      claims:
+        extra:
+          - "NAVident"
   vault:
     enabled: true
     paths:
