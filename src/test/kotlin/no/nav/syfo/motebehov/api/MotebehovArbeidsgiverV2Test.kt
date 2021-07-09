@@ -9,6 +9,7 @@ import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.motebehov.MotebehovSvar
+import no.nav.syfo.motebehov.api.internad.v1.MotebehovVeilederADController
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.motebehovstatus.*
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO

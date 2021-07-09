@@ -1,4 +1,4 @@
-package no.nav.syfo.motebehov.api
+package no.nav.syfo.motebehov.api.internad.v1
 
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
@@ -11,6 +11,7 @@ import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
 import no.nav.syfo.motebehov.*
+import no.nav.syfo.motebehov.api.MotebehovBrukerController
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.historikk.HistorikkService
 import no.nav.syfo.oversikthendelse.KOversikthendelse

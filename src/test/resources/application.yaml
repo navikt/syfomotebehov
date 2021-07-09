@@ -25,6 +25,15 @@ server:
   servlet:
     context-path: /syfomotebehov
 
+azure:
+  app:
+    client:
+      id: "1345678"
+      secret: "secret"
+  openid:
+    config:
+      token:
+        endpoint: "https://login.microsoftonline.com/id/oauth2/v2.0/token"
 
 aktorregister.rest.url: "aktorregister.url"
 pdl.url: "https://pdl"
