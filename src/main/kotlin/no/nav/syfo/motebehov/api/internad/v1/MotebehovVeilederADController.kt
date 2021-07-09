@@ -1,4 +1,4 @@
-package no.nav.syfo.motebehov.api
+package no.nav.syfo.motebehov.api.internad.v1
 
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder

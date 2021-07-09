@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 
 object Versions {
+    const val apacheHttpClientVersion = "4.5.13"
     const val junitJupiterVersion = "5.6.0"
     const val kotlinJacksonVersion = "2.9.8"
     const val flywayVersion = "5.1.4"
@@ -45,6 +46,8 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.kotlinJacksonVersion}")
+
+    implementation("org.apache.httpcomponents:httpclient:${Versions.apacheHttpClientVersion}")
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
