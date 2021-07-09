@@ -82,6 +82,8 @@ spec:
       value: https://pdl-api.nais.preprod.local/graphql
     - name: SYFOBRUKERTILGANG_URL
       value: https://syfobrukertilgang.nais.preprod.local
+    - name: SYFOTILGANGSKONTROLL_CLIENT_ID
+      value: "32e36aa5-1d12-452a-9b1e-9f3f557cbb4d"
     - name: TILGANGSKONTROLLAPI_URL
       value: https://syfo-tilgangskontroll.nais.preprod.local/syfo-tilgangskontroll/api/tilgang
     - name: SECURITY_TOKEN_SERVICE_REST_URL
