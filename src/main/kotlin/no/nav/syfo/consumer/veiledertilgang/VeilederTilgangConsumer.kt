@@ -12,9 +12,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
 import org.springframework.stereotype.Service
 import org.springframework.web.client.*
-import org.springframework.web.util.UriComponentsBuilder
-import java.net.URI
-import java.util.*
 
 @Service
 class VeilederTilgangConsumer(
@@ -25,8 +22,6 @@ class VeilederTilgangConsumer(
     private val template: RestTemplate,
     private val oidcContextHolder: TokenValidationContextHolder
 ) {
-    private val tilgangTilBrukerViaAzureUriTemplate: UriComponentsBuilder
-
     fun sjekkVeiledersTilgangTilPersonMedOBO(fnr: Fodselsnummer): Boolean {
         val token = OIDCUtil.tokenFraOIDC(oidcContextHolder, OIDCIssuer.INTERN_AZUREAD_V2)
         val oboToken = azureAdV2TokenConsumer.getOnBehalfOfToken(
@@ -63,34 +58,6 @@ class VeilederTilgangConsumer(
         return "$tilgangskontrollUrl$TILGANG_TIL_BRUKER_VIA_AZURE_V2_PATH/${fnr.value}"
     }
 
-    fun sjekkVeiledersTilgangTilPerson(fnr: Fodselsnummer): Boolean {
-        val tilgangTilBrukerViaAzureUriMedFnr = tilgangTilBrukerViaAzureUriTemplate.build(Collections.singletonMap(FNR, fnr.value))
-        return checkAccess(tilgangTilBrukerViaAzureUriMedFnr, OIDCIssuer.AZURE)
-    }
-
-    private fun checkAccess(uri: URI, oidcIssuer: String): Boolean {
-        val httpEntity = entity(
-            token = OIDCUtil.tokenFraOIDC(oidcContextHolder, oidcIssuer)
-        )
-        return try {
-            template.exchange(
-                uri,
-                HttpMethod.GET,
-                httpEntity,
-                String::class.java
-            )
-            true
-        } catch (e: HttpClientErrorException) {
-            if (e.rawStatusCode == 403) {
-                false
-            } else {
-                metric.tellHendelse(METRIC_CALL_VEILEDERTILGANG_USER_FAIL)
-                LOG.error("Error requesting ansatt access from syfobrukertilgang with status-${e.rawStatusCode} callId-${httpEntity.headers[NAV_CALL_ID_HEADER]}: ", e)
-                throw e
-            }
-        }
-    }
-
     private fun entity(token: String): HttpEntity<String> {
         val headers = HttpHeaders()
         headers.accept = listOf(MediaType.APPLICATION_JSON)
@@ -111,11 +78,5 @@ class VeilederTilgangConsumer(
         private const val FNR_PLACEHOLDER = "{$FNR}"
 
         const val TILGANG_TIL_BRUKER_VIA_AZURE_V2_PATH = "/navident/bruker"
-    }
-
-    init {
-        tilgangTilBrukerViaAzureUriTemplate = UriComponentsBuilder.fromHttpUrl(tilgangskontrollUrl)
-            .path(TILGANG_TIL_BRUKER_VIA_AZURE_PATH)
-            .queryParam(FNR, FNR_PLACEHOLDER)
     }
 }

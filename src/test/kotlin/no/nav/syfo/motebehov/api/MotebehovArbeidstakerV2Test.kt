@@ -8,7 +8,7 @@ import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.motebehov.MotebehovSvar
-import no.nav.syfo.motebehov.api.internad.v1.MotebehovVeilederADController
+import no.nav.syfo.motebehov.api.internad.v2.MotebehovVeilederADControllerV2
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.motebehovstatus.*
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
@@ -56,7 +56,7 @@ class MotebehovArbeidstakerV2Test {
     private lateinit var motebehovArbeidstakerController: MotebehovArbeidstakerV2Controller
 
     @Inject
-    private lateinit var motebehovVeilederController: MotebehovVeilederADController
+    private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV2
 
     @Inject
     private lateinit var contextHolder: TokenValidationContextHolder
@@ -255,11 +255,11 @@ class MotebehovArbeidstakerV2Test {
 
         mockRestServiceServer.reset()
         loggUtAlle(contextHolder)
-        OidcTestHelper.loggInnVeilederAzure(contextHolder, VEILEDER_ID)
+        OidcTestHelper.loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockAndExpectSyfoTilgangskontroll(
             mockRestServiceServer,
             tilgangskontrollUrl,
-            contextHolder.tokenValidationContext.getJwtToken(OIDCIssuer.AZURE).tokenAsString,
+            contextHolder.tokenValidationContext.getJwtToken(OIDCIssuer.INTERN_AZUREAD_V2).tokenAsString,
             ARBEIDSTAKER_FNR,
             HttpStatus.OK
         )
