@@ -15,11 +15,6 @@ object OIDCUtil {
     }
 }
 
-fun getSubjectInternAD(contextHolder: TokenValidationContextHolder): String {
-    val context = contextHolder.tokenValidationContext
-    return context.getClaims(OIDCIssuer.AZURE).getStringClaim(OIDCClaim.NAVIDENT)
-}
-
 fun getSubjectInternADV2(contextHolder: TokenValidationContextHolder): String {
     val context = contextHolder.tokenValidationContext
     return context.getClaims(OIDCIssuer.INTERN_AZUREAD_V2).getStringClaim(OIDCClaim.NAVIDENT)

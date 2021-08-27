@@ -92,9 +92,5 @@ spec:
       value: https://syfobehandlendeenhet.nais.adeo.no
     - name: NO_NAV_SECURITY_JWT_ISSUER_INTERN_DISCOVERYURL
       value: https://isso.adeo.no:443/isso/oauth2/.well-known/openid-configuration
-    - name: NO_NAV_SECURITY_JWT_ISSUER_VEILEDER_DISCOVERYURL
-      value: https://login.microsoftonline.com/navno.onmicrosoft.com/.well-known/openid-configuration
-    - name: NO_NAV_SECURITY_JWT_ISSUER_VEILEDER_ACCEPTEDAUDIENCE
-      value: 9b4e07a3-4f4c-4bab-b866-87f62dff480d
     - name: KAFKA_ENV_NAME
       value: p

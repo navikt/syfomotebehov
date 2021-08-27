@@ -11,10 +11,6 @@ no.nav.security:
         discoveryurl: <naiserator>
         accepted_audience: modiabrukerdialog-p,modiabrukerdialog-q1,veilarblogin-p,veilarblogin-q1,fpsak-frontend-p,fpsak-frontend-q1,fplos-p,fplos-q1
         cookiename: ID_token
-      veileder:
-        discoveryurl: <naiserator>
-        accepted_audience: <naiserator>
-        cookiename: isso-idtoken
       internazureadv2:
         discoveryurl: ${azure.app.well.known.url}
         accepted_audience: ${azure.app.client.id}
