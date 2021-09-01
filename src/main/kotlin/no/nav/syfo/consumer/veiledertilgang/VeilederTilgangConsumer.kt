@@ -22,6 +22,12 @@ class VeilederTilgangConsumer(
     private val template: RestTemplate,
     private val oidcContextHolder: TokenValidationContextHolder
 ) {
+    private val tilgangskontrollPersonUrl: String
+
+    init {
+        tilgangskontrollPersonUrl = "$tilgangskontrollUrl$TILGANGSKONTROLL_PERSON_PATH"
+    }
+
     fun sjekkVeiledersTilgangTilPersonMedOBO(fnr: Fodselsnummer): Boolean {
         val token = OIDCUtil.tokenFraOIDC(oidcContextHolder, OIDCIssuer.INTERN_AZUREAD_V2)
         val oboToken = azureAdV2TokenConsumer.getOnBehalfOfToken(
@@ -29,13 +35,14 @@ class VeilederTilgangConsumer(
             token = token
         )
 
-        val url = accessToUserV2Url(fnr)
-
         return try {
             template.exchange(
-                url,
+                tilgangskontrollPersonUrl,
                 HttpMethod.GET,
-                entity(token = oboToken),
+                entity(
+                    personIdentNumber = fnr,
+                    token = oboToken
+                ),
                 String::class.java
             )
             true
@@ -54,14 +61,14 @@ class VeilederTilgangConsumer(
         }
     }
 
-    fun accessToUserV2Url(fnr: Fodselsnummer): String {
-        return "$tilgangskontrollUrl$TILGANG_TIL_BRUKER_VIA_AZURE_V2_PATH/${fnr.value}"
-    }
-
-    private fun entity(token: String): HttpEntity<String> {
+    private fun entity(
+        personIdentNumber: Fodselsnummer,
+        token: String
+    ): HttpEntity<String> {
         val headers = HttpHeaders()
         headers.accept = listOf(MediaType.APPLICATION_JSON)
         headers.setBearerAuth(token)
+        headers[NAV_PERSONIDENT_HEADER] = personIdentNumber.value
         headers[NAV_CALL_ID_HEADER] = createCallId()
         headers[NAV_CONSUMER_ID_HEADER] = APP_CONSUMER_ID
         return HttpEntity(headers)
@@ -75,8 +82,7 @@ class VeilederTilgangConsumer(
 
         const val FNR = "fnr"
         const val TILGANG_TIL_BRUKER_VIA_AZURE_PATH = "/bruker"
-        private const val FNR_PLACEHOLDER = "{$FNR}"
 
-        const val TILGANG_TIL_BRUKER_VIA_AZURE_V2_PATH = "/navident/bruker"
+        const val TILGANGSKONTROLL_PERSON_PATH = "/navident/person"
     }
 }
