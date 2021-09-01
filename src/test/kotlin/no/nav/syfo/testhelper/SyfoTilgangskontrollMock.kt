@@ -1,6 +1,7 @@
 package no.nav.syfo.testhelper
 
 import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
+import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import org.springframework.http.*
 import org.springframework.test.web.client.ExpectedCount
 import org.springframework.test.web.client.MockRestServiceServer
@@ -21,12 +22,11 @@ fun mockSvarFraSyfoTilgangskontrollV2TilgangTilBruker(
     val oboToken = generateAzureAdV2TokenResponse().access_token
 
     val uriString = UriComponentsBuilder.fromHttpUrl(tilgangskontrollUrl)
-        .path(VeilederTilgangConsumer.TILGANG_TIL_BRUKER_VIA_AZURE_V2_PATH)
-        .path("/")
-        .path(fnr)
+        .path(VeilederTilgangConsumer.TILGANGSKONTROLL_PERSON_PATH)
         .toUriString()
     mockRestServiceServer.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(uriString))
         .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
         .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer $oboToken"))
+        .andExpect(MockRestRequestMatchers.header(NAV_PERSONIDENT_HEADER, fnr))
         .andRespond(MockRestResponseCreators.withStatus(status))
 }
