@@ -3,6 +3,7 @@ package no.nav.syfo.varsel
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.consumer.esyfovarsel.EsyfovarselConsumer
 import no.nav.syfo.consumer.mote.MoteConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.Motebehov
@@ -21,6 +22,7 @@ import javax.inject.Inject
 class VarselService @Inject constructor(
     private val metric: Metric,
     private val aktorregisterConsumer: AktorregisterConsumer,
+    private val esyfovarselConsumer: EsyfovarselConsumer,
     private val motebehovService: MotebehovService,
     private val motebehovStatusService: MotebehovStatusService,
     private val moteConsumer: MoteConsumer,
@@ -64,6 +66,13 @@ class VarselService @Inject constructor(
             motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr, virksomhetsnummer),
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, virksomhetsnummer)
         )
+    }
+
+    fun has39UkerVarselBeenSent(
+        arbeidtakerFnr: Fodselsnummer
+    ): Boolean {
+        val aktorId = aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidtakerFnr)
+        return esyfovarselConsumer.varsel39Sent(aktorId)
     }
 
     private fun isSvarBehovVarselAvailable(

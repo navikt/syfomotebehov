@@ -86,6 +86,8 @@ spec:
       value: "dev-fss.teamsykefravr.syfo-tilgangskontroll"
     - name: TILGANGSKONTROLLAPI_URL
       value: https://syfo-tilgangskontroll.nais.preprod.local/syfo-tilgangskontroll/api/tilgang
+    - name: ESYFOVARSELAPI_URL
+      value: https://esyfovarsel.dev.adeo.no/api/bruker
     - name: SECURITY_TOKEN_SERVICE_REST_URL
       value: https://security-token-service.nais.preprod.local
     - name: SYFOBEHANDLENDEENHET_URL
