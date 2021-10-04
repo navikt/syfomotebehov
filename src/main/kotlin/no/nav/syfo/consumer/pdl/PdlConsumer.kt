@@ -1,5 +1,6 @@
 package no.nav.syfo.consumer.pdl
 
+import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.metric.Metric
@@ -20,11 +21,19 @@ class PdlConsumer(
     private val stsConsumer: StsConsumer,
     private val restTemplate: RestTemplate
 ) {
-    fun person(fnr: Fodselsnummer): PdlHentPerson? {
+    fun person(aktorId: AktorId): PdlHentPerson? {
+        return person(aktorId.value)
+    }
+
+    fun person(fodselsnummer: Fodselsnummer): PdlHentPerson? {
+        return person(fodselsnummer.value)
+    }
+
+    private fun person(ident: String): PdlHentPerson? {
         metric.tellHendelse("call_pdl")
 
         val query = this::class.java.getResource("/pdl/hentPerson.graphql").readText().replace("[\n\r]", "")
-        val entity = createRequestEntity(PdlRequest(query, Variables(fnr.value)))
+        val entity = createRequestEntity(PdlRequest(query, Variables(ident)))
         try {
             val pdlPerson = restTemplate.exchange<PdlPersonResponse>(
                 pdlUrl,

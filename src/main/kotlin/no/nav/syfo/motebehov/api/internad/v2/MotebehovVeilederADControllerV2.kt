@@ -4,13 +4,16 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.OIDCIssuer.INTERN_AZUREAD_V2
 import no.nav.syfo.api.auth.getSubjectInternADV2
+import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.consumer.pdl.PdlConsumer
+import no.nav.syfo.consumer.pdl.fullName
 import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.motebehov.historikk.Historikk
 import no.nav.syfo.motebehov.historikk.HistorikkService
+import no.nav.syfo.motebehov.toMotebehovVeilederDTOList
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import javax.inject.Inject
@@ -25,16 +28,25 @@ class MotebehovVeilederADControllerV2 @Inject constructor(
     private val metric: Metric,
     private val historikkService: HistorikkService,
     private val motebehovService: MotebehovService,
+    private val pdlConsumer: PdlConsumer,
     private val veilederTilgangConsumer: VeilederTilgangConsumer
 ) {
     @GetMapping(value = ["/motebehov"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentMotebehovListe(
         @RequestParam(name = "fnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
-    ): List<Motebehov> {
+    ): List<MotebehovVeilederDTO> {
         metric.tellEndepunktKall("veileder_hent_motebehov")
-        val fnr = Fodselsnummer(sykmeldtFnr)
-        kastExceptionHvisIkkeTilgang(fnr)
-        return motebehovService.hentMotebehovListe(Fodselsnummer(fnr.value))
+        val fodselsnummer = Fodselsnummer(sykmeldtFnr)
+        kastExceptionHvisIkkeTilgang(fodselsnummer)
+        val motebehovVeilederDTOList = motebehovService.hentMotebehovListe(Fodselsnummer(fodselsnummer.value))
+            .toMotebehovVeilederDTOList()
+            .map { motebehovVeilederDTO ->
+                val opprettetAvAktorId = AktorId(motebehovVeilederDTO.opprettetAv)
+                motebehovVeilederDTO.copy(
+                    opprettetAvNavn = pdlConsumer.person(opprettetAvAktorId)?.fullName()
+                )
+            }
+        return motebehovVeilederDTOList
     }
 
     @GetMapping(value = ["/historikk"], produces = [MediaType.APPLICATION_JSON_VALUE])
