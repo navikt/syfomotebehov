@@ -14,3 +14,9 @@ data class KOversikthendelsetilfelle(
     val tom: LocalDate,
     val tidspunkt: LocalDateTime
 )
+
+fun KOversikthendelsetilfelle.previouslyProcessed(
+    lastUpdatedAt: LocalDateTime?
+) = lastUpdatedAt?.let { it ->
+    this.tidspunkt.isAfter(it)
+} ?: false

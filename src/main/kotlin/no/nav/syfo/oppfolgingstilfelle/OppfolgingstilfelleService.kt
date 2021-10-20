@@ -4,6 +4,7 @@ import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.database.*
 import no.nav.syfo.oppfolgingstilfelle.kafka.KOversikthendelsetilfelle
+import no.nav.syfo.oppfolgingstilfelle.kafka.previouslyProcessed
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import javax.inject.Inject
@@ -16,13 +17,24 @@ class OppfolgingstilfelleService @Inject constructor(
     fun receiveKOversikthendelsetilfelle(
         oversikthendelsetilfelle: KOversikthendelsetilfelle
     ) {
-        val createNew = oppfolgingstilfelleDAO.get(Fodselsnummer(oversikthendelsetilfelle.fnr), oversikthendelsetilfelle.virksomhetsnummer).isEmpty()
+        val pPersonOppfolgingstilfelleList = oppfolgingstilfelleDAO.get(
+            fnr = Fodselsnummer(oversikthendelsetilfelle.fnr),
+            virksomhetsnummer = oversikthendelsetilfelle.virksomhetsnummer
+        )
+        val createNew = pPersonOppfolgingstilfelleList.isEmpty()
         if (createNew) {
             oppfolgingstilfelleDAO.create(oversikthendelsetilfelle)
             metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_CREATE)
         } else {
-            oppfolgingstilfelleDAO.update(oversikthendelsetilfelle)
-            metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE)
+            val isPreviouslyProcessed = oversikthendelsetilfelle.previouslyProcessed(
+                lastUpdatedAt = pPersonOppfolgingstilfelleList.firstOrNull()?.sistEndret
+            )
+            if (isPreviouslyProcessed) {
+                metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE_SKIP_DUPLICATE)
+            } else {
+                oppfolgingstilfelleDAO.update(oversikthendelsetilfelle)
+                metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE)
+            }
         }
     }
 
@@ -110,5 +122,6 @@ class OppfolgingstilfelleService @Inject constructor(
         private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE = "receive_oppfolgingstilfelle"
         private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_CREATE = "${METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE}_create"
         private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE = "${METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE}_update"
+        private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE_SKIP_DUPLICATE = "${METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE}_update_skip_duplicate"
     }
 }
