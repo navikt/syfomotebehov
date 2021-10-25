@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -50,6 +51,9 @@ import javax.inject.Inject
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
 class MotebehovArbeidsgiverV2Test {
+    @Value("\${azure.openid.config.token.endpoint}")
+    private lateinit var azureTokenEndpoint: String
+
     @Value("\${syfobehandlendeenhet.url}")
     private lateinit var behandlendeenhetUrl: String
 
@@ -73,6 +77,11 @@ class MotebehovArbeidsgiverV2Test {
 
     @Inject
     private lateinit var oppfolgingstilfelleDAO: OppfolgingstilfelleDAO
+
+    @Inject
+    @Qualifier("restTemplateWithProxy")
+    private lateinit var restTemplateWithProxy: RestTemplate
+    private lateinit var mockRestServiceWithProxyServer: MockRestServiceServer
 
     @Inject
     private lateinit var restTemplate: RestTemplate
@@ -106,6 +115,7 @@ class MotebehovArbeidsgiverV2Test {
         `when`(pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(generatePdlHentPerson(null, null))
         `when`(stsConsumer.token()).thenReturn(stsToken)
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
+        mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
         loggInnBruker(contextHolder, LEDER_FNR)
         cleanDB()
     }
@@ -114,6 +124,7 @@ class MotebehovArbeidsgiverV2Test {
     fun tearDown() {
         loggUtAlle(contextHolder)
         mockRestServiceServer.reset()
+        mockRestServiceWithProxyServer.reset()
         cacheManager.cacheNames
             .forEach(Consumer { cacheName: String ->
                 val cache = cacheManager.getCache(cacheName)
@@ -425,7 +436,13 @@ class MotebehovArbeidsgiverV2Test {
     }
 
     private fun submitMotebehovAndSendOversikthendelse(motebehovSvar: MotebehovSvar) {
-        mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, ARBEIDSTAKER_FNR)
+        mockAndExpectBehandlendeEnhetRequest(
+            azureTokenEndpoint,
+            mockRestServiceWithProxyServer,
+            mockRestServiceServer,
+            behandlendeenhetUrl,
+            ARBEIDSTAKER_FNR
+        )
 
         motebehovArbeidsgiverController.lagreMotebehovArbeidsgiver(motebehovGenerator.lagNyttMotebehovArbeidsgiver().copy(
             motebehovSvar = motebehovSvar
@@ -439,7 +456,13 @@ class MotebehovArbeidsgiverV2Test {
 
     private fun lagreOgHentMotebehovOgSendOversikthendelse(harBehov: Boolean) {
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
-        mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, ARBEIDSTAKER_FNR)
+        mockAndExpectBehandlendeEnhetRequest(
+            azureTokenEndpoint,
+            mockRestServiceWithProxyServer,
+            mockRestServiceServer,
+            behandlendeenhetUrl,
+            ARBEIDSTAKER_FNR
+        )
 
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(harBehov)
 
