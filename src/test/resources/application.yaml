@@ -61,6 +61,7 @@ nais.cluster.name: 'local'
 
 dev: true
 
+syfobehandlendeenhet.client.id: "dev-fss:teamsykefravr:syfobehandlendeenhet"
 syfobehandlendeenhet.url: "https://syfobehandlendeenhet"
 syfotilgangskontroll.client.id: "syfotilgangskontrollId"
 tilgangskontrollapi.url: "https://www.ikke.no"

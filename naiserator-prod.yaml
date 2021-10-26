@@ -90,6 +90,8 @@ spec:
       value: https://esyfovarsel.nais.adeo.no/api/bruker
     - name: SECURITY_TOKEN_SERVICE_REST_URL
       value: https://security-token-service.nais.adeo.no
+    - name: SYFOBEHANDLENDEENHET_CLIENT_ID
+      value: "prod-fss.teamsykefravr.syfobehandlendeenhet"
     - name: SYFOBEHANDLENDEENHET_URL
       value: https://syfobehandlendeenhet.nais.adeo.no
     - name: NO_NAV_SECURITY_JWT_ISSUER_INTERN_DISCOVERYURL

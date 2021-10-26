@@ -22,6 +22,7 @@ import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -37,6 +38,9 @@ import javax.inject.Inject
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
 class MotebehovComponentTest {
+    @Value("\${azure.openid.config.token.endpoint}")
+    private lateinit var azureTokenEndpoint: String
+
     @Value("\${syfobehandlendeenhet.url}")
     private lateinit var behandlendeenhetUrl: String
 
@@ -79,6 +83,11 @@ class MotebehovComponentTest {
     @MockBean
     private lateinit var stsConsumer: StsConsumer
 
+    @Inject
+    @Qualifier("restTemplateWithProxy")
+    private lateinit var restTemplateWithProxy: RestTemplate
+    private lateinit var mockRestServiceWithProxyServer: MockRestServiceServer
+
     private lateinit var mockRestServiceServer: MockRestServiceServer
 
     private val motebehovGenerator = MotebehovGenerator()
@@ -93,6 +102,7 @@ class MotebehovComponentTest {
         Mockito.`when`(pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(generatePdlHentPerson(null, null))
         Mockito.`when`(stsConsumer.token()).thenReturn(stsToken)
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
+        mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
         loggInnBruker(contextHolder, LEDER_FNR)
         cleanDB()
     }
@@ -101,6 +111,7 @@ class MotebehovComponentTest {
     fun tearDown() {
         loggUtAlle(contextHolder)
         mockRestServiceServer.reset()
+        mockRestServiceWithProxyServer.reset()
         cacheManager.cacheNames
             .forEach(Consumer { cacheName: String ->
                 val cache = cacheManager.getCache(cacheName)
@@ -111,13 +122,25 @@ class MotebehovComponentTest {
 
     @Test
     fun lagreOgHentMotebehovOgSendOversikthendelseVedSvarMedBehov() {
-        mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, ARBEIDSTAKER_FNR)
+        mockAndExpectBehandlendeEnhetRequest(
+            azureTokenEndpoint,
+            mockRestServiceWithProxyServer,
+            mockRestServiceServer,
+            behandlendeenhetUrl,
+            ARBEIDSTAKER_FNR
+        )
         lagreOgHentMotebehovOgSendOversikthendelse(true)
     }
 
     @Test
     fun lagreOgHentMotebehovOgSendOversikthendelseMedSvarUtenBehov() {
-        mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, ARBEIDSTAKER_FNR)
+        mockAndExpectBehandlendeEnhetRequest(
+            azureTokenEndpoint,
+            mockRestServiceWithProxyServer,
+            mockRestServiceServer,
+            behandlendeenhetUrl,
+            ARBEIDSTAKER_FNR
+        )
         lagreOgHentMotebehovOgSendOversikthendelse(false)
     }
 

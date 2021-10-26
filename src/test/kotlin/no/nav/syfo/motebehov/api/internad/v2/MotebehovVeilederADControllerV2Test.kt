@@ -338,7 +338,13 @@ class MotebehovVeilederADControllerV2Test {
     }
 
     private fun mockBehandlendEnhet(fnr: String) {
-        mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, fnr)
+        mockAndExpectBehandlendeEnhetRequest(
+            azureTokenEndpoint,
+            mockRestServiceWithProxyServer,
+            mockRestServiceServer,
+            behandlendeenhetUrl,
+            fnr
+        )
     }
 
     private fun cleanDB() {

@@ -29,6 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.times
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -46,6 +47,9 @@ import javax.inject.Inject
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
 class MotebehovArbeidstakerV2Test {
+    @Value("\${azure.openid.config.token.endpoint}")
+    private lateinit var azureTokenEndpoint: String
+
     @Value("\${syfobehandlendeenhet.url}")
     private lateinit var behandlendeenhetUrl: String
 
@@ -69,6 +73,11 @@ class MotebehovArbeidstakerV2Test {
 
     @Inject
     private lateinit var oppfolgingstilfelleDAO: OppfolgingstilfelleDAO
+
+    @Inject
+    @Qualifier("restTemplateWithProxy")
+    private lateinit var restTemplateWithProxy: RestTemplate
+    private lateinit var mockRestServiceWithProxyServer: MockRestServiceServer
 
     @Inject
     private lateinit var restTemplate: RestTemplate
@@ -97,6 +106,7 @@ class MotebehovArbeidstakerV2Test {
         `when`(pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(generatePdlHentPerson(null, null))
         `when`(stsConsumer.token()).thenReturn(stsToken)
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
+        mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
         loggInnBruker(contextHolder, ARBEIDSTAKER_FNR)
         cleanDB()
     }
@@ -105,6 +115,7 @@ class MotebehovArbeidstakerV2Test {
     fun tearDown() {
         loggUtAlle(contextHolder)
         mockRestServiceServer.reset()
+        mockRestServiceWithProxyServer.reset()
         cacheManager.cacheNames
             .forEach(Consumer { cacheName: String ->
                 val cache = cacheManager.getCache(cacheName)
@@ -418,8 +429,20 @@ class MotebehovArbeidstakerV2Test {
         ))
 
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
-        mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, ARBEIDSTAKER_FNR)
-        mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, ARBEIDSTAKER_FNR)
+        mockAndExpectBehandlendeEnhetRequest(
+            azureTokenEndpoint,
+            mockRestServiceWithProxyServer,
+            mockRestServiceServer,
+            behandlendeenhetUrl,
+            ARBEIDSTAKER_FNR
+        )
+        mockAndExpectBehandlendeEnhetRequest(
+            azureTokenEndpoint,
+            mockRestServiceWithProxyServer,
+            mockRestServiceServer,
+            behandlendeenhetUrl,
+            ARBEIDSTAKER_FNR
+        )
 
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
         motebehovArbeidstakerController.submitMotebehovArbeidstaker(motebehovSvar)
@@ -431,7 +454,13 @@ class MotebehovArbeidstakerV2Test {
     }
 
     private fun submitMotebehovAndSendOversikthendelse(motebehovSvar: MotebehovSvar) {
-        mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, ARBEIDSTAKER_FNR)
+        mockAndExpectBehandlendeEnhetRequest(
+            azureTokenEndpoint,
+            mockRestServiceWithProxyServer,
+            mockRestServiceServer,
+            behandlendeenhetUrl,
+            ARBEIDSTAKER_FNR
+        )
 
         motebehovArbeidstakerController.submitMotebehovArbeidstaker(motebehovSvar)
         if (motebehovSvar.harMotebehov) {
@@ -444,7 +473,13 @@ class MotebehovArbeidstakerV2Test {
     private fun lagreOgHentMotebehovOgSendOversikthendelse(harBehov: Boolean) {
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
 
-        mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer, behandlendeenhetUrl, ARBEIDSTAKER_FNR)
+        mockAndExpectBehandlendeEnhetRequest(
+            azureTokenEndpoint,
+            mockRestServiceWithProxyServer,
+            mockRestServiceServer,
+            behandlendeenhetUrl,
+            ARBEIDSTAKER_FNR
+        )
 
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(harBehov)
 

@@ -5,12 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import no.nav.syfo.consumer.behandlendeenhet.BehandlendeEnhet
+import no.nav.syfo.consumer.behandlendeenhet.BehandlendeEnhetConsumer.Companion.BEHANDLENDEENHET_PATH
 import no.nav.syfo.consumer.mote.MoteConsumer
 import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
 import no.nav.syfo.testhelper.UserConstants.STS_TOKEN
 import no.nav.syfo.testhelper.generator.generateStsToken
-import no.nav.syfo.util.basicCredentials
-import no.nav.syfo.util.bearerCredentials
+import no.nav.syfo.util.*
 import org.springframework.http.*
 import org.springframework.test.web.client.ExpectedCount
 import org.springframework.test.web.client.MockRestServiceServer
@@ -38,21 +38,32 @@ fun mockAndExpectBrukertilgangRequest(mockRestServiceServer: MockRestServiceServ
     }
 }
 
-fun mockAndExpectBehandlendeEnhetRequest(mockRestServiceServer: MockRestServiceServer, behandlendeenhetUrl: String, fnr: String) {
+fun mockAndExpectBehandlendeEnhetRequest(
+    azureTokenEndpoint: String,
+    mockRestServiceWithProxyServer: MockRestServiceServer,
+    mockRestServiceServer: MockRestServiceServer,
+    behandlendeenhetUrl: String,
+    fnr: String
+) {
     val uriString = UriComponentsBuilder.fromHttpUrl(behandlendeenhetUrl)
-        .path("/api/")
-        .path(fnr)
+        .path(BEHANDLENDEENHET_PATH)
         .toUriString()
     val behandlendeEnhet = BehandlendeEnhet(
         UserConstants.NAV_ENHET,
         UserConstants.NAV_ENHET_NAVN
     )
+
+    val systemToken = generateAzureAdV2TokenResponse()
+
+    mockAndExpectAzureADV2(mockRestServiceWithProxyServer, azureTokenEndpoint, systemToken)
+
     try {
         val json = ObjectMapper().writeValueAsString(behandlendeEnhet)
 
         mockRestServiceServer.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(uriString))
             .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-            .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, bearerCredentials(STS_TOKEN)))
+            .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, bearerCredentials(systemToken.access_token)))
+            .andExpect(MockRestRequestMatchers.header(NAV_PERSONIDENT_HEADER, fnr))
             .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON))
     } catch (e: JsonProcessingException) {
         e.printStackTrace()
