@@ -5,6 +5,7 @@ import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.*
@@ -18,7 +19,7 @@ class BehandlendeEnhetConsumer(
     private val metric: Metric,
     @Value("\${syfobehandlendeenhet.client.id}") private val syfobehandlendeenhetClientId: String,
     @Value("\${syfobehandlendeenhet.url}") private val baseUrl: String,
-    private val template: RestTemplate
+    @Qualifier("restTemplateWithProxy") private val template: RestTemplate
 ) {
 
     @Cacheable(cacheNames = [CacheConfig.CACHENAME_BEHANDLENDEENHET_FNR], key = "#fnr", condition = "#fnr != null")

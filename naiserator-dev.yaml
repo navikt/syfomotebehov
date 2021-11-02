@@ -91,9 +91,9 @@ spec:
     - name: SECURITY_TOKEN_SERVICE_REST_URL
       value: https://security-token-service.nais.preprod.local
     - name: SYFOBEHANDLENDEENHET_CLIENT_ID
-      value: "dev-fss.teamsykefravr.syfobehandlendeenhet"
+      value: "dev-gcp.teamsykefravr.syfobehandlendeenhet"
     - name: SYFOBEHANDLENDEENHET_URL
-      value: https://syfobehandlendeenhet.nais.preprod.local
+      value: "https://syfobehandlendeenhet.dev.intern.nav.no"
     - name: NO_NAV_SECURITY_JWT_ISSUER_INTERN_DISCOVERYURL
       value: https://isso-q.adeo.no:443/isso/oauth2/.well-known/openid-configuration
     - name: KAFKA_ENV_NAME
