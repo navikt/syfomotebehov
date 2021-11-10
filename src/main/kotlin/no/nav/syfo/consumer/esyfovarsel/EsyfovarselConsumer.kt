@@ -54,7 +54,7 @@ class EsyfovarselConsumer(
 
     fun logError(response: ClientResponse, callId: String) {
         metric.countOutgoingReponses(METRIC_CALL_ESYFOVARSEL, response.rawStatusCode())
-        LOG.error("Error requesting ansatt access from syfobrukertilgang with callId callId")
+        LOG.error("Error requesting esyfovarsel with callId $callId")
     }
 
     private fun esyfovarselURL(aktorId: String) = "$baseUrl/39ukersvarsel/$aktorId"
