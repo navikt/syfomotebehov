@@ -49,7 +49,7 @@ class BrukertilgangConsumer(
 
     fun logError(response: ClientResponse, callId: String) {
         metric.countOutgoingReponses(METRIC_CALL_BRUKERTILGANG, response.rawStatusCode())
-        LOG.error("Error requesting ansatt access from syfobrukertilgang with callId callId")
+        LOG.error("Error requesting ansatt access from syfobrukertilgang with callId $callId")
     }
 
     private fun arbeidstakerUrl(ansattFnr: String) = "$baseUrl/api/v1/tilgang/ansatt/$ansattFnr"
