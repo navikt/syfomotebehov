@@ -37,9 +37,7 @@ allOpen {
 
 repositories {
     mavenCentral()
-    jcenter()
     maven(url = "http://packages.confluent.io/maven/")
-    maven(url = "https://dl.bintray.com/kotlin/kotlinx/")
 }
 
 dependencies {
