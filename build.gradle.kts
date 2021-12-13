@@ -13,8 +13,6 @@ object Versions {
     const val ojdbcVersion = "19.3.0.0"
 }
 
-project.ext.set("log4j2.version", "2.15.0")
-
 plugins {
     kotlin("jvm") version "1.3.72"
     id("java")
@@ -81,6 +79,8 @@ dependencies {
 }
 
 tasks {
+    extra["log4j2.version"] = "2.15.0"
+    
     withType<Jar> {
         manifest.attributes["Main-Class"] = "no.nav.syfo.ApplicationKt"
     }
