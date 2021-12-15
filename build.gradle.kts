@@ -79,7 +79,7 @@ dependencies {
 }
 
 tasks {
-    extra["log4j2.version"] = "2.15.0"
+    extra["log4j2.version"] = "2.16.0"
 
     withType<Jar> {
         manifest.attributes["Main-Class"] = "no.nav.syfo.ApplicationKt"
