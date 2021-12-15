@@ -99,19 +99,3 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           MSG_MINIMAL: commit
           SLACK_COLOR: ${{ job.status }}
-
-  pling:
-    if: github.ref == 'refs/heads/master'
-    name: Pling!
-    needs: deploy-prod
-    runs-on: ubuntu-latest
-    steps:
-      - name: Pling
-        run: |
-          APP=${{ github.event.repository.name }}
-          AUTHOR=${{ github.event.pusher.name }}
-          MESSAGE=$(echo "${{ github.event.head_commit.message }}" | tr -d '\n\r')
-          curl -s -H "Content-Type: application/json" \
-          -X POST \
-          -d '{"app":"'"$APP"'", "author":"'"$AUTHOR"'", "message":"'"$MESSAGE"'"}' \
-          https://syfoping.herokuapp.com/deploy
