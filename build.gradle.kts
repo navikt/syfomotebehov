@@ -11,6 +11,7 @@ object Versions {
     const val flywayVersion = "5.1.4"
     const val tokenSupportVersion = "1.3.0"
     const val ojdbcVersion = "19.3.0.0"
+    const val h2Version = "2.1.210"
 }
 
 plugins {
@@ -75,7 +76,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "junit")
     }
-    testImplementation("com.h2database:h2")
+    testImplementation("com.h2database:h2:${Versions.h2Version}")
 }
 
 tasks {
