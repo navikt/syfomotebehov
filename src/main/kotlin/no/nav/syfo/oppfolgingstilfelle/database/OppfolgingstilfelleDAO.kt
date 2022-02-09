@@ -24,7 +24,7 @@ class OppfolgingstilfelleDAO @Inject constructor(
             SELECT *
             FROM oppfolgingstilfelle
             WHERE fnr = :fnr AND virksomhetsnummer = :virksomhetsnummer
-            """.trimIndent()
+        """.trimIndent()
         val mapSql = MapSqlParameterSource()
             .addValue("fnr", fnr.value)
             .addValue("virksomhetsnummer", virksomhetsnummer)
@@ -40,7 +40,7 @@ class OppfolgingstilfelleDAO @Inject constructor(
             SELECT *
             FROM oppfolgingstilfelle
             WHERE fnr = :fnr
-            """.trimIndent()
+        """.trimIndent()
         val mapSql = MapSqlParameterSource()
             .addValue("fnr", fnr.value)
         return namedParameterJdbcTemplate.query(
@@ -55,7 +55,7 @@ class OppfolgingstilfelleDAO @Inject constructor(
             UPDATE oppfolgingstilfelle
             SET sist_endret = :sistEndret, fom = :fom, tom = :tom
             WHERE fnr = :fnr AND virksomhetsnummer = :virksomhetsnummer
-            """.trimIndent()
+        """.trimIndent()
         val mapSaveSql = MapSqlParameterSource()
             .addValue("sistEndret", convert(LocalDateTime.now()))
             .addValue("fom", convert(oversikthendelsetilfelle.fom))
@@ -70,7 +70,7 @@ class OppfolgingstilfelleDAO @Inject constructor(
         val query = """
             INSERT INTO oppfolgingstilfelle (oppfolgingstilfelle_uuid, opprettet, sist_endret, fnr, virksomhetsnummer, fom, tom)
             VALUES (:oppfolgingstilfelleUuid, :opprettet, :sistEndret, :fnr, :virksomhetsnummer, :fom, :tom)
-            """.trimIndent()
+        """.trimIndent()
         val mapSaveSql = MapSqlParameterSource()
             .addValue("oppfolgingstilfelleUuid", uuid.toString())
             .addValue("opprettet", convert(LocalDateTime.now()))
@@ -92,7 +92,8 @@ class OppfolgingstilfelleDAO @Inject constructor(
             namedParameterJdbcTemplate.update(
                 "DELETE FROM oppfolgingstilfelle WHERE oppfolgingstilfelle_uuid IN (:oppfolgingstilfelleIder)",
                 MapSqlParameterSource()
-                    .addValue("oppfolgingstilfelleIder", oppfolgingstilfelleIder))
+                    .addValue("oppfolgingstilfelleIder", oppfolgingstilfelleIder)
+            )
         } else {
             0
         }

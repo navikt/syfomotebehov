@@ -16,7 +16,10 @@ import java.io.IOException
 
 private val objectMapper = ObjectMapper()
     .registerModule(JavaTimeModule())
-    .registerModule(KotlinModule())
+    .registerModule(
+        KotlinModule.Builder()
+            .build()
+    )
     .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true)
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 

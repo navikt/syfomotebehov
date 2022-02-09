@@ -55,11 +55,12 @@ class Metric @Inject constructor(
                 "type", "info",
                 "motebehov", if (harMotebehov) "ja" else "nei",
                 "dag", dayInOppfolgingstilfelleMotebehovCreated?.toString().orEmpty(),
-                "skjematype", when (motebehovSkjemaType) {
-                MotebehovSkjemaType.MELD_BEHOV -> "meldbehov"
-                MotebehovSkjemaType.SVAR_BEHOV -> "svarbehov"
-                else -> "null"
-            }
+                "skjematype",
+                when (motebehovSkjemaType) {
+                    MotebehovSkjemaType.MELD_BEHOV -> "meldbehov"
+                    MotebehovSkjemaType.SVAR_BEHOV -> "svarbehov"
+                    else -> "null"
+                }
             )
         ).increment()
     }
@@ -82,11 +83,12 @@ class Metric @Inject constructor(
                 "motebehov", if (harMotebehov) "ja" else "nei",
                 "forklaring", if (harForklaring) "ja" else "nei",
                 "dag", dayInOppfolgingstilfelleMotebehovCreated.toString(),
-                "skjematype", when (motebehovSkjemaType) {
-                MotebehovSkjemaType.MELD_BEHOV -> "meldbehov"
-                MotebehovSkjemaType.SVAR_BEHOV -> "svarbehov"
-                else -> "null"
-            }
+                "skjematype",
+                when (motebehovSkjemaType) {
+                    MotebehovSkjemaType.MELD_BEHOV -> "meldbehov"
+                    MotebehovSkjemaType.SVAR_BEHOV -> "svarbehov"
+                    else -> "null"
+                }
             )
         ).increment(dayInOppfolgingstilfelleMotebehovCreated.toDouble())
     }
@@ -120,7 +122,8 @@ class Metric @Inject constructor(
             addPrefix("httpstatus"),
             Tags.of(
                 "type", "info",
-                "kode", kode.toString())
+                "kode", kode.toString()
+            )
         ).increment()
     }
 

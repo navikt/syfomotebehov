@@ -26,17 +26,18 @@ class KafkaConfig {
     @Bean
     fun producerFactory(properties: KafkaProperties): ProducerFactory<String, Any> {
         val objectMapper = ObjectMapper()
-                .registerModule(JavaTimeModule())
-                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+            .registerModule(JavaTimeModule())
+            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
         return DefaultKafkaProducerFactory(
-                properties.buildProducerProperties(),
-                StringSerializer(),
-                FunctionSerializer { value ->
-                    try {
-                        return@FunctionSerializer objectMapper.writeValueAsBytes(value)
-                    } catch (jsonProcessingException: JsonProcessingException) {
-                        throw RuntimeException(jsonProcessingException)
-                    }
-                })
+            properties.buildProducerProperties(),
+            StringSerializer(),
+            FunctionSerializer { value ->
+                try {
+                    return@FunctionSerializer objectMapper.writeValueAsBytes(value)
+                } catch (jsonProcessingException: JsonProcessingException) {
+                    throw RuntimeException(jsonProcessingException)
+                }
+            }
+        )
     }
 }

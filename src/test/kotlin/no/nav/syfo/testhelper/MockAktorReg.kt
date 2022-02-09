@@ -30,14 +30,18 @@ fun mockAndExpectAktorregRequest(mockRestServiceServer: MockRestServiceServer, b
         .queryParam("gjeldende", true)
         .toUriString()
     try {
-        val map = mapOf(ARBEIDSTAKER_FNR to IdentinfoListe(
-            listOf(Identinfo(
-                ident = ARBEIDSTAKER_FNR,
-                identgruppe = IdentType.NorskIdent.name,
-                gjeldende = true
-            )),
-            feilmelding = null
-        ))
+        val map = mapOf(
+            ARBEIDSTAKER_FNR to IdentinfoListe(
+                listOf(
+                    Identinfo(
+                        ident = ARBEIDSTAKER_FNR,
+                        identgruppe = IdentType.NorskIdent.name,
+                        gjeldende = true
+                    )
+                ),
+                feilmelding = null
+            )
+        )
 
         val json = ObjectMapper().writeValueAsString(map)
 

@@ -73,10 +73,12 @@ class HistorikkServiceTest {
             behandletVeilederIdent = VEILEDER_ID,
             behandletTidspunkt = LocalDateTime.now()
         )
-        Mockito.`when`(motebehovService.hentMotebehovListe(Fodselsnummer(SM_FNR))).thenReturn(listOf(
-            motebehov1,
-            motebehov2
-        ))
+        Mockito.`when`(motebehovService.hentMotebehovListe(Fodselsnummer(SM_FNR))).thenReturn(
+            listOf(
+                motebehov1,
+                motebehov2
+            )
+        )
         val historikkForSykmeldt = historikkService.hentHistorikkListe(SM_FNR)
         Assertions.assertThat(historikkForSykmeldt.size).isEqualTo(4)
         val historikkOpprettetMotebehovTekst1 = historikkForSykmeldt[0].tekst

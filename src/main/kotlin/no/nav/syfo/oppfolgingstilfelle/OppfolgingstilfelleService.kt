@@ -87,7 +87,7 @@ class OppfolgingstilfelleService @Inject constructor(
             }
             else -> {
                 val expiredOverlappingOppfolgingstilfelleList = expiredOppfolgingstilfelleList.filter { expiredOppfolgingstilfelle ->
-                    expiredOppfolgingstilfelle.tom.isAfter(activeOppfolgingstilfelleList.minBy { it.fom }!!.fom.minusDays(1))
+                    expiredOppfolgingstilfelle.tom.isAfter(activeOppfolgingstilfelleList.minByOrNull { it.fom }!!.fom.minusDays(1))
                 }
                 activeOppfolgingstilfelleList.plus(expiredOverlappingOppfolgingstilfelleList)
             }
@@ -98,13 +98,14 @@ class OppfolgingstilfelleService @Inject constructor(
         arbeidstakerFnr: Fodselsnummer,
         oppfolgingstilfelleList: List<PPersonOppfolgingstilfelle>
     ): PersonOppfolgingstilfelle? {
-        val activeOppfolgingstilfeller = oppfolgingstilfelleList.map {
+        val activeOppfolgingstilfeller: List<PersonOppfolgingstilfelle> = oppfolgingstilfelleList.map {
             it.mapToPersonOppfolgingstilfelle()
         }
+
         return if (activeOppfolgingstilfeller.isNotEmpty()) {
             if (activeOppfolgingstilfeller.size > 1) {
-                val minFom = activeOppfolgingstilfeller.minBy { it.fom }!!.fom
-                val maxTom = activeOppfolgingstilfeller.maxBy { it.tom }!!.tom
+                val minFom = activeOppfolgingstilfeller.minByOrNull { it.fom }!!.fom
+                val maxTom = activeOppfolgingstilfeller.minByOrNull { it.tom }!!.tom
                 PersonOppfolgingstilfelle(
                     fnr = arbeidstakerFnr,
                     fom = minFom,

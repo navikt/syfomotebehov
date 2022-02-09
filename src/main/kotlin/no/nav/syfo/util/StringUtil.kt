@@ -1,3 +1,6 @@
 package no.nav.syfo.util
 
-fun String.lowerCapitalize() = this.toLowerCase().capitalize()
+import java.util.*
+
+fun String.lowerCapitalize() =
+    this.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }

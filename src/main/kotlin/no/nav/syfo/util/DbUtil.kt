@@ -21,11 +21,14 @@ object DbUtil {
     fun sanitizeUserInput(userinput: String?): String {
         val sanitizedInput = StringEscapeUtils.unescapeHtml4(sanitizer.sanitize(StringEscapeUtils.unescapeHtml4(userinput)))
         if (sanitizedInput != userinput && userinput != null) {
-            LOG.warn("""
+            LOG.warn(
+                """
     Dette er ikke en feil, men burde vært stoppet av regexen i frontend. Finn ut hvorfor og evt. oppdater regex. 
     Det ble strippet vekk innhold slik at denne teksten: {} 
     ble til denne teksten: {}
-    """.trimIndent(), userinput, sanitizedInput)
+                """.trimIndent(),
+                userinput, sanitizedInput
+            )
         }
         return sanitizedInput
     }

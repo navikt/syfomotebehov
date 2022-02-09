@@ -113,10 +113,12 @@ class MotebehovComponentTest {
         mockRestServiceServer.reset()
         mockRestServiceWithProxyServer.reset()
         cacheManager.cacheNames
-            .forEach(Consumer { cacheName: String ->
-                val cache = cacheManager.getCache(cacheName)
-                cache?.clear()
-            })
+            .forEach(
+                Consumer { cacheName: String ->
+                    val cache = cacheManager.getCache(cacheName)
+                    cache?.clear()
+                }
+            )
         cleanDB()
     }
 
@@ -148,9 +150,11 @@ class MotebehovComponentTest {
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(harBehov)
 
         // Lagre
-        motebehovController.lagreMotebehov(motebehovGenerator.lagNyttMotebehovFraAT().copy(
-            motebehovSvar = motebehovSvar
-        ))
+        motebehovController.lagreMotebehov(
+            motebehovGenerator.lagNyttMotebehovFraAT().copy(
+                motebehovSvar = motebehovSvar
+            )
+        )
 
         // Hent
         val motebehovListe = motebehovController.hentMotebehovListe(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)

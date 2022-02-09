@@ -26,8 +26,10 @@ class BrukertilgangService @Inject constructor(
 
     fun harTilgangTilOppslaattBruker(innloggetIdent: String, fnr: String): Boolean {
         return try {
-            !(sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetIdent, fnr) ||
-                pdlConsumer.isKode6(Fodselsnummer(fnr)))
+            !(
+                sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetIdent, fnr) ||
+                    pdlConsumer.isKode6(Fodselsnummer(fnr))
+                )
         } catch (e: ForbiddenException) {
             false
         }

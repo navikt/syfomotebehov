@@ -145,10 +145,12 @@ class MotebehovVeilederADControllerV2Test {
         mockRestServiceServer.reset()
         mockRestServiceWithProxyServer.reset()
         cacheManager.cacheNames
-            .forEach(Consumer { cacheName: String ->
-                val cache = cacheManager.getCache(cacheName)
-                cache?.clear()
-            })
+            .forEach(
+                Consumer { cacheName: String ->
+                    val cache = cacheManager.getCache(cacheName)
+                    cache?.clear()
+                }
+            )
         cleanDB()
     }
 
@@ -228,10 +230,12 @@ class MotebehovVeilederADControllerV2Test {
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
 
-        motebehovListe.forEach(Consumer { motebehovVeilederDTO ->
-            Assertions.assertThat(motebehovVeilederDTO.behandletTidspunkt).isNull()
-            Assertions.assertThat(motebehovVeilederDTO.behandletVeilederIdent).isNull()
-        })
+        motebehovListe.forEach(
+            Consumer { motebehovVeilederDTO ->
+                Assertions.assertThat(motebehovVeilederDTO.behandletTidspunkt).isNull()
+                Assertions.assertThat(motebehovVeilederDTO.behandletVeilederIdent).isNull()
+            }
+        )
     }
 
     @Test
