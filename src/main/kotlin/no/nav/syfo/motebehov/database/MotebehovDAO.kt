@@ -53,7 +53,7 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
             INSERT INTO motebehov (motebehov_uuid, opprettet_dato, opprettet_av, aktoer_id, virksomhetsnummer, har_motebehov, forklaring, tildelt_enhet, behandlet_tidspunkt, behandlet_veileder_ident, skjematype)
             VALUES (
                 :motebehov_uuid, :opprettet_dato, :opprettet_av, :aktoer_id, :virksomhetsnummer, :har_motebehov, :forklaring, :tildelt_enhet, :behandlet_tidspunkt, :behandlet_veileder_ident, :skjematype)
-            """.trimIndent()
+        """.trimIndent()
         val mapLagreSql = MapSqlParameterSource()
             .addValue("motebehov_uuid", uuid.toString())
             .addValue("opprettet_av", motebehov.opprettetAv)
@@ -78,7 +78,8 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
             namedParameterJdbcTemplate.update(
                 "DELETE FROM motebehov WHERE motebehov_uuid IN (:motebehovIder)",
                 MapSqlParameterSource()
-                    .addValue("motebehovIder", motebehovIder))
+                    .addValue("motebehovIder", motebehovIder)
+            )
         } else {
             0
         }

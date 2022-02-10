@@ -6,27 +6,27 @@ group = "no.nav.syfo"
 
 object Versions {
     const val apacheHttpClientVersion = "4.5.13"
-    const val junitJupiterVersion = "5.6.0"
-    const val kotlinJacksonVersion = "2.9.8"
-    const val flywayVersion = "5.1.4"
-    const val tokenSupportVersion = "1.3.0"
+    const val junitJupiterVersion = "5.8.2"
+    const val kotlinJacksonVersion = "2.13.1"
+    const val flywayVersion = "8.4.4"
+    const val tokenSupportVersion = "1.3.10"
     const val ojdbcVersion = "19.3.0.0"
     const val h2Version = "2.1.210"
 }
 
 plugins {
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.6.10"
     id("java")
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.3.50"
-    id("com.github.johnrengelman.shadow") version "6.0.0"
-    id("org.springframework.boot") version "2.2.9.RELEASE"
-    id("io.spring.dependency-management") version "1.0.9.RELEASE"
-    id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.6.10"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("org.springframework.boot") version "2.6.3"
+    id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
 }
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10")
     }
 }
 
@@ -38,7 +38,7 @@ allOpen {
 
 repositories {
     mavenCentral()
-    maven(url = "http://packages.confluent.io/maven/")
+    maven(url = "https://packages.confluent.io/maven/")
 }
 
 dependencies {
@@ -57,7 +57,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-jta-atomikos")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
-    implementation("io.micrometer:micrometer-registry-prometheus:1.0.6")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.8.2")
 
     implementation("no.nav.security:token-validation-spring:${Versions.tokenSupportVersion}")
 
@@ -65,10 +65,10 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.flywaydb:flyway-core:${Versions.flywayVersion}")
     implementation("javax.inject:javax.inject:1")
-    implementation("org.slf4j:slf4j-api:1.7.25")
-    implementation("net.logstash.logback:logstash-logback-encoder:4.10")
+    implementation("org.slf4j:slf4j-api:1.7.35")
+    implementation("net.logstash.logback:logstash-logback-encoder:6.4")
     implementation("org.apache.commons:commons-lang3:3.5")
-    implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:20171016.1")
+    implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:20211018.2")
 
     testImplementation("org.junit.jupiter:junit-jupiter:${Versions.junitJupiterVersion}")
     testImplementation("no.nav.security:token-validation-test-support:${Versions.tokenSupportVersion}")

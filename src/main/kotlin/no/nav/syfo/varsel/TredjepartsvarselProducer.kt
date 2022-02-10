@@ -15,7 +15,8 @@ class TredjepartsvarselProducer @Inject constructor(
             kafkaTemplate.send(
                 TREDJEPARTSVARSEL_TOPIC,
                 UUID.randomUUID().toString(),
-                kTredjepartsvarsel).get()
+                kTredjepartsvarsel
+            ).get()
             log.info("Legger tredjepartsvarsel med ressursID {} på kø for aktor {}", kTredjepartsvarsel.ressursId, kTredjepartsvarsel.aktorId)
         } catch (e: Exception) {
             log.error("Feil ved sending av oppgavevarsel", e)

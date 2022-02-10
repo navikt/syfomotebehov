@@ -26,9 +26,9 @@ class MoteConsumer @Inject constructor(
             .toUriString()
         return try {
             metric.tellHendelse("call_syfomoteadmin")
-            val erMoteOpprettetEtterDato = template.postForObject(url, requestEntity, Boolean::class.java)
+            val erMoteOpprettetEtterDato: Boolean? = template.postForObject(url, requestEntity, Boolean::class.java)
             metric.tellHendelse("call_syfomoteadmin_success")
-            erMoteOpprettetEtterDato
+            erMoteOpprettetEtterDato ?: false
         } catch (e: HttpClientErrorException) {
             log.warn(SYFOMOTEADMIN_FEILMELDING_KLIENT)
             throw e

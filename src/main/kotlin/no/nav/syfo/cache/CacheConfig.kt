@@ -13,12 +13,14 @@ class CacheConfig {
     @Bean
     fun cacheManager(): CacheManager {
         val cacheManager = SimpleCacheManager()
-        cacheManager.setCaches(listOf(
-            ConcurrentMapCache(CACHENAME_AKTOR_ID),
-            ConcurrentMapCache(CACHENAME_AKTOR_FNR),
-            ConcurrentMapCache(CACHENAME_BEHANDLENDEENHET_FNR),
-            ConcurrentMapCache(CACHENAME_TILGANG_IDENT)
-        ))
+        cacheManager.setCaches(
+            listOf(
+                ConcurrentMapCache(CACHENAME_AKTOR_ID),
+                ConcurrentMapCache(CACHENAME_AKTOR_FNR),
+                ConcurrentMapCache(CACHENAME_BEHANDLENDEENHET_FNR),
+                ConcurrentMapCache(CACHENAME_TILGANG_IDENT)
+            )
+        )
         return cacheManager
     }
 

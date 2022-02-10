@@ -7,11 +7,13 @@ import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
 import org.springframework.boot.runApplication
 
-@SpringBootApplication(exclude = [
-    JpaRepositoriesAutoConfiguration::class,
-    HibernateJpaAutoConfiguration::class,
-    FlywayAutoConfiguration::class
-])
+@SpringBootApplication(
+    exclude = [
+        JpaRepositoriesAutoConfiguration::class,
+        HibernateJpaAutoConfiguration::class,
+        FlywayAutoConfiguration::class
+    ]
+)
 @EnableJwtTokenValidation
 class Application
 
