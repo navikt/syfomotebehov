@@ -37,6 +37,7 @@ spec:
     - "https://syfomotebehov.intern.nav.no"
     - "https://syfomotebehov.nais.adeo.no"
     - "https://app.adeo.no/syfomotebehov"
+    - "https://syfomotebehov.prod-fss-pub.nais.io"
   accessPolicy:
     inbound:
       rules:
