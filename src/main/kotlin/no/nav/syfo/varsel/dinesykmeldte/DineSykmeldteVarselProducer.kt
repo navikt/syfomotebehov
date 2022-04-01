@@ -16,6 +16,8 @@ class DineSykmeldteVarselProducer @Inject constructor(
         dineSykmeldteHendelse: DineSykmeldteHendelse,
     ) {
         try {
+            log.info("Varsel til dine sykmeldte: Sender..")
+
             kafkaTemplate.send(
                 ProducerRecord(
                     DINESYKMELDTE_HENDELSE_TOPIC,
@@ -23,6 +25,8 @@ class DineSykmeldteVarselProducer @Inject constructor(
                     dineSykmeldteHendelse,
                 )
             ).get()
+
+            log.info("Varsel til dine sykmeldte: Sendt!")
         } catch (e: Exception) {
             log.error("Feil ved sending av varsel til dine sykmeldte", e)
             throw RuntimeException("Feil ved sending av varsel til dine sykmeldte", e)
