@@ -53,7 +53,8 @@ class VarselService @Inject constructor(
                 metric.tellHendelse("varsel_leder_sent")
                 val kTredjepartsvarsel = mapTilKTredjepartsvarsel(motebehovsvarVarselInfo)
                 tredjepartsvarselProducer.sendTredjepartsvarselvarsel(kTredjepartsvarsel)
-                sendVarselTilDineSykmeldte(arbeidstakerFnr, motebehovsvarVarselInfo.orgnummer)
+//                TODO: Kommenterer ut frem til fungerende kafka-config er på plass.
+//                sendVarselTilDineSykmeldte(arbeidstakerFnr, motebehovsvarVarselInfo.orgnummer)
             } else {
                 metric.tellHendelse("varsel_leder_not_sent_moteplanlegger_used_oppfolgingstilfelle")
                 log.info("Sender ikke varsel til naermeste leder fordi moteplanleggeren er brukt i oppfolgingstilfellet")
