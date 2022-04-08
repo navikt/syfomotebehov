@@ -9,11 +9,18 @@ import no.nav.security.token.support.test.JwtTokenGenerator
 import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.api.auth.OIDCIssuer.EKSTERN
 import java.text.ParseException
+import java.util.*
+import kotlin.collections.HashMap
 
 object OidcTestHelper {
+    const val ISS = "iss-localhost"
+    const val AUD = "aud-localhost"
+    const val ACR = "Level4"
+    const val EXPIRY = 60L * 60L * 3600L
+
     @JvmStatic
-    fun loggInnBruker(contextHolder: TokenValidationContextHolder, subject: String?) {
-        val jwt = JwtTokenGenerator.createSignedJWT(subject)
+    fun loggInnBruker(contextHolder: TokenValidationContextHolder, fnr: String?) {
+        val jwt = generateSignedJwtToken(fnr)
         settOIDCValidationContext(contextHolder, jwt, EKSTERN)
     }
 
@@ -36,5 +43,23 @@ object OidcTestHelper {
     @JvmStatic
     fun loggUtAlle(contextHolder: TokenValidationContextHolder) {
         contextHolder.tokenValidationContext = null
+    }
+
+    @JvmStatic
+    fun generateSignedJwtToken(fnr: String?): SignedJWT {
+        val now = Date()
+        val claimsSet = JWTClaimsSet.Builder()
+            .issuer(ISS)
+            .audience(AUD)
+            .jwtID(UUID.randomUUID().toString())
+            .claim("pid", fnr)
+            .claim("acr", ACR)
+            .claim("ver", "1.0")
+            .claim("nonce", "myNonce")
+            .claim("auth_time", now)
+            .notBeforeTime(now)
+            .issueTime(now)
+            .expirationTime(Date(now.getTime() + EXPIRY)).build()
+        return JwtTokenGenerator.createSignedJWT(claimsSet)
     }
 }
