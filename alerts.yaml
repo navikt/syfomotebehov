@@ -32,6 +32,6 @@ spec:
     - alert: KAFKA SYFO OVERSIKTHENDELSE CONSUMER LAG
       expr: kafka_consumergroup_group_topic_sum_lag{topic="aapen-syfo-oversikthendelse-tilfelle-v1"} > 0
       for: 15m
-      description: "\{{ $labels.app }} har ukonsumerte Kafkameldinger på syfo-oversikthendelse-topic i namespace \{{ $labels.kubernetes_namespace }}"
-      action: "Finn ut hvorfor \{{ $labels.app }} har stoppet å konsumere fra topic"
+      description: "{{ $labels.app }} har ukonsumerte Kafkameldinger på syfo-oversikthendelse-topic i namespace {{ $labels.kubernetes_namespace }}"
+      action: "Finn ut hvorfor {{ $labels.app }} har stoppet å konsumere fra topic"
       severity: danger
