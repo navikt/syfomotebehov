@@ -16,7 +16,6 @@ class KafkaOversikthendelseOppfolgingstilfelleConfig @Inject constructor() {
     fun consumerFactory(properties: KafkaProperties): ConsumerFactory<String, String> {
         return DefaultKafkaConsumerFactory(properties.buildConsumerProperties())
     }
-
     @Bean
     fun kafkaListenerContainerFactory(
         consumerFactory: ConsumerFactory<String, String>

@@ -41,9 +41,11 @@ spring:
         sasl:
           mechanism: PLAIN
           jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${srv.username}" password="${srv.password}";
-        ssl.truststore:
-          location: ${javax.net.ssl.trustStore}
-          password: ${javax.net.ssl.trustStorePassword}
+        ssl:
+          endpoint.identification.algorithm: ''
+          truststore:
+            location: ${javax.net.ssl.trustStore}
+            password: ${javax.net.ssl.trustStorePassword}
       producer:
         key-serializer: org.apache.kafka.common.serialization.StringSerializer
         value-serializer: org.apache.kafka.common.serialization.StringSerializer
