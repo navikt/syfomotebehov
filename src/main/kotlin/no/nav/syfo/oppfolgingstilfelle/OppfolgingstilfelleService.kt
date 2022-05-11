@@ -4,7 +4,10 @@ import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.database.*
 import no.nav.syfo.oppfolgingstilfelle.kafka.KOversikthendelsetilfelle
+import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfellePerson
+import no.nav.syfo.oppfolgingstilfelle.kafka.domain.previouslyProcessed
 import no.nav.syfo.oppfolgingstilfelle.kafka.previouslyProcessed
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import javax.inject.Inject
@@ -36,6 +39,13 @@ class OppfolgingstilfelleService @Inject constructor(
                 metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE)
             }
         }
+    }
+
+    fun receiveKOppfolgingstilfellePerson(
+        kafkaOppfolgingstilfellePerson: KafkaOppfolgingstilfellePerson
+    ) {
+        log.info("RECEIVE OPPFOLGINGSTILFELLEPERSON: ${kafkaOppfolgingstilfellePerson.personIdentNumber}")
+        log.info("${kafkaOppfolgingstilfellePerson.oppfolgingstilfelleList.first().start}")
     }
 
     fun getActiveOppfolgingstilfeller(
@@ -120,6 +130,8 @@ class OppfolgingstilfelleService @Inject constructor(
     }
 
     companion object {
+        private val log = LoggerFactory.getLogger(OppfolgingstilfelleService::class.java)
+
         private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE = "receive_oppfolgingstilfelle"
         private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_CREATE = "${METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE}_create"
         private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE = "${METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE}_update"

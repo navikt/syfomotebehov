@@ -2,6 +2,7 @@ package no.nav.syfo.oppfolgingstilfelle.database
 
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.oppfolgingstilfelle.kafka.KOversikthendelsetilfelle
+import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfelle
 import no.nav.syfo.util.convert
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -49,7 +50,6 @@ class OppfolgingstilfelleDAO @Inject constructor(
             personOppfolgingstilfelleRowMapper
         )
     }
-
     fun update(oversikthendelsetilfelle: KOversikthendelsetilfelle) {
         val query = """
             UPDATE oppfolgingstilfelle
@@ -62,6 +62,25 @@ class OppfolgingstilfelleDAO @Inject constructor(
             .addValue("tom", convert(oversikthendelsetilfelle.tom))
             .addValue("fnr", oversikthendelsetilfelle.fnr)
             .addValue("virksomhetsnummer", oversikthendelsetilfelle.virksomhetsnummer)
+        namedParameterJdbcTemplate.update(query, mapSaveSql)
+    }
+
+    fun update(
+        fnr: Fodselsnummer,
+        kafkaOppfolgingstilfelle: KafkaOppfolgingstilfelle,
+        virksomhetsnummer: String
+    ) {
+        val query = """
+            UPDATE oppfolgingstilfelle
+            SET sist_endret = :sistEndret, fom = :fom, tom = :tom
+            WHERE fnr = :fnr AND virksomhetsnummer = :virksomhetsnummer
+        """.trimIndent()
+        val mapSaveSql = MapSqlParameterSource()
+            .addValue("sistEndret", convert(LocalDateTime.now()))
+            .addValue("fom", convert(kafkaOppfolgingstilfelle.start))
+            .addValue("tom", convert(kafkaOppfolgingstilfelle.end))
+            .addValue("fnr", fnr)
+            .addValue("virksomhetsnummer", virksomhetsnummer)
         namedParameterJdbcTemplate.update(query, mapSaveSql)
     }
 
@@ -79,6 +98,28 @@ class OppfolgingstilfelleDAO @Inject constructor(
             .addValue("virksomhetsnummer", oversikthendelsetilfelle.virksomhetsnummer)
             .addValue("fom", convert(oversikthendelsetilfelle.fom))
             .addValue("tom", convert(oversikthendelsetilfelle.tom))
+        namedParameterJdbcTemplate.update(query, mapSaveSql)
+        return uuid
+    }
+
+    fun create(
+        fnr: Fodselsnummer,
+        kafkaOppfolgingstilfelle: KafkaOppfolgingstilfelle,
+        virksomhetsnummer: String
+    ): UUID {
+        val uuid = UUID.randomUUID()
+        val query = """
+            INSERT INTO oppfolgingstilfelle (oppfolgingstilfelle_uuid, opprettet, sist_endret, fnr, virksomhetsnummer, fom, tom)
+            VALUES (:oppfolgingstilfelleUuid, :opprettet, :sistEndret, :fnr, :virksomhetsnummer, :fom, :tom)
+        """.trimIndent()
+        val mapSaveSql = MapSqlParameterSource()
+            .addValue("oppfolgingstilfelleUuid", uuid.toString())
+            .addValue("opprettet", convert(LocalDateTime.now()))
+            .addValue("sistEndret", convert(LocalDateTime.now()))
+            .addValue("fnr", fnr)
+            .addValue("virksomhetsnummer", virksomhetsnummer)
+            .addValue("fom", convert(kafkaOppfolgingstilfelle.start))
+            .addValue("tom", convert(kafkaOppfolgingstilfelle.end))
         namedParameterJdbcTemplate.update(query, mapSaveSql)
         return uuid
     }
