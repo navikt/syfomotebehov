@@ -64,6 +64,8 @@ spec:
         mountPath: "/var/run/secrets/nais.io/vault"
   envFrom:
     - configmap: loginservice-idporten
+  kafka:
+    pool: nav-dev
   env:
     - name: APP_NAME
       value: "syfomotebehov"
