@@ -41,7 +41,7 @@ class OppfolgingstilfelleKafkaListener(
         try {
             val kOppfolgingstilfellePerson: KafkaOppfolgingstilfellePerson = map(consumerRecord.value())
             oppfolgingstilfelleService.receiveKOppfolgingstilfellePerson(kOppfolgingstilfellePerson)
-            // acknowledgment.acknowledge()
+            acknowledgment.acknowledge()
         } catch (e: JsonProcessingException) {
             LOG.error("OppfolgingstilfellePekerListener: Kunne ikke deserialisere KOppfolgingstilfellePeker", e)
         } catch (e: Exception) {

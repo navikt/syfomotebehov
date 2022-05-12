@@ -6,6 +6,7 @@ import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.motebehov.MotebehovService
+import no.nav.syfo.motebehov.api.dbCreateOppfolgingstilfelle
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
@@ -106,12 +107,14 @@ class VarselLederComponentTest {
     @Throws(Exception::class)
     fun sendVarselNaermesteLeder_skal_sende_varsel_til_NL_hvis_ikke_mote() {
         val oppfolgingstilfelle = generatePersonOppfolgingstilfelleSvarBehov
-        oppfolgingstilfelleDAO.create(
-            generateKOversikthendelsetilfelle.copy(
-                fom = oppfolgingstilfelle.fom,
-                tom = oppfolgingstilfelle.tom
-            )
+
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = oppfolgingstilfelle.fom,
+            end = oppfolgingstilfelle.tom
         )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
+
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
             .thenReturn(generateMotebehovStatus.copy(motebehov = null))
 
@@ -128,12 +131,14 @@ class VarselLederComponentTest {
     @Throws(Exception::class)
     fun sendVarselNaermesteLeder_no_varsel_oppfolgingstilfelle_meld_behov_no_meeting() {
         val oppfolgingstilfelle = generatePersonOppfolgingstilfelleMeldBehovFirstPeriod
-        oppfolgingstilfelleDAO.create(
-            generateKOversikthendelsetilfelle.copy(
-                fom = oppfolgingstilfelle.fom,
-                tom = oppfolgingstilfelle.tom
-            )
+
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = oppfolgingstilfelle.fom,
+            end = oppfolgingstilfelle.tom
         )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
+
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
             .thenReturn(
                 generateMotebehovStatus.copy(
@@ -153,12 +158,13 @@ class VarselLederComponentTest {
     @Throws(Exception::class)
     fun sendVarselNaermesteLeder_no_varsel_oppfolgingstilfelle_meld_behov() {
         val oppfolgingstilfelle = generatePersonOppfolgingstilfelleMeldBehovFirstPeriod
-        oppfolgingstilfelleDAO.create(
-            generateKOversikthendelsetilfelle.copy(
-                fom = oppfolgingstilfelle.fom,
-                tom = oppfolgingstilfelle.tom
-            )
+
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = oppfolgingstilfelle.fom,
+            end = oppfolgingstilfelle.tom
         )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
             .thenReturn(
                 generateMotebehovStatus.copy(
@@ -178,12 +184,14 @@ class VarselLederComponentTest {
     @Throws(Exception::class)
     fun sendVarselNaermesteLeder_no_varsel_oppfolgingstilfelle_svar_behov_motebehov_behandlet() {
         val oppfolgingstilfelle = generatePersonOppfolgingstilfelleSvarBehov
-        oppfolgingstilfelleDAO.create(
-            generateKOversikthendelsetilfelle.copy(
-                fom = oppfolgingstilfelle.fom,
-                tom = oppfolgingstilfelle.tom
-            )
+
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = oppfolgingstilfelle.fom,
+            end = oppfolgingstilfelle.tom
         )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
+
         val newestMotebehov = motebehovGenerator.generateMotebehov().copy(
             opprettetAv = LEDER_AKTORID,
             behandletVeilederIdent = VEILEDER_ID
@@ -211,12 +219,14 @@ class VarselLederComponentTest {
     @Throws(Exception::class)
     fun sendVarselNaermesteLeder_no_varsel_oppfolgingstilfelle_svar_behov_motebehov_ubehandlet() {
         val oppfolgingstilfelle = generatePersonOppfolgingstilfelleSvarBehov
-        oppfolgingstilfelleDAO.create(
-            generateKOversikthendelsetilfelle.copy(
-                fom = oppfolgingstilfelle.fom,
-                tom = oppfolgingstilfelle.tom
-            )
+
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = oppfolgingstilfelle.fom,
+            end = oppfolgingstilfelle.tom
         )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
+
         val newestMotebehov = motebehovGenerator.generateMotebehov().copy(
             opprettetAv = LEDER_AKTORID,
             behandletVeilederIdent = null
@@ -244,12 +254,14 @@ class VarselLederComponentTest {
     @Throws(Exception::class)
     fun sendVarselNaermesteLeder_skal_ikke_sende_varsel_til_NL_hvis_mote_finnes() {
         val oppfolgingstilfelle = generatePersonOppfolgingstilfelleSvarBehov
-        oppfolgingstilfelleDAO.create(
-            generateKOversikthendelsetilfelle.copy(
-                fom = oppfolgingstilfelle.fom,
-                tom = oppfolgingstilfelle.tom
-            )
+
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = oppfolgingstilfelle.fom,
+            end = oppfolgingstilfelle.tom
         )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
+
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
             .thenReturn(generateMotebehovStatus.copy(motebehov = null))
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)

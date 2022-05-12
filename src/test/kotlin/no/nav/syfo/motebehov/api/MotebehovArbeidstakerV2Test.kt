@@ -137,12 +137,13 @@ class MotebehovArbeidstakerV2Test {
         loggUtAlle(contextHolder)
         loggInnBruker(contextHolder, ARBEIDSTAKER_FNR)
 
-        oppfolgingstilfelleDAO.create(
-            generateOversikthendelsetilfelle.copy(
-                fom = LocalDate.now().plusDays(1),
-                tom = LocalDate.now().plusDays(10)
-            )
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = LocalDate.now().plusDays(1),
+            end = LocalDate.now().plusDays(10)
         )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
+
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(false, null, null)
     }
@@ -152,12 +153,13 @@ class MotebehovArbeidstakerV2Test {
         loggUtAlle(contextHolder)
         loggInnBruker(contextHolder, ARBEIDSTAKER_FNR)
 
-        oppfolgingstilfelleDAO.create(
-            generateOversikthendelsetilfelle.copy(
-                fom = LocalDate.now().minusDays(10),
-                tom = LocalDate.now().minusDays(1)
-            )
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = LocalDate.now().minusDays(10),
+            end = LocalDate.now().minusDays(1)
         )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
+
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(false, null, null)
     }
@@ -165,20 +167,22 @@ class MotebehovArbeidstakerV2Test {
     @Test
     fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle Merged By Active And Expired Oppfolgingstilfelle No Overlap`() {
         val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
-        oppfolgingstilfelleDAO.create(
-            generateOversikthendelsetilfelle.copy(
-                virksomhetsnummer = VIRKSOMHETSNUMMER,
-                fom = activeOppfolgingstilfelleStartDate.minusDays(2),
-                tom = activeOppfolgingstilfelleStartDate.minusDays(1)
-            )
+
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = activeOppfolgingstilfelleStartDate.minusDays(2),
+            end = activeOppfolgingstilfelleStartDate.minusDays(1)
         )
-        oppfolgingstilfelleDAO.create(
-            generateOversikthendelsetilfelle.copy(
-                virksomhetsnummer = UserConstants.VIRKSOMHETSNUMMER_2,
-                fom = activeOppfolgingstilfelleStartDate,
-                tom = LocalDate.now().plusDays(1)
-            )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
+
+        val oppfolgingstilfellePerson2 = generateOppfolgingstilfellePerson(
+            virksomhetsnummerList = listOf(UserConstants.VIRKSOMHETSNUMMER_2),
+            start = activeOppfolgingstilfelleStartDate,
+            end = LocalDate.now().plusDays(1)
         )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson2)
+
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -188,20 +192,21 @@ class MotebehovArbeidstakerV2Test {
     @Test
     fun `getMotebehovStatus With Today Inside Oppfolgingstilfelle Merged By Active And Expired Oppfolgingstilfelle With Overlap`() {
         val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
-        oppfolgingstilfelleDAO.create(
-            generateOversikthendelsetilfelle.copy(
-                virksomhetsnummer = VIRKSOMHETSNUMMER,
-                fom = activeOppfolgingstilfelleStartDate.minusDays(2),
-                tom = activeOppfolgingstilfelleStartDate
-            )
+
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = activeOppfolgingstilfelleStartDate.minusDays(2),
+            end = activeOppfolgingstilfelleStartDate
         )
-        oppfolgingstilfelleDAO.create(
-            generateOversikthendelsetilfelle.copy(
-                virksomhetsnummer = UserConstants.VIRKSOMHETSNUMMER_2,
-                fom = activeOppfolgingstilfelleStartDate,
-                tom = LocalDate.now().plusDays(1)
-            )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
+
+        val oppfolgingstilfellePerson2 = generateOppfolgingstilfellePerson(
+            virksomhetsnummerList = listOf(UserConstants.VIRKSOMHETSNUMMER_2),
+            start = activeOppfolgingstilfelleStartDate,
+            end = LocalDate.now().plusDays(1)
         )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson2)
 
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
 
@@ -211,20 +216,21 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle Merged By 2 Oppfolgingstilfeller`() {
-        oppfolgingstilfelleDAO.create(
-            generateOversikthendelsetilfelle.copy(
-                virksomhetsnummer = VIRKSOMHETSNUMMER,
-                fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).minusDays(1),
-                tom = LocalDate.now()
-            )
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).minusDays(1),
+            end = LocalDate.now()
         )
-        oppfolgingstilfelleDAO.create(
-            generateOversikthendelsetilfelle.copy(
-                virksomhetsnummer = UserConstants.VIRKSOMHETSNUMMER_2,
-                fom = LocalDate.now().minusDays(2),
-                tom = LocalDate.now().plusDays(1)
-            )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
+
+        val oppfolgingstilfellePerson2 = generateOppfolgingstilfellePerson(
+            virksomhetsnummerList = listOf(UserConstants.VIRKSOMHETSNUMMER_2),
+            start = LocalDate.now().minusDays(2),
+            end = LocalDate.now().plusDays(1)
         )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson2)
+
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -233,12 +239,13 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle Day1`() {
-        oppfolgingstilfelleDAO.create(
-            generateOversikthendelsetilfelle.copy(
-                fom = LocalDate.now(),
-                tom = LocalDate.now()
-            )
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = LocalDate.now(),
+            end = LocalDate.now()
         )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
+
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -247,12 +254,13 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle LastDay`() {
-        oppfolgingstilfelleDAO.create(
-            generateOversikthendelsetilfelle.copy(
-                fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).minusDays(1),
-                tom = LocalDate.now()
-            )
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).minusDays(1),
+            end = LocalDate.now()
         )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
+
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -261,11 +269,12 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle, MeldBehov Moteplanlegger Active`() {
-        val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
-            fom = LocalDate.now(),
-            tom = LocalDate.now().plusDays(1)
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = LocalDate.now(),
+            end = LocalDate.now().plusDays(1)
         )
-        oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
 
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, true)
 
@@ -275,11 +284,12 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle, MeldBehov Submitted And Behandlet`() {
-        val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
-            fom = LocalDate.now(),
-            tom = LocalDate.now().plusDays(1)
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = LocalDate.now(),
+            end = LocalDate.now().plusDays(1)
         )
-        oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
 
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
@@ -308,11 +318,13 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle MeldBehov, Moteplanlegger Active, MeldBehov Submitted`() {
-        val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
-            fom = LocalDate.now(),
-            tom = LocalDate.now().plusDays(1)
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = LocalDate.now(),
+            end = LocalDate.now().plusDays(1)
         )
-        oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
+
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
 
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
@@ -327,12 +339,13 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle Before SvarBehov StartDate`() {
-        oppfolgingstilfelleDAO.create(
-            generateOversikthendelsetilfelle.copy(
-                fom = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1),
-                tom = LocalDate.now().plusDays(1)
-            )
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1),
+            end = LocalDate.now().plusDays(1)
         )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
+
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -341,12 +354,13 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle After SvarBehov EndDate`() {
-        oppfolgingstilfelleDAO.create(
-            generateOversikthendelsetilfelle.copy(
-                fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV),
-                tom = LocalDate.now().plusDays(1)
-            )
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV),
+            end = LocalDate.now().plusDays(1)
         )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
+
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -355,13 +369,14 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus With No Motebehov And Mote Inside SvarBehov Upper Limit`() {
-        val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
-            fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).plusDays(1),
-            tom = LocalDate.now().plusDays(1)
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).plusDays(1),
+            end = LocalDate.now().plusDays(1)
         )
+
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
 
-        oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(false, null, null)
@@ -369,11 +384,12 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus with SvarBehov and Mote created`() {
-        val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
-            fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).plusDays(1),
-            tom = LocalDate.now().plusDays(1)
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).plusDays(1),
+            end = LocalDate.now().plusDays(1)
         )
-        oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
 
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
 
@@ -389,13 +405,13 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus with no Motebehov and no Mote inside SvarBehov lower limit`() {
-        val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
-            fom = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV),
-            tom = LocalDate.now().plusDays(1)
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV),
+            end = LocalDate.now().plusDays(1)
         )
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
 
-        oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
@@ -403,8 +419,9 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus with no Motebehov and no Mote`() {
-        val kOppfolgingstilfelle = generateOversikthendelsetilfelle
-        oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson()
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
 
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
 
@@ -414,8 +431,9 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus with no Motebehov and Mote`() {
-        val kOppfolgingstilfelle = generateOversikthendelsetilfelle
-        oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson()
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
 
         mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
 
@@ -425,42 +443,38 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus and sendOversikthendelse with Motebehov harBehov=true`() {
-        oppfolgingstilfelleDAO.create(
-            generateOversikthendelsetilfelle.copy(
-                fnr = ARBEIDSTAKER_FNR,
-                virksomhetsnummer = VIRKSOMHETSNUMMER
-            )
-        )
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson()
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
+
         lagreOgHentMotebehovOgSendOversikthendelse(harBehov = true)
     }
 
     @Test
     fun `get MotebehovStatus and SendOversikthendelse with Motebehov harBehov=false`() {
-        oppfolgingstilfelleDAO.create(
-            generateOversikthendelsetilfelle.copy(
-                fnr = ARBEIDSTAKER_FNR,
-                virksomhetsnummer = VIRKSOMHETSNUMMER
-            )
-        )
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson()
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
+
         lagreOgHentMotebehovOgSendOversikthendelse(harBehov = false)
     }
 
     @Test
     fun `submitMotebehov multiple active Oppfolgingstilfeller`() {
-        oppfolgingstilfelleDAO.create(
-            generateOversikthendelsetilfelle.copy(
-                virksomhetsnummer = VIRKSOMHETSNUMMER,
-                fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).minusDays(1),
-                tom = LocalDate.now()
-            )
+        val oppfolgingstilfellePerson = generateOppfolgingstilfellePerson(
+            start = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).minusDays(1),
+            end = LocalDate.now()
         )
-        oppfolgingstilfelleDAO.create(
-            generateOversikthendelsetilfelle.copy(
-                virksomhetsnummer = UserConstants.VIRKSOMHETSNUMMER_2,
-                fom = LocalDate.now().minusDays(2),
-                tom = LocalDate.now().plusDays(1)
-            )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson)
+
+        val oppfolgingstilfellePerson2 = generateOppfolgingstilfellePerson(
+            virksomhetsnummerList = listOf(UserConstants.VIRKSOMHETSNUMMER_2),
+            start = LocalDate.now().minusDays(2),
+            end = LocalDate.now().plusDays(1)
         )
+
+        dbCreateOppfolgingstilfelle(oppfolgingstilfelleDAO, oppfolgingstilfellePerson2)
 
         mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
         mockAndExpectBehandlendeEnhetRequest(

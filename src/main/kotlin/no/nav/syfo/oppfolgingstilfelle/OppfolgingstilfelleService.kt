@@ -3,10 +3,8 @@ package no.nav.syfo.oppfolgingstilfelle
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.database.*
-import no.nav.syfo.oppfolgingstilfelle.kafka.KOversikthendelsetilfelle
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfellePerson
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.previouslyProcessed
-import no.nav.syfo.oppfolgingstilfelle.kafka.previouslyProcessed
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -17,35 +15,42 @@ class OppfolgingstilfelleService @Inject constructor(
     private val metric: Metric,
     private val oppfolgingstilfelleDAO: OppfolgingstilfelleDAO
 ) {
-    fun receiveKOversikthendelsetilfelle(
-        oversikthendelsetilfelle: KOversikthendelsetilfelle
-    ) {
-        val pPersonOppfolgingstilfelleList = oppfolgingstilfelleDAO.get(
-            fnr = Fodselsnummer(oversikthendelsetilfelle.fnr),
-            virksomhetsnummer = oversikthendelsetilfelle.virksomhetsnummer
-        )
-        val createNew = pPersonOppfolgingstilfelleList.isEmpty()
-        if (createNew) {
-            oppfolgingstilfelleDAO.create(oversikthendelsetilfelle)
-            metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_CREATE)
-        } else {
-            val isPreviouslyProcessed = oversikthendelsetilfelle.previouslyProcessed(
-                lastUpdatedAt = pPersonOppfolgingstilfelleList.firstOrNull()?.sistEndret
-            )
-            if (isPreviouslyProcessed) {
-                metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE_SKIP_DUPLICATE)
-            } else {
-                oppfolgingstilfelleDAO.update(oversikthendelsetilfelle)
-                metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE)
-            }
-        }
-    }
-
     fun receiveKOppfolgingstilfellePerson(
         kafkaOppfolgingstilfellePerson: KafkaOppfolgingstilfellePerson
     ) {
-        log.info("RECEIVE OPPFOLGINGSTILFELLEPERSON: ${kafkaOppfolgingstilfellePerson.personIdentNumber}")
-        log.info("${kafkaOppfolgingstilfellePerson.oppfolgingstilfelleList.first().start}")
+        kafkaOppfolgingstilfellePerson.oppfolgingstilfelleList.sortedByDescending { kafkaOppfolgingstilfelle ->
+            kafkaOppfolgingstilfelle.start
+        }.firstOrNull()?.let { kafkaOppfolgingstilfelle ->
+            kafkaOppfolgingstilfelle.virksomhetsnummerList.forEach { virksomhetsnummer ->
+                val pPersonOppfolgingstilfelleList = oppfolgingstilfelleDAO.get(
+                    fnr = Fodselsnummer(kafkaOppfolgingstilfellePerson.personIdentNumber),
+                    virksomhetsnummer = virksomhetsnummer
+                )
+                val createNew = pPersonOppfolgingstilfelleList.isEmpty()
+                if (createNew) {
+                    oppfolgingstilfelleDAO.create(
+                        fnr = Fodselsnummer(kafkaOppfolgingstilfellePerson.personIdentNumber),
+                        kafkaOppfolgingstilfelle = kafkaOppfolgingstilfelle,
+                        virksomhetsnummer = virksomhetsnummer
+                    )
+                    metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_CREATE)
+                } else {
+                    val isPreviouslyProcessed = kafkaOppfolgingstilfellePerson.previouslyProcessed(
+                        lastUpdatedAt = pPersonOppfolgingstilfelleList.firstOrNull()?.sistEndret
+                    )
+                    if (isPreviouslyProcessed) {
+                        metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE_SKIP_DUPLICATE)
+                    } else {
+                        oppfolgingstilfelleDAO.update(
+                            fnr = Fodselsnummer(kafkaOppfolgingstilfellePerson.personIdentNumber),
+                            kafkaOppfolgingstilfelle = kafkaOppfolgingstilfelle,
+                            virksomhetsnummer = virksomhetsnummer
+                        )
+                        metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE)
+                    }
+                }
+            }
+        }
     }
 
     fun getActiveOppfolgingstilfeller(
