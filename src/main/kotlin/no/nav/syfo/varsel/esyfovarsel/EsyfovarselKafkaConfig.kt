@@ -27,8 +27,6 @@ class EsyfovarselKafkaConfig(
     private val JAVA_KEYSTORE = "JKS"
     private val PKCS12 = "PKCS12"
     private val SSL = "SSL"
-    private val USER_INFO = "USER_INFO"
-    private val BASIC_AUTH_CREDENTIALS_SOURCE = "basic.auth.credentials.source"
 
     @Bean("EsyfovarselProducerFactory")
     fun producerFactory(): ProducerFactory<String, EsyfovarselHendelse> {
@@ -48,7 +46,6 @@ class EsyfovarselKafkaConfig(
 
             put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
             put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonKafkaSerializer::class.java)
-            put(BASIC_AUTH_CREDENTIALS_SOURCE, USER_INFO)
 
             remove(SaslConfigs.SASL_MECHANISM)
             remove(SaslConfigs.SASL_JAAS_CONFIG)
