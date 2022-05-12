@@ -10,9 +10,17 @@ class EsyfovarselService(private val producer: EsyfovarselProducer) {
 
     fun sendSvarMotebehovVarselTilNarmesteLeder(narmestelederFnr: String, ansattFnr: String, orgnummer: String) {
         val esyfovarselHendelse = EsyfovarselHendelse(
-            narmestelederFnr,
-            HendelseType.NL_DIALOGMOTE_SVAR_MOTEBEHOV,
-            NarmesteLederVarselData(ansattFnr, orgnummer)
+            mottakerFnr = narmestelederFnr,
+            type = HendelseType.NL_DIALOGMOTE_SVAR_MOTEBEHOV,
+            data = NarmesteLederVarselData(ansattFnr, orgnummer)
+        )
+        producer.sendVarselTilEsyfovarsel(esyfovarselHendelse)
+    }
+
+    fun sendSvarMotebehovVarselTilArbeidstaker(arbeidstakerFnr: String) {
+        val esyfovarselHendelse = EsyfovarselHendelse(
+            mottakerFnr = arbeidstakerFnr,
+            type = HendelseType.SM_DIALOGMOTE_SVAR_MOTEBEHOV,
         )
         producer.sendVarselTilEsyfovarsel(esyfovarselHendelse)
     }
