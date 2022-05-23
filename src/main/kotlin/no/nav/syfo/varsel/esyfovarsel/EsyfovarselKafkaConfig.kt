@@ -1,6 +1,6 @@
 package no.nav.syfo.varsel.esyfovarsel
 
-import no.nav.syfo.varsel.esyfovarsel.domain.EsyfovarselHendelse
+import no.nav.syfo.varsel.esyfovarsel.domain.EsyfovarselPlanlagtVarsel
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
@@ -29,7 +29,7 @@ class EsyfovarselKafkaConfig(
     private val SSL = "SSL"
 
     @Bean("EsyfovarselProducerFactory")
-    fun producerFactory(): ProducerFactory<String, EsyfovarselHendelse> {
+    fun producerFactory(): ProducerFactory<String, EsyfovarselPlanlagtVarsel> {
 
         val producerProperties = HashMap<String, Any>().apply {
             put(ProducerConfig.ACKS_CONFIG, "all")
@@ -55,7 +55,7 @@ class EsyfovarselKafkaConfig(
     }
 
     @Bean("EsyfovarselKafkaTemplate")
-    fun kafkaTemplate(@Qualifier("EsyfovarselProducerFactory") producerFactory: ProducerFactory<String, EsyfovarselHendelse>): KafkaTemplate<String, EsyfovarselHendelse> {
+    fun kafkaTemplate(@Qualifier("EsyfovarselProducerFactory") producerFactory: ProducerFactory<String, EsyfovarselPlanlagtVarsel>): KafkaTemplate<String, EsyfovarselPlanlagtVarsel> {
         return KafkaTemplate(producerFactory)
     }
 }
