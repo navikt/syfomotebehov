@@ -25,5 +25,4 @@ class EsyfovarselPlanleggingService(private val producer: EsyfovarselPlanlegging
         )
         producer.sendVarselTilEsyfovarselPlanlegging(esyfovarselPlanlagtVarsel)
     }
-
 }
