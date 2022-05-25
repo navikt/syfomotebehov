@@ -54,7 +54,7 @@ class EsyfovarselKafkaConfig(
         return DefaultKafkaProducerFactory(producerProperties)
     }
 
-    @Bean("EsyfovarselKafkaTemplate")
+    @Bean("EsyfovarselPlanleggingKafkaTemplate")
     fun kafkaTemplate(@Qualifier("EsyfovarselProducerFactory") producerFactory: ProducerFactory<String, EsyfovarselPlanlagtVarsel>): KafkaTemplate<String, EsyfovarselPlanlagtVarsel> {
         return KafkaTemplate(producerFactory)
     }

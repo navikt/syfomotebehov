@@ -11,7 +11,7 @@ import java.util.*
 
 @Component
 class EsyfovarselPlanleggingProducer @Autowired constructor(
-    @Qualifier("EsyfovarselKafkaTemplate") private val kafkaTemplate: KafkaTemplate<String, EsyfovarselPlanlagtVarsel>,
+    @Qualifier("EsyfovarselPlanleggingKafkaTemplate") private val kafkaTemplate: KafkaTemplate<String, EsyfovarselPlanlagtVarsel>,
 ) {
     fun sendVarselTilEsyfovarselPlanlegging(
         esyfovarselPlanlagtVarsel: EsyfovarselPlanlagtVarsel,
