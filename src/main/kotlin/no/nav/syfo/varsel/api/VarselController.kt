@@ -2,6 +2,7 @@ package no.nav.syfo.varsel.api
 
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.syfo.api.auth.OIDCIssuer.INTERN
+import no.nav.syfo.api.auth.OIDCIssuer.STS
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
@@ -26,6 +27,18 @@ class VarselController @Inject constructor(
     private val aktorregisterConsumer: AktorregisterConsumer,
     private val varselService: VarselService
 ) {
+    @ResponseBody
+    @ProtectedWithClaims(issuer = STS)
+    @PostMapping(value = ["/naermesteleder/esyfovarsel"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun sendVarselNaermesteLederEsyfovarsel(
+        @RequestBody motebehovsvarVarselInfo: MotebehovsvarVarselInfo
+    ): Response {
+        varselService.sendVarselTilNaermesteLeder(motebehovsvarVarselInfo)
+        return Response
+            .ok()
+            .build()
+    }
+
     @ResponseBody
     @ProtectedWithClaims(issuer = INTERN, claimMap = ["sub=srvsyfoservice"])
     @PostMapping(value = ["/naermesteleder"], produces = [MediaType.APPLICATION_JSON_VALUE])

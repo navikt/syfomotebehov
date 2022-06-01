@@ -15,6 +15,11 @@ no.nav.security:
         discoveryurl: ${azure.app.well.known.url}
         accepted_audience: ${azure.app.client.id}
         cookiename: ID_token
+      sts:
+        discoveryurl: http://security-token-service.default/rest/v1/sts/.well-known/openid-configuration
+        accepted_audience: srvesyfovarsel
+
+
 
 logging.config: classpath:logback-spring.xml
 
