@@ -16,7 +16,7 @@ no.nav.security:
         accepted_audience: ${azure.app.client.id}
         cookiename: ID_token
       sts:
-        discoveryurl: https://security-token-service.nais.preprod.local/rest/v1/sts/.well-known/openid-configuration
+        discoveryurl: http://security-token-service.default/rest/v1/sts/.well-known/openid-configuration
         accepted_audience: srvesyfovarsel
 
 
