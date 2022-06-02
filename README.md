@@ -36,7 +36,7 @@ Applikasjonen pakkes til en stor jar vha. plugin Gradle Shadow og bygges med doc
 lokalt på docker hvis jdbc-url legges på path.
 
 ### Lint
-Kjør `./gradlew --continue ktlintCheck`
+Kjør `./gradlew --continue ktlintCheck` eller `./gradlew ktlintFormat`
 
 ### Pipeline
 

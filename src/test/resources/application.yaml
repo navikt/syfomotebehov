@@ -54,6 +54,8 @@ no.nav.security.jwt:
     selvbetjening.discoveryurl: http://metadata
     selvbetjening.accepted_audience: aud-localhost
     selvbetjening.cookie_name: localhost-idtoken
+    tokenx.discoveryurl: "http://discoveryurl"
+    tokenx.accepted_audience: "clientID"
 
 syfobrukertilgang.url: "http://syfobrukertilgang"
 
@@ -70,3 +72,6 @@ kafka.brokers: localhost://9092
 kafka.truststore.path: /truststore
 kafka.keystore.path: /keystore
 kafka.credstore.password: /credstore/password
+dialogmote.client.id: "dialogmote-frontend"
+dialogmotearbeidsgiver.client.id: "dialogmotearbeidsgiver"
+tokenx.idp: "idporten"
