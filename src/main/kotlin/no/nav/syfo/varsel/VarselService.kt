@@ -15,6 +15,7 @@ import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import no.nav.syfo.varsel.dinesykmeldte.DineSykmeldteVarselProducer
 import no.nav.syfo.varsel.dinesykmeldte.domain.DineSykmeldteHendelse
 import no.nav.syfo.varsel.dinesykmeldte.domain.OpprettHendelse
+import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -32,7 +33,8 @@ class VarselService @Inject constructor(
     private val moteConsumer: MoteConsumer,
     private val oppfolgingstilfelleService: OppfolgingstilfelleService,
     private val tredjepartsvarselProducer: TredjepartsvarselProducer,
-    private val dineSykmeldteVarselProducer: DineSykmeldteVarselProducer
+    private val dineSykmeldteVarselProducer: DineSykmeldteVarselProducer,
+    private val esyfovarselService: EsyfovarselService,
 ) {
     fun sendVarselTilNaermesteLeder(motebehovsvarVarselInfo: MotebehovsvarVarselInfo) {
         val arbeidstakerFnr = aktorregisterConsumer.getFnrForAktorId(AktorId(motebehovsvarVarselInfo.sykmeldtAktorId))
@@ -53,6 +55,7 @@ class VarselService @Inject constructor(
                 metric.tellHendelse("varsel_leder_sent")
                 val kTredjepartsvarsel = mapTilKTredjepartsvarsel(motebehovsvarVarselInfo)
                 tredjepartsvarselProducer.sendTredjepartsvarselvarsel(kTredjepartsvarsel)
+                esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(motebehovsvarVarselInfo.naermesteLederFnr, motebehovsvarVarselInfo.arbeidstakerFnr, motebehovsvarVarselInfo.orgnummer)
 //                TODO: Kommenterer ut frem til fungerende kafka-config er på plass.
 //                sendVarselTilDineSykmeldte(arbeidstakerFnr, motebehovsvarVarselInfo.orgnummer)
             } else {
