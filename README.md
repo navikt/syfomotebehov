@@ -6,6 +6,7 @@ syfomotebehov er en springboot-applikasjon basert. Den er satt opp til å kjøre
 
 ## Lokal utvikling 
 
+
 ### Oppstart
 
 Start opp appen fra [LocalApplication.kt](./src/test/kotlin/no/nav/syfo/LocalApplication.kt).
