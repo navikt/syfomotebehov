@@ -12,14 +12,10 @@ import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
 import no.nav.syfo.motebehov.motebehovstatus.isSvarBehovVarselAvailable
 import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
-import no.nav.syfo.varsel.dinesykmeldte.DineSykmeldteVarselProducer
-import no.nav.syfo.varsel.dinesykmeldte.domain.DineSykmeldteHendelse
-import no.nav.syfo.varsel.dinesykmeldte.domain.OpprettHendelse
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
-import java.time.OffsetDateTime
 import java.util.*
 import javax.inject.Inject
 
@@ -33,7 +29,6 @@ class VarselService @Inject constructor(
     private val moteConsumer: MoteConsumer,
     private val oppfolgingstilfelleService: OppfolgingstilfelleService,
     private val tredjepartsvarselProducer: TredjepartsvarselProducer,
-    private val dineSykmeldteVarselProducer: DineSykmeldteVarselProducer,
     private val esyfovarselService: EsyfovarselService,
 ) {
     fun sendVarselTilNaermesteLeder(motebehovsvarVarselInfo: MotebehovsvarVarselInfo) {
@@ -56,36 +51,11 @@ class VarselService @Inject constructor(
                 val kTredjepartsvarsel = mapTilKTredjepartsvarsel(motebehovsvarVarselInfo)
                 tredjepartsvarselProducer.sendTredjepartsvarselvarsel(kTredjepartsvarsel)
                 esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(motebehovsvarVarselInfo.naermesteLederFnr, motebehovsvarVarselInfo.arbeidstakerFnr, motebehovsvarVarselInfo.orgnummer)
-//                TODO: Kommenterer ut frem til fungerende kafka-config er på plass.
-//                sendVarselTilDineSykmeldte(arbeidstakerFnr, motebehovsvarVarselInfo.orgnummer)
             } else {
                 metric.tellHendelse("varsel_leder_not_sent_moteplanlegger_used_oppfolgingstilfelle")
                 log.info("Sender ikke varsel til naermeste leder fordi moteplanleggeren er brukt i oppfolgingstilfellet")
             }
         }
-    }
-
-    private fun sendVarselTilDineSykmeldte(
-        ansattFnr: String,
-        orgnummer: String,
-    ) {
-        val dineSykmeldteOpprettHendelse = OpprettHendelse(
-            ansattFnr = ansattFnr,
-            orgnummer = orgnummer,
-            oppgavetype = "DIALOGMOTE_SVAR_BEHOV",
-            tekst = "Vi trenger din vurdering av behovet for dialogmøte",
-            timestamp = OffsetDateTime.now(),
-            utlopstidspunkt = OffsetDateTime.now().plusWeeks(4),
-            lenke = null,
-        )
-
-        val dineSykmeldteHendelse = DineSykmeldteHendelse(
-            id = UUID.randomUUID().toString(),
-            opprettHendelse = dineSykmeldteOpprettHendelse,
-            ferdigstillHendelse = null
-        )
-
-        dineSykmeldteVarselProducer.sendDineSykmeldteVarsel(dineSykmeldteHendelse)
     }
 
     fun isSvarBehovVarselAvailableArbeidstaker(arbeidstakerFnr: Fodselsnummer): Boolean {
