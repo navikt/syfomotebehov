@@ -12,18 +12,22 @@ import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
+import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.generator.*
 import no.nav.syfo.testhelper.mockAndExpectMoteadminHarAktivtMote
 import no.nav.syfo.varsel.api.VarselController
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.*
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito
 import org.mockito.Mockito.`when`
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
@@ -40,14 +44,6 @@ import javax.inject.Inject
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
 class VarselLederComponentTest {
-    @Value("\${security.token.service.rest.url}")
-    private lateinit var stsUrl: String
-
-    @Value("\${srv.username}")
-    private lateinit var srvUsername: String
-
-    @Value("\${srv.password}")
-    private lateinit var srvPassword: String
 
     @MockBean
     private lateinit var aktorregisterConsumer: AktorregisterConsumer
@@ -79,7 +75,9 @@ class VarselLederComponentTest {
 
     private val motebehovsvarVarselInfo = MotebehovsvarVarselInfo(
         sykmeldtAktorId = ARBEIDSTAKER_AKTORID,
-        orgnummer = VIRKSOMHETSNUMMER
+        orgnummer = VIRKSOMHETSNUMMER,
+        naermesteLederFnr = LEDER_FNR,
+        arbeidstakerFnr = ARBEIDSTAKER_FNR
     )
     private val argumentCaptor = ArgumentCaptor.forClass(KTredjepartsvarsel::class.java)
 
