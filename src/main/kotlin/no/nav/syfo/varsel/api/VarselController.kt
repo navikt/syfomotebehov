@@ -30,18 +30,6 @@ class VarselController @Inject constructor(
     @ResponseBody
     @ProtectedWithClaims(issuer = STS)
     @PostMapping(value = ["/naermesteleder/esyfovarsel"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun sendVarselNaermesteLederEsyfovarsel(
-        @RequestBody motebehovsvarVarselInfo: MotebehovsvarVarselInfo
-    ): Response {
-        varselService.sendVarselTilNaermesteLeder(motebehovsvarVarselInfo)
-        return Response
-            .ok()
-            .build()
-    }
-
-    @ResponseBody
-    @ProtectedWithClaims(issuer = INTERN, claimMap = ["sub=srvsyfoservice"])
-    @PostMapping(value = ["/naermesteleder"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun sendVarselNaermesteLeder(
         @RequestBody motebehovsvarVarselInfo: MotebehovsvarVarselInfo
     ): Response {
