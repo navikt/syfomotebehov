@@ -105,7 +105,7 @@ class OppfolgingstilfelleService @Inject constructor(
         return if (activeOppfolgingstilfeller.isNotEmpty()) {
             if (activeOppfolgingstilfeller.size > 1) {
                 val minFom = activeOppfolgingstilfeller.minByOrNull { it.fom }!!.fom
-                val maxTom = activeOppfolgingstilfeller.minByOrNull { it.tom }!!.tom
+                val maxTom = activeOppfolgingstilfeller.maxByOrNull { it.tom }!!.tom
                 PersonOppfolgingstilfelle(
                     fnr = arbeidstakerFnr,
                     fom = minFom,
