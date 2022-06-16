@@ -70,3 +70,5 @@ kafka.brokers: localhost://9092
 kafka.truststore.path: /truststore
 kafka.keystore.path: /keystore
 kafka.credstore.password: /credstore/password
+
+esyfovarselapi.url: "http://esyfovarsel"
