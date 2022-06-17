@@ -5,7 +5,7 @@ import java.io.Serializable
 data class EsyfovarselHendelse(
     val mottakerFnr: String,
     val type: HendelseType,
-    val data: EsyfovarselHendelseData
+    val data: EsyfovarselHendelseData?
 ) : Serializable
 
 enum class HendelseType {

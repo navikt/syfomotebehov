@@ -17,11 +17,11 @@ class EsyfovarselService(private val producer: EsyfovarselProducer) {
         producer.sendVarselTilEsyfovarsel(esyfovarselHendelse)
     }
 
-    fun sendSvarMotebehovVarselTilArbeidstaker(narmestelederFnr: String, ansattFnr: String, orgnummer: String) {
+    fun sendSvarMotebehovVarselTilArbeidstaker(ansattFnr: String) {
         val esyfovarselHendelse = EsyfovarselHendelse(
-            narmestelederFnr,
+            ansattFnr,
             HendelseType.SM_DIALOGMOTE_SVAR_MOTEBEHOV,
-            NarmesteLederVarselData(ansattFnr, orgnummer)
+            null
         )
         producer.sendVarselTilEsyfovarsel(esyfovarselHendelse)
     }

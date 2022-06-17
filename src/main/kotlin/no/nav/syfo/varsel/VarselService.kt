@@ -58,7 +58,7 @@ class VarselService @Inject constructor(
         }
     }
 
-    fun sendVarselTilArbeidstaker(motebehovsvarVarselInfo: MotebehovsvarVarselInfo) {
+    fun sendVarselTilArbeidstaker(motebehovsvarVarselInfo: MotebehovsvarSykmeldtVarselInfo) {
         val isSvarBehovVarselAvailableForArbeidstaker = isSvarBehovVarselAvailableArbeidstaker(
             Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr),
         )
@@ -73,7 +73,7 @@ class VarselService @Inject constructor(
                 )
             ) {
                 metric.tellHendelse("varsel_arbeidstaker_sent")
-                esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(motebehovsvarVarselInfo.naermesteLederFnr, motebehovsvarVarselInfo.arbeidstakerFnr, motebehovsvarVarselInfo.orgnummer)
+                esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(motebehovsvarVarselInfo.arbeidstakerFnr)
             } else {
                 metric.tellHendelse("varsel_arbeidstaker_not_sent_moteplanlegger_used_oppfolgingstilfelle")
                 log.info("Sender ikke varsel til arbeidstaker fordi moteplanleggeren er brukt i oppfolgingstilfellet")
