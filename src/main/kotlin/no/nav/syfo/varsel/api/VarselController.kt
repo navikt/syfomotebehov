@@ -40,6 +40,18 @@ class VarselController @Inject constructor(
     }
 
     @ResponseBody
+    @ProtectedWithClaims(issuer = STS)
+    @PostMapping(value = ["/arbeidstaker/esyfovarsel"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun sendVarselArbeidstaker(
+        @RequestBody motebehovsvarVarselInfo: MotebehovsvarVarselInfo
+    ): Response {
+        varselService.sendVarselTilArbeidstaker(motebehovsvarVarselInfo)
+        return Response
+            .ok()
+            .build()
+    }
+
+    @ResponseBody
     @ProtectedWithClaims(issuer = INTERN, claimMap = ["sub=srvsyfoservice"])
     @PostMapping(value = ["/availability/arbeidstaker"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun motebehovVarselAvailabilityArbeidstaker(
