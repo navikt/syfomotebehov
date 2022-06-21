@@ -66,18 +66,8 @@ class VarselService @Inject constructor(
             metric.tellHendelse("varsel_arbeidstaker_not_sent_motebehov_not_available")
             log.info("Not sending Varsel to Arbeidstaker because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")
         } else {
-            val startDatoINyesteOppfolgingstilfelle = LocalDateTime.now().minusDays(MOTEBEHOV_VARSEL_DAGER.toLong())
-            if (!moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(
-                    motebehovsvarVarselInfo.sykmeldtAktorId,
-                    startDatoINyesteOppfolgingstilfelle
-                )
-            ) {
-                metric.tellHendelse("varsel_arbeidstaker_sent")
-                esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(motebehovsvarVarselInfo.arbeidstakerFnr)
-            } else {
-                metric.tellHendelse("varsel_arbeidstaker_not_sent_moteplanlegger_used_oppfolgingstilfelle")
-                log.info("Sender ikke varsel til arbeidstaker fordi moteplanleggeren er brukt i oppfolgingstilfellet")
-            }
+            metric.tellHendelse("varsel_arbeidstaker_sent")
+            esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(motebehovsvarVarselInfo.arbeidstakerFnr)
         }
     }
 
