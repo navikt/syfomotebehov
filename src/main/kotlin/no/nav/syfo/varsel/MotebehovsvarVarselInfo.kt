@@ -8,3 +8,8 @@ data class MotebehovsvarVarselInfo(
     val naermesteLederFnr: String,
     val arbeidstakerFnr: String,
 ) : Serializable
+
+data class MotebehovsvarSykmeldtVarselInfo(
+    val sykmeldtAktorId: String,
+    val arbeidstakerFnr: String,
+) : Serializable

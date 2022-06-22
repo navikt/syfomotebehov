@@ -58,6 +58,19 @@ class VarselService @Inject constructor(
         }
     }
 
+    fun sendVarselTilArbeidstaker(motebehovsvarVarselInfo: MotebehovsvarSykmeldtVarselInfo) {
+        val isSvarBehovVarselAvailableForArbeidstaker = isSvarBehovVarselAvailableArbeidstaker(
+            Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr),
+        )
+        if (!isSvarBehovVarselAvailableForArbeidstaker) {
+            metric.tellHendelse("varsel_arbeidstaker_not_sent_motebehov_not_available")
+            log.info("Not sending Varsel to Arbeidstaker because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")
+        } else {
+            metric.tellHendelse("varsel_arbeidstaker_sent")
+            esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(motebehovsvarVarselInfo.arbeidstakerFnr)
+        }
+    }
+
     fun isSvarBehovVarselAvailableArbeidstaker(arbeidstakerFnr: Fodselsnummer): Boolean {
         return isSvarBehovVarselAvailable(
             motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr),
