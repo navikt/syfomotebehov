@@ -22,7 +22,6 @@ import no.nav.syfo.testhelper.generator.generateMotebehovStatus
 import no.nav.syfo.testhelper.generator.generatePersonOppfolgingstilfelleMeldBehovFirstPeriod
 import no.nav.syfo.testhelper.generator.generatePersonOppfolgingstilfelleSvarBehov
 import no.nav.syfo.testhelper.generator.generateStsToken
-import no.nav.syfo.testhelper.mockAndExpectMoteadminHarAktivtMote
 import no.nav.syfo.varsel.api.VarselController
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -36,11 +35,9 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
 import org.springframework.kafka.core.KafkaTemplate
-import org.springframework.kafka.support.SendResult
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.client.MockRestServiceServer
-import org.springframework.util.concurrent.ListenableFuture
 import org.springframework.web.client.RestTemplate
 
 @ExtendWith(SpringExtension::class)
@@ -115,13 +112,8 @@ class VarselLederComponentTest {
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
             .thenReturn(generateMotebehovStatus.copy(motebehov = null))
 
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
-        `when`(kafkaTemplate.send(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(
-            Mockito.mock(
-                ListenableFuture::class.java
-            ) as ListenableFuture<SendResult<String, Any>>?
-        )
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
+
         assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
     }
 
@@ -144,7 +136,6 @@ class VarselLederComponentTest {
                 )
             )
 
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
         Mockito.verify(kafkaTemplate, Mockito.never())
             .send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
@@ -170,7 +161,6 @@ class VarselLederComponentTest {
                 )
             )
 
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
         Mockito.verify(kafkaTemplate, Mockito.never())
             .send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
@@ -214,7 +204,6 @@ class VarselLederComponentTest {
                 )
             )
 
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
         Mockito.verify(kafkaTemplate, Mockito.never())
             .send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
@@ -258,7 +247,6 @@ class VarselLederComponentTest {
                 )
             )
 
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
         Mockito.verify(kafkaTemplate, Mockito.never())
             .send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
@@ -277,7 +265,7 @@ class VarselLederComponentTest {
         )
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
             .thenReturn(generateMotebehovStatus.copy(motebehov = null))
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
+
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
         Mockito.verify(kafkaTemplate, Mockito.never())
             .send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())

@@ -7,6 +7,7 @@ import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.metric.Metric
+import no.nav.syfo.varsel.MotebehovsvarSykmeldtVarselInfo
 import no.nav.syfo.varsel.MotebehovsvarVarselInfo
 import no.nav.syfo.varsel.MotebehovsvarVarselInfoArbeidstaker
 import no.nav.syfo.varsel.VarselService
@@ -34,6 +35,18 @@ class VarselController @Inject constructor(
         @RequestBody motebehovsvarVarselInfo: MotebehovsvarVarselInfo
     ): Response {
         varselService.sendVarselTilNaermesteLeder(motebehovsvarVarselInfo)
+        return Response
+            .ok()
+            .build()
+    }
+
+    @ResponseBody
+    @ProtectedWithClaims(issuer = STS)
+    @PostMapping(value = ["/arbeidstaker/esyfovarsel"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun sendVarselArbeidstaker(
+        @RequestBody motebehovsvarVarselInfo: MotebehovsvarSykmeldtVarselInfo
+    ): Response {
+        varselService.sendVarselTilArbeidstaker(motebehovsvarVarselInfo)
         return Response
             .ok()
             .build()
