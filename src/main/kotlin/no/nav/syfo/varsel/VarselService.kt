@@ -1,7 +1,5 @@
 package no.nav.syfo.varsel
 
-import java.time.LocalDateTime
-import java.util.*
 import javax.inject.Inject
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.AktorId
