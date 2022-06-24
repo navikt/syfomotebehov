@@ -1,7 +1,5 @@
 package no.nav.syfo.varsel
 
-import java.time.LocalDateTime
-import java.util.*
 import javax.inject.Inject
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.AktorId
@@ -26,7 +24,6 @@ class VarselService @Inject constructor(
     private val motebehovService: MotebehovService,
     private val motebehovStatusService: MotebehovStatusService,
     private val oppfolgingstilfelleService: OppfolgingstilfelleService,
-    private val tredjepartsvarselProducer: TredjepartsvarselProducer,
     private val esyfovarselService: EsyfovarselService,
 ) {
     fun sendVarselTilNaermesteLeder(motebehovsvarVarselInfo: MotebehovsvarVarselInfo) {
@@ -40,8 +37,6 @@ class VarselService @Inject constructor(
             log.info("Not sending Varsel to Narmeste Leder because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")
         } else {
             metric.tellHendelse("varsel_leder_sent")
-            val kTredjepartsvarsel = mapTilKTredjepartsvarsel(motebehovsvarVarselInfo)
-            tredjepartsvarselProducer.sendTredjepartsvarselvarsel(kTredjepartsvarsel)
             esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(
                 motebehovsvarVarselInfo.naermesteLederFnr,
                 motebehovsvarVarselInfo.arbeidstakerFnr,
@@ -100,16 +95,6 @@ class VarselService @Inject constructor(
                 } ?: motebehovStatus.isSvarBehovVarselAvailable()
         }
         return false
-    }
-
-    private fun mapTilKTredjepartsvarsel(motebehovsvarVarselInfo: MotebehovsvarVarselInfo): KTredjepartsvarsel {
-        return KTredjepartsvarsel(
-            type = VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name,
-            ressursId = UUID.randomUUID().toString(),
-            aktorId = motebehovsvarVarselInfo.sykmeldtAktorId,
-            orgnummer = motebehovsvarVarselInfo.orgnummer,
-            utsendelsestidspunkt = LocalDateTime.now()
-        )
     }
 
     companion object {

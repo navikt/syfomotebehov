@@ -25,11 +25,9 @@ import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.varsel.api.VarselController
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
@@ -37,11 +35,9 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
 import org.springframework.kafka.core.KafkaTemplate
-import org.springframework.kafka.support.SendResult
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.client.MockRestServiceServer
-import org.springframework.util.concurrent.ListenableFuture
 import org.springframework.web.client.RestTemplate
 
 @ExtendWith(SpringExtension::class)
@@ -83,7 +79,6 @@ class VarselLederComponentTest {
         naermesteLederFnr = LEDER_FNR,
         arbeidstakerFnr = ARBEIDSTAKER_FNR
     )
-    private val argumentCaptor = ArgumentCaptor.forClass(KTredjepartsvarsel::class.java)
 
     private val stsToken = generateStsToken().access_token
 
@@ -117,21 +112,8 @@ class VarselLederComponentTest {
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
             .thenReturn(generateMotebehovStatus.copy(motebehov = null))
 
-        `when`(
-            kafkaTemplate.send(
-                ArgumentMatchers.anyString(),
-                ArgumentMatchers.anyString(),
-                ArgumentMatchers.any(KTredjepartsvarsel::class.java)
-            )
-        ).thenReturn(Mockito.mock(ListenableFuture::class.java) as ListenableFuture<SendResult<String, Any>>?)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
-        Mockito.verify(kafkaTemplate).send(
-            ArgumentMatchers.eq(TredjepartsvarselProducer.TREDJEPARTSVARSEL_TOPIC),
-            ArgumentMatchers.anyString(),
-            argumentCaptor.capture()
-        )
-        val sendtKTredjepartsvarsel = argumentCaptor.value
-        verifySendtKtredjepartsvarsel(sendtKTredjepartsvarsel)
+
         assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
     }
 
@@ -290,14 +272,6 @@ class VarselLederComponentTest {
         assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
 
         mockRestServiceServer.verify()
-    }
-
-    private fun verifySendtKtredjepartsvarsel(kTredjepartsvarsel: KTredjepartsvarsel) {
-        assertEquals(kTredjepartsvarsel.type, VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name)
-        assertNotNull(kTredjepartsvarsel.ressursId)
-        assertEquals(kTredjepartsvarsel.aktorId, ARBEIDSTAKER_AKTORID)
-        assertEquals(kTredjepartsvarsel.orgnummer, VIRKSOMHETSNUMMER)
-        assertNotNull(kTredjepartsvarsel.utsendelsestidspunkt)
     }
 
     private fun cleanDB() {
