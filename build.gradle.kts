@@ -101,4 +101,8 @@ tasks {
     named<KotlinCompile>("compileTestKotlin") {
         kotlinOptions.jvmTarget = "11"
     }
+
+    test {
+        useJUnitPlatform()
+    }
 }
