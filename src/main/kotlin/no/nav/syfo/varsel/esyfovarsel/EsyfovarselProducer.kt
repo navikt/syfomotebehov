@@ -31,7 +31,7 @@ class EsyfovarselProducer @Autowired constructor(
     }
 
     companion object {
-        private const val ESYFOVARSEL_TOPIC = "team-esyfo.varselbus"
+        const val ESYFOVARSEL_TOPIC = "team-esyfo.varselbus"
         private val log = LoggerFactory.getLogger(EsyfovarselProducer::class.java)
     }
 }
