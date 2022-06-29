@@ -29,7 +29,6 @@ class BrukertilgangskontrollServiceTest {
     @BeforeEach
     fun setup() {
         mockOIDC(INNLOGGET_FNR)
-        Mockito.`when`(pdlConsumer.isKode6(Fodselsnummer(SPOR_OM_FNR))).thenReturn(false)
     }
 
     @AfterEach
