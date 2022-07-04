@@ -142,8 +142,7 @@ class MotebehovVeilederADControllerV2Test {
         mockRestServiceServer.verify()
         mockRestServiceWithProxyServer.verify()
         loggUtAlle(contextHolder)
-        mockRestServiceServer.reset()
-        mockRestServiceWithProxyServer.reset()
+        resetMockRestServers()
         cacheManager.cacheNames
             .forEach(
                 Consumer { cacheName: String ->
@@ -161,7 +160,7 @@ class MotebehovVeilederADControllerV2Test {
         val nyttMotebehov = arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
 
         // Veileder henter møtebehov
-        mockRestServiceServer.reset()
+        resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
@@ -180,7 +179,7 @@ class MotebehovVeilederADControllerV2Test {
         val nyttMotebehov = sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true)
 
         // Veileder henter møtebehov
-        mockRestServiceServer.reset()
+        resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
@@ -197,15 +196,18 @@ class MotebehovVeilederADControllerV2Test {
     fun `hent Historikk`() {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-        mockRestServiceServer.reset()
+        resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
         val motebehov = motebehovListe[0]
-        mockRestServiceServer.reset()
+        resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
+        resetMockRestServers()
+        loggInnVeilederADV2(contextHolder, VEILEDER_ID)
+        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val historikkListe = motebehovVeilederController.hentMotebehovHistorikk(ARBEIDSTAKER_FNR)
         Assertions.assertThat(historikkListe).size().isEqualTo(2)
         val (opprettetAv, tekst, tidspunkt) = historikkListe[0]
@@ -223,9 +225,9 @@ class MotebehovVeilederADControllerV2Test {
     fun `hent ubehandlede Motebehov`() {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true)
-        mockRestServiceServer.reset()
+        resetMockRestServers()
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-        mockRestServiceServer.reset()
+        resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
@@ -243,12 +245,14 @@ class MotebehovVeilederADControllerV2Test {
     fun `behandle kun motebehov med Motebehov`() {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, false)
-        mockRestServiceServer.reset()
+        resetMockRestServers()
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-        mockRestServiceServer.reset()
+        resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
+        resetMockRestServers()
+        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
         Assertions.assertThat(motebehovListe[0].behandletTidspunkt).isNull()
         Assertions.assertThat(motebehovListe[0].behandletVeilederIdent).isEqualTo(null)
@@ -263,12 +267,14 @@ class MotebehovVeilederADControllerV2Test {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true)
         behandleMotebehov(ARBEIDSTAKER_AKTORID, VEILEDER_ID)
-        mockRestServiceServer.reset()
+        resetMockRestServers()
         arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-        mockRestServiceServer.reset()
+        resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_2_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
+        resetMockRestServers()
+        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe1 = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
         assertNotNull(motebehovListe1[0].behandletTidspunkt)
         Assertions.assertThat(motebehovListe1[0].behandletVeilederIdent).isEqualTo(VEILEDER_ID)
@@ -283,7 +289,7 @@ class MotebehovVeilederADControllerV2Test {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
         sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true)
         behandleMotebehov(ARBEIDSTAKER_AKTORID, VEILEDER_ID)
-        mockRestServiceServer.reset()
+        resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_2_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
 
@@ -350,7 +356,10 @@ class MotebehovVeilederADControllerV2Test {
             fnr
         )
     }
-
+    private fun resetMockRestServers() {
+        mockRestServiceServer.reset()
+        mockRestServiceWithProxyServer.reset()
+    }
     private fun cleanDB() {
         motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID)
     }

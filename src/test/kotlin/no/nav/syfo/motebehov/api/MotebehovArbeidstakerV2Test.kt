@@ -19,10 +19,9 @@ import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.oversikthendelse.OversikthendelseProducer
-import no.nav.syfo.testhelper.OidcTestHelper
+import no.nav.syfo.testhelper.*
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker
 import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
-import no.nav.syfo.testhelper.UserConstants
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
@@ -32,8 +31,6 @@ import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import no.nav.syfo.testhelper.generator.generateOversikthendelsetilfelle
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.generator.generateStsToken
-import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
-import no.nav.syfo.testhelper.mockAndExpectSyfoTilgangskontroll
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -50,7 +47,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.cache.CacheManager
-import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.client.MockRestServiceServer
@@ -129,8 +125,7 @@ class MotebehovArbeidstakerV2Test {
     @AfterEach
     fun tearDown() {
         loggUtAlle(contextHolder)
-        mockRestServiceServer.reset()
-        mockRestServiceWithProxyServer.reset()
+        resetMockRestServers()
         cacheManager.cacheNames
             .forEach(
                 Consumer { cacheName: String ->
@@ -269,7 +264,7 @@ class MotebehovArbeidstakerV2Test {
     }
 
     @Test
-    fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle, MeldBehov Moteplanlegger Active`() {
+    fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle`() {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
             fom = LocalDate.now(),
             tom = LocalDate.now().plusDays(1)
@@ -277,7 +272,7 @@ class MotebehovArbeidstakerV2Test {
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
-            .assertMotebehovStatus(false, null, null)
+            .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
     }
 
     @Test
@@ -291,20 +286,14 @@ class MotebehovArbeidstakerV2Test {
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
         submitMotebehovAndSendOversikthendelse(motebehovSvar)
 
-        mockRestServiceServer.reset()
+        resetMockRestServers()
         loggUtAlle(contextHolder)
         OidcTestHelper.loggInnVeilederADV2(contextHolder, VEILEDER_ID)
-        mockAndExpectSyfoTilgangskontroll(
-            mockRestServiceServer,
-            tilgangskontrollUrl,
-            contextHolder.tokenValidationContext.getJwtToken(OIDCIssuer.INTERN_AZUREAD_V2).tokenAsString,
-            ARBEIDSTAKER_FNR,
-            HttpStatus.OK
-        )
+        mockBehandlendEnhetWithTilgangskontroll(ARBEIDSTAKER_FNR)
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
-        loggInnBruker(contextHolder, ARBEIDSTAKER_FNR)
 
-        mockRestServiceServer.reset()
+        resetMockRestServers()
+        loggInnBruker(contextHolder, ARBEIDSTAKER_FNR)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
@@ -363,7 +352,7 @@ class MotebehovArbeidstakerV2Test {
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
-            .assertMotebehovStatus(false, null, null)
+            .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
     }
 
     @Test
@@ -405,16 +394,6 @@ class MotebehovArbeidstakerV2Test {
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
     }
-
-    @Test
-    fun `get MotebehovStatus with no Motebehov and Mote`() {
-        val kOppfolgingstilfelle = generateOversikthendelsetilfelle
-        oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
-
-        motebehovArbeidstakerController.motebehovStatusArbeidstaker()
-            .assertMotebehovStatus(false, null, null)
-    }
-
     @Test
     fun `get MotebehovStatus and sendOversikthendelse with Motebehov harBehov=true`() {
         oppfolgingstilfelleDAO.create(
@@ -531,6 +510,20 @@ class MotebehovArbeidstakerV2Test {
         }
     }
 
+    private fun mockBehandlendEnhetWithTilgangskontroll(fnr: String) {
+        mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll(
+            azureTokenEndpoint,
+            mockRestServiceWithProxyServer,
+            mockRestServiceServer,
+            behandlendeenhetUrl,
+            tilgangskontrollUrl,
+            fnr
+        )
+    }
+    private fun resetMockRestServers() {
+        mockRestServiceServer.reset()
+        mockRestServiceWithProxyServer.reset()
+    }
     private fun cleanDB() {
         motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID)
         oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(Fodselsnummer(ARBEIDSTAKER_FNR))
