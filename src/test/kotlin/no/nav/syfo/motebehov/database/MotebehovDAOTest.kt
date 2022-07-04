@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @ExtendWith(SpringExtension::class)
@@ -46,7 +47,7 @@ class MotebehovDAOTest {
         val motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(ARBEIDSTAKER_AKTORID)
         Assertions.assertThat(motebehovListe.size).isEqualTo(1)
         val motebehovFraDb = motebehovListe[0]
-        Assertions.assertThat(motebehovFraDb.opprettetDato).isEqualTo(pMotebehov.opprettetDato)
+        Assertions.assertThat(motebehovFraDb.opprettetDato.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(pMotebehov.opprettetDato.truncatedTo(ChronoUnit.SECONDS))
         Assertions.assertThat(motebehovFraDb.opprettetAv).isEqualTo(pMotebehov.opprettetAv)
         Assertions.assertThat(motebehovFraDb.aktoerId).isEqualTo(pMotebehov.aktoerId)
         Assertions.assertThat(motebehovFraDb.virksomhetsnummer).isEqualTo(pMotebehov.virksomhetsnummer)
@@ -79,7 +80,7 @@ class MotebehovDAOTest {
         val motebehovListe = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(ARBEIDSTAKER_AKTORID)
         Assertions.assertThat(motebehovListe.size).isEqualTo(1)
         val motebehovFraDb = motebehovListe[0]
-        Assertions.assertThat(motebehovFraDb.opprettetDato).isEqualTo(pMotebehov.opprettetDato)
+        Assertions.assertThat(motebehovFraDb.opprettetDato.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(pMotebehov.opprettetDato.truncatedTo(ChronoUnit.SECONDS))
         Assertions.assertThat(motebehovFraDb.opprettetAv).isEqualTo(pMotebehov.opprettetAv)
         Assertions.assertThat(motebehovFraDb.aktoerId).isEqualTo(pMotebehov.aktoerId)
     }
@@ -107,7 +108,7 @@ class MotebehovDAOTest {
         val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(ARBEIDSTAKER_AKTORID, VIRKSOMHETSNUMMER)
         Assertions.assertThat(motebehovListe.size).isEqualTo(1)
         val motebehovFraDb = motebehovListe[0]
-        Assertions.assertThat(motebehovFraDb.opprettetDato).isEqualTo(pMotebehov.opprettetDato)
+        Assertions.assertThat(motebehovFraDb.opprettetDato.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(pMotebehov.opprettetDato.truncatedTo(ChronoUnit.SECONDS))
         Assertions.assertThat(motebehovFraDb.opprettetAv).isEqualTo(LEDER_AKTORID)
         Assertions.assertThat(motebehovFraDb.aktoerId).isEqualTo(pMotebehov.aktoerId)
     }
