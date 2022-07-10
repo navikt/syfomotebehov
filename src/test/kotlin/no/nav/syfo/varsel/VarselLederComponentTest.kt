@@ -23,6 +23,12 @@ import no.nav.syfo.testhelper.generator.generatePersonOppfolgingstilfelleMeldBeh
 import no.nav.syfo.testhelper.generator.generatePersonOppfolgingstilfelleSvarBehov
 import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.varsel.api.VarselController
+import no.nav.syfo.varsel.esyfovarsel.EsyfovarselProducer.Companion.ESYFOVARSEL_TOPIC
+import no.nav.syfo.varsel.esyfovarsel.domain.EsyfovarselHendelse
+import no.nav.syfo.varsel.esyfovarsel.domain.HendelseType
+import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.clients.producer.RecordMetadata
+import org.apache.kafka.common.TopicPartition
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -35,9 +41,11 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
 import org.springframework.kafka.core.KafkaTemplate
+import org.springframework.kafka.support.SendResult
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.client.MockRestServiceServer
+import org.springframework.util.concurrent.SettableListenableFuture
 import org.springframework.web.client.RestTemplate
 
 @ExtendWith(SpringExtension::class)
@@ -64,7 +72,7 @@ class VarselLederComponentTest {
     private lateinit var restTemplate: RestTemplate
 
     @MockBean
-    private lateinit var kafkaTemplate: KafkaTemplate<String, Any>
+    private lateinit var kafkaTemplate: KafkaTemplate<String, EsyfovarselHendelse>
 
     @MockBean
     private lateinit var stsConsumer: StsConsumer
@@ -91,6 +99,7 @@ class VarselLederComponentTest {
         `when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR)))
             .thenReturn(ARBEIDSTAKER_FNR)
         `when`(stsConsumer.token()).thenReturn(stsToken)
+        mockEsyfovarselHendelseFuture()
     }
 
     @AfterEach
@@ -276,5 +285,23 @@ class VarselLederComponentTest {
 
     private fun cleanDB() {
         oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(Fodselsnummer(ARBEIDSTAKER_FNR))
+    }
+    private fun mockEsyfovarselHendelseFuture() {
+        val hendelse = EsyfovarselHendelse(
+            LEDER_FNR,
+            HendelseType.NL_DIALOGMOTE_SVAR_MOTEBEHOV,
+            null
+        )
+        val sendResult = SendResult<String, EsyfovarselHendelse>(
+            ProducerRecord(ESYFOVARSEL_TOPIC, hendelse),
+            RecordMetadata(
+                TopicPartition(ESYFOVARSEL_TOPIC, 1), 0, 1, 0L, 1, 1
+            )
+        )
+        val future = SettableListenableFuture<SendResult<String, EsyfovarselHendelse>>()
+        val prodrec = ProducerRecord<String, EsyfovarselHendelse>(ESYFOVARSEL_TOPIC, hendelse)
+
+        future.set(sendResult)
+        `when`(kafkaTemplate.send(ArgumentMatchers.any(prodrec::class.java))).thenReturn(future)
     }
 }

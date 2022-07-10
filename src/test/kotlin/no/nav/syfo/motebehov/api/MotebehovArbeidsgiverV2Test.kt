@@ -5,9 +5,9 @@ import java.util.function.Consumer
 import javax.inject.Inject
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.sts.StsConsumer
@@ -36,7 +36,7 @@ import no.nav.syfo.testhelper.generator.generateOversikthendelsetilfelle
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
-import no.nav.syfo.testhelper.mockAndExpectSyfoTilgangskontroll
+import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -52,7 +52,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.cache.CacheManager
-import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.client.MockRestServiceServer
@@ -136,8 +135,7 @@ class MotebehovArbeidsgiverV2Test {
     @AfterEach
     fun tearDown() {
         loggUtAlle(contextHolder)
-        mockRestServiceServer.reset()
-        mockRestServiceWithProxyServer.reset()
+        resetMockRestServers()
         cacheManager.cacheNames
             .forEach(
                 Consumer { cacheName: String ->
@@ -146,6 +144,7 @@ class MotebehovArbeidsgiverV2Test {
                 }
             )
         cleanDB()
+        AzureAdV2TokenConsumer.clearCache()
     }
 
     @Test
@@ -298,7 +297,7 @@ class MotebehovArbeidsgiverV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleMedBehovMoteplanleggerActive() {
+    fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleMedBehov() {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
             fom = LocalDate.now(),
             tom = LocalDate.now().plusDays(1)
@@ -306,7 +305,7 @@ class MotebehovArbeidsgiverV2Test {
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-            .assertMotebehovStatus(false, null, null)
+            .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
     }
 
     @Test
@@ -320,21 +319,15 @@ class MotebehovArbeidsgiverV2Test {
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
         submitMotebehovAndSendOversikthendelse(motebehovSvar)
 
-        mockRestServiceServer.reset()
+        resetMockRestServers()
         loggUtAlle(contextHolder)
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
-        mockAndExpectSyfoTilgangskontroll(
-            mockRestServiceServer,
-            tilgangskontrollUrl,
-            contextHolder.tokenValidationContext.getJwtToken(OIDCIssuer.INTERN_AZUREAD_V2).tokenAsString,
-            ARBEIDSTAKER_FNR,
-            HttpStatus.OK
-        )
+
+        mockBehandlendEnhetWithTilgangskontroll(ARBEIDSTAKER_FNR)
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
+
+        resetMockRestServers()
         loggInnBruker(contextHolder, LEDER_FNR)
-
-        mockRestServiceServer.reset()
-
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
     }
@@ -383,7 +376,7 @@ class MotebehovArbeidsgiverV2Test {
     }
 
     @Test
-    fun getMotebehovStatusWithNoMotebehovAndMoteInsideSvarBehovUpperLimit() {
+    fun getMotebehovStatusWithNoMotebehovInsideSvarBehovUpperLimit() {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
             fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).plusDays(1),
             tom = LocalDate.now().plusDays(1)
@@ -392,7 +385,7 @@ class MotebehovArbeidsgiverV2Test {
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-            .assertMotebehovStatus(false, null, null)
+            .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
     }
 
     @Test
@@ -433,16 +426,6 @@ class MotebehovArbeidsgiverV2Test {
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
     }
-
-    @Test
-    fun getMotebehovStatusWithNoMotebehovAndMote() {
-        val kOppfolgingstilfelle = generateOversikthendelsetilfelle
-        oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
-
-        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-            .assertMotebehovStatus(false, null, null)
-    }
-
     @Test
     fun getMotebehovStatusAndSendOversikthendelseWithMotebehovHarBehovTrue() {
         oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle)
@@ -477,7 +460,6 @@ class MotebehovArbeidsgiverV2Test {
     }
 
     private fun lagreOgHentMotebehovOgSendOversikthendelse(harBehov: Boolean) {
-
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceWithProxyServer,
@@ -518,9 +500,23 @@ class MotebehovArbeidsgiverV2Test {
         }
     }
 
+    private fun resetMockRestServers() {
+        mockRestServiceServer.reset()
+        mockRestServiceWithProxyServer.reset()
+    }
     private fun cleanDB() {
         motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID)
         oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(Fodselsnummer(ARBEIDSTAKER_FNR))
+    }
+    private fun mockBehandlendEnhetWithTilgangskontroll(fnr: String) {
+        mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll(
+            azureTokenEndpoint,
+            mockRestServiceWithProxyServer,
+            mockRestServiceServer,
+            behandlendeenhetUrl,
+            tilgangskontrollUrl,
+            fnr
+        )
     }
 }
 

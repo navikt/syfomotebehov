@@ -39,6 +39,47 @@ fun mockAndExpectBehandlendeEnhetRequest(
     try {
         val json = ObjectMapper().writeValueAsString(behandlendeEnhet)
 
+        mockRestServiceWithProxyServer.expect(ExpectedCount.once(), MockRestRequestMatchers.requestTo(uriString))
+            .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+            .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, bearerCredentials(systemToken.access_token)))
+            .andExpect(MockRestRequestMatchers.header(NAV_PERSONIDENT_HEADER, fnr))
+            .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON))
+    } catch (e: JsonProcessingException) {
+        e.printStackTrace()
+    }
+}
+
+fun mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll(
+    azureTokenEndpoint: String,
+    mockRestServiceWithProxyServer: MockRestServiceServer,
+    mockRestServiceServer: MockRestServiceServer,
+    behandlendeenhetUrl: String,
+    tilgangskontrollUrl: String,
+    fnr: String
+) {
+    val uriString = UriComponentsBuilder.fromHttpUrl(behandlendeenhetUrl)
+        .path(BEHANDLENDEENHET_PATH)
+        .toUriString()
+    val behandlendeEnhet = BehandlendeEnhet(
+        UserConstants.NAV_ENHET,
+        UserConstants.NAV_ENHET_NAVN
+    )
+
+    val systemToken = generateAzureAdV2TokenResponse()
+
+    mockAndExpectAzureADV2(mockRestServiceWithProxyServer, azureTokenEndpoint, systemToken)
+    mockSvarFraSyfoTilgangskontrollV2TilgangTilBruker(
+        azureTokenEndpoint,
+        tilgangskontrollUrl,
+        mockRestServiceWithProxyServer,
+        mockRestServiceServer,
+        fnr,
+        HttpStatus.OK
+    )
+
+    try {
+        val json = ObjectMapper().writeValueAsString(behandlendeEnhet)
+
         mockRestServiceServer.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(uriString))
             .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
             .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, bearerCredentials(systemToken.access_token)))

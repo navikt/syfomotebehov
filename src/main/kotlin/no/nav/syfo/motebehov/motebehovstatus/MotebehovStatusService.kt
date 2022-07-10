@@ -32,7 +32,6 @@ class MotebehovStatusService @Inject constructor(
 
         return motebehovStatus(oppfolgingstilfelle, motebehovList)
     }
-
     fun motebehovStatusForArbeidsgiver(
         arbeidstakerFnr: Fodselsnummer,
         virksomhetsnummer: String

@@ -29,7 +29,6 @@ class BrukertilgangskontrollServiceTest {
     @BeforeEach
     fun setup() {
         mockOIDC(INNLOGGET_FNR)
-        Mockito.`when`(pdlConsumer.isKode6(Fodselsnummer(SPOR_OM_FNR))).thenReturn(false)
     }
 
     @AfterEach
@@ -47,7 +46,9 @@ class BrukertilgangskontrollServiceTest {
 
     @Test
     fun harTilgangTilOppslaattBrukerGirTrueNaarManSporOmSegSelv() {
-        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, INNLOGGET_FNR)
+        Mockito.`when`(pdlConsumer.isKode6(Fodselsnummer(SPOR_OM_FNR))).thenReturn(false)
+
+        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(SPOR_OM_FNR, SPOR_OM_FNR)
         Assertions.assertEquals(true, tilgang)
     }
 
