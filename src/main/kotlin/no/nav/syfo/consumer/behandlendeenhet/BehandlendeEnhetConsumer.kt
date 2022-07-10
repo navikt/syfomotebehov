@@ -5,6 +5,7 @@ import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.*
@@ -16,9 +17,9 @@ import org.springframework.web.client.RestTemplate
 class BehandlendeEnhetConsumer(
     private val azureAdV2TokenConsumer: AzureAdV2TokenConsumer,
     private val metric: Metric,
-    private val restTemplate: RestTemplate,
     @Value("\${syfobehandlendeenhet.client.id}") private val syfobehandlendeenhetClientId: String,
-    @Value("\${syfobehandlendeenhet.url}") private val baseUrl: String
+    @Value("\${syfobehandlendeenhet.url}") private val baseUrl: String,
+    @Qualifier("restTemplateWithProxy") private val restTemplateWithProxy: RestTemplate
 ) {
 
     @Cacheable(cacheNames = [CacheConfig.CACHENAME_BEHANDLENDEENHET_FNR], key = "#fnr", condition = "#fnr != null")
@@ -29,7 +30,7 @@ class BehandlendeEnhetConsumer(
 
         val httpEntity = entity(callId, bearer, fnr)
         try {
-            val response = restTemplate.exchange<BehandlendeEnhet>(
+            val response = restTemplateWithProxy.exchange(
                 "$baseUrl$BEHANDLENDEENHET_PATH",
                 HttpMethod.GET,
                 httpEntity,

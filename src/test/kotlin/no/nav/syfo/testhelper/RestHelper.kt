@@ -39,7 +39,7 @@ fun mockAndExpectBehandlendeEnhetRequest(
     try {
         val json = ObjectMapper().writeValueAsString(behandlendeEnhet)
 
-        mockRestServiceServer.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(uriString))
+        mockRestServiceWithProxyServer.expect(ExpectedCount.once(), MockRestRequestMatchers.requestTo(uriString))
             .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
             .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, bearerCredentials(systemToken.access_token)))
             .andExpect(MockRestRequestMatchers.header(NAV_PERSONIDENT_HEADER, fnr))

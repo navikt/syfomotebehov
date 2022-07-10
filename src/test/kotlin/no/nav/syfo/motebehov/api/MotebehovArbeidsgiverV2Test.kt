@@ -7,6 +7,7 @@ import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.sts.StsConsumer
@@ -134,8 +135,7 @@ class MotebehovArbeidsgiverV2Test {
     @AfterEach
     fun tearDown() {
         loggUtAlle(contextHolder)
-        mockRestServiceServer.reset()
-        mockRestServiceWithProxyServer.reset()
+        resetMockRestServers()
         cacheManager.cacheNames
             .forEach(
                 Consumer { cacheName: String ->
@@ -144,6 +144,7 @@ class MotebehovArbeidsgiverV2Test {
                 }
             )
         cleanDB()
+        AzureAdV2TokenConsumer.clearCache()
     }
 
     @Test
@@ -459,7 +460,6 @@ class MotebehovArbeidsgiverV2Test {
     }
 
     private fun lagreOgHentMotebehovOgSendOversikthendelse(harBehov: Boolean) {
-
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceWithProxyServer,

@@ -5,6 +5,7 @@ import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.sts.StsConsumer
@@ -151,6 +152,7 @@ class MotebehovVeilederADControllerV2Test {
                 }
             )
         cleanDB()
+        AzureAdV2TokenConsumer.clearCache()
     }
 
     @Test
