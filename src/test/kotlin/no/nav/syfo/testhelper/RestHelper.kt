@@ -20,7 +20,6 @@ import org.springframework.web.util.UriComponentsBuilder
 fun mockAndExpectBehandlendeEnhetRequest(
     azureTokenEndpoint: String,
     mockRestServiceWithProxyServer: MockRestServiceServer,
-    mockRestServiceServer: MockRestServiceServer,
     behandlendeenhetUrl: String,
     fnr: String
 ) {

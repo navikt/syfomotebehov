@@ -1,6 +1,7 @@
 package no.nav.syfo.testhelper
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenResponse
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
@@ -25,3 +26,7 @@ fun generateAzureAdV2TokenResponse() = AzureAdV2TokenResponse(
     access_token = "oboToken",
     expires_in = 3600
 )
+
+fun AzureAdV2TokenConsumer.Companion.clearCache() {
+    this.systemTokenCache.clear()
+}
