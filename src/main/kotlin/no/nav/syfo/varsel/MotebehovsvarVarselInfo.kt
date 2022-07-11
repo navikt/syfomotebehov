@@ -12,4 +12,5 @@ data class MotebehovsvarVarselInfo(
 data class MotebehovsvarSykmeldtVarselInfo(
     val sykmeldtAktorId: String,
     val arbeidstakerFnr: String,
+    val orgnummer: String?,
 ) : Serializable
