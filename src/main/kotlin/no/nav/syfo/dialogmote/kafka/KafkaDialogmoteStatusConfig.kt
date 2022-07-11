@@ -85,7 +85,7 @@ class KafkaDialogmoteStatusConfig(
             return HashMap<String, Any>().apply {
                 put(
                     ConsumerConfig.GROUP_ID_CONFIG,
-                    "$appName-isdialogmote-dialogmote-statusendring-$kafkaEnv-group"
+                    "$appName-isdialogmote-dialogmote-statusendring-$kafkaEnv-group-v2"
                 )
                 put(
                     ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
