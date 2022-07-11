@@ -72,7 +72,7 @@ kafka.keystore.path: /keystore
 kafka.credstore.password: /credstore/password
 kafka.env.name: "local"
 kafka.schema.registry.user: "kafka.schema.registry.user"
-kafka.schema.registry.password: "kafka.schema.registry.user"
-kafka.schema.registry: "kafka.schema.registry.user"
+kafka.schema.registry.password: "kafka.schema.registry.password"
+kafka.schema.registry: "kafka.schema.registry"
 esyfovarselapi.url: "https://esyfovarselapiurl"
 app.name: "syfomotebehov"
