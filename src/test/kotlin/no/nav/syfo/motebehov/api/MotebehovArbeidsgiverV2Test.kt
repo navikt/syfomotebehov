@@ -31,6 +31,7 @@ import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER_2
 import no.nav.syfo.testhelper.assertion.assertMotebehovStatus
+import no.nav.syfo.testhelper.clearCache
 import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import no.nav.syfo.testhelper.generator.generateOversikthendelsetilfelle
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
@@ -144,7 +145,7 @@ class MotebehovArbeidsgiverV2Test {
                 }
             )
         cleanDB()
-        AzureAdV2TokenConsumer.clearCache()
+        AzureAdV2TokenConsumer.Companion.clearCache()
     }
 
     @Test
@@ -442,7 +443,6 @@ class MotebehovArbeidsgiverV2Test {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceWithProxyServer,
-            mockRestServiceServer,
             behandlendeenhetUrl,
             ARBEIDSTAKER_FNR
         )
@@ -463,7 +463,6 @@ class MotebehovArbeidsgiverV2Test {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceWithProxyServer,
-            mockRestServiceServer,
             behandlendeenhetUrl,
             ARBEIDSTAKER_FNR
         )

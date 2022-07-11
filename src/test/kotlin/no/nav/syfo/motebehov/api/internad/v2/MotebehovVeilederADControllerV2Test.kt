@@ -26,6 +26,7 @@ import no.nav.syfo.testhelper.UserConstants.PERSON_FULL_NAME
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_2_ID
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
+import no.nav.syfo.testhelper.clearCache
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
@@ -152,7 +153,7 @@ class MotebehovVeilederADControllerV2Test {
                 }
             )
         cleanDB()
-        AzureAdV2TokenConsumer.clearCache()
+        AzureAdV2TokenConsumer.Companion.clearCache()
     }
 
     @Test
@@ -353,7 +354,6 @@ class MotebehovVeilederADControllerV2Test {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceWithProxyServer,
-            mockRestServiceServer,
             behandlendeenhetUrl,
             fnr
         )
