@@ -89,8 +89,8 @@ class DialogmoteDAO @Inject constructor(
     fun delete(fnr: Fodselsnummer, virksomhetsnummer: String, moteExternUUID: String): Int {
         val dialogmoter = get(fnr, virksomhetsnummer, moteExternUUID)
         return if (dialogmoter.isNotEmpty()) {
-            val dialogmoteIder: List<UUID> = dialogmoter.map {
-                it.uuid
+            val dialogmoteIder: List<String> = dialogmoter.map {
+                "${it.uuid}"
             }
             namedParameterJdbcTemplate.update(
                 "DELETE FROM dialogmoter WHERE uuid IN (:dialogmoteIder)",
