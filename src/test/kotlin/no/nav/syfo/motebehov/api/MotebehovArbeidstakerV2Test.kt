@@ -133,7 +133,7 @@ class MotebehovArbeidstakerV2Test {
                     cache?.clear()
                 }
             )
-        AzureAdV2TokenConsumer.clearCache()
+        AzureAdV2TokenConsumer.Companion.clearCache()
         cleanDB()
     }
 
@@ -437,14 +437,12 @@ class MotebehovArbeidstakerV2Test {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceWithProxyServer,
-            mockRestServiceServer,
             behandlendeenhetUrl,
             ARBEIDSTAKER_FNR
         )
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceWithProxyServer,
-            mockRestServiceServer,
             behandlendeenhetUrl,
             ARBEIDSTAKER_FNR
         )
@@ -462,7 +460,6 @@ class MotebehovArbeidstakerV2Test {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceWithProxyServer,
-            mockRestServiceServer,
             behandlendeenhetUrl,
             ARBEIDSTAKER_FNR
         )
@@ -480,7 +477,6 @@ class MotebehovArbeidstakerV2Test {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceWithProxyServer,
-            mockRestServiceServer,
             behandlendeenhetUrl,
             ARBEIDSTAKER_FNR
         )
