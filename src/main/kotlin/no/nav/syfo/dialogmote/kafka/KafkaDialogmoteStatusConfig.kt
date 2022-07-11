@@ -8,7 +8,6 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.config.SaslConfigs
 import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.serialization.StringDeserializer
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -146,19 +145,9 @@ class KafkaDialogmoteStatusConfig(
 
     @Bean("DialogmoteListenerContainerFactory")
     fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, KDialogmoteStatusEndring> {
-        LOG.warn("aivenSchemaRegistryUrl: $aivenSchemaRegistryUrl")
-        LOG.warn("aivenRegistryUser: $aivenRegistryUser")
-        LOG.warn("aivenRegistryPassword: $aivenRegistryPassword")
-        LOG.warn("aivenKeystoreLocation: $aivenKeystoreLocation")
-        LOG.warn("aivenTruststoreLocation: $aivenTruststoreLocation")
-        LOG.warn("aivenCredstorePassword: $aivenCredstorePassword")
         return ConcurrentKafkaListenerContainerFactory<String, KDialogmoteStatusEndring>().apply {
             this.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
             this.consumerFactory = dialogmoteStatusConsumerFactory()
         }
-    }
-
-    companion object {
-        private val LOG = LoggerFactory.getLogger(KafkaDialogmoteStatusConfig::class.java)
     }
 }
