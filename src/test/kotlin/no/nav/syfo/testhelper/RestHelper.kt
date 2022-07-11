@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.syfo.consumer.behandlendeenhet.BehandlendeEnhet
 import no.nav.syfo.consumer.behandlendeenhet.BehandlendeEnhetConsumer.Companion.BEHANDLENDEENHET_PATH
-import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.util.bearerCredentials
 import org.springframework.http.HttpHeaders
@@ -87,21 +86,4 @@ fun mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll(
     } catch (e: JsonProcessingException) {
         e.printStackTrace()
     }
-}
-
-fun mockAndExpectSyfoTilgangskontroll(
-    mockRestServiceServer: MockRestServiceServer,
-    tilgangskontrollUrl: String,
-    idToken: String,
-    fnr: String,
-    status: HttpStatus
-) {
-    val uriString = UriComponentsBuilder.fromHttpUrl(tilgangskontrollUrl)
-        .path(VeilederTilgangConsumer.TILGANG_TIL_BRUKER_VIA_AZURE_PATH)
-        .queryParam(VeilederTilgangConsumer.FNR, fnr)
-        .toUriString()
-    mockRestServiceServer.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(uriString))
-        .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-        .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer $idToken"))
-        .andRespond(MockRestResponseCreators.withStatus(status))
 }
