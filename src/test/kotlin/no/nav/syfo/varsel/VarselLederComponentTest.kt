@@ -1,5 +1,6 @@
 package no.nav.syfo.varsel
 
+import javax.inject.Inject
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.AktorId
@@ -15,16 +16,24 @@ import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
-import no.nav.syfo.testhelper.generator.*
-import no.nav.syfo.testhelper.mockAndExpectMoteadminHarAktivtMote
+import no.nav.syfo.testhelper.generator.MotebehovGenerator
+import no.nav.syfo.testhelper.generator.generateKOversikthendelsetilfelle
+import no.nav.syfo.testhelper.generator.generateMotebehovStatus
+import no.nav.syfo.testhelper.generator.generatePersonOppfolgingstilfelleMeldBehovFirstPeriod
+import no.nav.syfo.testhelper.generator.generatePersonOppfolgingstilfelleSvarBehov
+import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.varsel.api.VarselController
+import no.nav.syfo.varsel.esyfovarsel.EsyfovarselProducer.Companion.ESYFOVARSEL_TOPIC
+import no.nav.syfo.varsel.esyfovarsel.domain.EsyfovarselHendelse
+import no.nav.syfo.varsel.esyfovarsel.domain.HendelseType
+import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.clients.producer.RecordMetadata
+import org.apache.kafka.common.TopicPartition
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
@@ -36,9 +45,8 @@ import org.springframework.kafka.support.SendResult
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.client.MockRestServiceServer
-import org.springframework.util.concurrent.ListenableFuture
+import org.springframework.util.concurrent.SettableListenableFuture
 import org.springframework.web.client.RestTemplate
-import javax.inject.Inject
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
@@ -64,7 +72,7 @@ class VarselLederComponentTest {
     private lateinit var restTemplate: RestTemplate
 
     @MockBean
-    private lateinit var kafkaTemplate: KafkaTemplate<String, Any>
+    private lateinit var kafkaTemplate: KafkaTemplate<String, EsyfovarselHendelse>
 
     @MockBean
     private lateinit var stsConsumer: StsConsumer
@@ -79,7 +87,6 @@ class VarselLederComponentTest {
         naermesteLederFnr = LEDER_FNR,
         arbeidstakerFnr = ARBEIDSTAKER_FNR
     )
-    private val argumentCaptor = ArgumentCaptor.forClass(KTredjepartsvarsel::class.java)
 
     private val stsToken = generateStsToken().access_token
 
@@ -92,6 +99,7 @@ class VarselLederComponentTest {
         `when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR)))
             .thenReturn(ARBEIDSTAKER_FNR)
         `when`(stsConsumer.token()).thenReturn(stsToken)
+        mockEsyfovarselHendelseFuture()
     }
 
     @AfterEach
@@ -113,12 +121,8 @@ class VarselLederComponentTest {
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
             .thenReturn(generateMotebehovStatus.copy(motebehov = null))
 
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
-        `when`(kafkaTemplate.send(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.any(KTredjepartsvarsel::class.java))).thenReturn(Mockito.mock(ListenableFuture::class.java) as ListenableFuture<SendResult<String, Any>>?)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
-        Mockito.verify(kafkaTemplate).send(ArgumentMatchers.eq(TredjepartsvarselProducer.TREDJEPARTSVARSEL_TOPIC), ArgumentMatchers.anyString(), argumentCaptor.capture())
-        val sendtKTredjepartsvarsel = argumentCaptor.value
-        verifySendtKtredjepartsvarsel(sendtKTredjepartsvarsel)
+
         assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
     }
 
@@ -141,9 +145,9 @@ class VarselLederComponentTest {
                 )
             )
 
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
-        Mockito.verify(kafkaTemplate, Mockito.never()).send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        Mockito.verify(kafkaTemplate, Mockito.never())
+            .send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
         assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
     }
 
@@ -166,9 +170,9 @@ class VarselLederComponentTest {
                 )
             )
 
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
-        Mockito.verify(kafkaTemplate, Mockito.never()).send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        Mockito.verify(kafkaTemplate, Mockito.never())
+            .send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
         assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
     }
 
@@ -186,9 +190,19 @@ class VarselLederComponentTest {
             opprettetAv = LEDER_AKTORID,
             behandletVeilederIdent = VEILEDER_ID
         )
-        `when`(motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(Fodselsnummer(ARBEIDSTAKER_FNR), VIRKSOMHETSNUMMER))
+        `when`(
+            motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
+                Fodselsnummer(ARBEIDSTAKER_FNR),
+                VIRKSOMHETSNUMMER
+            )
+        )
             .thenReturn(listOf(newestMotebehov))
-        `when`(motebehovStatusService.getNewestMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, listOf(newestMotebehov)))
+        `when`(
+            motebehovStatusService.getNewestMotebehovInOppfolgingstilfelle(
+                oppfolgingstilfelle,
+                listOf(newestMotebehov)
+            )
+        )
             .thenReturn(newestMotebehov)
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, listOf(newestMotebehov)))
             .thenReturn(
@@ -199,9 +213,9 @@ class VarselLederComponentTest {
                 )
             )
 
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
-        Mockito.verify(kafkaTemplate, Mockito.never()).send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        Mockito.verify(kafkaTemplate, Mockito.never())
+            .send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
         assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
     }
 
@@ -219,9 +233,19 @@ class VarselLederComponentTest {
             opprettetAv = LEDER_AKTORID,
             behandletVeilederIdent = null
         )
-        `when`(motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(Fodselsnummer(ARBEIDSTAKER_FNR), VIRKSOMHETSNUMMER))
+        `when`(
+            motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
+                Fodselsnummer(ARBEIDSTAKER_FNR),
+                VIRKSOMHETSNUMMER
+            )
+        )
             .thenReturn(listOf(newestMotebehov))
-        `when`(motebehovStatusService.getNewestMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, listOf(newestMotebehov)))
+        `when`(
+            motebehovStatusService.getNewestMotebehovInOppfolgingstilfelle(
+                oppfolgingstilfelle,
+                listOf(newestMotebehov)
+            )
+        )
             .thenReturn(newestMotebehov)
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, listOf(newestMotebehov)))
             .thenReturn(
@@ -232,9 +256,9 @@ class VarselLederComponentTest {
                 )
             )
 
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
-        Mockito.verify(kafkaTemplate, Mockito.never()).send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        Mockito.verify(kafkaTemplate, Mockito.never())
+            .send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
         assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
     }
 
@@ -250,23 +274,34 @@ class VarselLederComponentTest {
         )
         `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
             .thenReturn(generateMotebehovStatus.copy(motebehov = null))
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
+
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
-        Mockito.verify(kafkaTemplate, Mockito.never()).send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        Mockito.verify(kafkaTemplate, Mockito.never())
+            .send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
         assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
 
         mockRestServiceServer.verify()
     }
 
-    private fun verifySendtKtredjepartsvarsel(kTredjepartsvarsel: KTredjepartsvarsel) {
-        assertEquals(kTredjepartsvarsel.type, VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name)
-        assertNotNull(kTredjepartsvarsel.ressursId)
-        assertEquals(kTredjepartsvarsel.aktorId, ARBEIDSTAKER_AKTORID)
-        assertEquals(kTredjepartsvarsel.orgnummer, VIRKSOMHETSNUMMER)
-        assertNotNull(kTredjepartsvarsel.utsendelsestidspunkt)
-    }
-
     private fun cleanDB() {
         oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(Fodselsnummer(ARBEIDSTAKER_FNR))
+    }
+    private fun mockEsyfovarselHendelseFuture() {
+        val hendelse = EsyfovarselHendelse(
+            LEDER_FNR,
+            HendelseType.NL_DIALOGMOTE_SVAR_MOTEBEHOV,
+            null
+        )
+        val sendResult = SendResult<String, EsyfovarselHendelse>(
+            ProducerRecord(ESYFOVARSEL_TOPIC, hendelse),
+            RecordMetadata(
+                TopicPartition(ESYFOVARSEL_TOPIC, 1), 0, 1, 0L, 1, 1
+            )
+        )
+        val future = SettableListenableFuture<SendResult<String, EsyfovarselHendelse>>()
+        val prodrec = ProducerRecord<String, EsyfovarselHendelse>(ESYFOVARSEL_TOPIC, hendelse)
+
+        future.set(sendResult)
+        `when`(kafkaTemplate.send(ArgumentMatchers.any(prodrec::class.java))).thenReturn(future)
     }
 }

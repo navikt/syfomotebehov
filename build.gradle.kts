@@ -12,6 +12,8 @@ object Versions {
     const val tokenSupportVersion = "1.3.19"
     const val ojdbcVersion = "19.3.0.0"
     const val h2Version = "2.1.210"
+    const val confluent = "7.1.1"
+    const val isdialogmoteSchema = "1.0.5"
 }
 
 plugins {
@@ -36,9 +38,20 @@ allOpen {
     annotation("org.springframework.stereotype.Component")
 }
 
+val githubUser: String by project
+val githubPassword: String by project
+
 repositories {
     mavenCentral()
     maven(url = "https://packages.confluent.io/maven/")
+    maven(url = "https://jitpack.io")
+    maven {
+        url = uri("https://maven.pkg.github.com/navikt/isdialogmote-schema")
+        credentials {
+            username = githubUser
+            password = githubPassword
+        }
+    }
 }
 
 dependencies {
@@ -63,6 +76,9 @@ dependencies {
 
     implementation("com.oracle.ojdbc:ojdbc8:${Versions.ojdbcVersion}")
     implementation("org.springframework.kafka:spring-kafka")
+    implementation("io.confluent:kafka-avro-serializer:${Versions.confluent}")
+    implementation("io.confluent:kafka-schema-registry:${Versions.confluent}")
+    implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:${Versions.isdialogmoteSchema}")
     implementation("org.flywaydb:flyway-core:${Versions.flywayVersion}")
     implementation("javax.inject:javax.inject:1")
     implementation("org.slf4j:slf4j-api:1.7.35")
@@ -90,6 +106,7 @@ tasks {
         transform(PropertiesFileTransformer::class.java) {
             paths = listOf("META-INF/spring.factories")
             mergeStrategy = "append"
+            isZip64 = true
         }
         mergeServiceFiles()
     }
@@ -100,5 +117,9 @@ tasks {
 
     named<KotlinCompile>("compileTestKotlin") {
         kotlinOptions.jvmTarget = "11"
+    }
+
+    test {
+        useJUnitPlatform()
     }
 }

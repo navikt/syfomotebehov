@@ -1,14 +1,16 @@
 package no.nav.syfo.motebehov.motebehovstatus
 
-import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
+import java.time.LocalDate
+import javax.inject.Inject
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.consumer.mote.MoteConsumer
-import no.nav.syfo.motebehov.*
+import no.nav.syfo.motebehov.Motebehov
+import no.nav.syfo.motebehov.MotebehovService
+import no.nav.syfo.motebehov.isCreatedInOppfolgingstilfelle
+import no.nav.syfo.motebehov.isSvarBehovForOppfolgingstilfelle
+import no.nav.syfo.motebehov.isUbehandlet
 import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import org.springframework.stereotype.Service
-import java.time.LocalDate
-import javax.inject.Inject
 
 const val WEEKS_START_SVAR_BEHOV = 16
 const val DAYS_START_SVAR_BEHOV = WEEKS_START_SVAR_BEHOV * 7L
@@ -17,26 +19,27 @@ const val DAYS_END_SVAR_BEHOV = WEEKS_END_SVAR_BEHOV * 7L
 
 @Service
 class MotebehovStatusService @Inject constructor(
-    private val aktorregisterConsumer: AktorregisterConsumer,
     private val motebehovService: MotebehovService,
-    private val moteConsumer: MoteConsumer,
     private val oppfolgingstilfelleService: OppfolgingstilfelleService
 ) {
     fun motebehovStatusForArbeidstaker(
         arbeidstakerFnr: Fodselsnummer
     ): MotebehovStatus {
-        val oppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
-        val motebehovList: List<Motebehov> = motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr)
+        val oppfolgingstilfelle =
+            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
+        val motebehovList: List<Motebehov> =
+            motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr)
 
         return motebehovStatus(oppfolgingstilfelle, motebehovList)
     }
-
     fun motebehovStatusForArbeidsgiver(
         arbeidstakerFnr: Fodselsnummer,
         virksomhetsnummer: String
     ): MotebehovStatus {
-        val oppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, virksomhetsnummer)
-        val motebehovList = motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr, virksomhetsnummer)
+        val oppfolgingstilfelle =
+            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, virksomhetsnummer)
+        val motebehovList =
+            motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr, virksomhetsnummer)
 
         return motebehovStatus(oppfolgingstilfelle, motebehovList)
     }
@@ -103,8 +106,7 @@ class MotebehovStatusService @Inject constructor(
         } else if (hasMeldMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList)) {
             true
         } else {
-            val arbeidstakerAktorId = aktorregisterConsumer.getAktorIdForFodselsnummer(oppfolgingstilfelle.fnr)
-            !moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(arbeidstakerAktorId, oppfolgingstilfelle.fom.atStartOfDay())
+            true // TODO: Add check for active innkalling
         }
     }
 
@@ -133,7 +135,7 @@ class MotebehovStatusService @Inject constructor(
         } else if (hasSvarMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList)) {
             true
         } else {
-            !moteConsumer.isMoteplanleggerActiveInOppfolgingstilfelle(oppfolgingstilfelle)
+            true // TODO: Add check for active innkalling
         }
     }
 
@@ -142,8 +144,10 @@ class MotebehovStatusService @Inject constructor(
         val lastDateSvarBehovAvailability = oppfolgingstilfelle.fom.plusDays(DAYS_END_SVAR_BEHOV).minusDays(1)
         val today = LocalDate.now()
 
-        val isTodayInFirstMeldMotebehovPeriod = today.isAfter(oppfolgingstilfelle.fom.minusDays(1)) && today.isBefore(firstDateSvarBehovAvailability)
-        val isTodayInSecondMeldMotebehovPeriod = today.isAfter(lastDateSvarBehovAvailability) && today.isBefore(oppfolgingstilfelle.tom.plusDays(1))
+        val isTodayInFirstMeldMotebehovPeriod =
+            today.isAfter(oppfolgingstilfelle.fom.minusDays(1)) && today.isBefore(firstDateSvarBehovAvailability)
+        val isTodayInSecondMeldMotebehovPeriod =
+            today.isAfter(lastDateSvarBehovAvailability) && today.isBefore(oppfolgingstilfelle.tom.plusDays(1))
 
         return isTodayInOppfolgingstilfelle(oppfolgingstilfelle) &&
             (isTodayInFirstMeldMotebehovPeriod || isTodayInSecondMeldMotebehovPeriod)
@@ -197,7 +201,8 @@ class MotebehovStatusService @Inject constructor(
         oppfolgingstilfelle: PersonOppfolgingstilfelle,
         motebehovList: List<Motebehov>
     ): Motebehov? {
-        val motebehovListCreatedInOppfolgingstilfelle = motebehovList.filter { it.isCreatedInOppfolgingstilfelle(oppfolgingstilfelle) }
+        val motebehovListCreatedInOppfolgingstilfelle =
+            motebehovList.filter { it.isCreatedInOppfolgingstilfelle(oppfolgingstilfelle) }
         return if (motebehovListCreatedInOppfolgingstilfelle.isNotEmpty()) {
             motebehovListCreatedInOppfolgingstilfelle.first()
         } else {

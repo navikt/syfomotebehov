@@ -103,8 +103,7 @@ class AzureAdV2TokenConsumer @Autowired constructor(
     }
 
     companion object {
-        private val systemTokenCache = ConcurrentHashMap<String, AzureAdV2Token>()
-
+        val systemTokenCache = ConcurrentHashMap<String, AzureAdV2Token>()
         private val log = LoggerFactory.getLogger(AzureAdV2TokenConsumer::class.java)
     }
 }

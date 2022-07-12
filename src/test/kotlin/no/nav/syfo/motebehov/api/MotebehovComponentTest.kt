@@ -4,6 +4,7 @@ import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.sts.StsConsumer
@@ -16,6 +17,7 @@ import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
+import no.nav.syfo.testhelper.clearCache
 import no.nav.syfo.testhelper.generator.*
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import org.assertj.core.api.Assertions
@@ -120,6 +122,7 @@ class MotebehovComponentTest {
                 }
             )
         cleanDB()
+        AzureAdV2TokenConsumer.Companion.clearCache()
     }
 
     @Test
@@ -127,7 +130,6 @@ class MotebehovComponentTest {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceWithProxyServer,
-            mockRestServiceServer,
             behandlendeenhetUrl,
             ARBEIDSTAKER_FNR
         )
@@ -139,7 +141,6 @@ class MotebehovComponentTest {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceWithProxyServer,
-            mockRestServiceServer,
             behandlendeenhetUrl,
             ARBEIDSTAKER_FNR
         )

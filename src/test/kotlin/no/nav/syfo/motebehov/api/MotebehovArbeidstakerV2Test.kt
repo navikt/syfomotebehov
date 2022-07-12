@@ -1,16 +1,22 @@
 package no.nav.syfo.motebehov.api
 
+import java.time.LocalDate
+import java.util.function.Consumer
+import javax.inject.Inject
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.motebehov.MotebehovSvar
 import no.nav.syfo.motebehov.api.internad.v2.MotebehovVeilederADControllerV2
 import no.nav.syfo.motebehov.database.MotebehovDAO
-import no.nav.syfo.motebehov.motebehovstatus.*
+import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
+import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_SVAR_BEHOV
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.oversikthendelse.OversikthendelseProducer
 import no.nav.syfo.testhelper.*
@@ -21,10 +27,17 @@ import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.assertion.assertMotebehovStatus
-import no.nav.syfo.testhelper.generator.*
+import no.nav.syfo.testhelper.generator.MotebehovGenerator
+import no.nav.syfo.testhelper.generator.generateOversikthendelsetilfelle
+import no.nav.syfo.testhelper.generator.generatePdlHentPerson
+import no.nav.syfo.testhelper.generator.generateStsToken
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
@@ -34,14 +47,10 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.cache.CacheManager
-import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.web.client.RestTemplate
-import java.time.LocalDate
-import java.util.function.Consumer
-import javax.inject.Inject
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
@@ -102,7 +111,9 @@ class MotebehovArbeidstakerV2Test {
 
     @BeforeEach
     fun setUp() {
-        `when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(ARBEIDSTAKER_AKTORID)
+        `when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(
+            ARBEIDSTAKER_AKTORID
+        )
         `when`(pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(generatePdlHentPerson(null, null))
         `when`(stsConsumer.token()).thenReturn(stsToken)
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
@@ -114,8 +125,7 @@ class MotebehovArbeidstakerV2Test {
     @AfterEach
     fun tearDown() {
         loggUtAlle(contextHolder)
-        mockRestServiceServer.reset()
-        mockRestServiceWithProxyServer.reset()
+        resetMockRestServers()
         cacheManager.cacheNames
             .forEach(
                 Consumer { cacheName: String ->
@@ -123,6 +133,7 @@ class MotebehovArbeidstakerV2Test {
                     cache?.clear()
                 }
             )
+        AzureAdV2TokenConsumer.Companion.clearCache()
         cleanDB()
     }
 
@@ -179,7 +190,6 @@ class MotebehovArbeidstakerV2Test {
                 tom = LocalDate.now().plusDays(1)
             )
         )
-        mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
@@ -203,8 +213,6 @@ class MotebehovArbeidstakerV2Test {
             )
         )
 
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
-
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
     }
@@ -225,7 +233,6 @@ class MotebehovArbeidstakerV2Test {
                 tom = LocalDate.now().plusDays(1)
             )
         )
-        mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
@@ -239,7 +246,6 @@ class MotebehovArbeidstakerV2Test {
                 tom = LocalDate.now()
             )
         )
-        mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
@@ -253,24 +259,21 @@ class MotebehovArbeidstakerV2Test {
                 tom = LocalDate.now()
             )
         )
-        mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
     }
 
     @Test
-    fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle, MeldBehov Moteplanlegger Active`() {
+    fun `get MotebehovStatus With Today Inside Oppfolgingstilfelle`() {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
             fom = LocalDate.now(),
             tom = LocalDate.now().plusDays(1)
         )
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
-        mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, true)
-
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
-            .assertMotebehovStatus(false, null, null)
+            .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
     }
 
     @Test
@@ -281,26 +284,17 @@ class MotebehovArbeidstakerV2Test {
         )
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
-        mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
-
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
         submitMotebehovAndSendOversikthendelse(motebehovSvar)
 
-        mockRestServiceServer.reset()
+        resetMockRestServers()
         loggUtAlle(contextHolder)
         OidcTestHelper.loggInnVeilederADV2(contextHolder, VEILEDER_ID)
-        mockAndExpectSyfoTilgangskontroll(
-            mockRestServiceServer,
-            tilgangskontrollUrl,
-            contextHolder.tokenValidationContext.getJwtToken(OIDCIssuer.INTERN_AZUREAD_V2).tokenAsString,
-            ARBEIDSTAKER_FNR,
-            HttpStatus.OK
-        )
+        mockBehandlendEnhetWithTilgangskontroll(ARBEIDSTAKER_FNR)
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
-        loggInnBruker(contextHolder, ARBEIDSTAKER_FNR)
 
-        mockRestServiceServer.reset()
-        mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
+        resetMockRestServers()
+        loggInnBruker(contextHolder, ARBEIDSTAKER_FNR)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
@@ -315,11 +309,9 @@ class MotebehovArbeidstakerV2Test {
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
 
-        mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
         submitMotebehovAndSendOversikthendelse(motebehovSvar)
 
         mockRestServiceServer.reset()
-        mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, true)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, motebehovSvar)
@@ -333,7 +325,6 @@ class MotebehovArbeidstakerV2Test {
                 tom = LocalDate.now().plusDays(1)
             )
         )
-        mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
@@ -347,7 +338,6 @@ class MotebehovArbeidstakerV2Test {
                 tom = LocalDate.now().plusDays(1)
             )
         )
-        mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
@@ -359,12 +349,11 @@ class MotebehovArbeidstakerV2Test {
             fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).plusDays(1),
             tom = LocalDate.now().plusDays(1)
         )
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
 
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
-            .assertMotebehovStatus(false, null, null)
+            .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
     }
 
     @Test
@@ -377,11 +366,9 @@ class MotebehovArbeidstakerV2Test {
 
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
 
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         submitMotebehovAndSendOversikthendelse(motebehovSvar)
 
         mockRestServiceServer.reset()
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, motebehovSvar)
@@ -393,7 +380,6 @@ class MotebehovArbeidstakerV2Test {
             fom = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV),
             tom = LocalDate.now().plusDays(1)
         )
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
 
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
@@ -406,23 +392,9 @@ class MotebehovArbeidstakerV2Test {
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
-
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
     }
-
-    @Test
-    fun `get MotebehovStatus with no Motebehov and Mote`() {
-        val kOppfolgingstilfelle = generateOversikthendelsetilfelle
-        oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
-
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, true)
-
-        motebehovArbeidstakerController.motebehovStatusArbeidstaker()
-            .assertMotebehovStatus(false, null, null)
-    }
-
     @Test
     fun `get MotebehovStatus and sendOversikthendelse with Motebehov harBehov=true`() {
         oppfolgingstilfelleDAO.create(
@@ -462,18 +434,15 @@ class MotebehovArbeidstakerV2Test {
             )
         )
 
-        mockAndExpectMoteadminIsMoteplanleggerActive(mockRestServiceServer, false)
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceWithProxyServer,
-            mockRestServiceServer,
             behandlendeenhetUrl,
             ARBEIDSTAKER_FNR
         )
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceWithProxyServer,
-            mockRestServiceServer,
             behandlendeenhetUrl,
             ARBEIDSTAKER_FNR
         )
@@ -491,7 +460,6 @@ class MotebehovArbeidstakerV2Test {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceWithProxyServer,
-            mockRestServiceServer,
             behandlendeenhetUrl,
             ARBEIDSTAKER_FNR
         )
@@ -505,12 +473,10 @@ class MotebehovArbeidstakerV2Test {
     }
 
     private fun lagreOgHentMotebehovOgSendOversikthendelse(harBehov: Boolean) {
-        mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
 
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceWithProxyServer,
-            mockRestServiceServer,
             behandlendeenhetUrl,
             ARBEIDSTAKER_FNR
         )
@@ -521,7 +487,6 @@ class MotebehovArbeidstakerV2Test {
 
         if (!harBehov) {
             mockRestServiceServer.reset()
-            mockAndExpectMoteadminHarAktivtMote(mockRestServiceServer, false)
         }
 
         val motebehovStatus: MotebehovStatus = motebehovArbeidstakerController.motebehovStatusArbeidstaker()
@@ -542,6 +507,20 @@ class MotebehovArbeidstakerV2Test {
         }
     }
 
+    private fun mockBehandlendEnhetWithTilgangskontroll(fnr: String) {
+        mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll(
+            azureTokenEndpoint,
+            mockRestServiceWithProxyServer,
+            mockRestServiceServer,
+            behandlendeenhetUrl,
+            tilgangskontrollUrl,
+            fnr
+        )
+    }
+    private fun resetMockRestServers() {
+        mockRestServiceServer.reset()
+        mockRestServiceWithProxyServer.reset()
+    }
     private fun cleanDB() {
         motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID)
         oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(Fodselsnummer(ARBEIDSTAKER_FNR))

@@ -34,7 +34,6 @@ class BrukertilgangskontrollServiceTest {
     @BeforeEach
     fun setup() {
         mockOIDC(INNLOGGET_FNR)
-        Mockito.`when`(pdlConsumer.isKode6(Fodselsnummer(SPOR_OM_FNR))).thenReturn(false)
     }
 
     @AfterEach
@@ -52,7 +51,9 @@ class BrukertilgangskontrollServiceTest {
 
     @Test
     fun harTilgangTilOppslaattBrukerGirTrueNaarManSporOmSegSelv() {
-        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, INNLOGGET_FNR, EKSTERN)
+        Mockito.`when`(pdlConsumer.isKode6(Fodselsnummer(SPOR_OM_FNR))).thenReturn(false)
+
+        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(SPOR_OM_FNR, SPOR_OM_FNR, EKSTERN)
         Assertions.assertEquals(true, tilgang)
     }
 
@@ -72,21 +73,24 @@ class BrukertilgangskontrollServiceTest {
 
     @Test
     fun sporOmNoenAndreEnnSegSelvGirFalseNaarManSporOmSegSelv() {
-        val tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, INNLOGGET_FNR, EKSTERN)
+        val tilgang =
+            tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, INNLOGGET_FNR, EKSTERN)
         Assertions.assertEquals(false, tilgang)
     }
 
     @Test
     fun sporOmNoenAndreEnnSegSelvGirFalseNaarManSporOmEnAnsatt() {
         Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(true)
-        val tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, SPOR_OM_FNR, EKSTERN)
+        val tilgang =
+            tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, SPOR_OM_FNR, EKSTERN)
         Assertions.assertEquals(false, tilgang)
     }
 
     @Test
     fun sporOmNoenAndreEnnSegSelvGirTrueNaarManSporOmEnSomIkkeErSegSelvOgIkkeAnsatt() {
         Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(false)
-        val tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, SPOR_OM_FNR, EKSTERN)
+        val tilgang =
+            tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, SPOR_OM_FNR, EKSTERN)
         Assertions.assertEquals(true, tilgang)
     }
 

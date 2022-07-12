@@ -72,6 +72,12 @@ kafka.brokers: localhost://9092
 kafka.truststore.path: /truststore
 kafka.keystore.path: /keystore
 kafka.credstore.password: /credstore/password
+kafka.env.name: "local"
+kafka.schema.registry.user: "kafka.schema.registry.user"
+kafka.schema.registry.password: "kafka.schema.registry.password"
+kafka.schema.registry: "kafka.schema.registry"
+esyfovarselapi.url: "https://esyfovarselapiurl"
+app.name: "syfomotebehov"
 dialogmote.client.id: "dialogmote-frontend"
 dialogmotearbeidsgiver.client.id: "dialogmotearbeidsgiver"
 tokenx.idp: "idporten"

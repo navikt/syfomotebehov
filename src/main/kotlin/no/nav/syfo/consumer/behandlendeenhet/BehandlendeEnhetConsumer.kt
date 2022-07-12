@@ -19,7 +19,7 @@ class BehandlendeEnhetConsumer(
     private val metric: Metric,
     @Value("\${syfobehandlendeenhet.client.id}") private val syfobehandlendeenhetClientId: String,
     @Value("\${syfobehandlendeenhet.url}") private val baseUrl: String,
-    @Qualifier("restTemplateWithProxy") private val template: RestTemplate
+    @Qualifier("restTemplateWithProxy") private val restTemplateWithProxy: RestTemplate
 ) {
 
     @Cacheable(cacheNames = [CacheConfig.CACHENAME_BEHANDLENDEENHET_FNR], key = "#fnr", condition = "#fnr != null")
@@ -30,7 +30,7 @@ class BehandlendeEnhetConsumer(
 
         val httpEntity = entity(callId, bearer, fnr)
         try {
-            val response = template.exchange<BehandlendeEnhet>(
+            val response = restTemplateWithProxy.exchange(
                 "$baseUrl$BEHANDLENDEENHET_PATH",
                 HttpMethod.GET,
                 httpEntity,

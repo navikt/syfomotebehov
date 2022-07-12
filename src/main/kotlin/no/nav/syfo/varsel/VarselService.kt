@@ -1,10 +1,12 @@
 package no.nav.syfo.varsel
 
+import java.time.LocalDate
+import javax.inject.Inject
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.esyfovarsel.EsyfovarselConsumer
-import no.nav.syfo.consumer.mote.MoteConsumer
+import no.nav.syfo.dialogmote.DialogmoteStatusService
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.motebehov.MotebehovService
@@ -15,9 +17,6 @@ import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.time.LocalDateTime
-import java.util.*
-import javax.inject.Inject
 
 @Service
 class VarselService @Inject constructor(
@@ -26,35 +25,59 @@ class VarselService @Inject constructor(
     private val esyfovarselConsumer: EsyfovarselConsumer,
     private val motebehovService: MotebehovService,
     private val motebehovStatusService: MotebehovStatusService,
-    private val moteConsumer: MoteConsumer,
     private val oppfolgingstilfelleService: OppfolgingstilfelleService,
-    private val tredjepartsvarselProducer: TredjepartsvarselProducer,
     private val esyfovarselService: EsyfovarselService,
+    private val dialogmoteStatusService: DialogmoteStatusService,
 ) {
     fun sendVarselTilNaermesteLeder(motebehovsvarVarselInfo: MotebehovsvarVarselInfo) {
         val arbeidstakerFnr = aktorregisterConsumer.getFnrForAktorId(AktorId(motebehovsvarVarselInfo.sykmeldtAktorId))
-        val isSvarBehovVarselAvailableForLeder = isSvarBehovVarselAvailableArbeidsgiver(
+        val isDialogmoteAlleredePlanlagt = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
             Fodselsnummer(arbeidstakerFnr),
-            motebehovsvarVarselInfo.orgnummer
+            motebehovsvarVarselInfo.orgnummer, LocalDate.now()
         )
-        if (!isSvarBehovVarselAvailableForLeder) {
-            metric.tellHendelse("varsel_leder_not_sent_motebehov_not_available")
-            log.info("Not sending Varsel to Narmeste Leder because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")
-        } else {
-            val startDatoINyesteOppfolgingstilfelle = LocalDateTime.now().minusDays(MOTEBEHOV_VARSEL_DAGER.toLong())
-            if (!moteConsumer.erMoteOpprettetForArbeidstakerEtterDato(
-                    motebehovsvarVarselInfo.sykmeldtAktorId,
-                    startDatoINyesteOppfolgingstilfelle
-                )
-            ) {
-                metric.tellHendelse("varsel_leder_sent")
-                val kTredjepartsvarsel = mapTilKTredjepartsvarsel(motebehovsvarVarselInfo)
-                tredjepartsvarselProducer.sendTredjepartsvarselvarsel(kTredjepartsvarsel)
-                esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(motebehovsvarVarselInfo.naermesteLederFnr, motebehovsvarVarselInfo.arbeidstakerFnr, motebehovsvarVarselInfo.orgnummer)
+
+        if (!isDialogmoteAlleredePlanlagt) {
+            val isSvarBehovVarselAvailableForLeder = isSvarBehovVarselAvailableArbeidsgiver(
+                Fodselsnummer(arbeidstakerFnr),
+                motebehovsvarVarselInfo.orgnummer
+            )
+            if (!isSvarBehovVarselAvailableForLeder) {
+                metric.tellHendelse("varsel_leder_not_sent_motebehov_not_available")
+                log.info("Not sending Varsel to Narmeste Leder because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")
             } else {
-                metric.tellHendelse("varsel_leder_not_sent_moteplanlegger_used_oppfolgingstilfelle")
-                log.info("Sender ikke varsel til naermeste leder fordi moteplanleggeren er brukt i oppfolgingstilfellet")
+                metric.tellHendelse("varsel_leder_sent")
+                esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(
+                    motebehovsvarVarselInfo.naermesteLederFnr,
+                    motebehovsvarVarselInfo.arbeidstakerFnr,
+                    motebehovsvarVarselInfo.orgnummer
+                )
             }
+        } else {
+            metric.tellHendelse("varsel_leder_not_sent_mote_allerede_planlagt")
+            log.info("Not sending Varsel to Narmeste Leder because dialogmote er planlagt")
+        }
+    }
+
+    fun sendVarselTilArbeidstaker(motebehovsvarVarselInfo: MotebehovsvarSykmeldtVarselInfo) {
+        val isDialogmoteAlleredePlanlagt = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
+            Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr),
+            motebehovsvarVarselInfo.orgnummer, LocalDate.now()
+        )
+
+        if (!isDialogmoteAlleredePlanlagt) {
+            val isSvarBehovVarselAvailableForArbeidstaker = isSvarBehovVarselAvailableArbeidstaker(
+                Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr),
+            )
+            if (!isSvarBehovVarselAvailableForArbeidstaker) {
+                metric.tellHendelse("varsel_arbeidstaker_not_sent_motebehov_not_available")
+                log.info("Not sending Varsel to Arbeidstaker because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")
+            } else {
+                metric.tellHendelse("varsel_arbeidstaker_sent")
+                esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(motebehovsvarVarselInfo.arbeidstakerFnr)
+            }
+        } else {
+            metric.tellHendelse("varsel_arbeidstaker_not_sent_mote_allerede_planlagt")
+            log.info("Not sending Varsel to Arbeidstaker because dialogmote er planlagt")
         }
     }
 
@@ -97,19 +120,7 @@ class VarselService @Inject constructor(
         return false
     }
 
-    private fun mapTilKTredjepartsvarsel(motebehovsvarVarselInfo: MotebehovsvarVarselInfo): KTredjepartsvarsel {
-        return KTredjepartsvarsel(
-            type = VarselType.NAERMESTE_LEDER_SVAR_MOTEBEHOV.name,
-            ressursId = UUID.randomUUID().toString(),
-            aktorId = motebehovsvarVarselInfo.sykmeldtAktorId,
-            orgnummer = motebehovsvarVarselInfo.orgnummer,
-            utsendelsestidspunkt = LocalDateTime.now()
-        )
-    }
-
     companion object {
         private val log = LoggerFactory.getLogger(VarselService::class.java)
-        private const val MOTEBEHOV_VARSEL_UKER = 16
-        private const val MOTEBEHOV_VARSEL_DAGER = MOTEBEHOV_VARSEL_UKER * 7
     }
 }

@@ -42,25 +42,5 @@ spring:
   jta.atomikos.datasource:
     max-pool-size: 32
     min-pool-size: 8
-  kafka:
-      client-id: ${app.name}-${kafka.env.name}
-      properties:
-        security.protocol: SASL_SSL
-        sasl:
-          mechanism: PLAIN
-          jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${srv.username}" password="${srv.password}";
-        ssl.truststore:
-          location: ${javax.net.ssl.trustStore}
-          password: ${javax.net.ssl.trustStorePassword}
-      producer:
-        key-serializer: org.apache.kafka.common.serialization.StringSerializer
-        value-serializer: org.apache.kafka.common.serialization.StringSerializer
-      consumer:
-        key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-        value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-        group-id: ${app.name}-${kafka.env.name}
-        max-poll-records: 1
-        auto-offset-reset: earliest
-        enable-auto-commit: false
 
 dev: false
