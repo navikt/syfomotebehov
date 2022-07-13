@@ -110,7 +110,7 @@ class DialogmoteDAO @Inject constructor(
         val query = """
             SELECT *
             FROM dialogmoter
-            WHERE person_ident = :person_ident AND (CAST (dialogmote_tidspunkt AS DATE) = :dialogmoteTidspunkt OR CAST (dialogmote_tidspunkt AS DATE) > :dialogmoteTidspunkt)
+            WHERE person_ident = :person_ident AND virksomhetsnummer = :virksomhetsnummer AND (CAST (dialogmote_tidspunkt AS DATE) = :dialogmoteTidspunkt OR CAST (dialogmote_tidspunkt AS DATE) > :dialogmoteTidspunkt)
         """.trimIndent()
         val mapSql = MapSqlParameterSource()
             .addValue("person_ident", fnr.value)
