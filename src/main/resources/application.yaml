@@ -7,6 +7,7 @@ no.nav.security:
         discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
         accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
         cookiename: selvbetjening-idtoken
+        proxy-url: http://webproxy.nais:8088
       intern:
         discoveryurl: <naiserator>
         accepted_audience: modiabrukerdialog-p,modiabrukerdialog-q1,veilarblogin-p,veilarblogin-q1,fpsak-frontend-p,fpsak-frontend-q1,fplos-p,fplos-q1
@@ -15,11 +16,13 @@ no.nav.security:
         discoveryurl: ${azure.app.well.known.url}
         accepted_audience: ${azure.app.client.id}
         cookiename: ID_token
+        proxy-url: http://webproxy.nais:8088
       sts:
         discoveryurl: http://security-token-service.default/rest/v1/sts/.well-known/openid-configuration
         accepted_audience: srvesyfovarsel
-
-
+      tokenx:
+        discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
+        accepted_audience: ${TOKEN_X_CLIENT_ID}
 
 logging.config: classpath:logback-spring.xml
 
