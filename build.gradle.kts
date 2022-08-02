@@ -9,7 +9,7 @@ object Versions {
     const val junitJupiterVersion = "5.8.2"
     const val kotlinJacksonVersion = "2.13.1"
     const val flywayVersion = "8.4.4"
-    const val tokenSupportVersion = "1.3.19"
+    const val tokenSupportVersion = "1.3.10"
     const val ojdbcVersion = "19.3.0.0"
     const val h2Version = "2.1.210"
     const val confluent = "7.1.1"

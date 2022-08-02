@@ -49,32 +49,13 @@ srv.password: "bur"
 toggle.enable:
   nullstill: true
 
-no.nav.security:
-  jwt:
-    issuer:
-      selvbetjening:
-        discoveryurl: http://selvbetjening-metadata
-        accepted_audience: aud-localhost
-        cookie_name: localhost-idtoken
-      intern:
-        discoveryurl: http://intern-metadata
-        accepted_audience: aud-localhost
-        cookiename: localhost-idtoken
-      internazureadv2:
-        discoveryurl: http://internazureadv2-metadata
-        accepted_audience: azure.app.client.id
-        cookiename: localhost-idtoken
-      sts:
-        discoveryurl: http://sts-metadata
-        accepted_audience: clientID
-      tokenx:
-        discoveryurl: http://tokenx-metadata
-        accepted_audience: clientID
+no.nav.security.jwt:
+  issuer:
+    selvbetjening.discoveryurl: http://metadata
+    selvbetjening.accepted_audience: aud-localhost
+    selvbetjening.cookie_name: localhost-idtoken
 
-syfobrukertilgang:
-  url: http://syfobrukertilgang
-  client:
-    id: syfobrukertilgangClientId
+syfobrukertilgang.url: "http://syfobrukertilgang"
 
 nais.cluster.name: 'local'
 
@@ -95,10 +76,3 @@ kafka.schema.registry.password: "kafka.schema.registry.password"
 kafka.schema.registry: "kafka.schema.registry"
 esyfovarselapi.url: "https://esyfovarselapiurl"
 app.name: "syfomotebehov"
-dialogmote.client.id: "dialogmote"
-dialogmotearbeidsgiver.client.id: "dialogmotearbeidsgiver"
-dialogmote.frontend.client.id: "dialogmote-frontend"
-tokenx.idp: "idporten"
-token.x.well.known.url: "https://token-x-well-known-url"
-token.x.client.id: "tokenx-client-id"
-token.x.private.jwk: "tokenx-jwk"
