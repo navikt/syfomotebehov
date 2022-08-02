@@ -2,7 +2,7 @@ package no.nav.syfo.varsel.api
 
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import no.nav.syfo.api.auth.OIDCIssuer.EKSTERN
+import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.api.auth.OIDCUtil
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.varsel.VarselService
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController
 import javax.inject.Inject
 
 @RestController
-@ProtectedWithClaims(issuer = EKSTERN, claimMap = ["acr=Level4"])
+@ProtectedWithClaims(issuer = OIDCIssuer.EKSTERN, claimMap = ["acr=Level4"])
 @RequestMapping(value = ["/api/esyfovarsel"])
 class EsyfovarselController @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,

@@ -7,14 +7,9 @@ import no.nav.security.token.support.test.JwtTokenGenerator
 import no.nav.syfo.api.auth.OIDCIssuer.EKSTERN
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.pdl.PdlConsumer
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.Mockito
+import org.mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
 
 @ExtendWith(MockitoExtension::class)
@@ -45,7 +40,7 @@ class BrukertilgangskontrollServiceTest {
     fun harTilgangTilOppslaattBrukerGirFalseNaarOppslaattBrukerErKode6() {
         Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(true)
         Mockito.`when`(pdlConsumer.isKode6(Fodselsnummer(SPOR_OM_FNR))).thenReturn(true)
-        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR, EKSTERN)
+        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR)
         Assertions.assertEquals(false, tilgang)
     }
 
@@ -53,44 +48,41 @@ class BrukertilgangskontrollServiceTest {
     fun harTilgangTilOppslaattBrukerGirTrueNaarManSporOmSegSelv() {
         Mockito.`when`(pdlConsumer.isKode6(Fodselsnummer(SPOR_OM_FNR))).thenReturn(false)
 
-        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(SPOR_OM_FNR, SPOR_OM_FNR, EKSTERN)
+        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(SPOR_OM_FNR, SPOR_OM_FNR)
         Assertions.assertEquals(true, tilgang)
     }
 
     @Test
     fun harTilgangTilOppslaattBrukerGirTrueNaarManSporOmEnAnsatt() {
         Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(true)
-        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR, EKSTERN)
+        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR)
         Assertions.assertEquals(true, tilgang)
     }
 
     @Test
     fun harTilgangTilOppslaattBrukerGirFalseNaarManSporOmEnSomIkkeErSegSelvOgIkkeAnsatt() {
         Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(false)
-        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR, EKSTERN)
+        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR)
         Assertions.assertEquals(false, tilgang)
     }
 
     @Test
     fun sporOmNoenAndreEnnSegSelvGirFalseNaarManSporOmSegSelv() {
-        val tilgang =
-            tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, INNLOGGET_FNR, EKSTERN)
+        val tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, INNLOGGET_FNR)
         Assertions.assertEquals(false, tilgang)
     }
 
     @Test
     fun sporOmNoenAndreEnnSegSelvGirFalseNaarManSporOmEnAnsatt() {
         Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(true)
-        val tilgang =
-            tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, SPOR_OM_FNR, EKSTERN)
+        val tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, SPOR_OM_FNR)
         Assertions.assertEquals(false, tilgang)
     }
 
     @Test
     fun sporOmNoenAndreEnnSegSelvGirTrueNaarManSporOmEnSomIkkeErSegSelvOgIkkeAnsatt() {
         Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(false)
-        val tilgang =
-            tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, SPOR_OM_FNR, EKSTERN)
+        val tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, SPOR_OM_FNR)
         Assertions.assertEquals(true, tilgang)
     }
 

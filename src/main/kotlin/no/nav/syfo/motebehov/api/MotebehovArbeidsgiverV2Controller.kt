@@ -1,8 +1,5 @@
 package no.nav.syfo.motebehov.api
 
-import javax.inject.Inject
-import javax.validation.Valid
-import javax.validation.constraints.Pattern
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.OIDCIssuer
@@ -15,12 +12,10 @@ import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiver
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import javax.inject.Inject
+import javax.validation.Valid
+import javax.validation.constraints.Pattern
 
 @RestController
 @ProtectedWithClaims(issuer = OIDCIssuer.EKSTERN, claimMap = ["acr=Level4"])
