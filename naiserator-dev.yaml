@@ -38,12 +38,17 @@ spec:
     - "https://syfomotebehov.nais.preprod.local"
     - "https://app-q1.adeo.no/syfomotebehov"
     - "https://syfomotebehov.dev-fss-pub.nais.io"
+  tokenx:
+    enabled: true
   accessPolicy:
     inbound:
       rules:
         - application: syfomodiaperson
           namespace: teamsykefravr
           cluster: dev-fss
+        - application: dialogmote-frontend
+          namespace: team-esyfo
+          cluster: dev-gcp
   azure:
     application:
       enabled: true
@@ -101,3 +106,9 @@ spec:
       value: https://isso-q.adeo.no:443/isso/oauth2/.well-known/openid-configuration
     - name: KAFKA_ENV_NAME
       value: q1
+    - name: DIALOGMOTE_FRONTEND_CLIENT_ID
+      value: dev-gcp:team-esyfo:dialogmote-frontend
+    - name: SYFOBRUKERTILGANG_CLIENT_ID
+      value: dev-fss:team-esyfo:syfobrukertilgang
+    - name: TOKENX_IDP
+      value: https://oidc-ver2.difi.no/idporten-oidc-provider/
