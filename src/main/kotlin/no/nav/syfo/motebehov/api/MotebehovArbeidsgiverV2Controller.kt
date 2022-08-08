@@ -44,7 +44,10 @@ class MotebehovArbeidsgiverV2Controller @Inject constructor(
         val fnr = Fodselsnummer(arbeidstakerFnr)
         brukertilgangService.kastExceptionHvisIkkeTilgang(fnr.value)
 
-        return motebehovStatusService.motebehovStatusForArbeidsgiver(fnr, virksomhetsnummer)
+        val arbeidsgiverFnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
+        val isOwnLeader = arbeidsgiverFnr.value == fnr.value
+
+        return motebehovStatusService.motebehovStatusForArbeidsgiver(fnr, isOwnLeader, virksomhetsnummer)
     }
 
     @PostMapping(
@@ -59,9 +62,13 @@ class MotebehovArbeidsgiverV2Controller @Inject constructor(
         val arbeidstakerFnr = Fodselsnummer(nyttMotebehov.arbeidstakerFnr)
         brukertilgangService.kastExceptionHvisIkkeTilgang(arbeidstakerFnr.value)
 
+        val arbeidsgiverFnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
+        val isOwnLeader = arbeidsgiverFnr.value == arbeidstakerFnr.value
+
         motebehovOpfolgingstilfelleService.createMotehovForArbeidgiver(
             OIDCUtil.fnrFraOIDCEkstern(contextHolder),
             arbeidstakerFnr,
+            isOwnLeader,
             nyttMotebehov
         )
     }

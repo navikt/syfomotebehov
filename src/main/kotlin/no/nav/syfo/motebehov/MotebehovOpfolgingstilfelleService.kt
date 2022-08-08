@@ -20,11 +20,12 @@ class MotebehovOpfolgingstilfelleService @Inject constructor(
     fun createMotehovForArbeidgiver(
         innloggetFnr: Fodselsnummer,
         arbeidstakerFnr: Fodselsnummer,
+        isOwnLeader: Boolean,
         nyttMotebehov: NyttMotebehovArbeidsgiver
     ) {
         val activeOppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, nyttMotebehov.virksomhetsnummer)
         if (activeOppfolgingstilfelle != null) {
-            val motebehovStatus = motebehovStatusService.motebehovStatusForArbeidsgiver(arbeidstakerFnr, nyttMotebehov.virksomhetsnummer)
+            val motebehovStatus = motebehovStatusService.motebehovStatusForArbeidsgiver(arbeidstakerFnr, isOwnLeader, nyttMotebehov.virksomhetsnummer)
 
             val isActiveOppfolgingstilfelleAvailableForAnswer = motebehovStatus.visMotebehov &&
                 motebehovStatus.skjemaType != null &&

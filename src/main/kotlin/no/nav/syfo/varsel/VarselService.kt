@@ -93,7 +93,7 @@ class VarselService @Inject constructor(
         virksomhetsnummer: String
     ): Boolean {
         return isSvarBehovVarselAvailable(
-            motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr, virksomhetsnummer),
+            motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr, false, virksomhetsnummer),
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, virksomhetsnummer)
         )
     }

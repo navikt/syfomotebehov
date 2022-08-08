@@ -38,8 +38,12 @@ class MotebehovBrukerController @Inject constructor(
                 arbeidstakerFnr!!
             )
         brukertilgangService.kastExceptionHvisIkkeTilgang(fnr.value)
+
+        val arbeidsgiverFnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
+        val isOwnLeader = arbeidsgiverFnr.value == fnr.value
+
         return if (virksomhetsnummer.isNotEmpty()) {
-            motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(fnr, virksomhetsnummer)
+            motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(fnr, isOwnLeader, virksomhetsnummer)
         } else motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(fnr)
     }
 

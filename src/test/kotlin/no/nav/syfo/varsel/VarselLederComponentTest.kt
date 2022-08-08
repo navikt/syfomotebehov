@@ -193,6 +193,7 @@ class VarselLederComponentTest {
         `when`(
             motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
                 Fodselsnummer(ARBEIDSTAKER_FNR),
+                false,
                 VIRKSOMHETSNUMMER
             )
         )
@@ -236,6 +237,7 @@ class VarselLederComponentTest {
         `when`(
             motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
                 Fodselsnummer(ARBEIDSTAKER_FNR),
+                false,
                 VIRKSOMHETSNUMMER
             )
         )
