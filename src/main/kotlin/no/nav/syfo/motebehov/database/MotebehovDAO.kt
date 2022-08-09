@@ -31,7 +31,11 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
         return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av = ? AND opprettet_dato >= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, hentTidligsteDatoForGyldigMotebehovSvar())).orElse(emptyList())
     }
 
-    fun hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerAktorId: String, virksomhetsnummer: String): List<PMotebehov> {
+    fun hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerAktorId: String, isOwnLeader: Boolean, virksomhetsnummer: String): List<PMotebehov> {
+        if (isOwnLeader) {
+            return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND virksomhetsnummer = ? AND opprettet_dato >= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar())).orElse(emptyList())
+        }
+
         return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av != ? AND virksomhetsnummer = ? AND opprettet_dato >= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar())).orElse(emptyList())
     }
 

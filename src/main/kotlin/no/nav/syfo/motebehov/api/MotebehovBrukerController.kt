@@ -38,8 +38,9 @@ class MotebehovBrukerController @Inject constructor(
                 arbeidstakerFnr!!
             )
         brukertilgangService.kastExceptionHvisIkkeTilgang(fnr.value)
+
         return if (virksomhetsnummer.isNotEmpty()) {
-            motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(fnr, virksomhetsnummer)
+            motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(fnr, false, virksomhetsnummer)
         } else motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(fnr)
     }
 

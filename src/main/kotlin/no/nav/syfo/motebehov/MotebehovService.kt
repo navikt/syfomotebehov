@@ -60,9 +60,9 @@ class MotebehovService @Inject constructor(
             .collect(Collectors.toList())
     }
 
-    fun hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr: Fodselsnummer, virksomhetsnummer: String): List<Motebehov> {
+    fun hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr: Fodselsnummer, isOwnLeader: Boolean, virksomhetsnummer: String): List<Motebehov> {
         val arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(arbeidstakerFnr.value))
-        return motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerAktoerId, virksomhetsnummer)
+        return motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerAktoerId, isOwnLeader, virksomhetsnummer)
             .stream()
             .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
             .collect(Collectors.toList())

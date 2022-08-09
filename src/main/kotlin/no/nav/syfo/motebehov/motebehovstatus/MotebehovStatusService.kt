@@ -34,12 +34,13 @@ class MotebehovStatusService @Inject constructor(
     }
     fun motebehovStatusForArbeidsgiver(
         arbeidstakerFnr: Fodselsnummer,
+        isOwnLeader: Boolean,
         virksomhetsnummer: String
     ): MotebehovStatus {
         val oppfolgingstilfelle =
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, virksomhetsnummer)
         val motebehovList =
-            motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr, virksomhetsnummer)
+            motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr, isOwnLeader, virksomhetsnummer)
 
         return motebehovStatus(oppfolgingstilfelle, motebehovList)
     }

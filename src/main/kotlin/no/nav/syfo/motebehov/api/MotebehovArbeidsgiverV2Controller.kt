@@ -10,7 +10,7 @@ import no.nav.syfo.api.auth.OIDCUtil
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.MotebehovOpfolgingstilfelleService
+import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleService
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiver
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController
 class MotebehovArbeidsgiverV2Controller @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
     private val metric: Metric,
-    private val motebehovOpfolgingstilfelleService: MotebehovOpfolgingstilfelleService,
+    private val motebehovOppfolgingstilfelleService: MotebehovOppfolgingstilfelleService,
     private val motebehovStatusService: MotebehovStatusService,
     private val brukertilgangService: BrukertilgangService
 ) {
@@ -44,7 +44,10 @@ class MotebehovArbeidsgiverV2Controller @Inject constructor(
         val fnr = Fodselsnummer(arbeidstakerFnr)
         brukertilgangService.kastExceptionHvisIkkeTilgang(fnr.value)
 
-        return motebehovStatusService.motebehovStatusForArbeidsgiver(fnr, virksomhetsnummer)
+        val arbeidsgiverFnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
+        val isOwnLeader = arbeidsgiverFnr.value == fnr.value
+
+        return motebehovStatusService.motebehovStatusForArbeidsgiver(fnr, isOwnLeader, virksomhetsnummer)
     }
 
     @PostMapping(
@@ -59,9 +62,13 @@ class MotebehovArbeidsgiverV2Controller @Inject constructor(
         val arbeidstakerFnr = Fodselsnummer(nyttMotebehov.arbeidstakerFnr)
         brukertilgangService.kastExceptionHvisIkkeTilgang(arbeidstakerFnr.value)
 
-        motebehovOpfolgingstilfelleService.createMotehovForArbeidgiver(
+        val arbeidsgiverFnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
+        val isOwnLeader = arbeidsgiverFnr.value == arbeidstakerFnr.value
+
+        motebehovOppfolgingstilfelleService.createMotehovForArbeidgiver(
             OIDCUtil.fnrFraOIDCEkstern(contextHolder),
             arbeidstakerFnr,
+            isOwnLeader,
             nyttMotebehov
         )
     }

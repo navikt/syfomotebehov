@@ -9,7 +9,7 @@ import no.nav.syfo.api.auth.tokenX.TokenXUtil.TokenXIssuer
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.MotebehovOpfolgingstilfelleService
+import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleService
 import no.nav.syfo.motebehov.MotebehovSvar
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
@@ -28,7 +28,7 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
     private val metric: Metric,
     private val motebehovStatusService: MotebehovStatusService,
-    private val motebehovOpfolgingstilfelleService: MotebehovOpfolgingstilfelleService,
+    private val motebehovOppfolgingstilfelleService: MotebehovOppfolgingstilfelleService,
     private val brukertilgangService: BrukertilgangService,
     @Value("\${dialogmote.frontend.client.id}")
     val dialogmoteClientId: String,
@@ -63,7 +63,7 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
 
         brukertilgangService.kastExceptionHvisIkkeTilgangTilSegSelv(arbeidstakerFnr.value)
 
-        motebehovOpfolgingstilfelleService.createMotehovForArbeidstaker(
+        motebehovOppfolgingstilfelleService.createMotehovForArbeidstaker(
             arbeidstakerFnr,
             nyttMotebehovSvar
         )

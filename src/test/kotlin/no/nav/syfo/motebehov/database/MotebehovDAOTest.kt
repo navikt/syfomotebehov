@@ -93,7 +93,7 @@ class MotebehovDAOTest {
             opprettetAv = LEDER_AKTORID
         )
         insertPMotebehov(pMotebehov)
-        val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(ARBEIDSTAKER_AKTORID, VIRKSOMHETSNUMMER)
+        val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(ARBEIDSTAKER_AKTORID, false, VIRKSOMHETSNUMMER)
         Assertions.assertThat(motebehovListe.size).isEqualTo(0)
     }
 
@@ -105,11 +105,26 @@ class MotebehovDAOTest {
             opprettetAv = LEDER_AKTORID
         )
         insertPMotebehov(pMotebehov)
-        val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(ARBEIDSTAKER_AKTORID, VIRKSOMHETSNUMMER)
+        val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(ARBEIDSTAKER_AKTORID, false, VIRKSOMHETSNUMMER)
         Assertions.assertThat(motebehovListe.size).isEqualTo(1)
         val motebehovFraDb = motebehovListe[0]
         Assertions.assertThat(motebehovFraDb.opprettetDato.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(pMotebehov.opprettetDato.truncatedTo(ChronoUnit.SECONDS))
         Assertions.assertThat(motebehovFraDb.opprettetAv).isEqualTo(LEDER_AKTORID)
+        Assertions.assertThat(motebehovFraDb.aktoerId).isEqualTo(pMotebehov.aktoerId)
+    }
+
+    @Test
+    fun skalHenteAlleMotebehovForAktorDersomEgenLeder() {
+        val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
+            opprettetDato = motebehovGenerator.getOpprettetDato(true),
+            opprettetAv = ARBEIDSTAKER_AKTORID
+        )
+        insertPMotebehov(pMotebehov)
+        val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(ARBEIDSTAKER_AKTORID, true, VIRKSOMHETSNUMMER)
+        Assertions.assertThat(motebehovListe.size).isEqualTo(1)
+        val motebehovFraDb = motebehovListe[0]
+        Assertions.assertThat(motebehovFraDb.opprettetDato.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(pMotebehov.opprettetDato.truncatedTo(ChronoUnit.SECONDS))
+        Assertions.assertThat(motebehovFraDb.opprettetAv).isEqualTo(ARBEIDSTAKER_AKTORID)
         Assertions.assertThat(motebehovFraDb.aktoerId).isEqualTo(pMotebehov.aktoerId)
     }
 
