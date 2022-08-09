@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional
 import javax.inject.Inject
 
 @Service
-class MotebehovOpfolgingstilfelleService @Inject constructor(
+class MotebehovOppfolgingstilfelleService @Inject constructor(
     private val metric: Metric,
     private val motebehovService: MotebehovService,
     private val motebehovStatusService: MotebehovStatusService,
@@ -20,11 +20,12 @@ class MotebehovOpfolgingstilfelleService @Inject constructor(
     fun createMotehovForArbeidgiver(
         innloggetFnr: Fodselsnummer,
         arbeidstakerFnr: Fodselsnummer,
+        isOwnLeader: Boolean,
         nyttMotebehov: NyttMotebehovArbeidsgiver
     ) {
         val activeOppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, nyttMotebehov.virksomhetsnummer)
         if (activeOppfolgingstilfelle != null) {
-            val motebehovStatus = motebehovStatusService.motebehovStatusForArbeidsgiver(arbeidstakerFnr, nyttMotebehov.virksomhetsnummer)
+            val motebehovStatus = motebehovStatusService.motebehovStatusForArbeidsgiver(arbeidstakerFnr, isOwnLeader, nyttMotebehov.virksomhetsnummer)
 
             val isActiveOppfolgingstilfelleAvailableForAnswer = motebehovStatus.visMotebehov &&
                 motebehovStatus.skjemaType != null &&
@@ -109,7 +110,7 @@ class MotebehovOpfolgingstilfelleService @Inject constructor(
     }
 
     companion object {
-        private val LOG = LoggerFactory.getLogger(MotebehovOpfolgingstilfelleService::class.java)
+        private val LOG = LoggerFactory.getLogger(MotebehovOppfolgingstilfelleService::class.java)
         private const val METRIC_CREATE_FAILED_BASE = "create_motebehov_fail_no_oppfolgingstilfelle"
         private const val METRIC_CREATE_FAILED_ARBEIDSTAKER = "${METRIC_CREATE_FAILED_BASE}_arbeidstaker"
         private const val METRIC_CREATE_FAILED_ARBEIDSGIVER = "${METRIC_CREATE_FAILED_BASE}_arbeidsgiver"
