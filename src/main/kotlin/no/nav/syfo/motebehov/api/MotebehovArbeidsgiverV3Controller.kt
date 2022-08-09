@@ -7,7 +7,7 @@ import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.MotebehovOpfolgingstilfelleService
+import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleService
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiver
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
@@ -24,7 +24,7 @@ import javax.validation.constraints.Pattern
 class MotebehovArbeidsgiverV3Controller @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
     private val metric: Metric,
-    private val motebehovOpfolgingstilfelleService: MotebehovOpfolgingstilfelleService,
+    private val motebehovOppfolgingstilfelleService: MotebehovOppfolgingstilfelleService,
     private val motebehovStatusService: MotebehovStatusService,
     private val brukertilgangService: BrukertilgangService,
     @Value("\${dialogmote.frontend.client.id}")
@@ -68,7 +68,7 @@ class MotebehovArbeidsgiverV3Controller @Inject constructor(
         val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
         val isOwnLeader = arbeidsgiverFnr.value == ansattFnr.value
 
-        motebehovOpfolgingstilfelleService.createMotehovForArbeidgiver(
+        motebehovOppfolgingstilfelleService.createMotehovForArbeidgiver(
             innloggetFnr,
             ansattFnr,
             isOwnLeader,

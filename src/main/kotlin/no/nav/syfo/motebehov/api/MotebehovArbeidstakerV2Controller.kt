@@ -8,7 +8,7 @@ import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.api.auth.OIDCUtil
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.MotebehovOpfolgingstilfelleService
+import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleService
 import no.nav.syfo.motebehov.MotebehovSvar
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
@@ -26,7 +26,7 @@ class MotebehovArbeidstakerV2Controller @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
     private val metric: Metric,
     private val motebehovStatusService: MotebehovStatusService,
-    private val motebehovOpfolgingstilfelleService: MotebehovOpfolgingstilfelleService,
+    private val motebehovOppfolgingstilfelleService: MotebehovOppfolgingstilfelleService,
     private val brukertilgangService: BrukertilgangService
 ) {
     @GetMapping(
@@ -54,7 +54,7 @@ class MotebehovArbeidstakerV2Controller @Inject constructor(
         val arbeidstakerFnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
         brukertilgangService.kastExceptionHvisIkkeTilgang(arbeidstakerFnr.value)
 
-        motebehovOpfolgingstilfelleService.createMotehovForArbeidstaker(
+        motebehovOppfolgingstilfelleService.createMotehovForArbeidstaker(
             OIDCUtil.fnrFraOIDCEkstern(contextHolder),
             nyttMotebehovSvar
         )
