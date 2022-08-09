@@ -49,6 +49,9 @@ spec:
         - application: dialogmote-frontend
           namespace: team-esyfo
           cluster: prod-gcp
+        - application: ditt-sykefravaer
+          namespace: flex
+          cluster: prod-gcp
   azure:
     application:
       enabled: true
