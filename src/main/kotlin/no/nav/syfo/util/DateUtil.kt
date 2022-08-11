@@ -1,10 +1,7 @@
 package no.nav.syfo.util
 
 import java.sql.Timestamp
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
+import java.time.*
 
 val ZONE_ID = "Europe/Oslo"
 

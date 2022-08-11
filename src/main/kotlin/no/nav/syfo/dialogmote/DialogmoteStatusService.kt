@@ -5,8 +5,8 @@ import javax.inject.Inject
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring
 import no.nav.syfo.dialogmote.database.DialogmoteDAO
-import no.nav.syfo.oppfolgingstilfelle.database.Dialogmote
-import no.nav.syfo.oppfolgingstilfelle.database.DialogmoteStatusEndringType
+import no.nav.syfo.dialogmote.database.Dialogmote
+import no.nav.syfo.dialogmote.database.DialogmoteStatusEndringType
 import no.nav.syfo.util.convertInstantToLocalDateTime
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
