@@ -42,9 +42,6 @@ class TokenDingsConsumer @Inject constructor(
         val tokendingsEndpoint = tokenDingsMetadataConsumer.getTokenDingsMetadata().tokenEndpoint
         val requestEntity = requestEntity(subjectToken, tokendingsEndpoint, targetApp)
 
-        log.warn("requestEntity: $requestEntity")
-        log.warn("wellKnownUrl: $tokendingsEndpoint")
-
         val cachedToken = tokenXCache[targetApp]
 
         return if (cachedToken?.isExpired() == false) {
