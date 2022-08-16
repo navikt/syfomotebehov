@@ -9,10 +9,8 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import java.time.Instant
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import no.nav.syfo.consumer.tokenx.TokenXResponse
-import no.nav.syfo.consumer.tokenx.TokenXToken
 import no.nav.syfo.consumer.tokenx.toTokenXToken
 import no.nav.syfo.consumer.tokenx.tokendings.metadata.TokenDingsMetadataConsumer
 import org.slf4j.LoggerFactory
@@ -49,7 +47,6 @@ class TokenDingsConsumer @Inject constructor(
                 TokenXResponse::class.java
             )
             val tokenX = response.body!!.toTokenXToken()
-            tokenXCache[targetApp] = tokenX
 
             return tokenX.accessToken
         } catch (e: RestClientResponseException) {
@@ -95,7 +92,6 @@ class TokenDingsConsumer @Inject constructor(
     }
 
     companion object {
-        private val tokenXCache = ConcurrentHashMap<String, TokenXToken>()
         private val log = LoggerFactory.getLogger(TokenDingsConsumer::class.java)
     }
 }
