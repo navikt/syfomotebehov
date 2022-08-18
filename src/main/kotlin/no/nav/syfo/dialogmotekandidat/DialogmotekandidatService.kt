@@ -3,7 +3,7 @@ package no.nav.syfo.dialogmotekandidat
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndring
-import no.nav.syfo.extensions.toNorwegianLocalDateTime
+import no.nav.syfo.util.toNorwegianLocalDateTime
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import javax.inject.Inject

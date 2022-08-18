@@ -29,3 +29,6 @@ fun convertInstantToLocalDateTime(instant: Instant): LocalDateTime {
 fun convertLocalDateTimeToInstant(localDateTime: LocalDateTime): Instant {
     return localDateTime.atZone(ZoneId.of(ZONE_ID)).toInstant()
 }
+
+fun OffsetDateTime.toNorwegianLocalDateTime(): LocalDateTime = this.atZoneSameInstant(ZoneId.of("Europe/Oslo"))
+    .toLocalDateTime()

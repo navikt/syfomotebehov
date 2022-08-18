@@ -2,6 +2,8 @@ package no.nav.syfo.dialogmotekandidat.database
 
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.util.convert
+import no.nav.syfo.util.mapToBoolean
+import no.nav.syfo.util.mapToString
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -17,19 +19,6 @@ import javax.inject.Inject
 class DialogmotekandidatDAO @Inject constructor(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 ) {
-
-    fun mapBooleanToString(value: Boolean): String {
-        if (value) return "1"
-
-        return "0"
-    }
-
-    fun mapNumberToBoolean(value: String): Boolean {
-        if (value == "1") return true
-
-        return false
-    }
-
     fun get(fnr: Fodselsnummer): DialogmoteKandidatEndring? {
         val query = """
             SELECT *
@@ -66,7 +55,7 @@ class DialogmotekandidatDAO @Inject constructor(
             .addValue("uuid", uuid.toString())
             .addValue("dialogmotekandidatExternalUUID", dialogmotekandidatExternalUUID)
             .addValue("fnr", fnr.value)
-            .addValue("kandidat", mapBooleanToString(kandidat))
+            .addValue("kandidat", kandidat.mapToString())
             .addValue("arsak", arsak)
             .addValue("createdAt", convert(createdAt))
             .addValue("databaseUpdatedAt", convert(LocalDateTime.now()))
@@ -89,7 +78,7 @@ class DialogmotekandidatDAO @Inject constructor(
         val mapSaveSql = MapSqlParameterSource()
             .addValue("dialogmotekandidatExternalUUID", dialogmotekandidatExternalUUID)
             .addValue("fnr", fnr.value)
-            .addValue("kandidat", mapBooleanToString(kandidat))
+            .addValue("kandidat", kandidat.mapToString())
             .addValue("arsak", arsak)
             .addValue("createdAt", convert(createdAt))
             .addValue("databaseUpdatedAt", convert(LocalDateTime.now()))
@@ -101,7 +90,7 @@ class DialogmotekandidatDAO @Inject constructor(
             uuid = UUID.fromString(resultSet.getString(COLUMN_UUID)),
             dialogmotekandidatExternUUID = UUID.fromString(resultSet.getString(COLUMN_EXTERNAL_UUID)),
             personIdentNumber = resultSet.getString(COLUMN_PERSON_IDENT),
-            kandidat = mapNumberToBoolean(resultSet.getString(COLUMN_KANDIDAT)),
+            kandidat = resultSet.getString(COLUMN_KANDIDAT).mapToBoolean(),
             arsak = DialogmotekandidatEndringArsak.valueOf(resultSet.getString(COLUMN_ARSAK)),
             createdAt = resultSet.getTimestamp(COLUMN_CREATED_AT).toLocalDateTime(),
             databaseUpdatedAt = resultSet.getTimestamp(COLUMN_DATABASE_UPDATED_AT).toLocalDateTime(),
