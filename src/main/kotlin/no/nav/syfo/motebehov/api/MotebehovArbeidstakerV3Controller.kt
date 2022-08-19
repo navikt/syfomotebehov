@@ -1,7 +1,5 @@
 package no.nav.syfo.motebehov.api
 
-import javax.inject.Inject
-import javax.validation.Valid
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.tokenX.TokenXUtil
@@ -15,11 +13,9 @@ import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import javax.inject.Inject
+import javax.validation.Valid
 
 @RestController
 @ProtectedWithClaims(issuer = TokenXIssuer.TOKENX, claimMap = ["acr=Level4"])
@@ -40,7 +36,7 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
     fun motebehovStatusArbeidstaker(): MotebehovStatus {
-        val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId, dialogmoteTokenxIdp)
+        val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteTokenxIdp, dialogmoteClientId)
             .fnrFromIdportenTokenX()
 
         brukertilgangService.kastExceptionHvisIkkeTilgangTilSegSelv(arbeidstakerFnr.value)
@@ -58,7 +54,7 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
         @RequestBody nyttMotebehovSvar: @Valid MotebehovSvar
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker")
-        val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId, dialogmoteTokenxIdp)
+        val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteTokenxIdp, dialogmoteClientId)
             .fnrFromIdportenTokenX()
 
         brukertilgangService.kastExceptionHvisIkkeTilgangTilSegSelv(arbeidstakerFnr.value)

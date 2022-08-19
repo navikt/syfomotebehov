@@ -115,4 +115,6 @@ spec:
       value: prod-fss:team-esyfo:syfobrukertilgang
     - name: TOKENX_IDP
       value: https://oidc.difi.no/idporten-oidc-provider/
+    - name: DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID
+      value: prod-gcp:flex:ditt-sykefravaer
 
