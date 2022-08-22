@@ -29,8 +29,6 @@ class MotebehovArbeidsgiverV3Controller @Inject constructor(
     private val brukertilgangService: BrukertilgangService,
     @Value("\${dialogmote.frontend.client.id}")
     val dialogmoteClientId: String,
-    @Value("\${ditt.sykefravaer.frontend.client.id}")
-    val dittSykefravaerClientId: String,
     @Value("\${tokenx.idp}")
     val dialogmoteTokenxIdp: String
 ) {
@@ -43,7 +41,7 @@ class MotebehovArbeidsgiverV3Controller @Inject constructor(
         @RequestParam(name = "virksomhetsnummer") virksomhetsnummer: String
     ): MotebehovStatus {
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver")
-        TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteTokenxIdp, dialogmoteClientId, dittSykefravaerClientId)
+        TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteTokenxIdp, dialogmoteClientId)
         val ansattFnr = Fodselsnummer(arbeidstakerFnr)
         brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsattTokenX(ansattFnr.value)
 
