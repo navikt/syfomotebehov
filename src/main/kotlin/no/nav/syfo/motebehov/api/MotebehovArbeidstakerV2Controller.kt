@@ -9,9 +9,12 @@ import no.nav.syfo.api.auth.OIDCUtil
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleService
+import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.MotebehovSvar
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -26,8 +29,12 @@ class MotebehovArbeidstakerV2Controller @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
     private val metric: Metric,
     private val motebehovStatusService: MotebehovStatusService,
+    private val motebehovStatusServiceV2: MotebehovStatusServiceV2,
     private val motebehovOppfolgingstilfelleService: MotebehovOppfolgingstilfelleService,
-    private val brukertilgangService: BrukertilgangService
+    private val motebehovOppfolgingstilfelleServiceV2: MotebehovOppfolgingstilfelleServiceV2,
+    private val brukertilgangService: BrukertilgangService,
+    @Value("\${use.kandidatlista}")
+    private val useKandidatlista: Boolean,
 ) {
     @GetMapping(
         value = ["/motebehov"],
@@ -38,6 +45,11 @@ class MotebehovArbeidstakerV2Controller @Inject constructor(
         brukertilgangService.kastExceptionHvisIkkeTilgang(fnr.value)
 
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker")
+
+        if (useKandidatlista) {
+            return motebehovStatusServiceV2.motebehovStatusForArbeidstaker(fnr)
+        }
+
         return motebehovStatusService.motebehovStatusForArbeidstaker(fnr)
     }
 
@@ -54,9 +66,16 @@ class MotebehovArbeidstakerV2Controller @Inject constructor(
         val arbeidstakerFnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
         brukertilgangService.kastExceptionHvisIkkeTilgang(arbeidstakerFnr.value)
 
-        motebehovOppfolgingstilfelleService.createMotehovForArbeidstaker(
-            OIDCUtil.fnrFraOIDCEkstern(contextHolder),
-            nyttMotebehovSvar
-        )
+        if (useKandidatlista) {
+            motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidstaker(
+                OIDCUtil.fnrFraOIDCEkstern(contextHolder),
+                nyttMotebehovSvar
+            )
+        } else {
+            motebehovOppfolgingstilfelleService.createMotehovForArbeidstaker(
+                OIDCUtil.fnrFraOIDCEkstern(contextHolder),
+                nyttMotebehovSvar
+            )
+        }
     }
 }

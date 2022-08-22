@@ -97,6 +97,14 @@ class DialogmotekandidatDAO @Inject constructor(
         )
     }
 
+    fun delete(fnr: Fodselsnummer): Int {
+        return namedParameterJdbcTemplate.update(
+            "DELETE FROM DIALOGMOTEKANDIDAT WHERE $COLUMN_PERSON_IDENT = (:fnr)",
+            MapSqlParameterSource()
+                .addValue("fnr", fnr.value)
+        )
+    }
+
     companion object {
         const val COLUMN_UUID = "uuid"
         const val COLUMN_EXTERNAL_UUID = "dialogmotekandidat_external_uuid"
