@@ -1,4 +1,4 @@
-package no.nav.syfo.oppfolgingstilfelle.database
+package no.nav.syfo.dialogmote.database
 
 import java.time.LocalDateTime
 import java.util.*

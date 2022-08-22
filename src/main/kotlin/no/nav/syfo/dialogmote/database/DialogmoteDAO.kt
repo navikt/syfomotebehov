@@ -5,8 +5,6 @@ import java.time.LocalDateTime
 import java.util.*
 import javax.inject.Inject
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.oppfolgingstilfelle.database.Dialogmote
-import no.nav.syfo.oppfolgingstilfelle.database.DialogmoteStatusEndringType
 import no.nav.syfo.util.convert
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource

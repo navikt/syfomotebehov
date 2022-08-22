@@ -9,7 +9,7 @@ import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring
 import no.nav.syfo.dialogmote.database.DialogmoteDAO
-import no.nav.syfo.oppfolgingstilfelle.database.DialogmoteStatusEndringType
+import no.nav.syfo.dialogmote.database.DialogmoteStatusEndringType
 import no.nav.syfo.testhelper.UserConstants
 import no.nav.syfo.util.convertLocalDateTimeToInstant
 import org.assertj.core.api.Assertions
