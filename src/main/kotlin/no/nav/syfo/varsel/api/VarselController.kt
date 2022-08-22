@@ -7,17 +7,11 @@ import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.varsel.MotebehovsvarSykmeldtVarselInfo
-import no.nav.syfo.varsel.MotebehovsvarVarselInfo
-import no.nav.syfo.varsel.MotebehovsvarVarselInfoArbeidstaker
-import no.nav.syfo.varsel.VarselService
+import no.nav.syfo.varsel.*
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import javax.inject.Inject
 import javax.ws.rs.core.Response
 
@@ -26,7 +20,10 @@ import javax.ws.rs.core.Response
 class VarselController @Inject constructor(
     private val metric: Metric,
     private val aktorregisterConsumer: AktorregisterConsumer,
-    private val varselService: VarselService
+    private val varselService: VarselService,
+    private val varselServiceV2: VarselServiceV2,
+    @Value("\${use.kandidatlista}")
+    private val useKandidatlista: Boolean,
 ) {
     @ResponseBody
     @ProtectedWithClaims(issuer = STS)
@@ -34,7 +31,11 @@ class VarselController @Inject constructor(
     fun sendVarselNaermesteLeder(
         @RequestBody motebehovsvarVarselInfo: MotebehovsvarVarselInfo
     ): Response {
-        varselService.sendVarselTilNaermesteLeder(motebehovsvarVarselInfo)
+        if (useKandidatlista) {
+            varselServiceV2.sendVarselTilNaermesteLeder(motebehovsvarVarselInfo)
+        } else {
+            varselService.sendVarselTilNaermesteLeder(motebehovsvarVarselInfo)
+        }
         return Response
             .ok()
             .build()
@@ -46,7 +47,11 @@ class VarselController @Inject constructor(
     fun sendVarselArbeidstaker(
         @RequestBody motebehovsvarVarselInfo: MotebehovsvarSykmeldtVarselInfo
     ): Response {
-        varselService.sendVarselTilArbeidstaker(motebehovsvarVarselInfo)
+        if (useKandidatlista) {
+            varselServiceV2.sendVarselTilArbeidstaker(motebehovsvarVarselInfo)
+        } else {
+            varselService.sendVarselTilArbeidstaker(motebehovsvarVarselInfo)
+        }
         return Response
             .ok()
             .build()
@@ -59,7 +64,13 @@ class VarselController @Inject constructor(
         @RequestBody motebehovsvarVarselInfo: MotebehovsvarVarselInfoArbeidstaker
     ): ResponseEntity<Boolean> {
         val arbeidstakerFnr = aktorregisterConsumer.getFnrForAktorId(AktorId(motebehovsvarVarselInfo.sykmeldtAktorId))
-        val isSvarBehovVarselAvailableForArbeidstaker = varselService.isSvarBehovVarselAvailableArbeidstaker(Fodselsnummer(arbeidstakerFnr))
+
+        val isSvarBehovVarselAvailableForArbeidstaker = if (useKandidatlista) {
+            varselServiceV2.isSvarBehovVarselAvailableArbeidstaker(Fodselsnummer(arbeidstakerFnr))
+        } else {
+            varselService.isSvarBehovVarselAvailableArbeidstaker(Fodselsnummer(arbeidstakerFnr))
+        }
+
         countMotebehovVarselAvailabilityArbeidstaker(isSvarBehovVarselAvailableForArbeidstaker)
         return ResponseEntity
             .ok()

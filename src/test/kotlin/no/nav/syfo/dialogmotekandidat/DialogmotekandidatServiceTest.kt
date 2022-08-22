@@ -6,7 +6,7 @@ import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
 import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndring
 import no.nav.syfo.testhelper.UserConstants
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -59,7 +59,7 @@ internal class DialogmotekandidatServiceTest {
             Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR)
         )
 
-        Assertions.assertThat(existingKandidat).isNull()
+        assertThat(existingKandidat).isNull()
 
         dialogmotekandidatService.receiveDialogmotekandidatEndring(
             generateDialogmotekandidatEndring(
@@ -73,11 +73,11 @@ internal class DialogmotekandidatServiceTest {
             Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR)
         )
 
-        Assertions.assertThat(kandidatAfterKafkaMessage).isNotNull
-        Assertions.assertThat(kandidatAfterKafkaMessage?.databaseUpdatedAt).isNotNull
-        Assertions.assertThat(kandidatAfterKafkaMessage?.personIdentNumber).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
-        Assertions.assertThat(kandidatAfterKafkaMessage?.kandidat).isTrue
-        Assertions.assertThat(kandidatAfterKafkaMessage?.arsak).isEqualTo(DialogmotekandidatEndringArsak.STOPPUNKT)
+        assertThat(kandidatAfterKafkaMessage).isNotNull
+        assertThat(kandidatAfterKafkaMessage?.databaseUpdatedAt).isNotNull
+        assertThat(kandidatAfterKafkaMessage?.personIdentNumber).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
+        assertThat(kandidatAfterKafkaMessage?.kandidat).isTrue
+        assertThat(kandidatAfterKafkaMessage?.arsak).isEqualTo(DialogmotekandidatEndringArsak.STOPPUNKT)
     }
 
     @Test
@@ -94,9 +94,9 @@ internal class DialogmotekandidatServiceTest {
             Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR)
         )
 
-        Assertions.assertThat(existingKandidat).isNotNull
-        Assertions.assertThat(existingKandidat?.kandidat).isTrue
-        Assertions.assertThat(existingKandidat?.arsak).isEqualTo(DialogmotekandidatEndringArsak.STOPPUNKT)
+        assertThat(existingKandidat).isNotNull
+        assertThat(existingKandidat?.kandidat).isTrue
+        assertThat(existingKandidat?.arsak).isEqualTo(DialogmotekandidatEndringArsak.STOPPUNKT)
 
         dialogmotekandidatService.receiveDialogmotekandidatEndring(
             generateDialogmotekandidatEndring(
@@ -110,9 +110,9 @@ internal class DialogmotekandidatServiceTest {
             Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR)
         )
 
-        Assertions.assertThat(updatedKandidat).isNotNull
-        Assertions.assertThat(updatedKandidat?.kandidat).isFalse
-        Assertions.assertThat(updatedKandidat?.arsak).isEqualTo(DialogmotekandidatEndringArsak.UNNTAK)
+        assertThat(updatedKandidat).isNotNull
+        assertThat(updatedKandidat?.kandidat).isFalse
+        assertThat(updatedKandidat?.arsak).isEqualTo(DialogmotekandidatEndringArsak.UNNTAK)
     }
 
     @Test
@@ -143,8 +143,8 @@ internal class DialogmotekandidatServiceTest {
         )
 
         // Nyeste melding er den som har blitt persistert
-        Assertions.assertThat(kandidatStatus).isNotNull
-        Assertions.assertThat(kandidatStatus?.kandidat).isFalse
-        Assertions.assertThat(kandidatStatus?.arsak).isEqualTo(DialogmotekandidatEndringArsak.DIALOGMOTE_FERDIGSTILT)
+        assertThat(kandidatStatus).isNotNull
+        assertThat(kandidatStatus?.kandidat).isFalse
+        assertThat(kandidatStatus?.arsak).isEqualTo(DialogmotekandidatEndringArsak.DIALOGMOTE_FERDIGSTILT)
     }
 }

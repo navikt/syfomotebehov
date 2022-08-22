@@ -1,8 +1,8 @@
 package no.nav.syfo.motebehov.api
 
-import java.time.LocalDate
-import java.util.function.Consumer
-import javax.inject.Inject
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import io.mockk.verify
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
@@ -10,6 +10,8 @@ import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.sts.StsConsumer
+import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
+import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
 import no.nav.syfo.motebehov.MotebehovSvar
 import no.nav.syfo.motebehov.api.internad.v2.MotebehovVeilederADControllerV2
 import no.nav.syfo.motebehov.database.MotebehovDAO
@@ -33,24 +35,24 @@ import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.generator.generateStsToken
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mockito
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.times
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.cache.CacheManager
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.web.client.RestTemplate
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
+import java.util.function.Consumer
+import javax.inject.Inject
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
@@ -71,36 +73,39 @@ class MotebehovArbeidstakerV2Test {
     @Inject
     private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV2
 
-    @Inject
+    @Autowired
     private lateinit var contextHolder: TokenValidationContextHolder
 
-    @Inject
+    @Autowired
     private lateinit var motebehovDAO: MotebehovDAO
 
-    @Inject
+    @Autowired
     private lateinit var cacheManager: CacheManager
 
-    @Inject
+    @Autowired
     private lateinit var oppfolgingstilfelleDAO: OppfolgingstilfelleDAO
 
-    @Inject
+    @Autowired
+    private lateinit var dialogmotekandidatDAO: DialogmotekandidatDAO
+
+    @Autowired
     @Qualifier("restTemplateWithProxy")
     private lateinit var restTemplateWithProxy: RestTemplate
     private lateinit var mockRestServiceWithProxyServer: MockRestServiceServer
 
-    @Inject
+    @Autowired
     private lateinit var restTemplate: RestTemplate
 
-    @MockBean
+    @MockkBean
     private lateinit var aktorregisterConsumer: AktorregisterConsumer
 
-    @MockBean
+    @MockkBean
     private lateinit var pdlConsumer: PdlConsumer
 
-    @MockBean
+    @MockkBean
     private lateinit var stsConsumer: StsConsumer
 
-    @MockBean
+    @MockkBean(relaxed = true)
     private lateinit var oversikthendelseProducer: OversikthendelseProducer
 
     private lateinit var mockRestServiceServer: MockRestServiceServer
@@ -111,11 +116,11 @@ class MotebehovArbeidstakerV2Test {
 
     @BeforeEach
     fun setUp() {
-        `when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(
-            ARBEIDSTAKER_AKTORID
-        )
-        `when`(pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(generatePdlHentPerson(null, null))
-        `when`(stsConsumer.token()).thenReturn(stsToken)
+        every { aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns ARBEIDSTAKER_AKTORID
+        every { pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns generatePdlHentPerson(null, null)
+        every { stsConsumer.token() } returns stsToken
+        every { pdlConsumer.isKode6(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns false
+
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
         mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
         loggInnBruker(contextHolder, ARBEIDSTAKER_FNR)
@@ -197,6 +202,8 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `getMotebehovStatus With Today Inside Oppfolgingstilfelle Merged By Active And Expired Oppfolgingstilfelle With Overlap`() {
+        createKandidatInDB()
+
         val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
         oppfolgingstilfelleDAO.create(
             generateOversikthendelsetilfelle.copy(
@@ -345,6 +352,8 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus With No Motebehov And Mote Inside SvarBehov Upper Limit`() {
+        createKandidatInDB()
+
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
             fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).plusDays(1),
             tom = LocalDate.now().plusDays(1)
@@ -358,6 +367,8 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus with SvarBehov and Mote created`() {
+        createKandidatInDB()
+
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
             fom = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).plusDays(1),
             tom = LocalDate.now().plusDays(1)
@@ -376,6 +387,8 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus with no Motebehov and no Mote inside SvarBehov lower limit`() {
+        createKandidatInDB()
+
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle.copy(
             fom = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV),
             tom = LocalDate.now().plusDays(1)
@@ -389,14 +402,19 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus with no Motebehov and no Mote`() {
+        createKandidatInDB()
+
         val kOppfolgingstilfelle = generateOversikthendelsetilfelle
         oppfolgingstilfelleDAO.create(kOppfolgingstilfelle)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
     }
+
     @Test
     fun `get MotebehovStatus and sendOversikthendelse with Motebehov harBehov=true`() {
+        createKandidatInDB()
+
         oppfolgingstilfelleDAO.create(
             generateOversikthendelsetilfelle.copy(
                 fnr = ARBEIDSTAKER_FNR,
@@ -408,6 +426,8 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus and SendOversikthendelse with Motebehov harBehov=false`() {
+        createKandidatInDB()
+
         oppfolgingstilfelleDAO.create(
             generateOversikthendelsetilfelle.copy(
                 fnr = ARBEIDSTAKER_FNR,
@@ -453,7 +473,7 @@ class MotebehovArbeidstakerV2Test {
         val motebehovList = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(ARBEIDSTAKER_AKTORID)
 
         assertEquals(2, motebehovList.size)
-        Mockito.verify(oversikthendelseProducer, times(2)).sendOversikthendelse(any(), any())
+        verify(exactly = 2) { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
     }
 
     private fun submitMotebehovAndSendOversikthendelse(motebehovSvar: MotebehovSvar) {
@@ -466,9 +486,9 @@ class MotebehovArbeidstakerV2Test {
 
         motebehovArbeidstakerController.submitMotebehovArbeidstaker(motebehovSvar)
         if (motebehovSvar.harMotebehov) {
-            Mockito.verify(oversikthendelseProducer).sendOversikthendelse(any(), any())
+            verify { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
         } else {
-            Mockito.verify(oversikthendelseProducer, Mockito.never()).sendOversikthendelse(any(), any())
+            verify(exactly = 0) { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
         }
     }
 
@@ -501,9 +521,9 @@ class MotebehovArbeidstakerV2Test {
         Assertions.assertThat(motebehov.skjemaType).isEqualTo(motebehovStatus.skjemaType)
         Assertions.assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(motebehovSvar)
         if (harBehov) {
-            Mockito.verify(oversikthendelseProducer).sendOversikthendelse(any(), any())
+            verify { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
         } else {
-            Mockito.verify(oversikthendelseProducer, Mockito.never()).sendOversikthendelse(any(), any())
+            verify(exactly = 0) { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
         }
     }
 
@@ -517,19 +537,25 @@ class MotebehovArbeidstakerV2Test {
             fnr
         )
     }
+
+    private fun createKandidatInDB() {
+        dialogmotekandidatDAO.create(
+            dialogmotekandidatExternalUUID = UUID.randomUUID().toString(),
+            createdAt = LocalDateTime.now().minusDays(DAYS_START_SVAR_BEHOV),
+            fnr = Fodselsnummer(ARBEIDSTAKER_FNR),
+            kandidat = true,
+            arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name
+        )
+    }
+
     private fun resetMockRestServers() {
         mockRestServiceServer.reset()
         mockRestServiceWithProxyServer.reset()
     }
+
     private fun cleanDB() {
         motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID)
         oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(Fodselsnummer(ARBEIDSTAKER_FNR))
+        dialogmotekandidatDAO.delete(Fodselsnummer(ARBEIDSTAKER_FNR))
     }
 }
-
-private fun <T> any(): T {
-    Mockito.any<T>()
-    return uninitialized()
-}
-
-private fun <T> uninitialized(): T = null as T

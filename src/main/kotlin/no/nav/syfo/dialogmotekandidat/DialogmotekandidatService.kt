@@ -1,6 +1,7 @@
 package no.nav.syfo.dialogmotekandidat
 
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.dialogmotekandidat.database.DialogmoteKandidatEndring
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndring
 import no.nav.syfo.util.toNorwegianLocalDateTime
@@ -40,6 +41,10 @@ class DialogmotekandidatService @Inject constructor(
                 )
             }
         }
+    }
+
+    fun getDialogmotekandidatStatus(arbeidstakerFnr: Fodselsnummer): DialogmoteKandidatEndring? {
+        return dialogmotekandidatDAO.get(arbeidstakerFnr)
     }
 
     companion object {

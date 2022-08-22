@@ -118,3 +118,5 @@ spec:
     - name: DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID
       value: prod-gcp:flex:ditt-sykefravaer
 
+    - name: USE_KANDIDATLISTA
+      value: "false"

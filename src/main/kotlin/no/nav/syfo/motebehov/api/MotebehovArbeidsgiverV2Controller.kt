@@ -11,9 +11,12 @@ import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleService
+import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiver
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -29,8 +32,12 @@ class MotebehovArbeidsgiverV2Controller @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
     private val metric: Metric,
     private val motebehovOppfolgingstilfelleService: MotebehovOppfolgingstilfelleService,
+    private val motebehovOppfolgingstilfelleServiceV2: MotebehovOppfolgingstilfelleServiceV2,
     private val motebehovStatusService: MotebehovStatusService,
-    private val brukertilgangService: BrukertilgangService
+    private val motebehovStatusServiceV2: MotebehovStatusServiceV2,
+    private val brukertilgangService: BrukertilgangService,
+    @Value("\${use.kandidatlista}")
+    private val useKandidatlista: Boolean,
 ) {
     @GetMapping(
         value = ["/motebehov"],
@@ -46,6 +53,10 @@ class MotebehovArbeidsgiverV2Controller @Inject constructor(
 
         val arbeidsgiverFnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
         val isOwnLeader = arbeidsgiverFnr.value == fnr.value
+
+        if (useKandidatlista) {
+            return motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(fnr, isOwnLeader, virksomhetsnummer)
+        }
 
         return motebehovStatusService.motebehovStatusForArbeidsgiver(fnr, isOwnLeader, virksomhetsnummer)
     }
@@ -65,11 +76,20 @@ class MotebehovArbeidsgiverV2Controller @Inject constructor(
         val arbeidsgiverFnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
         val isOwnLeader = arbeidsgiverFnr.value == arbeidstakerFnr.value
 
-        motebehovOppfolgingstilfelleService.createMotehovForArbeidgiver(
-            OIDCUtil.fnrFraOIDCEkstern(contextHolder),
-            arbeidstakerFnr,
-            isOwnLeader,
-            nyttMotebehov
-        )
+        if (useKandidatlista) {
+            motebehovOppfolgingstilfelleServiceV2.createMotehovForArbeidgiver(
+                OIDCUtil.fnrFraOIDCEkstern(contextHolder),
+                arbeidstakerFnr,
+                isOwnLeader,
+                nyttMotebehov
+            )
+        } else {
+            motebehovOppfolgingstilfelleService.createMotehovForArbeidgiver(
+                OIDCUtil.fnrFraOIDCEkstern(contextHolder),
+                arbeidstakerFnr,
+                isOwnLeader,
+                nyttMotebehov
+            )
+        }
     }
 }
