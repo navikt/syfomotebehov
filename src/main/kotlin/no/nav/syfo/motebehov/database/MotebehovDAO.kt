@@ -76,8 +76,8 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
 
     fun nullstillMotebehov(aktoerId: String): Int {
         return if (hentMotebehovListeForAktoer(aktoerId).isNotEmpty()) {
-            val motebehovIder: List<UUID> = hentMotebehovListeForAktoer(aktoerId).map {
-                it.uuid
+            val motebehovIder: List<String> = hentMotebehovListeForAktoer(aktoerId).map {
+                it.uuid.toString()
             }
             namedParameterJdbcTemplate.update(
                 "DELETE FROM motebehov WHERE motebehov_uuid IN (:motebehovIder)",
