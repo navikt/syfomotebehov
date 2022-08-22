@@ -28,6 +28,8 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
     private val brukertilgangService: BrukertilgangService,
     @Value("\${dialogmote.frontend.client.id}")
     val dialogmoteClientId: String,
+    @Value("\${ditt.sykefravaer.frontend.client.id}")
+    val dittSykefravaerClientId: String,
     @Value("\${tokenx.idp}")
     val dialogmoteTokenxIdp: String
 ) {
@@ -36,7 +38,12 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
     fun motebehovStatusArbeidstaker(): MotebehovStatus {
-        val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteTokenxIdp, dialogmoteClientId)
+        val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
+            contextHolder,
+            dialogmoteTokenxIdp,
+            dialogmoteClientId,
+            dittSykefravaerClientId
+        )
             .fnrFromIdportenTokenX()
 
         brukertilgangService.kastExceptionHvisIkkeTilgangTilSegSelv(arbeidstakerFnr.value)
@@ -54,7 +61,11 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
         @RequestBody nyttMotebehovSvar: @Valid MotebehovSvar
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker")
-        val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteTokenxIdp, dialogmoteClientId)
+        val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
+            contextHolder,
+            dialogmoteTokenxIdp,
+            dialogmoteClientId,
+        )
             .fnrFromIdportenTokenX()
 
         brukertilgangService.kastExceptionHvisIkkeTilgangTilSegSelv(arbeidstakerFnr.value)
