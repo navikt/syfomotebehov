@@ -52,6 +52,9 @@ spec:
         - application: ditt-sykefravaer
           namespace: flex
           cluster: dev-gcp
+        - application: isyfomock
+          namespace: teamsykefravr
+          cluster: dev-gcp
   azure:
     application:
       enabled: true
