@@ -26,6 +26,7 @@ import no.nav.syfo.varsel.api.VarselController
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselProducer.Companion.ESYFOVARSEL_TOPIC
 import no.nav.syfo.varsel.esyfovarsel.domain.EsyfovarselHendelse
 import no.nav.syfo.varsel.esyfovarsel.domain.HendelseType
+import no.nav.syfo.varsel.esyfovarsel.domain.NarmesteLederHendelse
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.apache.kafka.common.TopicPartition
@@ -289,10 +290,13 @@ class VarselLederComponentTest {
         oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(Fodselsnummer(ARBEIDSTAKER_FNR))
     }
     private fun mockEsyfovarselHendelseFuture() {
-        val hendelse = EsyfovarselHendelse(
+        val hendelse = NarmesteLederHendelse(
             LEDER_FNR,
             HendelseType.NL_DIALOGMOTE_SVAR_MOTEBEHOV,
-            null
+            null,
+            LEDER_FNR,
+            ARBEIDSTAKER_FNR,
+            VIRKSOMHETSNUMMER
         )
         val sendResult = SendResult<String, EsyfovarselHendelse>(
             ProducerRecord(ESYFOVARSEL_TOPIC, hendelse),
