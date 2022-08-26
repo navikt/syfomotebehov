@@ -291,7 +291,6 @@ class VarselLederComponentTest {
     }
     private fun mockEsyfovarselHendelseFuture() {
         val hendelse = NarmesteLederHendelse(
-            LEDER_FNR,
             HendelseType.NL_DIALOGMOTE_SVAR_MOTEBEHOV,
             null,
             LEDER_FNR,
