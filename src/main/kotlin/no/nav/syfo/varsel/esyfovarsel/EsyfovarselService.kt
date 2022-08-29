@@ -1,26 +1,27 @@
 package no.nav.syfo.varsel.esyfovarsel
 
-import no.nav.syfo.varsel.esyfovarsel.domain.EsyfovarselHendelse
-import no.nav.syfo.varsel.esyfovarsel.domain.HendelseType
-import no.nav.syfo.varsel.esyfovarsel.domain.NarmesteLederVarselData
+import no.nav.syfo.varsel.esyfovarsel.domain.*
 import org.springframework.stereotype.Service
 
 @Service
 class EsyfovarselService(private val producer: EsyfovarselProducer) {
 
     fun sendSvarMotebehovVarselTilNarmesteLeder(narmestelederFnr: String, ansattFnr: String, orgnummer: String) {
-        val esyfovarselHendelse = EsyfovarselHendelse(
-            narmestelederFnr,
+        val esyfovarselHendelse = NarmesteLederHendelse(
             HendelseType.NL_DIALOGMOTE_SVAR_MOTEBEHOV,
-            NarmesteLederVarselData(ansattFnr, orgnummer)
+            null,
+            narmestelederFnr,
+            ansattFnr,
+            orgnummer
         )
         producer.sendVarselTilEsyfovarsel(esyfovarselHendelse)
     }
 
     fun sendSvarMotebehovVarselTilArbeidstaker(ansattFnr: String) {
-        val esyfovarselHendelse = EsyfovarselHendelse(
-            ansattFnr,
+        val esyfovarselHendelse = ArbeidstakerHendelse(
             HendelseType.SM_DIALOGMOTE_SVAR_MOTEBEHOV,
+            null,
+            ansattFnr,
             null
         )
         producer.sendVarselTilEsyfovarsel(esyfovarselHendelse)
