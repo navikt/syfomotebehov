@@ -6,7 +6,6 @@ import no.nav.syfo.dialogmotekandidat.DialogmotekandidatService
 import no.nav.syfo.motebehov.*
 import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import javax.inject.Inject
@@ -22,8 +21,6 @@ class MotebehovStatusServiceV2 @Inject constructor(
     fun motebehovStatusForArbeidstaker(
         arbeidstakerFnr: Fodselsnummer
     ): MotebehovStatus {
-        LOG.info("Henter møtebehovstatus for arbeidstaker")
-
         val hasUpcomingDialogmote: Boolean =
             dialogmoteStatusService.isDialogmotePlanlagtEtterDato(arbeidstakerFnr, null, LocalDate.now())
         val oppfolgingstilfelle =
@@ -41,8 +38,6 @@ class MotebehovStatusServiceV2 @Inject constructor(
         isOwnLeader: Boolean,
         virksomhetsnummer: String
     ): MotebehovStatus {
-        LOG.info("Henter møtebehovstatus for arbeidsgiver")
-
         val hasUpcomingDialogmote: Boolean =
             dialogmoteStatusService.isDialogmotePlanlagtEtterDato(arbeidstakerFnr, virksomhetsnummer, LocalDate.now())
         val oppfolgingstilfelle =
@@ -127,9 +122,5 @@ class MotebehovStatusServiceV2 @Inject constructor(
         } else {
             null
         }
-    }
-
-    companion object {
-        private val LOG = LoggerFactory.getLogger(MotebehovStatusServiceV2::class.java)
     }
 }

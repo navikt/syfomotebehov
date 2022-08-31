@@ -24,8 +24,6 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
         isOwnLeader: Boolean,
         nyttMotebehov: NyttMotebehovArbeidsgiver
     ) {
-        LOG.info("Oppretter nytt møtebehov for arbeidsgiver")
-
         val activeOppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, nyttMotebehov.virksomhetsnummer)
         if (activeOppfolgingstilfelle != null) {
             val motebehovStatus = motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(arbeidstakerFnr, isOwnLeader, nyttMotebehov.virksomhetsnummer)
@@ -56,8 +54,6 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
 
     @Transactional
     fun createMotebehovForArbeidstaker(arbeidstakerFnr: Fodselsnummer, motebehovSvar: MotebehovSvar) {
-        LOG.info("Oppretter nytt møtebehov for arbeidstaker")
-
         val activeOppolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
         if (activeOppolgingstilfelle != null) {
             val motebehovStatus = motebehovStatusServiceV2.motebehovStatusForArbeidstaker(arbeidstakerFnr)
@@ -97,17 +93,17 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
     }
 
     private fun throwCreateMotebehovConflict(errorMessage: String) {
-        LOG.warn(errorMessage)
+        log.warn(errorMessage)
         throw ConflictException()
     }
 
     private fun throwCreateMotebehovFailed(errorMessage: String) {
-        LOG.error(errorMessage)
+        log.error(errorMessage)
         throw RuntimeException(errorMessage)
     }
 
     companion object {
-        private val LOG = LoggerFactory.getLogger(MotebehovOppfolgingstilfelleServiceV2::class.java)
+        private val log = LoggerFactory.getLogger(MotebehovOppfolgingstilfelleServiceV2::class.java)
         private const val METRIC_CREATE_FAILED_BASE = "create_motebehov_fail_no_oppfolgingstilfelle"
         private const val METRIC_CREATE_FAILED_ARBEIDSTAKER = "${METRIC_CREATE_FAILED_BASE}_arbeidstaker"
         private const val METRIC_CREATE_FAILED_ARBEIDSGIVER = "${METRIC_CREATE_FAILED_BASE}_arbeidsgiver"

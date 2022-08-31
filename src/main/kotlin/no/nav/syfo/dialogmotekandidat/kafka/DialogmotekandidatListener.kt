@@ -19,19 +19,19 @@ class DialogmotekandidatListener(
         consumerRecord: ConsumerRecord<String, KafkaDialogmotekandidatEndring>,
         acknowledgment: Acknowledgment
     ) {
-        LOG.info("Got record from $DIALOGMOTEKANDIDAT_TOPIC topic for uuid: ${consumerRecord.value().uuid}")
+        log.info("Got record from $DIALOGMOTEKANDIDAT_TOPIC topic for uuid: ${consumerRecord.value().uuid}")
         try {
             dialogmotekandidatService.receiveDialogmotekandidatEndring(consumerRecord.value())
             acknowledgment.acknowledge()
         } catch (e: JsonProcessingException) {
-            LOG.error("DialogmotekandidatListener: Kunne ikke deserialisere topic", e)
+            log.error("DialogmotekandidatListener: Kunne ikke deserialisere topic", e)
         } catch (e: Exception) {
-            LOG.error("DialogmotekandidatListener: Uventet feil ved lesing av topic", e)
+            log.error("DialogmotekandidatListener: Uventet feil ved lesing av topic", e)
         }
     }
 
     companion object {
-        private val LOG = LoggerFactory.getLogger(DialogmotekandidatListener::class.java)
+        private val log = LoggerFactory.getLogger(DialogmotekandidatListener::class.java)
         const val DIALOGMOTEKANDIDAT_TOPIC = "teamsykefravr.isdialogmotekandidat-dialogmotekandidat"
     }
 }

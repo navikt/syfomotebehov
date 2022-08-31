@@ -36,7 +36,7 @@ class MotebehovArbeidsgiverV2Controller @Inject constructor(
     private val motebehovStatusService: MotebehovStatusService,
     private val motebehovStatusServiceV2: MotebehovStatusServiceV2,
     private val brukertilgangService: BrukertilgangService,
-    @Value("\${use.kandidatlista}")
+    @Value("\${toggle.kandidatlista}")
     private val useKandidatlista: Boolean,
 ) {
     @GetMapping(

@@ -36,7 +36,7 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
     val dittSykefravaerClientId: String,
     @Value("\${tokenx.idp}")
     val dialogmoteTokenxIdp: String,
-    @Value("\${use.kandidatlista}")
+    @Value("\${toggle.kandidatlista}")
     private val useKandidatlista: Boolean,
 ) {
     @GetMapping(

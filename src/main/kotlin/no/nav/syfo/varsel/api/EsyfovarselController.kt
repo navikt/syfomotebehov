@@ -23,7 +23,7 @@ class EsyfovarselController @Inject constructor(
     private val varselService: VarselService,
     private val varselServiceV2: VarselServiceV2,
     private val brukertilgangService: BrukertilgangService,
-    @Value("\${use.kandidatlista}")
+    @Value("\${toggle.kandidatlista}")
     private val useKandidatlista: Boolean,
 ) {
     @GetMapping(
