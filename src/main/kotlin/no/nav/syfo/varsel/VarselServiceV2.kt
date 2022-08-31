@@ -33,15 +33,25 @@ class VarselServiceV2 @Inject constructor(
 ) {
     fun sendVarselTilNaermesteLeder(motebehovsvarVarselInfo: MotebehovsvarVarselInfo) {
         val arbeidstakerFnr = aktorregisterConsumer.getFnrForAktorId(AktorId(motebehovsvarVarselInfo.sykmeldtAktorId))
+        val aktivtOppfolgingstilfelle =
+            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
+                Fodselsnummer(arbeidstakerFnr),
+                motebehovsvarVarselInfo.orgnummer
+            )
         val isDialogmoteAlleredePlanlagt = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
             Fodselsnummer(arbeidstakerFnr),
-            motebehovsvarVarselInfo.orgnummer, LocalDate.now()
+            motebehovsvarVarselInfo.orgnummer, aktivtOppfolgingstilfelle?.fom ?: LocalDate.now()
         )
 
         if (!isDialogmoteAlleredePlanlagt) {
-            val isSvarBehovVarselAvailableForLeder = isSvarBehovVarselAvailableArbeidsgiver(
-                Fodselsnummer(arbeidstakerFnr),
-                motebehovsvarVarselInfo.orgnummer
+            val isSvarBehovVarselAvailableForLeder = isSvarBehovVarselAvailable(
+                motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
+                    Fodselsnummer(arbeidstakerFnr),
+                    false,
+                    motebehovsvarVarselInfo.orgnummer
+                ),
+                aktivtOppfolgingstilfelle,
+                dialogmotekandidatService.getDialogmotekandidatStatus(Fodselsnummer(arbeidstakerFnr))?.kandidat == true
             )
             if (isSvarBehovVarselAvailableForLeder) {
                 metric.tellHendelse("varsel_leder_sent")
@@ -61,14 +71,17 @@ class VarselServiceV2 @Inject constructor(
     }
 
     fun sendVarselTilArbeidstaker(motebehovsvarVarselInfo: MotebehovsvarSykmeldtVarselInfo) {
+        val aktivtOppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr))
         val isDialogmoteAlleredePlanlagt = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
             Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr),
-            motebehovsvarVarselInfo.orgnummer, LocalDate.now()
+            motebehovsvarVarselInfo.orgnummer, aktivtOppfolgingstilfelle?.fom ?: LocalDate.now()
         )
 
         if (!isDialogmoteAlleredePlanlagt) {
-            val isSvarBehovVarselAvailableForArbeidstaker = isSvarBehovVarselAvailableArbeidstaker(
-                Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr),
+            val isSvarBehovVarselAvailableForArbeidstaker = isSvarBehovVarselAvailable(
+                motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr)),
+                aktivtOppfolgingstilfelle,
+                dialogmotekandidatService.getDialogmotekandidatStatus(Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr))?.kandidat == true
             )
             if (isSvarBehovVarselAvailableForArbeidstaker) {
                 metric.tellHendelse("varsel_arbeidstaker_sent")
@@ -81,29 +94,6 @@ class VarselServiceV2 @Inject constructor(
             metric.tellHendelse("varsel_arbeidstaker_not_sent_mote_allerede_planlagt")
             log.info("Not sending Varsel to Arbeidstaker because dialogmote er planlagt")
         }
-    }
-
-    fun isSvarBehovVarselAvailableArbeidstaker(arbeidstakerFnr: Fodselsnummer): Boolean {
-        return isSvarBehovVarselAvailable(
-            motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr),
-            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr),
-            dialogmotekandidatService.getDialogmotekandidatStatus(arbeidstakerFnr)?.kandidat == true
-        )
-    }
-
-    fun isSvarBehovVarselAvailableArbeidsgiver(
-        arbeidstakerFnr: Fodselsnummer,
-        virksomhetsnummer: String
-    ): Boolean {
-        return isSvarBehovVarselAvailable(
-            motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
-                arbeidstakerFnr,
-                false,
-                virksomhetsnummer
-            ),
-            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, virksomhetsnummer),
-            dialogmotekandidatService.getDialogmotekandidatStatus(arbeidstakerFnr)?.kandidat == true
-        )
     }
 
     fun has39UkerVarselBeenSent(

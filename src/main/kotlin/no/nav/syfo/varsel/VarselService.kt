@@ -1,7 +1,5 @@
 package no.nav.syfo.varsel
 
-import java.time.LocalDate
-import javax.inject.Inject
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
@@ -17,6 +15,8 @@ import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.time.LocalDate
+import javax.inject.Inject
 
 @Service
 class VarselService @Inject constructor(
@@ -31,15 +31,24 @@ class VarselService @Inject constructor(
 ) {
     fun sendVarselTilNaermesteLeder(motebehovsvarVarselInfo: MotebehovsvarVarselInfo) {
         val arbeidstakerFnr = aktorregisterConsumer.getFnrForAktorId(AktorId(motebehovsvarVarselInfo.sykmeldtAktorId))
+        val aktivtOppfolgingstilfelleForArbeidsgiver =
+            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
+                Fodselsnummer(arbeidstakerFnr),
+                motebehovsvarVarselInfo.orgnummer
+            )
         val isDialogmoteAlleredePlanlagt = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
             Fodselsnummer(arbeidstakerFnr),
-            motebehovsvarVarselInfo.orgnummer, LocalDate.now()
+            motebehovsvarVarselInfo.orgnummer, aktivtOppfolgingstilfelleForArbeidsgiver?.fom ?: LocalDate.now()
         )
 
         if (!isDialogmoteAlleredePlanlagt) {
-            val isSvarBehovVarselAvailableForLeder = isSvarBehovVarselAvailableArbeidsgiver(
-                Fodselsnummer(arbeidstakerFnr),
-                motebehovsvarVarselInfo.orgnummer
+            val isSvarBehovVarselAvailableForLeder = isSvarBehovVarselAvailable(
+                motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
+                    Fodselsnummer(arbeidstakerFnr),
+                    false,
+                    motebehovsvarVarselInfo.orgnummer
+                ),
+                aktivtOppfolgingstilfelleForArbeidsgiver
             )
             if (!isSvarBehovVarselAvailableForLeder) {
                 metric.tellHendelse("varsel_leder_not_sent_motebehov_not_available")
@@ -59,14 +68,18 @@ class VarselService @Inject constructor(
     }
 
     fun sendVarselTilArbeidstaker(motebehovsvarVarselInfo: MotebehovsvarSykmeldtVarselInfo) {
+        val aktivtOppfolgingstilfelleForArbeidstaker =
+            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr))
+
         val isDialogmoteAlleredePlanlagt = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
             Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr),
-            motebehovsvarVarselInfo.orgnummer, LocalDate.now()
+            motebehovsvarVarselInfo.orgnummer, aktivtOppfolgingstilfelleForArbeidstaker?.fom ?: LocalDate.now()
         )
 
         if (!isDialogmoteAlleredePlanlagt) {
-            val isSvarBehovVarselAvailableForArbeidstaker = isSvarBehovVarselAvailableArbeidstaker(
-                Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr),
+            val isSvarBehovVarselAvailableForArbeidstaker = isSvarBehovVarselAvailable(
+                motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr)),
+                aktivtOppfolgingstilfelleForArbeidstaker
             )
             if (!isSvarBehovVarselAvailableForArbeidstaker) {
                 metric.tellHendelse("varsel_arbeidstaker_not_sent_motebehov_not_available")
@@ -79,23 +92,6 @@ class VarselService @Inject constructor(
             metric.tellHendelse("varsel_arbeidstaker_not_sent_mote_allerede_planlagt")
             log.info("Not sending Varsel to Arbeidstaker because dialogmote er planlagt")
         }
-    }
-
-    fun isSvarBehovVarselAvailableArbeidstaker(arbeidstakerFnr: Fodselsnummer): Boolean {
-        return isSvarBehovVarselAvailable(
-            motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr),
-            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
-        )
-    }
-
-    fun isSvarBehovVarselAvailableArbeidsgiver(
-        arbeidstakerFnr: Fodselsnummer,
-        virksomhetsnummer: String
-    ): Boolean {
-        return isSvarBehovVarselAvailable(
-            motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr, false, virksomhetsnummer),
-            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, virksomhetsnummer)
-        )
     }
 
     fun has39UkerVarselBeenSent(

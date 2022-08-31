@@ -7,7 +7,6 @@ import no.nav.syfo.motebehov.*
 import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import org.springframework.stereotype.Service
-import java.time.LocalDate
 import javax.inject.Inject
 
 @Service
@@ -21,10 +20,9 @@ class MotebehovStatusServiceV2 @Inject constructor(
     fun motebehovStatusForArbeidstaker(
         arbeidstakerFnr: Fodselsnummer
     ): MotebehovStatus {
-        val hasUpcomingDialogmote: Boolean =
-            dialogmoteStatusService.isDialogmotePlanlagtEtterDato(arbeidstakerFnr, null, LocalDate.now())
         val oppfolgingstilfelle =
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
+        val hasUpcomingDialogmote: Boolean = hasUpcomingDialogmote(arbeidstakerFnr, null, oppfolgingstilfelle)
         val motebehovList: List<Motebehov> =
             motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr)
         val isDialogmoteKandidat: Boolean =
@@ -38,10 +36,10 @@ class MotebehovStatusServiceV2 @Inject constructor(
         isOwnLeader: Boolean,
         virksomhetsnummer: String
     ): MotebehovStatus {
-        val hasUpcomingDialogmote: Boolean =
-            dialogmoteStatusService.isDialogmotePlanlagtEtterDato(arbeidstakerFnr, virksomhetsnummer, LocalDate.now())
         val oppfolgingstilfelle =
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, virksomhetsnummer)
+        val hasUpcomingDialogmote: Boolean =
+            hasUpcomingDialogmote(arbeidstakerFnr, virksomhetsnummer, oppfolgingstilfelle)
         val isDialogmoteKandidat: Boolean =
             dialogmotekandidatService.getDialogmotekandidatStatus(arbeidstakerFnr)?.kandidat == true
         val motebehovList =
@@ -52,6 +50,20 @@ class MotebehovStatusServiceV2 @Inject constructor(
             )
 
         return motebehovStatus(hasUpcomingDialogmote, oppfolgingstilfelle, isDialogmoteKandidat, motebehovList)
+    }
+
+    fun hasUpcomingDialogmote(
+        arbeidstakerFnr: Fodselsnummer,
+        virksomhetsnummer: String?,
+        oppfolgingstilfelle: PersonOppfolgingstilfelle?
+    ): Boolean {
+        return if (oppfolgingstilfelle != null) {
+            dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
+                arbeidstakerFnr,
+                virksomhetsnummer,
+                oppfolgingstilfelle.fom
+            )
+        } else false
     }
 
     fun motebehovStatus(
