@@ -1,110 +1,111 @@
 package no.nav.syfo.consumer.brukertilgang
 
-import no.nav.security.token.support.core.context.TokenValidationContext
-import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import no.nav.security.token.support.core.jwt.JwtToken
-import no.nav.security.token.support.test.JwtTokenGenerator
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import no.nav.syfo.LocalApplication
 import no.nav.syfo.api.auth.OIDCIssuer.EKSTERN
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.pdl.PdlConsumer
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.Mockito
-import org.mockito.junit.jupiter.MockitoExtension
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.context.junit.jupiter.SpringExtension
 
-@ExtendWith(MockitoExtension::class)
+@ExtendWith(SpringExtension::class)
+@SpringBootTest(classes = [LocalApplication::class])
+@DirtiesContext
 class BrukertilgangskontrollServiceTest {
-    @Mock
-    private lateinit var contextHolder: TokenValidationContextHolder
 
-    @Mock
+    @MockkBean
     private lateinit var brukertilgangConsumer: BrukertilgangConsumer
 
-    @Mock
+    @MockkBean
     private lateinit var pdlConsumer: PdlConsumer
 
-    @InjectMocks
+    @Autowired
     private lateinit var tilgangskontrollService: BrukertilgangService
-
-    @BeforeEach
-    fun setup() {
-        mockOIDC(INNLOGGET_FNR)
-    }
-
-    @AfterEach
-    fun tearDown() {
-        contextHolder.tokenValidationContext = null
-    }
 
     @Test
     fun harTilgangTilOppslaattBrukerGirFalseNaarOppslaattBrukerErKode6() {
-        Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(true)
-        Mockito.`when`(pdlConsumer.isKode6(Fodselsnummer(SPOR_OM_FNR))).thenReturn(true)
-        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR, EKSTERN)
+        val innloggetFnr = "3333333"
+        val oppslattFnr = "11038973567"
+
+        every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns true
+        every { pdlConsumer.isKode6(Fodselsnummer(oppslattFnr)) } returns true
+
+        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(innloggetFnr, oppslattFnr, EKSTERN)
         Assertions.assertEquals(false, tilgang)
     }
 
     @Test
     fun harTilgangTilOppslaattBrukerGirTrueNaarManSporOmSegSelv() {
-        Mockito.`when`(pdlConsumer.isKode6(Fodselsnummer(SPOR_OM_FNR))).thenReturn(false)
+        val oppslattFnr = "10038973552"
 
-        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(SPOR_OM_FNR, SPOR_OM_FNR, EKSTERN)
+        every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns false
+        every { pdlConsumer.isKode6(Fodselsnummer(oppslattFnr)) } returns false
+
+        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(oppslattFnr, oppslattFnr, EKSTERN)
         Assertions.assertEquals(true, tilgang)
     }
 
     @Test
     fun harTilgangTilOppslaattBrukerGirTrueNaarManSporOmEnAnsatt() {
-        Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(true)
-        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR, EKSTERN)
+        val innloggetFnr = "44444444"
+        val oppslattFnr = "10038973561"
+
+        every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns true
+        every { pdlConsumer.isKode6(Fodselsnummer(oppslattFnr)) } returns false
+
+        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(innloggetFnr, oppslattFnr, EKSTERN)
         Assertions.assertEquals(true, tilgang)
     }
 
     @Test
     fun harTilgangTilOppslaattBrukerGirFalseNaarManSporOmEnSomIkkeErSegSelvOgIkkeAnsatt() {
-        Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(false)
-        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(INNLOGGET_FNR, SPOR_OM_FNR, EKSTERN)
+        val innloggetFnr = "5555555"
+        val oppslattFnr = "555555566666"
+
+        every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns false
+
+        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(innloggetFnr, oppslattFnr, EKSTERN)
         Assertions.assertEquals(false, tilgang)
     }
 
     @Test
     fun sporOmNoenAndreEnnSegSelvGirFalseNaarManSporOmSegSelv() {
+        val innloggetFnr = "666666"
+
+        every { brukertilgangConsumer.hasAccessToAnsatt(any()) } returns false
+
         val tilgang =
-            tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, INNLOGGET_FNR, EKSTERN)
+            tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetFnr, innloggetFnr, EKSTERN)
         Assertions.assertEquals(false, tilgang)
     }
 
     @Test
     fun sporOmNoenAndreEnnSegSelvGirFalseNaarManSporOmEnAnsatt() {
-        Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(true)
+        val innloggetFnr = "99999999"
+        val oppslattFnr = "8888888"
+
+        every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns true
+
         val tilgang =
-            tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, SPOR_OM_FNR, EKSTERN)
+            tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetFnr, oppslattFnr, EKSTERN)
         Assertions.assertEquals(false, tilgang)
     }
 
     @Test
     fun sporOmNoenAndreEnnSegSelvGirTrueNaarManSporOmEnSomIkkeErSegSelvOgIkkeAnsatt() {
-        Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(SPOR_OM_FNR)).thenReturn(false)
+        val innloggetFnr = "7777777"
+        val oppslattFnr = "77778888"
+
+        every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns false
+
         val tilgang =
-            tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(INNLOGGET_FNR, SPOR_OM_FNR, EKSTERN)
+            tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetFnr, oppslattFnr, EKSTERN)
         Assertions.assertEquals(true, tilgang)
-    }
-
-    private fun mockOIDC(subject: String) {
-        val jwt = JwtToken(JwtTokenGenerator.createSignedJWT(subject).serialize())
-        val issuer = EKSTERN
-        val issuerTokenMap = HashMap<String, JwtToken>()
-        issuerTokenMap[issuer] = jwt
-        val context = TokenValidationContext(issuerTokenMap)
-        contextHolder.tokenValidationContext = context
-    }
-
-    companion object {
-        private const val INNLOGGET_FNR = "15065933818"
-        private const val SPOR_OM_FNR = "12345678902"
     }
 }

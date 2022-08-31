@@ -5,7 +5,7 @@ import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.generator.MotebehovGenerator
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -35,7 +35,8 @@ class MotebehovDAOTest {
     }
 
     private fun insertPMotebehov(motebehov: PMotebehov) {
-        val sqlInsert = "INSERT INTO MOTEBEHOV VALUES('bae778f2-a085-11e8-98d0-529269fb1459', '" + motebehov.opprettetDato + "', '" + motebehov.opprettetAv + "', '" + motebehov.aktoerId + "', '" + motebehov.virksomhetsnummer + "', '" + '1' + "', '" + motebehov.forklaring + "', '" + motebehov.tildeltEnhet + "', null, null, null)"
+        val sqlInsert =
+            "INSERT INTO MOTEBEHOV VALUES('bae778f2-a085-11e8-98d0-529269fb1459', '" + motebehov.opprettetDato + "', '" + motebehov.opprettetAv + "', '" + motebehov.aktoerId + "', '" + motebehov.virksomhetsnummer + "', '" + '1' + "', '" + motebehov.forklaring + "', '" + motebehov.tildeltEnhet + "', null, null, null)"
         jdbcTemplate.update(sqlInsert)
     }
 
@@ -45,16 +46,20 @@ class MotebehovDAOTest {
         val pMotebehov = motebehovGenerator.generatePmotebehov()
         insertPMotebehov(pMotebehov)
         val motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(ARBEIDSTAKER_AKTORID)
-        Assertions.assertThat(motebehovListe.size).isEqualTo(1)
+        assertThat(motebehovListe.size).isEqualTo(1)
         val motebehovFraDb = motebehovListe[0]
-        Assertions.assertThat(motebehovFraDb.opprettetDato.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(pMotebehov.opprettetDato.truncatedTo(ChronoUnit.SECONDS))
-        Assertions.assertThat(motebehovFraDb.opprettetAv).isEqualTo(pMotebehov.opprettetAv)
-        Assertions.assertThat(motebehovFraDb.aktoerId).isEqualTo(pMotebehov.aktoerId)
-        Assertions.assertThat(motebehovFraDb.virksomhetsnummer).isEqualTo(pMotebehov.virksomhetsnummer)
-        Assertions.assertThat(motebehovFraDb.harMotebehov).isEqualTo(pMotebehov.harMotebehov)
-        Assertions.assertThat(motebehovFraDb.forklaring).isEqualTo(pMotebehov.forklaring)
-        Assertions.assertThat(motebehovFraDb.tildeltEnhet).isEqualTo(pMotebehov.tildeltEnhet)
-        Assertions.assertThat(motebehovFraDb.skjemaType).isEqualTo(pMotebehov.skjemaType)
+        assertThat(motebehovFraDb.opprettetDato.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(
+            pMotebehov.opprettetDato.truncatedTo(
+                ChronoUnit.SECONDS
+            )
+        )
+        assertThat(motebehovFraDb.opprettetAv).isEqualTo(pMotebehov.opprettetAv)
+        assertThat(motebehovFraDb.aktoerId).isEqualTo(pMotebehov.aktoerId)
+        assertThat(motebehovFraDb.virksomhetsnummer).isEqualTo(pMotebehov.virksomhetsnummer)
+        assertThat(motebehovFraDb.harMotebehov).isEqualTo(pMotebehov.harMotebehov)
+        assertThat(motebehovFraDb.forklaring).isEqualTo(pMotebehov.forklaring)
+        assertThat(motebehovFraDb.tildeltEnhet).isEqualTo(pMotebehov.tildeltEnhet)
+        assertThat(motebehovFraDb.skjemaType).isEqualTo(pMotebehov.skjemaType)
     }
 
     @Test
@@ -66,7 +71,7 @@ class MotebehovDAOTest {
         )
         insertPMotebehov(pMotebehov)
         val motebehovListe = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(ARBEIDSTAKER_AKTORID)
-        Assertions.assertThat(motebehovListe.size).isEqualTo(0)
+        assertThat(motebehovListe.size).isEqualTo(0)
     }
 
     @Test
@@ -78,11 +83,15 @@ class MotebehovDAOTest {
         )
         insertPMotebehov(pMotebehov)
         val motebehovListe = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(ARBEIDSTAKER_AKTORID)
-        Assertions.assertThat(motebehovListe.size).isEqualTo(1)
+        assertThat(motebehovListe.size).isEqualTo(1)
         val motebehovFraDb = motebehovListe[0]
-        Assertions.assertThat(motebehovFraDb.opprettetDato.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(pMotebehov.opprettetDato.truncatedTo(ChronoUnit.SECONDS))
-        Assertions.assertThat(motebehovFraDb.opprettetAv).isEqualTo(pMotebehov.opprettetAv)
-        Assertions.assertThat(motebehovFraDb.aktoerId).isEqualTo(pMotebehov.aktoerId)
+        assertThat(motebehovFraDb.opprettetDato.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(
+            pMotebehov.opprettetDato.truncatedTo(
+                ChronoUnit.SECONDS
+            )
+        )
+        assertThat(motebehovFraDb.opprettetAv).isEqualTo(pMotebehov.opprettetAv)
+        assertThat(motebehovFraDb.aktoerId).isEqualTo(pMotebehov.aktoerId)
     }
 
     @Test
@@ -93,8 +102,12 @@ class MotebehovDAOTest {
             opprettetAv = LEDER_AKTORID
         )
         insertPMotebehov(pMotebehov)
-        val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(ARBEIDSTAKER_AKTORID, false, VIRKSOMHETSNUMMER)
-        Assertions.assertThat(motebehovListe.size).isEqualTo(0)
+        val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
+            ARBEIDSTAKER_AKTORID,
+            false,
+            VIRKSOMHETSNUMMER
+        )
+        assertThat(motebehovListe.size).isEqualTo(0)
     }
 
     @Test
@@ -105,12 +118,20 @@ class MotebehovDAOTest {
             opprettetAv = LEDER_AKTORID
         )
         insertPMotebehov(pMotebehov)
-        val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(ARBEIDSTAKER_AKTORID, false, VIRKSOMHETSNUMMER)
-        Assertions.assertThat(motebehovListe.size).isEqualTo(1)
+        val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
+            ARBEIDSTAKER_AKTORID,
+            false,
+            VIRKSOMHETSNUMMER
+        )
+        assertThat(motebehovListe.size).isEqualTo(1)
         val motebehovFraDb = motebehovListe[0]
-        Assertions.assertThat(motebehovFraDb.opprettetDato.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(pMotebehov.opprettetDato.truncatedTo(ChronoUnit.SECONDS))
-        Assertions.assertThat(motebehovFraDb.opprettetAv).isEqualTo(LEDER_AKTORID)
-        Assertions.assertThat(motebehovFraDb.aktoerId).isEqualTo(pMotebehov.aktoerId)
+        assertThat(motebehovFraDb.opprettetDato.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(
+            pMotebehov.opprettetDato.truncatedTo(
+                ChronoUnit.SECONDS
+            )
+        )
+        assertThat(motebehovFraDb.opprettetAv).isEqualTo(LEDER_AKTORID)
+        assertThat(motebehovFraDb.aktoerId).isEqualTo(pMotebehov.aktoerId)
     }
 
     @Test
@@ -120,12 +141,20 @@ class MotebehovDAOTest {
             opprettetAv = ARBEIDSTAKER_AKTORID
         )
         insertPMotebehov(pMotebehov)
-        val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(ARBEIDSTAKER_AKTORID, true, VIRKSOMHETSNUMMER)
-        Assertions.assertThat(motebehovListe.size).isEqualTo(1)
+        val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
+            ARBEIDSTAKER_AKTORID,
+            true,
+            VIRKSOMHETSNUMMER
+        )
+        assertThat(motebehovListe.size).isEqualTo(1)
         val motebehovFraDb = motebehovListe[0]
-        Assertions.assertThat(motebehovFraDb.opprettetDato.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(pMotebehov.opprettetDato.truncatedTo(ChronoUnit.SECONDS))
-        Assertions.assertThat(motebehovFraDb.opprettetAv).isEqualTo(ARBEIDSTAKER_AKTORID)
-        Assertions.assertThat(motebehovFraDb.aktoerId).isEqualTo(pMotebehov.aktoerId)
+        assertThat(motebehovFraDb.opprettetDato.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(
+            pMotebehov.opprettetDato.truncatedTo(
+                ChronoUnit.SECONDS
+            )
+        )
+        assertThat(motebehovFraDb.opprettetAv).isEqualTo(ARBEIDSTAKER_AKTORID)
+        assertThat(motebehovFraDb.aktoerId).isEqualTo(pMotebehov.aktoerId)
     }
 
     @Test
@@ -133,7 +162,7 @@ class MotebehovDAOTest {
     fun lagreMotebehov() {
         val uuid = motebehovDAO.create(motebehovGenerator.generatePmotebehov())
         val motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(ARBEIDSTAKER_AKTORID)
-        Assertions.assertThat(motebehovListe.size).isEqualTo(1)
-        Assertions.assertThat(motebehovListe[0].uuid).isEqualTo(uuid)
+        assertThat(motebehovListe.size).isEqualTo(1)
+        assertThat(motebehovListe[0].uuid).isEqualTo(uuid)
     }
 }

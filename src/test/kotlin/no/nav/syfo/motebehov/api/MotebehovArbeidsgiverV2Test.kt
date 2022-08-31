@@ -40,7 +40,7 @@ import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -444,6 +444,7 @@ class MotebehovArbeidsgiverV2Test {
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
     }
+
     @Test
     fun getMotebehovStatusAndSendOversikthendelseWithMotebehovHarBehovTrue() {
         oppfolgingstilfelleDAO.create(generateOversikthendelsetilfelle)
@@ -506,11 +507,11 @@ class MotebehovArbeidsgiverV2Test {
         assertEquals(MotebehovSkjemaType.SVAR_BEHOV, motebehovStatus.skjemaType)
         val motebehov = motebehovStatus.motebehov!!
         assertNotNull(motebehov)
-        Assertions.assertThat(motebehov.opprettetAv).isEqualTo(LEDER_AKTORID)
-        Assertions.assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
-        Assertions.assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
-        Assertions.assertThat(motebehov.skjemaType).isEqualTo(motebehovStatus.skjemaType)
-        Assertions.assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(motebehovSvar)
+        assertThat(motebehov.opprettetAv).isEqualTo(LEDER_AKTORID)
+        assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
+        assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
+        assertThat(motebehov.skjemaType).isEqualTo(motebehovStatus.skjemaType)
+        assertThat(motebehov.motebehovSvar).usingRecursiveComparison().isEqualTo(motebehovSvar)
         if (harBehov) {
             verify { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
         } else {
@@ -522,11 +523,13 @@ class MotebehovArbeidsgiverV2Test {
         mockRestServiceServer.reset()
         mockRestServiceWithProxyServer.reset()
     }
+
     private fun cleanDB() {
         motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID)
         oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(Fodselsnummer(ARBEIDSTAKER_FNR))
         dialogmotekandidatDAO.delete(Fodselsnummer(ARBEIDSTAKER_FNR))
     }
+
     private fun mockBehandlendEnhetWithTilgangskontroll(fnr: String) {
         mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll(
             azureTokenEndpoint,

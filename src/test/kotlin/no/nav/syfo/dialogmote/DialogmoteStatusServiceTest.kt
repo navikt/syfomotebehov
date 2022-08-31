@@ -1,10 +1,5 @@
 package no.nav.syfo.dialogmote
 
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
-import javax.inject.Inject
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring
@@ -12,7 +7,7 @@ import no.nav.syfo.dialogmote.database.DialogmoteDAO
 import no.nav.syfo.dialogmote.database.DialogmoteStatusEndringType
 import no.nav.syfo.testhelper.UserConstants
 import no.nav.syfo.util.convertLocalDateTimeToInstant
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -20,6 +15,11 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
+import javax.inject.Inject
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
@@ -71,7 +71,7 @@ internal class DialogmoteStatusServiceTest {
             Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
-        Assertions.assertThat(moteFraDBBefore.size).isEqualTo(0)
+        assertThat(moteFraDBBefore.size).isEqualTo(0)
 
         dialogmoteStatusService.receiveKDialogmoteStatusendring(
             generateInnkalling(
@@ -84,8 +84,8 @@ internal class DialogmoteStatusServiceTest {
             Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
-        Assertions.assertThat(moteFraDBAfter.size).isEqualTo(1)
-        Assertions.assertThat(moteFraDBAfter[0].personIdent).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
+        assertThat(moteFraDBAfter.size).isEqualTo(1)
+        assertThat(moteFraDBAfter[0].personIdent).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
     }
 
     @Test
@@ -94,7 +94,7 @@ internal class DialogmoteStatusServiceTest {
             Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
-        Assertions.assertThat(moteFraDBBefore.size).isEqualTo(0)
+        assertThat(moteFraDBBefore.size).isEqualTo(0)
 
         dialogmoteStatusService.receiveKDialogmoteStatusendring(
             generateInnkalling(
@@ -107,7 +107,7 @@ internal class DialogmoteStatusServiceTest {
             Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
-        Assertions.assertThat(moteFraDBAfter.isEmpty()).isTrue
+        assertThat(moteFraDBAfter.isEmpty()).isTrue
     }
 
     @Test
@@ -122,8 +122,8 @@ internal class DialogmoteStatusServiceTest {
             Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
-        Assertions.assertThat(moteFraDBBefore.size).isEqualTo(1)
-        Assertions.assertThat(moteFraDBBefore[0].personIdent).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
+        assertThat(moteFraDBBefore.size).isEqualTo(1)
+        assertThat(moteFraDBBefore[0].personIdent).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
 
         dialogmoteStatusService.receiveKDialogmoteStatusendring(
             generateInnkalling(
@@ -135,7 +135,7 @@ internal class DialogmoteStatusServiceTest {
             Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
-        Assertions.assertThat(moteFraDBAfter.isEmpty()).isTrue
+        assertThat(moteFraDBAfter.isEmpty()).isTrue
     }
 
     @Test
@@ -150,9 +150,9 @@ internal class DialogmoteStatusServiceTest {
             Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
-        Assertions.assertThat(moteFraDBBefore.size).isEqualTo(1)
-        Assertions.assertThat(moteFraDBBefore[0].personIdent).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
-        Assertions.assertThat(moteFraDBBefore[0].statusEndringType).isEqualTo(DialogmoteStatusEndringType.INNKALT)
+        assertThat(moteFraDBBefore.size).isEqualTo(1)
+        assertThat(moteFraDBBefore[0].personIdent).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
+        assertThat(moteFraDBBefore[0].statusEndringType).isEqualTo(DialogmoteStatusEndringType.INNKALT)
 
         dialogmoteStatusService.receiveKDialogmoteStatusendring(
             generateInnkalling(
@@ -164,9 +164,9 @@ internal class DialogmoteStatusServiceTest {
             Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
-        Assertions.assertThat(moteFraDBAfter.size).isEqualTo(1)
-        Assertions.assertThat(moteFraDBAfter[0].personIdent).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
-        Assertions.assertThat(moteFraDBAfter[0].statusEndringType).isEqualTo(DialogmoteStatusEndringType.NYTT_TID_STED)
+        assertThat(moteFraDBAfter.size).isEqualTo(1)
+        assertThat(moteFraDBAfter[0].personIdent).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
+        assertThat(moteFraDBAfter[0].statusEndringType).isEqualTo(DialogmoteStatusEndringType.NYTT_TID_STED)
     }
 
     @Test
@@ -183,9 +183,9 @@ internal class DialogmoteStatusServiceTest {
             Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
-        Assertions.assertThat(moteFraDBBefore.size).isEqualTo(1)
-        Assertions.assertThat(moteFraDBBefore[0].personIdent).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
-        Assertions.assertThat(moteFraDBBefore[0].statusEndringType).isEqualTo(DialogmoteStatusEndringType.INNKALT)
+        assertThat(moteFraDBBefore.size).isEqualTo(1)
+        assertThat(moteFraDBBefore[0].personIdent).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
+        assertThat(moteFraDBBefore[0].statusEndringType).isEqualTo(DialogmoteStatusEndringType.INNKALT)
 
         val oldRecord = generateInnkalling(
             externMoteUUID,
@@ -200,9 +200,9 @@ internal class DialogmoteStatusServiceTest {
             Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
-        Assertions.assertThat(moteFraDBAfter.size).isEqualTo(1)
-        Assertions.assertThat(moteFraDBAfter[0].personIdent).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
-        Assertions.assertThat(moteFraDBAfter[0].statusEndringType)
+        assertThat(moteFraDBAfter.size).isEqualTo(1)
+        assertThat(moteFraDBAfter[0].personIdent).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
+        assertThat(moteFraDBAfter[0].statusEndringType)
             .isNotEqualTo(DialogmoteStatusEndringType.NYTT_TID_STED)
     }
 
@@ -222,7 +222,7 @@ internal class DialogmoteStatusServiceTest {
             LocalDate.now()
         )
 
-        Assertions.assertThat(isMote).isTrue
+        assertThat(isMote).isTrue
     }
 
     @Test
@@ -243,7 +243,7 @@ internal class DialogmoteStatusServiceTest {
             todayLocalDateTime.toLocalDate()
         )
 
-        Assertions.assertThat(isMote).isTrue
+        assertThat(isMote).isTrue
     }
 
     @Test
@@ -262,6 +262,6 @@ internal class DialogmoteStatusServiceTest {
             LocalDate.now()
         )
 
-        Assertions.assertThat(isMote).isFalse
+        assertThat(isMote).isFalse
     }
 }

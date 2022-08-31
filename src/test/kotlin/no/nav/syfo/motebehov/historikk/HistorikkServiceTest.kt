@@ -1,35 +1,44 @@
 package no.nav.syfo.motebehov.historikk
 
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.consumer.pdl.*
+import no.nav.syfo.consumer.pdl.PdlConsumer
+import no.nav.syfo.consumer.pdl.PdlPersonNavn
+import no.nav.syfo.consumer.pdl.fullName
 import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.testhelper.UserConstants
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.*
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDateTime
 
 @ExtendWith(SpringExtension::class)
+@SpringBootTest(classes = [LocalApplication::class])
+@DirtiesContext
 class HistorikkServiceTest {
 
-    @Mock
+    @MockkBean
     private lateinit var aktorregisterConsumer: AktorregisterConsumer
 
-    @Mock
+    @MockkBean
     private lateinit var motebehovService: MotebehovService
 
-    @Mock
+    @MockkBean
     private lateinit var pdlConsumer: PdlConsumer
 
-    @InjectMocks
+    @Autowired
     private lateinit var historikkService: HistorikkService
 
     private val motebehovGenerator = MotebehovGenerator()
@@ -53,10 +62,10 @@ class HistorikkServiceTest {
 
     @BeforeEach
     fun setup() {
-        Mockito.`when`(aktorregisterConsumer.getFnrForAktorId(AktorId(NL1_AKTORID))).thenReturn(NL1_FNR)
-        Mockito.`when`(aktorregisterConsumer.getFnrForAktorId(AktorId(NL3_AKTORID))).thenReturn(NL3_FNR)
-        Mockito.`when`(pdlConsumer.person(Fodselsnummer(NL1_FNR))).thenReturn(pdlPersonResponseNL1)
-        Mockito.`when`(pdlConsumer.person(Fodselsnummer(NL3_FNR))).thenReturn(pdlPersonResponseNL3)
+        every { aktorregisterConsumer.getFnrForAktorId(AktorId(NL1_AKTORID)) } returns NL1_FNR
+        every { aktorregisterConsumer.getFnrForAktorId(AktorId(NL3_AKTORID)) } returns NL3_FNR
+        every { pdlConsumer.person(Fodselsnummer(NL1_FNR)) } returns pdlPersonResponseNL1
+        every { pdlConsumer.person(Fodselsnummer(NL3_FNR)) } returns pdlPersonResponseNL3
     }
 
     @Test
@@ -73,22 +82,26 @@ class HistorikkServiceTest {
             behandletVeilederIdent = VEILEDER_ID,
             behandletTidspunkt = LocalDateTime.now()
         )
-        Mockito.`when`(motebehovService.hentMotebehovListe(Fodselsnummer(SM_FNR))).thenReturn(
-            listOf(
-                motebehov1,
-                motebehov2
-            )
+
+        every { motebehovService.hentMotebehovListe(Fodselsnummer(SM_FNR)) } returns listOf(
+            motebehov1,
+            motebehov2
         )
+
         val historikkForSykmeldt = historikkService.hentHistorikkListe(SM_FNR)
-        Assertions.assertThat(historikkForSykmeldt.size).isEqualTo(4)
+        assertThat(historikkForSykmeldt.size).isEqualTo(4)
         val historikkOpprettetMotebehovTekst1 = historikkForSykmeldt[0].tekst
         val historikkOpprettetMotebehovTekst2 = historikkForSykmeldt[1].tekst
         val historikkLesteMotebehovTekst1 = historikkForSykmeldt[2].tekst
         val historikkLesteMotebehovTekst2 = historikkForSykmeldt[3].tekst
-        Assertions.assertThat(historikkOpprettetMotebehovTekst1).isEqualTo(pdlPersonResponseNL1.fullName() + HistorikkService.HAR_SVART_PAA_MOTEBEHOV)
-        Assertions.assertThat(historikkOpprettetMotebehovTekst2).isEqualTo(pdlPersonResponseNL3.fullName() + HistorikkService.HAR_SVART_PAA_MOTEBEHOV)
-        Assertions.assertThat(historikkLesteMotebehovTekst1).isEqualTo(HistorikkService.MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID)
-        Assertions.assertThat(historikkLesteMotebehovTekst2).isEqualTo(HistorikkService.MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID)
+        assertThat(historikkOpprettetMotebehovTekst1)
+            .isEqualTo(pdlPersonResponseNL1.fullName() + HistorikkService.HAR_SVART_PAA_MOTEBEHOV)
+        assertThat(historikkOpprettetMotebehovTekst2)
+            .isEqualTo(pdlPersonResponseNL3.fullName() + HistorikkService.HAR_SVART_PAA_MOTEBEHOV)
+        assertThat(historikkLesteMotebehovTekst1)
+            .isEqualTo(HistorikkService.MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID)
+        assertThat(historikkLesteMotebehovTekst2)
+            .isEqualTo(HistorikkService.MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID)
     }
 
     companion object {

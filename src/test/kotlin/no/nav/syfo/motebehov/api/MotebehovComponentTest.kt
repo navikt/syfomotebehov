@@ -1,5 +1,8 @@
 package no.nav.syfo.motebehov.api
 
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import io.mockk.verify
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
@@ -18,16 +21,18 @@ import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.clearCache
-import no.nav.syfo.testhelper.generator.*
+import no.nav.syfo.testhelper.generator.MotebehovGenerator
+import no.nav.syfo.testhelper.generator.generatePdlHentPerson
+import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
-import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.*
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.cache.CacheManager
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -46,15 +51,6 @@ class MotebehovComponentTest {
     @Value("\${syfobehandlendeenhet.url}")
     private lateinit var behandlendeenhetUrl: String
 
-    @Value("\${security.token.service.rest.url}")
-    private lateinit var stsUrl: String
-
-    @Value("\${srv.username}")
-    private lateinit var srvUsername: String
-
-    @Value("\${srv.password}")
-    private lateinit var srvPassword: String
-
     @Inject
     private lateinit var motebehovController: MotebehovBrukerController
 
@@ -70,19 +66,19 @@ class MotebehovComponentTest {
     @Inject
     private lateinit var restTemplate: RestTemplate
 
-    @MockBean
+    @MockkBean
     private lateinit var aktorregisterConsumer: AktorregisterConsumer
 
-    @MockBean
+    @MockkBean
     private lateinit var pdlConsumer: PdlConsumer
 
-    @MockBean
+    @MockkBean(relaxed = true)
     private lateinit var oversikthendelseProducer: OversikthendelseProducer
 
-    @MockBean
+    @MockkBean
     private lateinit var brukertilgangConsumer: BrukertilgangConsumer
 
-    @MockBean
+    @MockkBean
     private lateinit var stsConsumer: StsConsumer
 
     @Inject
@@ -98,11 +94,13 @@ class MotebehovComponentTest {
 
     @BeforeEach
     fun setUp() {
-        Mockito.`when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(ARBEIDSTAKER_AKTORID)
-        Mockito.`when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(LEDER_FNR))).thenReturn(LEDER_AKTORID)
-        Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR)).thenReturn(true)
-        Mockito.`when`(pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(generatePdlHentPerson(null, null))
-        Mockito.`when`(stsConsumer.token()).thenReturn(stsToken)
+        every { aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns ARBEIDSTAKER_AKTORID
+        every { aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(LEDER_FNR)) } returns LEDER_AKTORID
+        every { brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR) } returns true
+        every { pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns generatePdlHentPerson(null, null)
+        every { pdlConsumer.isKode6(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns false
+        every { stsConsumer.token() } returns stsToken
+
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
         mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
         loggInnBruker(contextHolder, LEDER_FNR)
@@ -159,16 +157,16 @@ class MotebehovComponentTest {
 
         // Hent
         val motebehovListe = motebehovController.hentMotebehovListe(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-        Assertions.assertThat(motebehovListe).size().isOne
+        assertThat(motebehovListe).size().isOne
         val motebehov = motebehovListe[0]
-        Assertions.assertThat(motebehov.opprettetAv).isEqualTo(LEDER_AKTORID)
-        Assertions.assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
-        Assertions.assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
-        Assertions.assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(motebehovSvar)
+        assertThat(motebehov.opprettetAv).isEqualTo(LEDER_AKTORID)
+        assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
+        assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
+        assertThat(motebehov.motebehovSvar).usingRecursiveComparison().isEqualTo(motebehovSvar)
         if (harBehov) {
-            Mockito.verify(oversikthendelseProducer).sendOversikthendelse(any(), any())
+            verify { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
         } else {
-            Mockito.verify(oversikthendelseProducer, Mockito.never()).sendOversikthendelse(any(), any())
+            verify(exactly = 0) { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
         }
     }
 
@@ -176,10 +174,3 @@ class MotebehovComponentTest {
         motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID)
     }
 }
-
-private fun <T> any(): T {
-    Mockito.any<T>()
-    return uninitialized()
-}
-
-private fun <T> uninitialized(): T = null as T

@@ -33,7 +33,7 @@ import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import no.nav.syfo.testhelper.generator.generateOversikthendelsetilfelle
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.generator.generateStsToken
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -515,11 +515,11 @@ class MotebehovArbeidstakerV2Test {
         assertEquals(MotebehovSkjemaType.SVAR_BEHOV, motebehovStatus.skjemaType)
         val motebehov = motebehovStatus.motebehov!!
         assertNotNull(motebehov)
-        Assertions.assertThat(motebehov.opprettetAv).isEqualTo(ARBEIDSTAKER_AKTORID)
-        Assertions.assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
-        Assertions.assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
-        Assertions.assertThat(motebehov.skjemaType).isEqualTo(motebehovStatus.skjemaType)
-        Assertions.assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(motebehovSvar)
+        assertThat(motebehov.opprettetAv).isEqualTo(ARBEIDSTAKER_AKTORID)
+        assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
+        assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
+        assertThat(motebehov.skjemaType).isEqualTo(motebehovStatus.skjemaType)
+        assertThat(motebehov.motebehovSvar).usingRecursiveComparison().isEqualTo(motebehovSvar)
         if (harBehov) {
             verify { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
         } else {

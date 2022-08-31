@@ -1,5 +1,9 @@
 package no.nav.syfo.motebehov.api.internad.v2
 
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
@@ -9,12 +13,11 @@ import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.sts.StsConsumer
-import no.nav.syfo.motebehov.*
+import no.nav.syfo.motebehov.MotebehovSvar
+import no.nav.syfo.motebehov.NyttMotebehov
 import no.nav.syfo.motebehov.api.MotebehovBrukerController
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.historikk.HistorikkService
-import no.nav.syfo.oversikthendelse.KOversikthendelse
-import no.nav.syfo.oversikthendelse.OversikthendelseProducer
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnVeilederADV2
 import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
@@ -31,16 +34,16 @@ import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import no.nav.syfo.testhelper.mockSvarFraSyfoTilgangskontrollV2TilgangTilBruker
-import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.*
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.cache.CacheManager
 import org.springframework.http.HttpStatus
 import org.springframework.kafka.core.KafkaTemplate
@@ -69,15 +72,6 @@ class MotebehovVeilederADControllerV2Test {
     @Value("\${syfobehandlendeenhet.url}")
     private lateinit var behandlendeenhetUrl: String
 
-    @Value("\${security.token.service.rest.url}")
-    private lateinit var stsUrl: String
-
-    @Value("\${srv.username}")
-    private lateinit var srvUsername: String
-
-    @Value("\${srv.password}")
-    private lateinit var srvPassword: String
-
     @Inject
     private lateinit var motebehovController: MotebehovBrukerController
 
@@ -96,19 +90,19 @@ class MotebehovVeilederADControllerV2Test {
     @Inject
     private lateinit var restTemplate: RestTemplate
 
-    @MockBean
+    @MockkBean
     private lateinit var aktorregisterConsumer: AktorregisterConsumer
 
-    @MockBean
+    @MockkBean
     private lateinit var brukertilgangConsumer: BrukertilgangConsumer
 
-    @MockBean
+    @MockkBean(relaxed = true)
     private lateinit var pdlConsumer: PdlConsumer
 
-    @MockBean
+    @MockkBean
     private lateinit var stsConsumer: StsConsumer
 
-    @MockBean
+    @MockkBean
     private lateinit var kafkaTemplate: KafkaTemplate<String, Any>
 
     private lateinit var mockRestServiceServer: MockRestServiceServer
@@ -127,15 +121,15 @@ class MotebehovVeilederADControllerV2Test {
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
         mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
 
-        Mockito.`when`(kafkaTemplate.send(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.any(KOversikthendelse::class.java))).thenReturn(Mockito.mock(ListenableFuture::class.java) as ListenableFuture<SendResult<String, Any>>?)
-        Mockito.`when`(aktorregisterConsumer.getFnrForAktorId(AktorId(ARBEIDSTAKER_AKTORID))).thenReturn(ARBEIDSTAKER_FNR)
-        Mockito.`when`(aktorregisterConsumer.getFnrForAktorId(AktorId(LEDER_AKTORID))).thenReturn(LEDER_FNR)
-        Mockito.`when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(ARBEIDSTAKER_AKTORID)
-        Mockito.`when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(LEDER_FNR))).thenReturn(LEDER_AKTORID)
-        Mockito.`when`(brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR)).thenReturn(true)
-        Mockito.`when`(pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR))).thenReturn(generatePdlHentPerson(null, null))
-        Mockito.`when`(pdlConsumer.person(Fodselsnummer(LEDER_FNR))).thenReturn(generatePdlHentPerson(null, null))
-        Mockito.`when`(stsConsumer.token()).thenReturn(stsToken)
+        every { kafkaTemplate.send(any(), any(), any()) } returns mockk<ListenableFuture<SendResult<String, Any>>>(relaxed = true)
+        every { aktorregisterConsumer.getFnrForAktorId(AktorId(ARBEIDSTAKER_AKTORID)) } returns ARBEIDSTAKER_FNR
+        every { aktorregisterConsumer.getFnrForAktorId(AktorId(LEDER_AKTORID)) } returns LEDER_FNR
+        every { aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns ARBEIDSTAKER_AKTORID
+        every { aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(LEDER_FNR)) } returns LEDER_AKTORID
+        every { brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR) } returns true
+        every { pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns generatePdlHentPerson(null, null)
+        every { pdlConsumer.person(Fodselsnummer(LEDER_FNR)) } returns generatePdlHentPerson(null, null)
+        every { stsConsumer.token() } returns stsToken
     }
 
     @AfterEach
@@ -167,12 +161,12 @@ class MotebehovVeilederADControllerV2Test {
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
-        Assertions.assertThat(motebehovListe).size().isOne
+        assertThat(motebehovListe).size().isOne
         val motebehov = motebehovListe[0]
-        Assertions.assertThat(motebehov.opprettetAv).isEqualTo(LEDER_AKTORID)
-        Assertions.assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
-        Assertions.assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
-        Assertions.assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(nyttMotebehov.motebehovSvar)
+        assertThat(motebehov.opprettetAv).isEqualTo(LEDER_AKTORID)
+        assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
+        assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
+        assertThat(motebehov.motebehovSvar).usingRecursiveComparison().isEqualTo(nyttMotebehov.motebehovSvar)
     }
 
     @Test
@@ -186,12 +180,12 @@ class MotebehovVeilederADControllerV2Test {
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
-        Assertions.assertThat(motebehovListe).size().isOne
+        assertThat(motebehovListe).size().isOne
         val motebehov = motebehovListe[0]
-        Assertions.assertThat(motebehov.opprettetAv).isEqualTo(ARBEIDSTAKER_AKTORID)
-        Assertions.assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
-        Assertions.assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
-        Assertions.assertThat(motebehov.motebehovSvar).isEqualToComparingFieldByField(nyttMotebehov.motebehovSvar)
+        assertThat(motebehov.opprettetAv).isEqualTo(ARBEIDSTAKER_AKTORID)
+        assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
+        assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
+        assertThat(motebehov.motebehovSvar).usingRecursiveComparison().isEqualTo(nyttMotebehov.motebehovSvar)
     }
 
     @Test
@@ -212,15 +206,15 @@ class MotebehovVeilederADControllerV2Test {
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val historikkListe = motebehovVeilederController.hentMotebehovHistorikk(ARBEIDSTAKER_FNR)
-        Assertions.assertThat(historikkListe).size().isEqualTo(2)
+        assertThat(historikkListe).size().isEqualTo(2)
         val (opprettetAv, tekst, tidspunkt) = historikkListe[0]
-        Assertions.assertThat(opprettetAv).isEqualTo(LEDER_AKTORID)
-        Assertions.assertThat(tekst).isEqualTo(PERSON_FULL_NAME + HistorikkService.HAR_SVART_PAA_MOTEBEHOV)
-        Assertions.assertThat(tidspunkt).isEqualTo(motebehov.opprettetDato)
+        assertThat(opprettetAv).isEqualTo(LEDER_AKTORID)
+        assertThat(tekst).isEqualTo(PERSON_FULL_NAME + HistorikkService.HAR_SVART_PAA_MOTEBEHOV)
+        assertThat(tidspunkt).isEqualTo(motebehov.opprettetDato)
         val (_, tekst1, tidspunkt1) = historikkListe[1]
-        Assertions.assertThat(tekst1).isEqualTo(HistorikkService.MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID)
+        assertThat(tekst1).isEqualTo(HistorikkService.MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID)
         val today = LocalDateTime.now()
-        Assertions.assertThat(tidspunkt1.minusNanos(tidspunkt1.nano.toLong())).isEqualTo(today.minusNanos(today.nano.toLong()))
+        assertThat(tidspunkt1.minusNanos(tidspunkt1.nano.toLong())).isEqualTo(today.minusNanos(today.nano.toLong()))
     }
 
     @Test
@@ -237,8 +231,8 @@ class MotebehovVeilederADControllerV2Test {
 
         motebehovListe.forEach(
             Consumer { motebehovVeilederDTO ->
-                Assertions.assertThat(motebehovVeilederDTO.behandletTidspunkt).isNull()
-                Assertions.assertThat(motebehovVeilederDTO.behandletVeilederIdent).isNull()
+                assertThat(motebehovVeilederDTO.behandletTidspunkt).isNull()
+                assertThat(motebehovVeilederDTO.behandletVeilederIdent).isNull()
             }
         )
     }
@@ -257,11 +251,11 @@ class MotebehovVeilederADControllerV2Test {
         resetMockRestServers()
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
-        Assertions.assertThat(motebehovListe[0].behandletTidspunkt).isNull()
-        Assertions.assertThat(motebehovListe[0].behandletVeilederIdent).isEqualTo(null)
+        assertThat(motebehovListe[0].behandletTidspunkt).isNull()
+        assertThat(motebehovListe[0].behandletVeilederIdent).isEqualTo(null)
         assertNotNull(motebehovListe[1].behandletTidspunkt)
-        Assertions.assertThat(motebehovListe[1].behandletVeilederIdent).isEqualTo(VEILEDER_ID)
-        Mockito.verify(kafkaTemplate, Mockito.times(2)).send(ArgumentMatchers.eq(OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC), ArgumentMatchers.anyString(), ArgumentMatchers.any())
+        assertThat(motebehovListe[1].behandletVeilederIdent).isEqualTo(VEILEDER_ID)
+        verify(exactly = 2) { kafkaTemplate.send(any(), any(), any()) }
     }
 
     @Test
@@ -280,10 +274,10 @@ class MotebehovVeilederADControllerV2Test {
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe1 = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
         assertNotNull(motebehovListe1[0].behandletTidspunkt)
-        Assertions.assertThat(motebehovListe1[0].behandletVeilederIdent).isEqualTo(VEILEDER_ID)
+        assertThat(motebehovListe1[0].behandletVeilederIdent).isEqualTo(VEILEDER_ID)
         assertNotNull(motebehovListe1[1].behandletTidspunkt)
-        Assertions.assertThat(motebehovListe1[1].behandletVeilederIdent).isEqualTo(VEILEDER_2_ID)
-        Mockito.verify(kafkaTemplate, Mockito.times(3)).send(ArgumentMatchers.eq(OversikthendelseProducer.OVERSIKTHENDELSE_TOPIC), ArgumentMatchers.anyString(), ArgumentMatchers.any())
+        assertThat(motebehovListe1[1].behandletVeilederIdent).isEqualTo(VEILEDER_2_ID)
+        verify(exactly = 3) { kafkaTemplate.send(any(), any(), any()) }
     }
 
     @Test
@@ -299,7 +293,11 @@ class MotebehovVeilederADControllerV2Test {
         assertThrows<RuntimeException> { motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR) }
     }
 
-    private fun arbeidsgiverLagrerMotebehov(lederFnr: String, arbeidstakerFnr: String, virksomhetsnummer: String): NyttMotebehov {
+    private fun arbeidsgiverLagrerMotebehov(
+        lederFnr: String,
+        arbeidstakerFnr: String,
+        virksomhetsnummer: String
+    ): NyttMotebehov {
         loggInnBruker(contextHolder, lederFnr)
         val motebehovSvar = MotebehovSvar(
             harMotebehov = true,
@@ -314,7 +312,11 @@ class MotebehovVeilederADControllerV2Test {
         return nyttMotebehov
     }
 
-    private fun sykmeldtLagrerMotebehov(sykmeldtFnr: String, virksomhetsnummer: String, harBehov: Boolean): NyttMotebehov {
+    private fun sykmeldtLagrerMotebehov(
+        sykmeldtFnr: String,
+        virksomhetsnummer: String,
+        harBehov: Boolean
+    ): NyttMotebehov {
         loggInnBruker(contextHolder, sykmeldtFnr)
         val motebehovSvar = MotebehovSvar(
             harMotebehov = harBehov,
@@ -358,10 +360,12 @@ class MotebehovVeilederADControllerV2Test {
             fnr
         )
     }
+
     private fun resetMockRestServers() {
         mockRestServiceServer.reset()
         mockRestServiceWithProxyServer.reset()
     }
+
     private fun cleanDB() {
         motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID)
     }
