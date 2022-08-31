@@ -6,6 +6,8 @@ import no.nav.syfo.api.auth.OIDCIssuer.EKSTERN
 import no.nav.syfo.api.auth.OIDCUtil
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.varsel.VarselService
+import no.nav.syfo.varsel.VarselServiceV2
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -19,7 +21,10 @@ class EsyfovarselController @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
     private val metric: no.nav.syfo.metric.Metric,
     private val varselService: VarselService,
-    private val brukertilgangService: BrukertilgangService
+    private val varselServiceV2: VarselServiceV2,
+    private val brukertilgangService: BrukertilgangService,
+    @Value("\${toggle.kandidatlista}")
+    private val useKandidatlista: Boolean,
 ) {
     @GetMapping(
         value = ["/39uker"],
@@ -30,6 +35,11 @@ class EsyfovarselController @Inject constructor(
         brukertilgangService.kastExceptionHvisIkkeTilgang(fnr.value)
 
         metric.tellEndepunktKall("call_endpoint_esyfovarsel_39uker")
+
+        if (useKandidatlista) {
+            return varselServiceV2.has39UkerVarselBeenSent(fnr)
+        }
+
         return varselService.has39UkerVarselBeenSent(fnr)
     }
 }

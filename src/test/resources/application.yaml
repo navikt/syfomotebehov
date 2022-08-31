@@ -103,3 +103,4 @@ tokenx.idp: "idporten"
 token.x.well.known.url: "https://token-x-well-known-url"
 token.x.client.id: "tokenx-client-id"
 token.x.private.jwk: "tokenx-jwk"
+toggle.kandidatlista: true
