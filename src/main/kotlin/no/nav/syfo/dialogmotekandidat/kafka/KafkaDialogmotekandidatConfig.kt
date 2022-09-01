@@ -18,7 +18,7 @@ class KafkaDialogmotekandidatConfig @Inject constructor(
     private val kafkaAivenConfig: KafkaAivenConfig
 ) {
     @Bean
-    fun dialogmoteKandidatConsumerFactory(): ConsumerFactory<String, KafkaDialogmotekandidatEndring> {
+    fun dialogmotekandidatConsumerFactory(): ConsumerFactory<String, KafkaDialogmotekandidatEndring> {
 
         fun kafkaDialogmotekandidatConsumerConfig(): HashMap<String, Any> {
             return HashMap<String, Any>().apply {
@@ -45,7 +45,7 @@ class KafkaDialogmotekandidatConfig @Inject constructor(
     fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, KafkaDialogmotekandidatEndring> {
         return ConcurrentKafkaListenerContainerFactory<String, KafkaDialogmotekandidatEndring>().apply {
             this.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
-            this.consumerFactory = dialogmoteKandidatConsumerFactory()
+            this.consumerFactory = dialogmotekandidatConsumerFactory()
         }
     }
 }

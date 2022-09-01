@@ -22,3 +22,9 @@ fun MotebehovStatus.isSvarBehovVarselAvailable(newestMotebehov: Motebehov): Bool
         this.motebehov == null &&
         !newestMotebehov.isUbehandlet()
 }
+
+fun MotebehovStatus.isMotebehovAvailableForAnswer(): Boolean {
+    return this.visMotebehov &&
+        this.skjemaType != null &&
+        this.motebehov == null
+}

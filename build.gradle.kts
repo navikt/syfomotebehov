@@ -12,6 +12,8 @@ object Versions {
     const val tokenSupportVersion = "1.3.19"
     const val ojdbcVersion = "19.3.0.0"
     const val h2Version = "2.1.210"
+    const val mockkVersion = "1.12.7"
+    const val springMockkVersion = "3.1.1"
     const val confluent = "7.1.1"
     const val isdialogmoteSchema = "1.0.5"
 }
@@ -93,6 +95,8 @@ dependencies {
         exclude(module = "junit")
     }
     testImplementation("com.h2database:h2:${Versions.h2Version}")
+    testImplementation("io.mockk:mockk:${Versions.mockkVersion}")
+    testImplementation("com.ninja-squad:springmockk:${Versions.springMockkVersion}")
 }
 
 tasks {
