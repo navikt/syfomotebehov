@@ -1,6 +1,8 @@
 package no.nav.syfo.varsel
 
-import javax.inject.Inject
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import io.mockk.verify
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
 import no.nav.syfo.consumer.aktorregister.domain.AktorId
@@ -16,12 +18,7 @@ import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
-import no.nav.syfo.testhelper.generator.MotebehovGenerator
-import no.nav.syfo.testhelper.generator.generateKOversikthendelsetilfelle
-import no.nav.syfo.testhelper.generator.generateMotebehovStatus
-import no.nav.syfo.testhelper.generator.generatePersonOppfolgingstilfelleMeldBehovFirstPeriod
-import no.nav.syfo.testhelper.generator.generatePersonOppfolgingstilfelleSvarBehov
-import no.nav.syfo.testhelper.generator.generateStsToken
+import no.nav.syfo.testhelper.generator.*
 import no.nav.syfo.varsel.api.VarselController
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselProducer.Companion.ESYFOVARSEL_TOPIC
 import no.nav.syfo.varsel.esyfovarsel.domain.EsyfovarselHendelse
@@ -35,11 +32,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito
-import org.mockito.Mockito.`when`
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.support.SendResult
@@ -54,28 +48,28 @@ import org.springframework.web.client.RestTemplate
 @DirtiesContext
 class VarselLederComponentTest {
 
-    @MockBean
+    @MockkBean
     private lateinit var aktorregisterConsumer: AktorregisterConsumer
 
-    @MockBean
+    @MockkBean
     private lateinit var motebehovStatusService: MotebehovStatusService
 
-    @MockBean
+    @MockkBean(relaxed = true)
     private lateinit var motebehovService: MotebehovService
 
-    @Inject
+    @Autowired
     private lateinit var oppfolgingstilfelleDAO: OppfolgingstilfelleDAO
 
-    @Inject
+    @Autowired
     private lateinit var varselController: VarselController
 
-    @Inject
+    @Autowired
     private lateinit var restTemplate: RestTemplate
 
-    @MockBean
+    @MockkBean
     private lateinit var kafkaTemplate: KafkaTemplate<String, EsyfovarselHendelse>
 
-    @MockBean
+    @MockkBean
     private lateinit var stsConsumer: StsConsumer
 
     private lateinit var mockRestServiceServer: MockRestServiceServer
@@ -95,11 +89,10 @@ class VarselLederComponentTest {
     fun setUp() {
         cleanDB()
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
-        `when`(aktorregisterConsumer.getFnrForAktorId(AktorId(ARBEIDSTAKER_AKTORID)))
-            .thenReturn(ARBEIDSTAKER_FNR)
-        `when`(aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR)))
-            .thenReturn(ARBEIDSTAKER_FNR)
-        `when`(stsConsumer.token()).thenReturn(stsToken)
+        every { aktorregisterConsumer.getFnrForAktorId(AktorId(ARBEIDSTAKER_AKTORID)) } returns ARBEIDSTAKER_FNR
+        every { aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns ARBEIDSTAKER_AKTORID
+        every { stsConsumer.token() } returns stsToken
+
         mockEsyfovarselHendelseFuture()
     }
 
@@ -119,8 +112,13 @@ class VarselLederComponentTest {
                 tom = oppfolgingstilfelle.tom
             )
         )
-        `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
-            .thenReturn(generateMotebehovStatus.copy(motebehov = null))
+
+        every {
+            motebehovStatusService.motebehovStatus(
+                oppfolgingstilfelle,
+                emptyList()
+            )
+        } returns generateMotebehovStatus.copy(motebehov = null)
 
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
 
@@ -137,18 +135,21 @@ class VarselLederComponentTest {
                 tom = oppfolgingstilfelle.tom
             )
         )
-        `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
-            .thenReturn(
-                generateMotebehovStatus.copy(
-                    visMotebehov = true,
-                    skjemaType = MotebehovSkjemaType.MELD_BEHOV,
-                    motebehov = null
-                )
+
+        every {
+            motebehovStatusService.motebehovStatus(
+                oppfolgingstilfelle,
+                emptyList()
             )
+        } returns generateMotebehovStatus.copy(
+            visMotebehov = true,
+            skjemaType = MotebehovSkjemaType.MELD_BEHOV,
+            motebehov = null
+        )
 
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
-        Mockito.verify(kafkaTemplate, Mockito.never())
-            .send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(exactly = 0) { kafkaTemplate.send(any(), any(), any()) }
+
         assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
     }
 
@@ -162,18 +163,21 @@ class VarselLederComponentTest {
                 tom = oppfolgingstilfelle.tom
             )
         )
-        `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
-            .thenReturn(
-                generateMotebehovStatus.copy(
-                    visMotebehov = true,
-                    skjemaType = MotebehovSkjemaType.MELD_BEHOV,
-                    motebehov = null
-                )
+
+        every {
+            motebehovStatusService.motebehovStatus(
+                oppfolgingstilfelle,
+                emptyList()
             )
+        } returns generateMotebehovStatus.copy(
+            visMotebehov = true,
+            skjemaType = MotebehovSkjemaType.MELD_BEHOV,
+            motebehov = null
+        )
 
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
-        Mockito.verify(kafkaTemplate, Mockito.never())
-            .send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(exactly = 0) { kafkaTemplate.send(any(), any(), any()) }
+
         assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
     }
 
@@ -191,34 +195,37 @@ class VarselLederComponentTest {
             opprettetAv = LEDER_AKTORID,
             behandletVeilederIdent = VEILEDER_ID
         )
-        `when`(
+        every {
             motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
                 Fodselsnummer(ARBEIDSTAKER_FNR),
                 false,
                 VIRKSOMHETSNUMMER
             )
-        )
-            .thenReturn(listOf(newestMotebehov))
-        `when`(
+        } returns listOf(newestMotebehov)
+
+        every {
             motebehovStatusService.getNewestMotebehovInOppfolgingstilfelle(
                 oppfolgingstilfelle,
                 listOf(newestMotebehov)
             )
-        )
-            .thenReturn(newestMotebehov)
-        `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, listOf(newestMotebehov)))
-            .thenReturn(
-                generateMotebehovStatus.copy(
-                    visMotebehov = true,
-                    skjemaType = MotebehovSkjemaType.MELD_BEHOV,
-                    motebehov = null
-                )
+        } returns newestMotebehov
+
+        every {
+            motebehovStatusService.motebehovStatus(
+                oppfolgingstilfelle,
+                listOf(newestMotebehov)
             )
+        } returns generateMotebehovStatus.copy(
+            visMotebehov = true,
+            skjemaType = MotebehovSkjemaType.MELD_BEHOV,
+            motebehov = null
+        )
 
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
-        Mockito.verify(kafkaTemplate, Mockito.never())
-            .send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
+        verify(exactly = 0) {
+            kafkaTemplate.send(any(), any(), any())
+            assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
+        }
     }
 
     @Test
@@ -235,33 +242,34 @@ class VarselLederComponentTest {
             opprettetAv = LEDER_AKTORID,
             behandletVeilederIdent = null
         )
-        `when`(
+        every {
             motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
                 Fodselsnummer(ARBEIDSTAKER_FNR),
                 false,
                 VIRKSOMHETSNUMMER
             )
-        )
-            .thenReturn(listOf(newestMotebehov))
-        `when`(
+        } returns listOf(newestMotebehov)
+
+        every {
             motebehovStatusService.getNewestMotebehovInOppfolgingstilfelle(
                 oppfolgingstilfelle,
                 listOf(newestMotebehov)
             )
-        )
-            .thenReturn(newestMotebehov)
-        `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, listOf(newestMotebehov)))
-            .thenReturn(
-                generateMotebehovStatus.copy(
-                    visMotebehov = true,
-                    skjemaType = MotebehovSkjemaType.MELD_BEHOV,
-                    motebehov = null
-                )
+        } returns newestMotebehov
+
+        every {
+            motebehovStatusService.motebehovStatus(
+                oppfolgingstilfelle,
+                listOf(newestMotebehov)
             )
+        } returns generateMotebehovStatus.copy(
+            visMotebehov = true,
+            skjemaType = MotebehovSkjemaType.MELD_BEHOV,
+            motebehov = null
+        )
 
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
-        Mockito.verify(kafkaTemplate, Mockito.never())
-            .send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(exactly = 0) { kafkaTemplate.send(any(), any(), any()) }
         assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
     }
 
@@ -275,12 +283,15 @@ class VarselLederComponentTest {
                 tom = oppfolgingstilfelle.tom
             )
         )
-        `when`(motebehovStatusService.motebehovStatus(oppfolgingstilfelle, emptyList()))
-            .thenReturn(generateMotebehovStatus.copy(motebehov = null))
+        every {
+            motebehovStatusService.motebehovStatus(
+                oppfolgingstilfelle,
+                emptyList()
+            )
+        } returns generateMotebehovStatus.copy(motebehov = null)
 
         val returnertSvarFraVarselcontroller = varselController.sendVarselNaermesteLeder(motebehovsvarVarselInfo)
-        Mockito.verify(kafkaTemplate, Mockito.never())
-            .send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(exactly = 0) { kafkaTemplate.send(any(), any(), any()) }
         assertEquals(HttpStatus.OK.value().toLong(), returnertSvarFraVarselcontroller.status.toLong())
 
         mockRestServiceServer.verify()
@@ -289,6 +300,7 @@ class VarselLederComponentTest {
     private fun cleanDB() {
         oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(Fodselsnummer(ARBEIDSTAKER_FNR))
     }
+
     private fun mockEsyfovarselHendelseFuture() {
         val hendelse = NarmesteLederHendelse(
             HendelseType.NL_DIALOGMOTE_SVAR_MOTEBEHOV,
@@ -307,6 +319,6 @@ class VarselLederComponentTest {
         val prodrec = ProducerRecord<String, EsyfovarselHendelse>(ESYFOVARSEL_TOPIC, hendelse)
 
         future.set(sendResult)
-        `when`(kafkaTemplate.send(ArgumentMatchers.any(prodrec::class.java))).thenReturn(future)
+        every { kafkaTemplate.send(prodrec) } returns future
     }
 }
