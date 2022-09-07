@@ -1,18 +1,13 @@
 package no.nav.syfo.varsel
 
-import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
-import no.nav.syfo.consumer.aktorregister.domain.AktorId
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.consumer.esyfovarsel.EsyfovarselConsumer
+import no.nav.syfo.consumer.aktorregister.domain.Virksomhetsnummer
+import no.nav.syfo.consumer.narmesteleder.NarmesteLederService
 import no.nav.syfo.dialogmote.DialogmoteStatusService
-import no.nav.syfo.dialogmotekandidat.DialogmotekandidatService
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.motebehov.MotebehovService
-import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
-import no.nav.syfo.motebehov.motebehovstatus.isSvarBehovVarselAvailable
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusHelper
 import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
-import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -22,43 +17,61 @@ import javax.inject.Inject
 @Service
 class VarselServiceV2 @Inject constructor(
     private val metric: Metric,
-    private val aktorregisterConsumer: AktorregisterConsumer,
-    private val esyfovarselConsumer: EsyfovarselConsumer,
     private val motebehovService: MotebehovService,
-    private val motebehovStatusServiceV2: MotebehovStatusServiceV2,
+    private val motebehovStatusHelper: MotebehovStatusHelper,
     private val oppfolgingstilfelleService: OppfolgingstilfelleService,
     private val esyfovarselService: EsyfovarselService,
     private val dialogmoteStatusService: DialogmoteStatusService,
-    private val dialogmotekandidatService: DialogmotekandidatService
+    private val narmesteLederService: NarmesteLederService
 ) {
-    fun sendVarselTilNaermesteLeder(motebehovsvarVarselInfo: MotebehovsvarVarselInfo) {
-        val arbeidstakerFnr = aktorregisterConsumer.getFnrForAktorId(AktorId(motebehovsvarVarselInfo.sykmeldtAktorId))
+    fun sendSvarBehovVarsel(ansattFnr: Fodselsnummer) {
+        log.info("Testing: Henter nærmeste ledere..")
+        val narmesteLederRelations = narmesteLederService.getAllNarmesteLederRelations(ansattFnr)
+
+        log.info("Testing: Sender varsel til arbeidstaker")
+        sendVarselTilArbeidstaker(ansattFnr)
+
+        narmesteLederRelations?.forEach {
+            log.info("Testing: Sender varsel til virksomhet ${it.virksomhetsnummer}")
+            sendVarselTilNaermesteLeder(
+                ansattFnr,
+                Fodselsnummer(it.narmesteLederPersonIdentNumber),
+                Virksomhetsnummer(it.virksomhetsnummer)
+            )
+        }
+    }
+
+    private fun sendVarselTilNaermesteLeder(
+        ansattFnr: Fodselsnummer,
+        naermesteLederFnr: Fodselsnummer,
+        virksomhetsnummer: Virksomhetsnummer
+    ) {
         val aktivtOppfolgingstilfelle =
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
-                Fodselsnummer(arbeidstakerFnr),
-                motebehovsvarVarselInfo.orgnummer
+                ansattFnr,
+                virksomhetsnummer.value
             )
+
         val isDialogmoteAlleredePlanlagt = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
-            Fodselsnummer(arbeidstakerFnr),
-            motebehovsvarVarselInfo.orgnummer, aktivtOppfolgingstilfelle?.fom ?: LocalDate.now()
+            ansattFnr,
+            virksomhetsnummer.value, aktivtOppfolgingstilfelle?.fom ?: LocalDate.now()
         )
 
         if (!isDialogmoteAlleredePlanlagt) {
-            val isSvarBehovVarselAvailableForLeder = isSvarBehovVarselAvailable(
+            val isSvarBehovVarselAvailableForLeder = motebehovStatusHelper.isSvarBehovVarselAvailable(
                 motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
-                    Fodselsnummer(arbeidstakerFnr),
+                    ansattFnr,
                     false,
-                    motebehovsvarVarselInfo.orgnummer
+                    virksomhetsnummer.value
                 ),
                 aktivtOppfolgingstilfelle,
-                dialogmotekandidatService.getDialogmotekandidatStatus(Fodselsnummer(arbeidstakerFnr))?.kandidat == true
             )
             if (isSvarBehovVarselAvailableForLeder) {
                 metric.tellHendelse("varsel_leder_sent")
                 esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(
-                    motebehovsvarVarselInfo.naermesteLederFnr,
-                    motebehovsvarVarselInfo.arbeidstakerFnr,
-                    motebehovsvarVarselInfo.orgnummer
+                    naermesteLederFnr.value,
+                    ansattFnr.value,
+                    virksomhetsnummer.value
                 )
             } else {
                 metric.tellHendelse("varsel_leder_not_sent_motebehov_not_available")
@@ -70,22 +83,22 @@ class VarselServiceV2 @Inject constructor(
         }
     }
 
-    fun sendVarselTilArbeidstaker(motebehovsvarVarselInfo: MotebehovsvarSykmeldtVarselInfo) {
-        val aktivtOppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr))
+    private fun sendVarselTilArbeidstaker(ansattFnr: Fodselsnummer) {
+        val aktivtOppfolgingstilfelle =
+            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(ansattFnr)
         val isDialogmoteAlleredePlanlagt = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
-            Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr),
-            motebehovsvarVarselInfo.orgnummer, aktivtOppfolgingstilfelle?.fom ?: LocalDate.now()
+            ansattFnr,
+            null, aktivtOppfolgingstilfelle?.fom ?: LocalDate.now()
         )
 
         if (!isDialogmoteAlleredePlanlagt) {
-            val isSvarBehovVarselAvailableForArbeidstaker = isSvarBehovVarselAvailable(
-                motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr)),
+            val isSvarBehovVarselAvailableForArbeidstaker = motebehovStatusHelper.isSvarBehovVarselAvailable(
+                motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(ansattFnr),
                 aktivtOppfolgingstilfelle,
-                dialogmotekandidatService.getDialogmotekandidatStatus(Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr))?.kandidat == true
             )
             if (isSvarBehovVarselAvailableForArbeidstaker) {
                 metric.tellHendelse("varsel_arbeidstaker_sent")
-                esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(motebehovsvarVarselInfo.arbeidstakerFnr)
+                esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(ansattFnr.value)
             } else {
                 metric.tellHendelse("varsel_arbeidstaker_not_sent_motebehov_not_available")
                 log.info("Not sending Varsel to Arbeidstaker because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")
@@ -94,34 +107,6 @@ class VarselServiceV2 @Inject constructor(
             metric.tellHendelse("varsel_arbeidstaker_not_sent_mote_allerede_planlagt")
             log.info("Not sending Varsel to Arbeidstaker because dialogmote er planlagt")
         }
-    }
-
-    fun has39UkerVarselBeenSent(
-        arbeidtakerFnr: Fodselsnummer
-    ): Boolean {
-        val aktorId = aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidtakerFnr)
-        return esyfovarselConsumer.varsel39Sent(aktorId)
-    }
-
-    private fun isSvarBehovVarselAvailable(
-        motebehovList: List<Motebehov>,
-        oppfolgingstilfelle: PersonOppfolgingstilfelle?,
-        isDialogmoteKandidat: Boolean,
-    ): Boolean {
-        oppfolgingstilfelle?.let {
-            val motebehovStatus = motebehovStatusServiceV2.motebehovStatus(
-                false,
-                oppfolgingstilfelle,
-                isDialogmoteKandidat,
-                motebehovList
-            )
-
-            return motebehovStatusServiceV2.getNewestMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList)
-                ?.let { newestMotebehov ->
-                    return motebehovStatus.isSvarBehovVarselAvailable(newestMotebehov)
-                } ?: motebehovStatus.isSvarBehovVarselAvailable()
-        }
-        return false
     }
 
     companion object {
