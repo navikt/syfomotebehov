@@ -127,7 +127,7 @@ spec:
       value: prod-gcp:flex:ditt-sykefravaer
     - name: TOGGLE_KANDIDATLISTA
       value: "false"
-    - name: NARMESTELEDER_URL
+    - name: ISNARMESTELEDER_URL
       value: "https://isnarmesteleder.intern.nav.no"
-    - name: NARMESTELEDER_CLIENT_ID
+    - name: ISNARMESTELEDER_CLIENT_ID
       value: "prod-gcp.teamsykefravr.isnarmesteleder"

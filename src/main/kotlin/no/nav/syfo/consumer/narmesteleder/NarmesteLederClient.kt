@@ -15,8 +15,8 @@ import java.util.*
 @Service
 class NarmesteLederClient(
     private val azureAdV2TokenConsumer: AzureAdV2TokenConsumer,
-    @Value("\${narmesteleder.url}") private val baseUrl: String,
-    @Value("\${narmesteleder.client.id}") private val targetApp: String,
+    @Value("\${isnarmesteleder.url}") private val baseUrl: String,
+    @Value("\${isnarmesteleder.client.id}") private val targetApp: String,
     @Qualifier("restTemplateWithProxy") private val restTemplateWithProxy: RestTemplate
 ) {
     fun getNarmesteledere(fnr: String): List<NarmesteLederRelasjonDTO>? {

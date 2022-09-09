@@ -104,5 +104,5 @@ token.x.well.known.url: "https://token-x-well-known-url"
 token.x.client.id: "tokenx-client-id"
 token.x.private.jwk: "tokenx-jwk"
 toggle.kandidatlista: true
-narmesteleder.url: "something"
-narmesteleder.client.id: "something"
+isnarmesteleder.url: "something"
+isnarmesteleder.client.id: "something"
