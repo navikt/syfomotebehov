@@ -18,13 +18,13 @@ spec:
       action: "Undersøk hvofor {{ $labels.app }} er nede i prod-fss"
       severity: danger
     - alert: HIGH RATIO OF HTTP 5XX RESPONSE
-      expr: (100 * (sum by (backend) (rate(nginx_ingress_controller_backend_requests_total{code=~"^5\\d\\d", backend=~"syfomotebehov.nais.adeo..+"}[5m])) / sum by (backend) (rate(nginx_ingress_controller_backend_requests_total{backend=~"syfomotebehov.nais.adeo..+"}[5m])))) > 2
+      expr: (100 * (sum by (backend) (rate(nginx_ingress_controller_requests{namespace="team-esyfo", status=~"^5\\d\\d", service="syfomotebehov"}[5m]))) / (sum by (backend) (rate(nginx_ingress_controller_requests{namespace="team-esyfo", service="syfomotebehov"}[5m])))) > 2
       for: 5m
       description: "App {{ $labels.app }} har en høy andel 500 feil {{ $labels.kubernetes_namespace }}"
       action: "Sjekk i Grafana eller logger at {{ $labels.backend }} returnerer mange 500-feil"
       severity: danger
     - alert: HIGH RATIO OF HTTP 4XX RESPONSE
-      expr: (100 * (sum by (backend) (rate(nginx_ingress_controller_backend_requests_total{code=~"^4\\d\\d", backend=~"syfomotebehov.nais.adeo..+"}[5m])) / sum by (backend) (rate(nginx_ingress_controller_backend_requests_total{backend=~"syfomotebehov.nais.adeo..+"}[5m])))) > 10
+      expr: (100 * (sum by (backend) (rate(nginx_ingress_controller_requests{namespace="team-esyfo", status=~"^4\\d\\d", service="syfomotebehov"}[5m]))) / (sum by (backend) (rate(nginx_ingress_controller_requests{namespace="team-esyfo", service="syfomotebehov"}[5m])))) > 10
       for: 5m
       description: "App {{ $labels.app }} har en høy 400 feil {{ $labels.kubernetes_namespace }}"
       action: "Sjekk i Grafana eller logger at {{ $labels.backend }} returnerer mange 400-feil"
