@@ -58,7 +58,7 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
         brukertilgangService.kastExceptionHvisIkkeTilgangTilSegSelv(arbeidstakerFnr.value)
 
         val allNarmesteLederRelations = narmesteLederService.getAllNarmesteLederRelations(arbeidstakerFnr)
-        allNarmesteLederRelations?.forEach { log.info("Got a relation: " + it.narmesteLederPersonIdentNumber) }
+        allNarmesteLederRelations?.forEach { log.info("Got a relation {}", it) }
 
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker")
 
