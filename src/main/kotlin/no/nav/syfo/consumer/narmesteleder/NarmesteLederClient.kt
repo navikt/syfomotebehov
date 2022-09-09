@@ -1,11 +1,18 @@
 package no.nav.syfo.consumer.narmesteleder
 
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
-import no.nav.syfo.util.*
+import no.nav.syfo.util.APP_CONSUMER_ID
+import no.nav.syfo.util.NAV_CALL_ID_HEADER
+import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
+import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.*
+import org.springframework.core.ParameterizedTypeReference
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
@@ -24,11 +31,15 @@ class NarmesteLederClient(
             val token = azureAdV2TokenConsumer.getSystemToken(
                 scopeClientId = targetApp
             )
-            return restTemplateWithProxy.getList(
+
+            val response: ResponseEntity<List<NarmesteLederRelasjonDTO>?> = restTemplateWithProxy.exchange(
                 "$baseUrl/api/system/v1/narmestelederrelasjoner",
                 HttpMethod.GET,
-                entity(token, fnr)
+                entity(token, fnr),
+                object : ParameterizedTypeReference<List<NarmesteLederRelasjonDTO>?>() {}
             )
+
+            return response.body
         } catch (e: Exception) {
             log.error("Noe gikk galt ved henting av nærmeste leder", e)
             throw e

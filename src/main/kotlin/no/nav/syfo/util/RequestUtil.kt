@@ -1,10 +1,5 @@
 package no.nav.syfo.util
 
-import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpMethod
-import org.springframework.http.ResponseEntity
-import org.springframework.web.client.RestTemplate
 import java.util.*
 
 const val NAV_CONSUMER_ID_HEADER = "Nav-Consumer-Id"
@@ -23,13 +18,3 @@ const val ALLE_TEMA_HEADERVERDI = "GEN"
 fun createCallId(): String = UUID.randomUUID().toString()
 
 fun getOrCreateCallId(callId: String?): String = callId ?: UUID.randomUUID().toString()
-
-fun <T> RestTemplate.getList(path: String, method: HttpMethod, entity: HttpEntity<String>?): List<T>? {
-    val response: ResponseEntity<List<T>?> = this.exchange(
-        path,
-        method,
-        entity,
-        object : ParameterizedTypeReference<List<T>?>() {}
-    )
-    return response.body
-}

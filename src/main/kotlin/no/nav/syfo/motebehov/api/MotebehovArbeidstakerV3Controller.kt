@@ -6,6 +6,7 @@ import no.nav.syfo.api.auth.tokenX.TokenXUtil
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.TokenXIssuer
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
+import no.nav.syfo.consumer.narmesteleder.NarmesteLederService
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleService
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
@@ -13,6 +14,7 @@ import no.nav.syfo.motebehov.MotebehovSvar
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
@@ -38,6 +40,7 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
     val dialogmoteTokenxIdp: String,
     @Value("\${toggle.kandidatlista}")
     private val useKandidatlista: Boolean,
+    private val narmesteLederService: NarmesteLederService // TODO Fjernes, bare for testing
 ) {
     @GetMapping(
         value = ["/motebehov"],
@@ -53,6 +56,9 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
             .fnrFromIdportenTokenX()
 
         brukertilgangService.kastExceptionHvisIkkeTilgangTilSegSelv(arbeidstakerFnr.value)
+
+        val allNarmesteLederRelations = narmesteLederService.getAllNarmesteLederRelations(arbeidstakerFnr)
+        allNarmesteLederRelations?.forEach { log.info("Got a relation: " + it.narmesteLederPersonIdentNumber) }
 
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker")
 
@@ -92,5 +98,9 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
                 nyttMotebehovSvar
             )
         }
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(MotebehovArbeidstakerV3Controller::class.java)
     }
 }
