@@ -8,6 +8,7 @@ import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusHelper
 import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
+import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -25,11 +26,24 @@ class VarselServiceV2 @Inject constructor(
     private val narmesteLederService: NarmesteLederService
 ) {
     fun sendSvarBehovVarsel(ansattFnr: Fodselsnummer) {
+        val ansattesOppfolgingstilfelle =
+            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(ansattFnr)
+
+        val isDialogmoteAlleredePlanlagt = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
+            ansattFnr,
+            null, ansattesOppfolgingstilfelle?.fom ?: LocalDate.now()
+        )
+
+        if (isDialogmoteAlleredePlanlagt) {
+            logDialogmoteAlleredePlanlagt()
+            return
+        }
+
         log.info("Testing: Henter nærmeste ledere..")
         val narmesteLederRelations = narmesteLederService.getAllNarmesteLederRelations(ansattFnr)
 
         log.info("Testing: Sender varsel til arbeidstaker")
-        sendVarselTilArbeidstaker(ansattFnr)
+        sendVarselTilArbeidstaker(ansattFnr, ansattesOppfolgingstilfelle)
 
         narmesteLederRelations?.forEach {
             log.info("Testing: Sender varsel til virksomhet ${it.virksomhetsnummer}")
@@ -52,61 +66,47 @@ class VarselServiceV2 @Inject constructor(
                 virksomhetsnummer.value
             )
 
-        val isDialogmoteAlleredePlanlagt = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
-            ansattFnr,
-            virksomhetsnummer.value, aktivtOppfolgingstilfelle?.fom ?: LocalDate.now()
+        val isSvarBehovVarselAvailableForLeder = motebehovStatusHelper.isSvarBehovVarselAvailable(
+            motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
+                ansattFnr,
+                false,
+                virksomhetsnummer.value
+            ),
+            aktivtOppfolgingstilfelle,
         )
-
-        if (!isDialogmoteAlleredePlanlagt) {
-            val isSvarBehovVarselAvailableForLeder = motebehovStatusHelper.isSvarBehovVarselAvailable(
-                motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
-                    ansattFnr,
-                    false,
-                    virksomhetsnummer.value
-                ),
-                aktivtOppfolgingstilfelle,
+        if (isSvarBehovVarselAvailableForLeder) {
+            metric.tellHendelse("varsel_leder_sent")
+            esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(
+                naermesteLederFnr.value,
+                ansattFnr.value,
+                virksomhetsnummer.value
             )
-            if (isSvarBehovVarselAvailableForLeder) {
-                metric.tellHendelse("varsel_leder_sent")
-                esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(
-                    naermesteLederFnr.value,
-                    ansattFnr.value,
-                    virksomhetsnummer.value
-                )
-            } else {
-                metric.tellHendelse("varsel_leder_not_sent_motebehov_not_available")
-                log.info("Not sending Varsel to Narmeste Leder because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")
-            }
         } else {
-            metric.tellHendelse("varsel_leder_not_sent_mote_allerede_planlagt")
-            log.info("Not sending Varsel to Narmeste Leder because dialogmote er planlagt")
+            metric.tellHendelse("varsel_leder_not_sent_motebehov_not_available")
+            log.info("Not sending Varsel to Narmeste Leder because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")
         }
     }
 
-    private fun sendVarselTilArbeidstaker(ansattFnr: Fodselsnummer) {
-        val aktivtOppfolgingstilfelle =
-            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(ansattFnr)
-        val isDialogmoteAlleredePlanlagt = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
-            ansattFnr,
-            null, aktivtOppfolgingstilfelle?.fom ?: LocalDate.now()
+    private fun sendVarselTilArbeidstaker(ansattFnr: Fodselsnummer, oppfolgingstilfelle: PersonOppfolgingstilfelle?) {
+        val isSvarBehovVarselAvailableForArbeidstaker = motebehovStatusHelper.isSvarBehovVarselAvailable(
+            motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(ansattFnr),
+            oppfolgingstilfelle,
         )
-
-        if (!isDialogmoteAlleredePlanlagt) {
-            val isSvarBehovVarselAvailableForArbeidstaker = motebehovStatusHelper.isSvarBehovVarselAvailable(
-                motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(ansattFnr),
-                aktivtOppfolgingstilfelle,
-            )
-            if (isSvarBehovVarselAvailableForArbeidstaker) {
-                metric.tellHendelse("varsel_arbeidstaker_sent")
-                esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(ansattFnr.value)
-            } else {
-                metric.tellHendelse("varsel_arbeidstaker_not_sent_motebehov_not_available")
-                log.info("Not sending Varsel to Arbeidstaker because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")
-            }
+        if (isSvarBehovVarselAvailableForArbeidstaker) {
+            metric.tellHendelse("varsel_arbeidstaker_sent")
+            esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(ansattFnr.value)
         } else {
-            metric.tellHendelse("varsel_arbeidstaker_not_sent_mote_allerede_planlagt")
-            log.info("Not sending Varsel to Arbeidstaker because dialogmote er planlagt")
+            metric.tellHendelse("varsel_arbeidstaker_not_sent_motebehov_not_available")
+            log.info("Not sending Varsel to Arbeidstaker because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")
         }
+    }
+
+    private fun logDialogmoteAlleredePlanlagt() {
+        metric.tellHendelse("varsel_arbeidstaker_not_sent_mote_allerede_planlagt")
+        log.info("Not sending Varsel to Arbeidstaker because dialogmote er planlagt")
+
+        metric.tellHendelse("varsel_leder_not_sent_mote_allerede_planlagt")
+        log.info("Not sending Varsel to Narmeste Leder because dialogmote er planlagt")
     }
 
     companion object {
