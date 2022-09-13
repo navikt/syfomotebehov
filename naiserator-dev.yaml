@@ -60,6 +60,9 @@ spec:
         - application: esyfovarsel
           namespace: team-esyfo
           cluster: dev-gcp
+        - application: isnarmesteleder
+          namespace: teamsykefravr
+          cluster: dev-gcp
   azure:
     application:
       enabled: true
@@ -127,3 +130,7 @@ spec:
       value: dev-gcp:flex:ditt-sykefravaer
     - name: TOGGLE_KANDIDATLISTA
       value: "true"
+    - name: ISNARMESTELEDER_URL
+      value: "https://isnarmesteleder.dev.intern.nav.no"
+    - name: ISNARMESTELEDER_CLIENT_ID
+      value: "dev-gcp.teamsykefravr.isnarmesteleder"

@@ -5,7 +5,6 @@ import no.nav.syfo.api.auth.OIDCIssuer.STS
 import no.nav.syfo.varsel.MotebehovsvarSykmeldtVarselInfo
 import no.nav.syfo.varsel.MotebehovsvarVarselInfo
 import no.nav.syfo.varsel.VarselService
-import no.nav.syfo.varsel.VarselServiceV2
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
@@ -16,7 +15,6 @@ import javax.ws.rs.core.Response
 @RequestMapping(value = ["/api/varsel"])
 class VarselController @Inject constructor(
     private val varselService: VarselService,
-    private val varselServiceV2: VarselServiceV2,
     @Value("\${toggle.kandidatlista}")
     private val useKandidatlista: Boolean,
 ) {
@@ -26,9 +24,7 @@ class VarselController @Inject constructor(
     fun sendVarselNaermesteLeder(
         @RequestBody motebehovsvarVarselInfo: MotebehovsvarVarselInfo
     ): Response {
-        if (useKandidatlista) {
-            varselServiceV2.sendVarselTilNaermesteLeder(motebehovsvarVarselInfo)
-        } else {
+        if (!useKandidatlista) {
             varselService.sendVarselTilNaermesteLeder(motebehovsvarVarselInfo)
         }
         return Response
@@ -42,9 +38,7 @@ class VarselController @Inject constructor(
     fun sendVarselArbeidstaker(
         @RequestBody motebehovsvarVarselInfo: MotebehovsvarSykmeldtVarselInfo
     ): Response {
-        if (useKandidatlista) {
-            varselServiceV2.sendVarselTilArbeidstaker(motebehovsvarVarselInfo)
-        } else {
+        if (!useKandidatlista) {
             varselService.sendVarselTilArbeidstaker(motebehovsvarVarselInfo)
         }
         return Response

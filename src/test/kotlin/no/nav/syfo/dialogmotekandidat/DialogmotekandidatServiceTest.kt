@@ -1,11 +1,14 @@
 package no.nav.syfo.dialogmotekandidat
 
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.verify
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
 import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndring
 import no.nav.syfo.testhelper.UserConstants
+import no.nav.syfo.varsel.VarselServiceV2
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -23,6 +26,9 @@ import javax.inject.Inject
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
 internal class DialogmotekandidatServiceTest {
+
+    @MockkBean(relaxed = true)
+    private lateinit var varselServiceV2: VarselServiceV2
 
     @Inject
     private lateinit var dialogmotekandidatDAO: DialogmotekandidatDAO
@@ -146,5 +152,31 @@ internal class DialogmotekandidatServiceTest {
         assertThat(kandidatStatus).isNotNull
         assertThat(kandidatStatus?.kandidat).isFalse
         assertThat(kandidatStatus?.arsak).isEqualTo(DialogmotekandidatEndringArsak.DIALOGMOTE_FERDIGSTILT)
+    }
+
+    @Test
+    fun skalSendeVarselDersomNyKandidat() {
+        val forsteGangKandidat = generateDialogmotekandidatEndring(
+            kandidat = true,
+            arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
+            OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
+        )
+
+        dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
+
+        verify(exactly = 1) { varselServiceV2.sendSvarBehovVarsel(any()) }
+    }
+
+    @Test
+    fun skalIkkeSendeVarselDersomIkkeKandidat() {
+        val forsteGangKandidat = generateDialogmotekandidatEndring(
+            kandidat = false,
+            arsak = DialogmotekandidatEndringArsak.UNNTAK.name,
+            OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
+        )
+
+        dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
+
+        verify(exactly = 0) { varselServiceV2.sendSvarBehovVarsel(any()) }
     }
 }

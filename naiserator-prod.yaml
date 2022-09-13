@@ -57,6 +57,9 @@ spec:
         - application: esyfovarsel
           namespace: team-esyfo
           cluster: prod-gcp
+        - application: isnarmesteleder
+          namespace: teamsykefravr
+          cluster: prod-gcp
   azure:
     application:
       enabled: true
@@ -124,3 +127,7 @@ spec:
       value: prod-gcp:flex:ditt-sykefravaer
     - name: TOGGLE_KANDIDATLISTA
       value: "false"
+    - name: ISNARMESTELEDER_URL
+      value: "https://isnarmesteleder.intern.nav.no"
+    - name: ISNARMESTELEDER_CLIENT_ID
+      value: "prod-gcp.teamsykefravr.isnarmesteleder"

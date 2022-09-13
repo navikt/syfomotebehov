@@ -14,7 +14,8 @@ class MotebehovStatusServiceV2 @Inject constructor(
     private val motebehovService: MotebehovService,
     private val dialogmotekandidatService: DialogmotekandidatService,
     private val dialogmoteStatusService: DialogmoteStatusService,
-    private val oppfolgingstilfelleService: OppfolgingstilfelleService
+    private val oppfolgingstilfelleService: OppfolgingstilfelleService,
+    private val motebehovStatusHelper: MotebehovStatusHelper
 ) {
 
     fun motebehovStatusForArbeidstaker(
@@ -28,7 +29,7 @@ class MotebehovStatusServiceV2 @Inject constructor(
         val isDialogmoteKandidat: Boolean =
             dialogmotekandidatService.getDialogmotekandidatStatus(arbeidstakerFnr)?.kandidat == true
 
-        return motebehovStatus(hasUpcomingDialogmote, oppfolgingstilfelle, isDialogmoteKandidat, motebehovList)
+        return motebehovStatusHelper.motebehovStatus(hasUpcomingDialogmote, oppfolgingstilfelle, isDialogmoteKandidat, motebehovList)
     }
 
     fun motebehovStatusForArbeidsgiver(
@@ -49,7 +50,7 @@ class MotebehovStatusServiceV2 @Inject constructor(
                 virksomhetsnummer
             )
 
-        return motebehovStatus(hasUpcomingDialogmote, oppfolgingstilfelle, isDialogmoteKandidat, motebehovList)
+        return motebehovStatusHelper.motebehovStatus(hasUpcomingDialogmote, oppfolgingstilfelle, isDialogmoteKandidat, motebehovList)
     }
 
     fun hasUpcomingDialogmote(
@@ -64,75 +65,5 @@ class MotebehovStatusServiceV2 @Inject constructor(
                 oppfolgingstilfelle.fom
             )
         } else false
-    }
-
-    fun motebehovStatus(
-        hasUpcomingDialogmote: Boolean,
-        oppfolgingstilfelle: PersonOppfolgingstilfelle?,
-        isDialogmoteKandidat: Boolean,
-        motebehovList: List<Motebehov>
-    ): MotebehovStatus {
-        if (hasUpcomingDialogmote || oppfolgingstilfelle == null) {
-            return MotebehovStatus(
-                false,
-                null,
-                null,
-            )
-        } else if (isDialogmoteKandidat) {
-            return MotebehovStatus(
-                true,
-                MotebehovSkjemaType.SVAR_BEHOV,
-                getNewestSvarBehovMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList)
-            )
-        } else {
-            return MotebehovStatus(
-                true,
-                MotebehovSkjemaType.MELD_BEHOV,
-                getNewestMeldBehovMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList)
-            )
-        }
-    }
-
-    private fun getNewestSvarBehovMotebehovInOppfolgingstilfelle(
-        oppfolgingstilfelle: PersonOppfolgingstilfelle,
-        motebehovList: List<Motebehov>
-    ): Motebehov? {
-        getNewestMotebehovInOppfolgingstilfelle(
-            oppfolgingstilfelle,
-            motebehovList
-        )?.let {
-            if (it.isSvarBehovForOppfolgingstilfelle(oppfolgingstilfelle) || it.isUbehandlet()) {
-                return it
-            }
-        }
-        return null
-    }
-
-    private fun getNewestMeldBehovMotebehovInOppfolgingstilfelle(
-        oppfolgingstilfelle: PersonOppfolgingstilfelle,
-        motebehovList: List<Motebehov>
-    ): Motebehov? {
-        getNewestMotebehovInOppfolgingstilfelle(
-            oppfolgingstilfelle,
-            motebehovList
-        )?.let {
-            if (it.isUbehandlet()) {
-                return it
-            }
-        }
-        return null
-    }
-
-    fun getNewestMotebehovInOppfolgingstilfelle(
-        oppfolgingstilfelle: PersonOppfolgingstilfelle,
-        motebehovList: List<Motebehov>
-    ): Motebehov? {
-        val motebehovListCreatedInOppfolgingstilfelle =
-            motebehovList.filter { it.isCreatedInOppfolgingstilfelle(oppfolgingstilfelle) }
-        return if (motebehovListCreatedInOppfolgingstilfelle.isNotEmpty()) {
-            motebehovListCreatedInOppfolgingstilfelle.first()
-        } else {
-            null
-        }
     }
 }
