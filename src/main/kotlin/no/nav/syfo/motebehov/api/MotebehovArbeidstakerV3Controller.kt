@@ -93,4 +93,25 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
             )
         }
     }
+
+    @GetMapping(
+        value = ["/motebehov/all"],
+        produces = [MediaType.APPLICATION_JSON_VALUE]
+    )
+    fun motebehovStatusArbeidstakerWithCodeSixUsers(): MotebehovStatus {
+        val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
+            contextHolder,
+            dialogmoteTokenxIdp,
+            dialogmoteClientId,
+        )
+            .fnrFromIdportenTokenX()
+
+        metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker_all")
+
+        if (useKandidatlista) {
+            return motebehovStatusServiceV2.motebehovStatusForArbeidstaker(arbeidstakerFnr)
+        }
+
+        return motebehovStatusService.motebehovStatusForArbeidstaker(arbeidstakerFnr)
+    }
 }
