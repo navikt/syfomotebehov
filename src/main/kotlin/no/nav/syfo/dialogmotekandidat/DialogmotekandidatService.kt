@@ -20,6 +20,7 @@ class DialogmotekandidatService @Inject constructor(
     private val useKandidatlista: Boolean,
 ) {
     fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
+        log.info("Testing: Mottok kandidatmelding")
         val ansattFnr = Fodselsnummer(dialogmotekandidatEndring.personIdentNumber)
 
         val existingKandidat = dialogmotekandidatDAO.get(ansattFnr)
@@ -27,6 +28,7 @@ class DialogmotekandidatService @Inject constructor(
         // Store latest kandidat-info
         when {
             existingKandidat == null -> {
+                log.info("Testing: Lagrer ny kandidat i databasen")
                 dialogmotekandidatDAO.create(
                     dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
                     createdAt = dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime(),
@@ -42,6 +44,7 @@ class DialogmotekandidatService @Inject constructor(
             }
 
             else -> {
+                log.info("Testing: Oppdaterer eksisterende kandidat i databasen")
                 dialogmotekandidatDAO.update(
                     dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
                     createdAt = dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime(),
@@ -56,6 +59,8 @@ class DialogmotekandidatService @Inject constructor(
         val isNotKandidatFromBefore = existingKandidat == null || !existingKandidat.kandidat
         if (useKandidatlista && dialogmotekandidatEndring.kandidat && isNotKandidatFromBefore) {
             varselServiceV2.sendSvarBehovVarsel(ansattFnr)
+        } else {
+            log.info("Testing: Sender ikke svar behov varsel fordi personen er kandidat fra før av og har tidligere fått varsel, eller fordi person ikke lenger er kandidat (ny melding har kandidat=false)")
         }
     }
 

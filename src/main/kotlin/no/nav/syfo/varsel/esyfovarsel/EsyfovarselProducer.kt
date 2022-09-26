@@ -17,6 +17,7 @@ class EsyfovarselProducer @Autowired constructor(
         esyfovarselHendelse: EsyfovarselHendelse,
     ) {
         try {
+            log.info("EsyfovarselProducer: Sender varsel av type ${esyfovarselHendelse.type.name}")
             kafkaTemplate.send(
                 ProducerRecord(
                     ESYFOVARSEL_TOPIC,
