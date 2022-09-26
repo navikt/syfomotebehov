@@ -126,7 +126,7 @@ spec:
     - name: DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID
       value: prod-gcp:flex:ditt-sykefravaer
     - name: TOGGLE_KANDIDATLISTA
-      value: "false"
+      value: "true"
     - name: ISNARMESTELEDER_URL
       value: "https://isnarmesteleder.intern.nav.no"
     - name: ISNARMESTELEDER_CLIENT_ID
