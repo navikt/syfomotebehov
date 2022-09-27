@@ -164,7 +164,7 @@ internal class DialogmotekandidatServiceTest {
 
         dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
 
-        verify(exactly = 1) { varselServiceV2.sendSvarBehovVarsel(any()) }
+        verify(exactly = 1) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
     }
 
     @Test
@@ -177,6 +177,6 @@ internal class DialogmotekandidatServiceTest {
 
         dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
 
-        verify(exactly = 0) { varselServiceV2.sendSvarBehovVarsel(any()) }
+        verify(exactly = 0) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
     }
 }

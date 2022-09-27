@@ -25,13 +25,14 @@ class VarselServiceV2 @Inject constructor(
     private val dialogmoteStatusService: DialogmoteStatusService,
     private val narmesteLederService: NarmesteLederService
 ) {
-    fun sendSvarBehovVarsel(ansattFnr: Fodselsnummer) {
+    fun sendSvarBehovVarsel(ansattFnr: Fodselsnummer, kandidatUuid: String) {
         val ansattesOppfolgingstilfelle =
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(ansattFnr)
 
         val isDialogmoteAlleredePlanlagt = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
             ansattFnr,
-            null, ansattesOppfolgingstilfelle?.fom ?: LocalDate.now()
+            null,
+            ansattesOppfolgingstilfelle?.fom ?: LocalDate.now()
         )
 
         if (isDialogmoteAlleredePlanlagt) {
@@ -41,6 +42,8 @@ class VarselServiceV2 @Inject constructor(
 
         log.info("Testing: Henter nærmeste ledere..")
         val narmesteLederRelations = narmesteLederService.getAllNarmesteLederRelations(ansattFnr)
+
+        log.info("Antall unike nærmeste ledere for kandidatUuid $kandidatUuid: ${narmesteLederRelations?.size ?: 0}")
 
         log.info("Testing: Sender varsel til arbeidstaker")
         sendVarselTilArbeidstaker(ansattFnr, ansattesOppfolgingstilfelle)
@@ -72,7 +75,7 @@ class VarselServiceV2 @Inject constructor(
                 false,
                 virksomhetsnummer.value
             ),
-            aktivtOppfolgingstilfelle,
+            aktivtOppfolgingstilfelle
         )
         if (isSvarBehovVarselAvailableForLeder) {
             metric.tellHendelse("varsel_leder_sent")
@@ -90,7 +93,7 @@ class VarselServiceV2 @Inject constructor(
     private fun sendVarselTilArbeidstaker(ansattFnr: Fodselsnummer, oppfolgingstilfelle: PersonOppfolgingstilfelle?) {
         val isSvarBehovVarselAvailableForArbeidstaker = motebehovStatusHelper.isSvarBehovVarselAvailable(
             motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(ansattFnr),
-            oppfolgingstilfelle,
+            oppfolgingstilfelle
         )
         if (isSvarBehovVarselAvailableForArbeidstaker) {
             metric.tellHendelse("varsel_arbeidstaker_sent")

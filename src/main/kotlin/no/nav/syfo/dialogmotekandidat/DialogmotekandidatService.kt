@@ -64,7 +64,7 @@ class DialogmotekandidatService @Inject constructor(
         } else if (!dialogmotekandidatEndring.kandidat) {
             log.info("Not sending varsel because message has kandidat=false")
         } else {
-            varselServiceV2.sendSvarBehovVarsel(ansattFnr)
+            varselServiceV2.sendSvarBehovVarsel(ansattFnr, dialogmotekandidatEndring.uuid)
         }
     }
 
