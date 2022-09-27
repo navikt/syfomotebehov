@@ -42,6 +42,8 @@ class VarselServiceV2 @Inject constructor(
         log.info("Testing: Henter nærmeste ledere..")
         val narmesteLederRelations = narmesteLederService.getAllNarmesteLederRelations(ansattFnr)
 
+        log.info("Antall unike nærmeste ledere for den ansatte: ${narmesteLederRelations?.size ?: 0}")
+
         log.info("Testing: Sender varsel til arbeidstaker")
         sendVarselTilArbeidstaker(ansattFnr, ansattesOppfolgingstilfelle)
 
