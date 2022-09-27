@@ -86,7 +86,7 @@ class VarselServiceTest {
 
     @Test
     fun skalSendeVarselTilDenSykmeldteOgAlleNarmesteLedereMedAktivtOppfolgingstilfelle() {
-        varselService.sendSvarBehovVarsel(userFnr)
+        varselService.sendSvarBehovVarsel(userFnr, "")
 
         verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr.value) }
         verify(exactly = 2) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), userFnr.value, any()) }
@@ -96,7 +96,7 @@ class VarselServiceTest {
     fun senderIkkeVarselOmIkkeAktivtOppfolgingstilfelle() {
         every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(userFnr, virksomhetsnummer2.value) } returns null
 
-        varselService.sendSvarBehovVarsel(userFnr)
+        varselService.sendSvarBehovVarsel(userFnr, "")
 
         verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr.value) }
         verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), userFnr.value, any()) }
@@ -106,7 +106,7 @@ class VarselServiceTest {
     fun senderIkkeVarselDersomDialogmotePlanlagt() {
         every { dialogmoteStatusService.isDialogmotePlanlagtEtterDato(userFnr, any(), any()) } returns true
 
-        varselService.sendSvarBehovVarsel(userFnr)
+        varselService.sendSvarBehovVarsel(userFnr, "")
 
         verify(exactly = 0) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr.value) }
         verify(exactly = 0) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), userFnr.value, any()) }
