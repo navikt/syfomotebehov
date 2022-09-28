@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 @Service
 class NarmesteLederService @Inject constructor(
-    private val narmesteLederClient: NarmesteLederClient,
+    private val narmesteLederClient: NarmesteLederClient
 ) {
 
     fun getAllNarmesteLederRelations(ansattFnr: Fodselsnummer): List<NarmesteLederRelasjonDTO>? {
@@ -14,6 +14,7 @@ class NarmesteLederService @Inject constructor(
 
         // isnarmesteleder returnerer alle relasjoner, også der sykmeldte er leder for noen andre. Må derfor filtrere for å kun få lederne til den sykmeldte.
         return allRelations?.filter { it.status == NarmesteLederRelasjonStatus.INNMELDT_AKTIV }
+            ?.filter { it.arbeidstakerPersonIdentNumber == ansattFnr.value }
             ?.distinctBy { it.narmesteLederPersonIdentNumber }
     }
 }
