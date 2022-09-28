@@ -43,7 +43,7 @@ internal class NarmesteLederServiceTest {
     }
 
     @Test
-    fun skalKunHenteDenSykmeldtesAnsatte() {
+    fun skalKunHenteDenSykmeldtesLedere() {
         val relasjoner = listOf(
             createNarmesteLederRelasjonDTO(
                 virksomhetsnummer = VIRKSOMHETSNUMMER,
