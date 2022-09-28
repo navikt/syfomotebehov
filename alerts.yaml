@@ -29,9 +29,3 @@ spec:
       description: "App {{ $labels.app }} har en høy 400 feil {{ $labels.kubernetes_namespace }}"
       action: "Sjekk i Grafana eller logger at {{ $labels.backend }} returnerer mange 400-feil"
       severity: warning
-    - alert: KAFKA ISOPPFOLGINGSTILFELLE-TOPIC CONSUMER LAG
-      expr: kafka_consumergroup_group_topic_sum_lag{topic="teamsykefravr.isoppfolgingstilfelle-oppfolgingstilfelle-person", group="syfomotebehov-p"} > 0
-      for: 15m
-      description: "syfomotebehov har ukonsumerte Kafkameldinger på isoppfolgingstilfelle-topic"
-      action: "Finn ut hvorfor syfomotebehov har stoppet å konsumere fra topic"
-      severity: danger
