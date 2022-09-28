@@ -3,8 +3,8 @@ package no.nav.syfo.oppfolgingstilfelle
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.database.*
-import no.nav.syfo.oppfolgingstilfelle.kafka.KOversikthendelsetilfelle
-import no.nav.syfo.oppfolgingstilfelle.kafka.previouslyProcessed
+import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfellePerson
+import no.nav.syfo.oppfolgingstilfelle.kafka.domain.previouslyProcessed
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import javax.inject.Inject
@@ -14,26 +14,39 @@ class OppfolgingstilfelleService @Inject constructor(
     private val metric: Metric,
     private val oppfolgingstilfelleDAO: OppfolgingstilfelleDAO
 ) {
-    fun receiveKOversikthendelsetilfelle(
-        oversikthendelsetilfelle: KOversikthendelsetilfelle
+    fun receiveKOppfolgingstilfelle(
+        kafkaOppfolgingstilfellePerson: KafkaOppfolgingstilfellePerson
     ) {
-        val pPersonOppfolgingstilfelleList = oppfolgingstilfelleDAO.get(
-            fnr = Fodselsnummer(oversikthendelsetilfelle.fnr),
-            virksomhetsnummer = oversikthendelsetilfelle.virksomhetsnummer
-        )
-        val createNew = pPersonOppfolgingstilfelleList.isEmpty()
-        if (createNew) {
-            oppfolgingstilfelleDAO.create(oversikthendelsetilfelle)
-            metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_CREATE)
-        } else {
-            val isPreviouslyProcessed = oversikthendelsetilfelle.previouslyProcessed(
-                lastUpdatedAt = pPersonOppfolgingstilfelleList.firstOrNull()?.sistEndret
-            )
-            if (isPreviouslyProcessed) {
-                metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE_SKIP_DUPLICATE)
-            } else {
-                oppfolgingstilfelleDAO.update(oversikthendelsetilfelle)
-                metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE)
+        kafkaOppfolgingstilfellePerson.oppfolgingstilfelleList.sortedByDescending { oppfolgingstilfelle ->
+            oppfolgingstilfelle.start
+        }.firstOrNull()?.let { oppfolgingstilfelle ->
+            oppfolgingstilfelle.virksomhetsnummerList.forEach { virksomhetsnummer ->
+                val pPersonOppfolgingstilfelle = oppfolgingstilfelleDAO.get(
+                    fnr = Fodselsnummer(kafkaOppfolgingstilfellePerson.personIdentNumber),
+                    virksomhetsnummer = virksomhetsnummer
+                )
+                if (pPersonOppfolgingstilfelle == null) {
+                    oppfolgingstilfelleDAO.create(
+                        fnr = Fodselsnummer(kafkaOppfolgingstilfellePerson.personIdentNumber),
+                        oppfolgingstilfelle = oppfolgingstilfelle,
+                        virksomhetsnummer = virksomhetsnummer
+                    )
+                    metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_CREATE)
+                } else {
+                    val isPreviouslyProcessed = kafkaOppfolgingstilfellePerson.previouslyProcessed(
+                        lastUpdatedAt = pPersonOppfolgingstilfelle.sistEndret
+                    )
+                    if (isPreviouslyProcessed) {
+                        metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE_SKIP_DUPLICATE)
+                    } else {
+                        oppfolgingstilfelleDAO.update(
+                            fnr = Fodselsnummer(kafkaOppfolgingstilfellePerson.personIdentNumber),
+                            oppfolgingstilfelle = oppfolgingstilfelle,
+                            virksomhetsnummer = virksomhetsnummer
+                        )
+                        metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE)
+                    }
+                }
             }
         }
     }
