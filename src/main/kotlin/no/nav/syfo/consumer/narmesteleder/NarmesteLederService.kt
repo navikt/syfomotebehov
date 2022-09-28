@@ -13,7 +13,8 @@ class NarmesteLederService @Inject constructor(
         val allRelations = narmesteLederClient.getNarmesteledere(ansattFnr.value)
 
         // isnarmesteleder returnerer alle relasjoner, også der sykmeldte er leder for noen andre. Må derfor filtrere for å kun få lederne til den sykmeldte.
-        return allRelations?.filter { it.status == NarmesteLederRelasjonStatus.INNMELDT_AKTIV }
+        return allRelations
+            ?.filter { it.status == NarmesteLederRelasjonStatus.INNMELDT_AKTIV }
             ?.filter { it.arbeidstakerPersonIdentNumber == ansattFnr.value }
             ?.distinctBy { it.narmesteLederPersonIdentNumber }
     }

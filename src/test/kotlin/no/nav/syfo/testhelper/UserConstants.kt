@@ -2,6 +2,7 @@ package no.nav.syfo.testhelper
 
 object UserConstants {
     const val ARBEIDSTAKER_FNR = "12345678912"
+    const val ARBEIDSTAKER_FNR_2 = "5475678915"
 
     @JvmField
     val ARBEIDSTAKER_AKTORID = mockAktorId(ARBEIDSTAKER_FNR)
