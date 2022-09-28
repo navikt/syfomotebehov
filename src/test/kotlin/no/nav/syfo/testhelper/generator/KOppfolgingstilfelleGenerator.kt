@@ -1,25 +1,33 @@
 package no.nav.syfo.testhelper.generator
 
-import no.nav.syfo.consumer.pdl.fullName
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_SVAR_BEHOV
-import no.nav.syfo.oppfolgingstilfelle.kafka.KOversikthendelsetilfelle
+import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfelle
+import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfellePerson
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
-import no.nav.syfo.testhelper.UserConstants.NAV_ENHET
-import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNAVN
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.util.*
 
-val generateOversikthendelsetilfelle =
-    KOversikthendelsetilfelle(
-        fnr = ARBEIDSTAKER_FNR,
-        navn = generatePdlHentPerson(null, null).fullName()!!,
-        enhetId = NAV_ENHET,
-        virksomhetsnummer = VIRKSOMHETSNUMMER,
-        gradert = false,
-        fom = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV),
-        tom = LocalDate.now().plusDays(DAYS_END_SVAR_BEHOV),
-        tidspunkt = LocalDateTime.now(),
-        virksomhetsnavn = VIRKSOMHETSNAVN
+fun generateOppfolgingstilfellePerson(
+    start: LocalDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV),
+    end: LocalDate = LocalDate.now().plusDays(DAYS_END_SVAR_BEHOV),
+    virksomhetsnummerList: List<String> = listOf(VIRKSOMHETSNUMMER)
+): KafkaOppfolgingstilfellePerson {
+    return KafkaOppfolgingstilfellePerson(
+        uuid = UUID.randomUUID().toString(),
+        createdAt = OffsetDateTime.now(),
+        personIdentNumber = ARBEIDSTAKER_FNR,
+        oppfolgingstilfelleList = listOf(
+            KafkaOppfolgingstilfelle(
+                arbeidstakerAtTilfelleEnd = true,
+                start = start,
+                end = end,
+                virksomhetsnummerList = virksomhetsnummerList
+            )
+        ),
+        referanseTilfelleBitUuid = UUID.randomUUID().toString(),
+        referanseTilfelleBitInntruffet = OffsetDateTime.now()
     ).copy()
+}
