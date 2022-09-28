@@ -15,11 +15,14 @@ import org.springframework.kafka.listener.ContainerProperties
 
 import org.apache.kafka.common.errors.SerializationException
 import org.apache.kafka.common.serialization.Deserializer
+import org.springframework.beans.factory.annotation.Value
 
 @EnableKafka
 @Configuration
 class KafkaIsOppfolgingstilfelleConfig(
-    private val kafkaAivenConfig: KafkaAivenConfig
+    private val kafkaAivenConfig: KafkaAivenConfig,
+    @Value("\${app.name}") private val appName: String,
+    @Value("\${kafka.env.name}") private val kafkaEnv: String,
 ) {
     @Bean
     fun isOppfolgingtilfelleConsumerFactory(): ConsumerFactory<String, KafkaOppfolgingstilfellePerson> {
@@ -33,6 +36,14 @@ class KafkaIsOppfolgingstilfelleConfig(
                 put(
                     ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
                     KafkaIsOppfolgingstilfelleDeserializer::class.java.canonicalName
+                )
+                put(
+                    ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+                    "latest"
+                )
+                put(
+                    ConsumerConfig.GROUP_ID_CONFIG,
+                    "$appName-$kafkaEnv-isoppfolgingstilfelle"
                 )
             }
         }
