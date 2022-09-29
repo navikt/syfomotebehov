@@ -38,10 +38,6 @@ class KafkaIsOppfolgingstilfelleConfig(
                     KafkaIsOppfolgingstilfelleDeserializer::class.java.canonicalName
                 )
                 put(
-                    ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-                    "latest"
-                )
-                put(
                     ConsumerConfig.GROUP_ID_CONFIG,
                     "$appName-$kafkaEnv-isoppfolgingstilfelle"
                 )
