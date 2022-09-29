@@ -3,7 +3,6 @@ package no.nav.syfo.oppfolgingstilfelle
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.database.*
-import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KOversikthendelsetilfelle
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfellePerson
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.previouslyProcessed
 import org.springframework.stereotype.Service
@@ -15,30 +14,6 @@ class OppfolgingstilfelleService @Inject constructor(
     private val metric: Metric,
     private val oppfolgingstilfelleDAO: OppfolgingstilfelleDAO
 ) {
-    fun receiveKOversikthendelsetilfelle(
-        oversikthendelsetilfelle: KOversikthendelsetilfelle
-    ) {
-        val pPersonOppfolgingstilfelle = oppfolgingstilfelleDAO.get(
-            fnr = Fodselsnummer(oversikthendelsetilfelle.fnr),
-            virksomhetsnummer = oversikthendelsetilfelle.virksomhetsnummer
-        )
-
-        if (pPersonOppfolgingstilfelle == null) {
-            oppfolgingstilfelleDAO.create(oversikthendelsetilfelle)
-            metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_CREATE)
-        } else {
-            val isPreviouslyProcessed = oversikthendelsetilfelle.previouslyProcessed(
-                lastUpdatedAt = pPersonOppfolgingstilfelle.sistEndret
-            )
-            if (isPreviouslyProcessed) {
-                metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE_SKIP_DUPLICATE)
-            } else {
-                oppfolgingstilfelleDAO.update(oversikthendelsetilfelle)
-                metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE)
-            }
-        }
-    }
-
     fun receiveKOppfolgingstilfelle(
         kafkaOppfolgingstilfellePerson: KafkaOppfolgingstilfellePerson
     ) {
