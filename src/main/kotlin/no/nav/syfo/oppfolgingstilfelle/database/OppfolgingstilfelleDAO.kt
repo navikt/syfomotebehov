@@ -1,6 +1,7 @@
 package no.nav.syfo.oppfolgingstilfelle.database
 
 import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KOversikthendelsetilfelle
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfelle
 import no.nav.syfo.util.convert
 import org.springframework.dao.EmptyResultDataAccessException
@@ -55,6 +56,21 @@ class OppfolgingstilfelleDAO @Inject constructor(
         )
     }
 
+    fun update(oversikthendelsetilfelle: KOversikthendelsetilfelle) {
+        val query = """
+                UPDATE oppfolgingstilfelle
+                SET sist_endret = :sistEndret, fom = :fom, tom = :tom
+                WHERE fnr = :fnr AND virksomhetsnummer = :virksomhetsnummer
+        """.trimIndent()
+        val mapSaveSql = MapSqlParameterSource()
+            .addValue("sistEndret", convert(LocalDateTime.now()))
+            .addValue("fom", convert(oversikthendelsetilfelle.fom))
+            .addValue("tom", convert(oversikthendelsetilfelle.tom))
+            .addValue("fnr", oversikthendelsetilfelle.fnr)
+            .addValue("virksomhetsnummer", oversikthendelsetilfelle.virksomhetsnummer)
+        namedParameterJdbcTemplate.update(query, mapSaveSql)
+    }
+
     fun update(
         fnr: Fodselsnummer,
         oppfolgingstilfelle: KafkaOppfolgingstilfelle,
@@ -72,6 +88,24 @@ class OppfolgingstilfelleDAO @Inject constructor(
             .addValue("fnr", fnr.value)
             .addValue("virksomhetsnummer", virksomhetsnummer)
         namedParameterJdbcTemplate.update(query, mapSaveSql)
+    }
+
+    fun create(oversikthendelsetilfelle: KOversikthendelsetilfelle): UUID {
+        val uuid = UUID.randomUUID()
+        val query = """
+                INSERT INTO oppfolgingstilfelle (oppfolgingstilfelle_uuid, opprettet, sist_endret, fnr, virksomhetsnummer, fom, tom)
+                VALUES (:oppfolgingstilfelleUuid, :opprettet, :sistEndret, :fnr, :virksomhetsnummer, :fom, :tom)
+        """.trimIndent()
+        val mapSaveSql = MapSqlParameterSource()
+            .addValue("oppfolgingstilfelleUuid", uuid.toString())
+            .addValue("opprettet", convert(LocalDateTime.now()))
+            .addValue("sistEndret", convert(LocalDateTime.now()))
+            .addValue("fnr", oversikthendelsetilfelle.fnr)
+            .addValue("virksomhetsnummer", oversikthendelsetilfelle.virksomhetsnummer)
+            .addValue("fom", convert(oversikthendelsetilfelle.fom))
+            .addValue("tom", convert(oversikthendelsetilfelle.tom))
+        namedParameterJdbcTemplate.update(query, mapSaveSql)
+        return uuid
     }
 
     fun create(
