@@ -23,7 +23,7 @@ jobs:
           ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
         with:
           command: monitor
-          args: |
+          args: >-
             --severity-threshold=high
             --fail-on=all
             --configuration-attributes=usage:java-runtime

@@ -56,6 +56,15 @@ repositories {
     }
 }
 
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.scala-lang" && requested.name == "scala-library" && (requested.version == "2.13.6")) {
+            useVersion("2.13.9")
+            because("fixes critical bug CVE-2022-36944 in 2.13.6")
+        }
+    }
+}
+
 dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
