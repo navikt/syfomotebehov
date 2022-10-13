@@ -82,6 +82,8 @@ class MotebehovService @Inject constructor(
         val motebehov = mapNyttMotebehovToPMotebehov(
             innloggetBrukerAktoerId,
             arbeidstakerAktoerId,
+            innloggetFNR.value,
+            arbeidstakerFnr.value,
             arbeidstakerBehandlendeEnhet,
             virksomhetsnummer,
             skjemaType,
@@ -97,6 +99,8 @@ class MotebehovService @Inject constructor(
     private fun mapNyttMotebehovToPMotebehov(
         innloggetAktoerId: String,
         arbeidstakerAktoerId: String,
+        innloggetFnr: String,
+        arbeidstakerFnr: String,
         tildeltEnhet: String,
         virksomhetsnummer: String,
         skjemaType: MotebehovSkjemaType,
@@ -113,7 +117,9 @@ class MotebehovService @Inject constructor(
             tildeltEnhet = tildeltEnhet,
             behandletVeilederIdent = null,
             behandletTidspunkt = null,
-            skjemaType = skjemaType
+            skjemaType = skjemaType,
+            sykmeldtFnr = arbeidstakerFnr,
+            opprettetAvFnr = innloggetFnr
         )
     }
 
