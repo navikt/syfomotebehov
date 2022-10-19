@@ -54,9 +54,9 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
     fun create(motebehov: PMotebehov): UUID {
         val uuid = UUID.randomUUID()
         val lagreSql = """
-            INSERT INTO motebehov (motebehov_uuid, opprettet_dato, opprettet_av, aktoer_id, virksomhetsnummer, har_motebehov, forklaring, tildelt_enhet, behandlet_tidspunkt, behandlet_veileder_ident, skjematype)
+            INSERT INTO motebehov (motebehov_uuid, opprettet_dato, opprettet_av, aktoer_id, virksomhetsnummer, har_motebehov, forklaring, tildelt_enhet, behandlet_tidspunkt, behandlet_veileder_ident, skjematype, sm_fnr, opprettet_av_fnr)
             VALUES (
-                :motebehov_uuid, :opprettet_dato, :opprettet_av, :aktoer_id, :virksomhetsnummer, :har_motebehov, :forklaring, :tildelt_enhet, :behandlet_tidspunkt, :behandlet_veileder_ident, :skjematype)
+                :motebehov_uuid, :opprettet_dato, :opprettet_av, :aktoer_id, :virksomhetsnummer, :har_motebehov, :forklaring, :tildelt_enhet, :behandlet_tidspunkt, :behandlet_veileder_ident, :skjematype, :sm_fnr, :opprettet_av_fnr)
         """.trimIndent()
         val mapLagreSql = MapSqlParameterSource()
             .addValue("motebehov_uuid", uuid.toString())
@@ -70,6 +70,8 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
             .addValue("behandlet_tidspunkt", convertNullable(motebehov.behandletTidspunkt))
             .addValue("behandlet_veileder_ident", motebehov.behandletVeilederIdent)
             .addValue("skjematype", motebehov.skjemaType?.name)
+            .addValue("sm_fnr", motebehov.sykmeldtFnr)
+            .addValue("opprettet_av_fnr", motebehov.opprettetAvFnr)
         namedParameterJdbcTemplate.update(lagreSql, mapLagreSql)
         return uuid
     }
@@ -103,7 +105,8 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
                     tildeltEnhet = rs.getString("tildelt_enhet"),
                     behandletTidspunkt = convertNullable(rs.getTimestamp("behandlet_tidspunkt")),
                     behandletVeilederIdent = rs.getString("behandlet_veileder_ident"),
-                    skjemaType = rs.getString("skjematype")?.let { MotebehovSkjemaType.valueOf(it) }
+                    skjemaType = rs.getString("skjematype")?.let { MotebehovSkjemaType.valueOf(it) },
+
                 )
             }
     }
