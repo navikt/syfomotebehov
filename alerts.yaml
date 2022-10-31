@@ -14,20 +14,20 @@ spec:
     - alert: SYFOMOTEBEHOV IS DOWN!
       expr: up{app="syfomotebehov", job="kubernetes-pods"} == 0
       for: 5m
-      description: "App {{ $labels.app }} er nede i namespace {{ $labels.kubernetes_namespace }}"
-      action: "Undersøk hvofor {{ $labels.app }} er nede i prod-fss"
+      description: "App \{{ $labels.app }} er nede i namespace \{{ $labels.kubernetes_namespace }}"
+      action: "Undersøk hvofor \{{ $labels.app }} er nede i prod-fss"
       severity: danger
     - alert: HIGH RATIO OF HTTP 5XX RESPONSE
       expr: (100 * (sum by (backend) (rate(nginx_ingress_controller_requests{namespace="team-esyfo", status=~"^5\\d\\d", service="syfomotebehov"}[5m]))) / (sum by (backend) (rate(nginx_ingress_controller_requests{namespace="team-esyfo", service="syfomotebehov"}[5m])))) > 2
       for: 5m
-      description: "App {{ $labels.app }} har en høy andel 500 feil {{ $labels.kubernetes_namespace }}"
-      action: "Sjekk i Grafana eller logger at {{ $labels.backend }} returnerer mange 500-feil"
+      description: "App \{{ $labels.app }} har en høy andel 500 feil \{{ $labels.kubernetes_namespace }}"
+      action: "Sjekk i Grafana eller logger at \{{ $labels.backend }} returnerer mange 500-feil"
       severity: danger
     - alert: HIGH RATIO OF HTTP 4XX RESPONSE
       expr: (100 * (sum by (backend) (rate(nginx_ingress_controller_requests{namespace="team-esyfo", status=~"^4\\d\\d", service="syfomotebehov"}[5m]))) / (sum by (backend) (rate(nginx_ingress_controller_requests{namespace="team-esyfo", service="syfomotebehov"}[5m])))) > 10
       for: 5m
-      description: "App {{ $labels.app }} har en høy 400 feil {{ $labels.kubernetes_namespace }}"
-      action: "Sjekk i Grafana eller logger at {{ $labels.backend }} returnerer mange 400-feil"
+      description: "App \{{ $labels.app }} har en høy 400 feil \{{ $labels.kubernetes_namespace }}"
+      action: "Sjekk i Grafana eller logger at \{{ $labels.backend }} returnerer mange 400-feil"
       severity: warning
     - alert: KAFKA ISOPPFOLGINGSTILFELLE-TOPIC CONSUMER LAG
       expr: kafka_consumergroup_group_topic_sum_lag{topic="teamsykefravr.isoppfolgingstilfelle-oppfolgingstilfelle-person", group="syfomotebehov-p-isoppfolgingstilfelle"} > 0
