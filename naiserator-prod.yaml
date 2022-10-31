@@ -123,8 +123,6 @@ spec:
       value: https://oidc.difi.no/idporten-oidc-provider/
     - name: DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID
       value: prod-gcp:flex:ditt-sykefravaer
-    - name: TOGGLE_KANDIDATLISTA
-      value: "true"
     - name: ISNARMESTELEDER_URL
       value: "https://isnarmesteleder.intern.nav.no"
     - name: ISNARMESTELEDER_CLIENT_ID

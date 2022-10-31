@@ -1,28 +1,20 @@
 package no.nav.syfo.motebehov.api
 
-import javax.inject.Inject
-import javax.validation.Valid
-import javax.validation.constraints.Pattern
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.api.auth.OIDCUtil
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleService
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiver
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
-import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import javax.inject.Inject
+import javax.validation.Valid
+import javax.validation.constraints.Pattern
 
 @RestController
 @ProtectedWithClaims(issuer = OIDCIssuer.EKSTERN, claimMap = ["acr=Level4"])
@@ -30,13 +22,9 @@ import org.springframework.web.bind.annotation.RestController
 class MotebehovArbeidsgiverV2Controller @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
     private val metric: Metric,
-    private val motebehovOppfolgingstilfelleService: MotebehovOppfolgingstilfelleService,
     private val motebehovOppfolgingstilfelleServiceV2: MotebehovOppfolgingstilfelleServiceV2,
-    private val motebehovStatusService: MotebehovStatusService,
     private val motebehovStatusServiceV2: MotebehovStatusServiceV2,
-    private val brukertilgangService: BrukertilgangService,
-    @Value("\${toggle.kandidatlista}")
-    private val useKandidatlista: Boolean,
+    private val brukertilgangService: BrukertilgangService
 ) {
     @GetMapping(
         value = ["/motebehov"],
@@ -53,11 +41,7 @@ class MotebehovArbeidsgiverV2Controller @Inject constructor(
         val arbeidsgiverFnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
         val isOwnLeader = arbeidsgiverFnr == fnr
 
-        if (useKandidatlista) {
-            return motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(fnr, isOwnLeader, virksomhetsnummer)
-        }
-
-        return motebehovStatusService.motebehovStatusForArbeidsgiver(fnr, isOwnLeader, virksomhetsnummer)
+        return motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(fnr, isOwnLeader, virksomhetsnummer)
     }
 
     @PostMapping(
@@ -75,20 +59,11 @@ class MotebehovArbeidsgiverV2Controller @Inject constructor(
         val arbeidsgiverFnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
         val isOwnLeader = arbeidsgiverFnr == arbeidstakerFnr
 
-        if (useKandidatlista) {
-            motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidgiver(
-                OIDCUtil.fnrFraOIDCEkstern(contextHolder),
-                arbeidstakerFnr,
-                isOwnLeader,
-                nyttMotebehov
-            )
-        } else {
-            motebehovOppfolgingstilfelleService.createMotehovForArbeidgiver(
-                OIDCUtil.fnrFraOIDCEkstern(contextHolder),
-                arbeidstakerFnr,
-                isOwnLeader,
-                nyttMotebehov
-            )
-        }
+        motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidgiver(
+            OIDCUtil.fnrFraOIDCEkstern(contextHolder),
+            arbeidstakerFnr,
+            isOwnLeader,
+            nyttMotebehov
+        )
     }
 }

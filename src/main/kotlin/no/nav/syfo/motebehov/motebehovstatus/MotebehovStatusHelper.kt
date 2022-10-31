@@ -7,6 +7,11 @@ import no.nav.syfo.motebehov.isUbehandlet
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import org.springframework.stereotype.Component
 
+const val WEEKS_START_SVAR_BEHOV = 16
+const val DAYS_START_SVAR_BEHOV = WEEKS_START_SVAR_BEHOV * 7L
+const val WEEKS_END_SVAR_BEHOV = 26
+const val DAYS_END_SVAR_BEHOV = WEEKS_END_SVAR_BEHOV * 7L
+
 @Component
 class MotebehovStatusHelper {
 
@@ -20,7 +25,7 @@ class MotebehovStatusHelper {
             return MotebehovStatus(
                 false,
                 null,
-                null,
+                null
             )
         } else if (isDialogmoteKandidat) {
             return MotebehovStatus(
@@ -39,7 +44,7 @@ class MotebehovStatusHelper {
 
     fun isSvarBehovVarselAvailable(
         motebehovList: List<Motebehov>,
-        oppfolgingstilfelle: PersonOppfolgingstilfelle?,
+        oppfolgingstilfelle: PersonOppfolgingstilfelle?
     ): Boolean {
         oppfolgingstilfelle?.let {
             val motebehovStatus = motebehovStatus(
