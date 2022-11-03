@@ -4,7 +4,6 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.tokenX.TokenXUtil
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleService
@@ -48,11 +47,11 @@ class MotebehovArbeidsgiverV3Controller @Inject constructor(
     ): MotebehovStatus {
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver")
         TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteTokenxIdp, dialogmoteClientId)
-        val ansattFnr = Fodselsnummer(arbeidstakerFnr)
-        brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsattTokenX(ansattFnr.value)
+        val ansattFnr = arbeidstakerFnr
+        brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsattTokenX(ansattFnr)
 
         val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
-        val isOwnLeader = arbeidsgiverFnr.value == ansattFnr.value
+        val isOwnLeader = arbeidsgiverFnr == ansattFnr
 
         if (useKandidatlista) {
             return motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(ansattFnr, isOwnLeader, virksomhetsnummer)
@@ -72,11 +71,11 @@ class MotebehovArbeidsgiverV3Controller @Inject constructor(
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
         val innloggetFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteTokenxIdp, dialogmoteClientId)
             .fnrFromIdportenTokenX()
-        val ansattFnr = Fodselsnummer(nyttMotebehov.arbeidstakerFnr)
-        brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsattTokenX(ansattFnr.value)
+        val ansattFnr = nyttMotebehov.arbeidstakerFnr
+        brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsattTokenX(ansattFnr)
 
         val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
-        val isOwnLeader = arbeidsgiverFnr.value == ansattFnr.value
+        val isOwnLeader = arbeidsgiverFnr == ansattFnr
 
         if (useKandidatlista) {
             motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidgiver(

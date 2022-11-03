@@ -4,8 +4,6 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.OIDCIssuer.INTERN_AZUREAD_V2
 import no.nav.syfo.api.auth.getSubjectInternADV2
-import no.nav.syfo.consumer.aktorregister.domain.AktorId
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.pdl.fullName
 import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
@@ -36,12 +34,12 @@ class MotebehovVeilederADControllerV2 @Inject constructor(
         @RequestParam(name = "fnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
     ): List<MotebehovVeilederDTO> {
         metric.tellEndepunktKall("veileder_hent_motebehov")
-        val fodselsnummer = Fodselsnummer(sykmeldtFnr)
-        kastExceptionHvisIkkeTilgang(fodselsnummer)
-        val motebehovVeilederDTOList = motebehovService.hentMotebehovListe(Fodselsnummer(fodselsnummer.value))
+
+        kastExceptionHvisIkkeTilgang(sykmeldtFnr)
+        val motebehovVeilederDTOList = motebehovService.hentMotebehovListe(sykmeldtFnr)
             .toMotebehovVeilederDTOList()
             .map { motebehovVeilederDTO ->
-                val opprettetAvAktorId = AktorId(motebehovVeilederDTO.opprettetAv)
+                val opprettetAvAktorId = motebehovVeilederDTO.opprettetAv
                 motebehovVeilederDTO.copy(
                     opprettetAvNavn = pdlConsumer.person(opprettetAvAktorId)?.fullName()
                 )
@@ -54,9 +52,8 @@ class MotebehovVeilederADControllerV2 @Inject constructor(
         @RequestParam(name = "fnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
     ): List<Historikk> {
         metric.tellEndepunktKall("veileder_hent_motebehov_historikk")
-        val fnr = Fodselsnummer(sykmeldtFnr)
-        kastExceptionHvisIkkeTilgang(fnr)
-        return historikkService.hentHistorikkListe(fnr.value)
+        kastExceptionHvisIkkeTilgang(sykmeldtFnr)
+        return historikkService.hentHistorikkListe(sykmeldtFnr)
     }
 
     @PostMapping(value = ["/motebehov/{fnr}/behandle"])
@@ -64,13 +61,12 @@ class MotebehovVeilederADControllerV2 @Inject constructor(
         @PathVariable(name = "fnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
     ) {
         metric.tellEndepunktKall("veileder_behandle_motebehov_call")
-        val fnr = Fodselsnummer(sykmeldtFnr)
-        kastExceptionHvisIkkeTilgang(fnr)
-        motebehovService.behandleUbehandledeMotebehov(fnr, getSubjectInternADV2(contextHolder))
+        kastExceptionHvisIkkeTilgang(sykmeldtFnr)
+        motebehovService.behandleUbehandledeMotebehov(sykmeldtFnr, getSubjectInternADV2(contextHolder))
         metric.tellEndepunktKall("veileder_behandle_motebehov_success")
     }
 
-    private fun kastExceptionHvisIkkeTilgang(fnr: Fodselsnummer) {
+    private fun kastExceptionHvisIkkeTilgang(fnr: String) {
         if (!veilederTilgangConsumer.sjekkVeiledersTilgangTilPersonMedOBO(fnr)) {
             throw ForbiddenException("Veilederen har ikke tilgang til denne personen")
         }

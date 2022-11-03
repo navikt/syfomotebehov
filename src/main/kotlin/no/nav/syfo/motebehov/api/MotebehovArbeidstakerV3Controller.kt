@@ -52,7 +52,7 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
         )
             .fnrFromIdportenTokenX()
 
-        brukertilgangService.kastExceptionHvisIkkeTilgangTilSegSelv(arbeidstakerFnr.value)
+        brukertilgangService.kastExceptionHvisIkkeTilgangTilSegSelv(arbeidstakerFnr)
 
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker")
 
@@ -79,7 +79,7 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
         )
             .fnrFromIdportenTokenX()
 
-        brukertilgangService.kastExceptionHvisIkkeTilgangTilSegSelv(arbeidstakerFnr.value)
+        brukertilgangService.kastExceptionHvisIkkeTilgangTilSegSelv(arbeidstakerFnr)
 
         if (useKandidatlista) {
             motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidstaker(

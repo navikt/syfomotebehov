@@ -1,8 +1,6 @@
 package no.nav.syfo.api.auth
 
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
-
 object OIDCUtil {
     const val PID_CLAIM_NAME = "pid"
 
@@ -11,11 +9,10 @@ object OIDCUtil {
         return context.getJwtToken(issuer).tokenAsString
     }
 
-    fun fnrFraOIDCEkstern(contextHolder: TokenValidationContextHolder): Fodselsnummer {
+    fun fnrFraOIDCEkstern(contextHolder: TokenValidationContextHolder): String {
         val context = contextHolder.tokenValidationContext
         val jwtTokenClaims = context.getClaims(OIDCIssuer.EKSTERN)
-        val personalIdentifier = jwtTokenClaims.getStringClaim(PID_CLAIM_NAME)
-        return Fodselsnummer(personalIdentifier)
+        return jwtTokenClaims.getStringClaim(PID_CLAIM_NAME)
     }
 }
 

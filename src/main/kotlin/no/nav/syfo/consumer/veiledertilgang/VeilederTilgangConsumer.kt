@@ -3,7 +3,6 @@ package no.nav.syfo.consumer.veiledertilgang
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.api.auth.OIDCUtil
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.util.*
@@ -28,7 +27,7 @@ class VeilederTilgangConsumer(
         tilgangskontrollPersonUrl = "$tilgangskontrollUrl$TILGANGSKONTROLL_PERSON_PATH"
     }
 
-    fun sjekkVeiledersTilgangTilPersonMedOBO(fnr: Fodselsnummer): Boolean {
+    fun sjekkVeiledersTilgangTilPersonMedOBO(fnr: String): Boolean {
         val token = OIDCUtil.tokenFraOIDC(oidcContextHolder, OIDCIssuer.INTERN_AZUREAD_V2)
         val oboToken = azureAdV2TokenConsumer.getOnBehalfOfToken(
             scopeClientId = syfotilgangskontrollClientId,
@@ -62,13 +61,13 @@ class VeilederTilgangConsumer(
     }
 
     private fun entity(
-        personIdentNumber: Fodselsnummer,
+        personIdentNumber: String,
         token: String
     ): HttpEntity<String> {
         val headers = HttpHeaders()
         headers.accept = listOf(MediaType.APPLICATION_JSON)
         headers.setBearerAuth(token)
-        headers[NAV_PERSONIDENT_HEADER] = personIdentNumber.value
+        headers[NAV_PERSONIDENT_HEADER] = personIdentNumber
         headers[NAV_CALL_ID_HEADER] = createCallId()
         headers[NAV_CONSUMER_ID_HEADER] = APP_CONSUMER_ID
         return HttpEntity(headers)
@@ -79,9 +78,6 @@ class VeilederTilgangConsumer(
 
         private const val METRIC_CALL_VEILEDERTILGANG_BASE = "call_syfotilgangskontroll"
         private const val METRIC_CALL_VEILEDERTILGANG_USER_FAIL = "${METRIC_CALL_VEILEDERTILGANG_BASE}_user_fail"
-
-        const val FNR = "fnr"
-        const val TILGANG_TIL_BRUKER_VIA_AZURE_PATH = "/bruker"
 
         const val TILGANGSKONTROLL_PERSON_PATH = "/navident/person"
     }

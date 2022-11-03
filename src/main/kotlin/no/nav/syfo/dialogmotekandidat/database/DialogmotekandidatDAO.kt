@@ -1,6 +1,5 @@
 package no.nav.syfo.dialogmotekandidat.database
 
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.util.convert
 import no.nav.syfo.util.mapToBoolean
 import no.nav.syfo.util.mapToString
@@ -19,14 +18,14 @@ import javax.inject.Inject
 class DialogmotekandidatDAO @Inject constructor(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 ) {
-    fun get(fnr: Fodselsnummer): DialogmoteKandidatEndring? {
+    fun get(fnr: String): DialogmoteKandidatEndring? {
         val query = """
             SELECT *
             FROM DIALOGMOTEKANDIDAT
             WHERE $COLUMN_PERSON_IDENT = :fnr
         """.trimIndent()
         val mapSql = MapSqlParameterSource()
-            .addValue("fnr", fnr.value)
+            .addValue("fnr", fnr)
 
         return try {
             namedParameterJdbcTemplate.queryForObject(
@@ -42,7 +41,7 @@ class DialogmotekandidatDAO @Inject constructor(
     fun create(
         dialogmotekandidatExternalUUID: String,
         createdAt: LocalDateTime,
-        fnr: Fodselsnummer,
+        fnr: String,
         kandidat: Boolean,
         arsak: String
     ): UUID {
@@ -54,7 +53,7 @@ class DialogmotekandidatDAO @Inject constructor(
         val mapSaveSql = MapSqlParameterSource()
             .addValue("uuid", uuid.toString())
             .addValue("dialogmotekandidatExternalUUID", dialogmotekandidatExternalUUID)
-            .addValue("fnr", fnr.value)
+            .addValue("fnr", fnr)
             .addValue("kandidat", kandidat.mapToString())
             .addValue("arsak", arsak)
             .addValue("createdAt", convert(createdAt))
@@ -66,7 +65,7 @@ class DialogmotekandidatDAO @Inject constructor(
     fun update(
         dialogmotekandidatExternalUUID: String,
         createdAt: LocalDateTime,
-        fnr: Fodselsnummer,
+        fnr: String,
         kandidat: Boolean,
         arsak: String
     ) {
@@ -77,7 +76,7 @@ class DialogmotekandidatDAO @Inject constructor(
         """.trimIndent()
         val mapSaveSql = MapSqlParameterSource()
             .addValue("dialogmotekandidatExternalUUID", dialogmotekandidatExternalUUID)
-            .addValue("fnr", fnr.value)
+            .addValue("fnr", fnr)
             .addValue("kandidat", kandidat.mapToString())
             .addValue("arsak", arsak)
             .addValue("createdAt", convert(createdAt))
@@ -97,11 +96,11 @@ class DialogmotekandidatDAO @Inject constructor(
         )
     }
 
-    fun delete(fnr: Fodselsnummer): Int {
+    fun delete(fnr: String): Int {
         return namedParameterJdbcTemplate.update(
             "DELETE FROM DIALOGMOTEKANDIDAT WHERE $COLUMN_PERSON_IDENT = (:fnr)",
             MapSqlParameterSource()
-                .addValue("fnr", fnr.value)
+                .addValue("fnr", fnr)
         )
     }
 

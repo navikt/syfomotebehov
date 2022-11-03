@@ -4,9 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
-import no.nav.syfo.consumer.aktorregister.domain.AktorId
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.motebehov.api.dbCreateOppfolgingstilfelle
@@ -50,7 +48,7 @@ import org.springframework.web.client.RestTemplate
 class VarselLederComponentTest {
 
     @MockkBean
-    private lateinit var aktorregisterConsumer: AktorregisterConsumer
+    private lateinit var pdlConsumer: PdlConsumer
 
     @MockkBean
     private lateinit var motebehovStatusService: MotebehovStatusService
@@ -90,8 +88,7 @@ class VarselLederComponentTest {
     fun setUp() {
         cleanDB()
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
-        every { aktorregisterConsumer.getFnrForAktorId(AktorId(ARBEIDSTAKER_AKTORID)) } returns ARBEIDSTAKER_FNR
-        every { aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns ARBEIDSTAKER_AKTORID
+        every { pdlConsumer.fnr(ARBEIDSTAKER_AKTORID) } returns ARBEIDSTAKER_FNR
         every { stsConsumer.token() } returns stsToken
 
         mockEsyfovarselHendelseFuture()
@@ -207,7 +204,7 @@ class VarselLederComponentTest {
         )
         every {
             motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
-                Fodselsnummer(ARBEIDSTAKER_FNR),
+                ARBEIDSTAKER_FNR,
                 false,
                 VIRKSOMHETSNUMMER
             )
@@ -257,7 +254,7 @@ class VarselLederComponentTest {
         )
         every {
             motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
-                Fodselsnummer(ARBEIDSTAKER_FNR),
+                ARBEIDSTAKER_FNR,
                 false,
                 VIRKSOMHETSNUMMER
             )
@@ -312,7 +309,7 @@ class VarselLederComponentTest {
     }
 
     private fun cleanDB() {
-        oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(Fodselsnummer(ARBEIDSTAKER_FNR))
+        oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(ARBEIDSTAKER_FNR)
     }
 
     private fun mockEsyfovarselHendelseFuture() {

@@ -1,6 +1,5 @@
 package no.nav.syfo.oversikthendelse
 
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
@@ -12,7 +11,7 @@ class OversikthendelseService @Inject constructor(
 ) {
     fun sendOversikthendelseMottatt(
         motebehovUUID: UUID,
-        arbeidstakerFnr: Fodselsnummer,
+        arbeidstakerFnr: String,
         tildeltEnhet: String
     ) {
         sendOversikthendelse(motebehovUUID, arbeidstakerFnr, tildeltEnhet, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT)
@@ -20,7 +19,7 @@ class OversikthendelseService @Inject constructor(
 
     fun sendOversikthendelseBehandlet(
         motebehovUUID: UUID,
-        arbeidstakerFnr: Fodselsnummer,
+        arbeidstakerFnr: String,
         tildeltEnhet: String
     ) {
         sendOversikthendelse(motebehovUUID, arbeidstakerFnr, tildeltEnhet, OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET)
@@ -28,7 +27,7 @@ class OversikthendelseService @Inject constructor(
 
     private fun sendOversikthendelse(
         motebehovUUID: UUID,
-        fnr: Fodselsnummer,
+        fnr: String,
         tildeltEnhet: String,
         oversikthendelseType: OversikthendelseType
     ) {
@@ -37,11 +36,11 @@ class OversikthendelseService @Inject constructor(
     }
 
     private fun map2KOversikthendelse(
-        fnr: Fodselsnummer,
+        fnr: String,
         tildeltEnhet: String,
         oversikthendelseType: OversikthendelseType
     ) = KOversikthendelse(
-        fnr = fnr.value,
+        fnr = fnr,
         hendelseId = oversikthendelseType.name,
         enhetId = tildeltEnhet,
         tidspunkt = LocalDateTime.now()

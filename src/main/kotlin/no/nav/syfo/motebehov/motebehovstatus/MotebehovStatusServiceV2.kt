@@ -1,6 +1,5 @@
 package no.nav.syfo.motebehov.motebehovstatus
 
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.dialogmote.DialogmoteStatusService
 import no.nav.syfo.dialogmotekandidat.DialogmotekandidatService
 import no.nav.syfo.motebehov.*
@@ -19,7 +18,7 @@ class MotebehovStatusServiceV2 @Inject constructor(
 ) {
 
     fun motebehovStatusForArbeidstaker(
-        arbeidstakerFnr: Fodselsnummer
+        arbeidstakerFnr: String
     ): MotebehovStatus {
         val oppfolgingstilfelle =
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
@@ -33,7 +32,7 @@ class MotebehovStatusServiceV2 @Inject constructor(
     }
 
     fun motebehovStatusForArbeidsgiver(
-        arbeidstakerFnr: Fodselsnummer,
+        arbeidstakerFnr: String,
         isOwnLeader: Boolean,
         virksomhetsnummer: String
     ): MotebehovStatus {
@@ -54,7 +53,7 @@ class MotebehovStatusServiceV2 @Inject constructor(
     }
 
     fun hasUpcomingDialogmote(
-        arbeidstakerFnr: Fodselsnummer,
+        arbeidstakerFnr: String,
         virksomhetsnummer: String?,
         oppfolgingstilfelle: PersonOppfolgingstilfelle?
     ): Boolean {

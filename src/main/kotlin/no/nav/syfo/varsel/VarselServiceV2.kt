@@ -1,7 +1,5 @@
 package no.nav.syfo.varsel
 
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.consumer.aktorregister.domain.Virksomhetsnummer
 import no.nav.syfo.consumer.narmesteleder.NarmesteLederService
 import no.nav.syfo.dialogmote.DialogmoteStatusService
 import no.nav.syfo.metric.Metric
@@ -25,7 +23,7 @@ class VarselServiceV2 @Inject constructor(
     private val dialogmoteStatusService: DialogmoteStatusService,
     private val narmesteLederService: NarmesteLederService
 ) {
-    fun sendSvarBehovVarsel(ansattFnr: Fodselsnummer, kandidatUuid: String) {
+    fun sendSvarBehovVarsel(ansattFnr: String, kandidatUuid: String) {
         val ansattesOppfolgingstilfelle =
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(ansattFnr)
 
@@ -54,37 +52,37 @@ class VarselServiceV2 @Inject constructor(
             log.info("Testing: Sender varsel til virksomhet ${it.virksomhetsnummer}")
             sendVarselTilNaermesteLeder(
                 ansattFnr,
-                Fodselsnummer(it.narmesteLederPersonIdentNumber),
-                Virksomhetsnummer(it.virksomhetsnummer)
+                it.narmesteLederPersonIdentNumber,
+                it.virksomhetsnummer
             )
         }
     }
 
     private fun sendVarselTilNaermesteLeder(
-        ansattFnr: Fodselsnummer,
-        naermesteLederFnr: Fodselsnummer,
-        virksomhetsnummer: Virksomhetsnummer
+        ansattFnr: String,
+        naermesteLederFnr: String,
+        virksomhetsnummer: String
     ) {
         val aktivtOppfolgingstilfelle =
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
                 ansattFnr,
-                virksomhetsnummer.value
+                virksomhetsnummer
             )
 
         val isSvarBehovVarselAvailableForLeder = motebehovStatusHelper.isSvarBehovVarselAvailable(
             motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
                 ansattFnr,
                 false,
-                virksomhetsnummer.value
+                virksomhetsnummer
             ),
             aktivtOppfolgingstilfelle
         )
         if (isSvarBehovVarselAvailableForLeder) {
             metric.tellHendelse("varsel_leder_sent")
             esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(
-                naermesteLederFnr.value,
-                ansattFnr.value,
-                virksomhetsnummer.value
+                naermesteLederFnr,
+                ansattFnr,
+                virksomhetsnummer
             )
         } else {
             metric.tellHendelse("varsel_leder_not_sent_motebehov_not_available")
@@ -92,14 +90,14 @@ class VarselServiceV2 @Inject constructor(
         }
     }
 
-    private fun sendVarselTilArbeidstaker(ansattFnr: Fodselsnummer, oppfolgingstilfelle: PersonOppfolgingstilfelle?) {
+    private fun sendVarselTilArbeidstaker(ansattFnr: String, oppfolgingstilfelle: PersonOppfolgingstilfelle?) {
         val isSvarBehovVarselAvailableForArbeidstaker = motebehovStatusHelper.isSvarBehovVarselAvailable(
             motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(ansattFnr),
             oppfolgingstilfelle
         )
         if (isSvarBehovVarselAvailableForArbeidstaker) {
             metric.tellHendelse("varsel_arbeidstaker_sent")
-            esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(ansattFnr.value)
+            esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(ansattFnr)
         } else {
             metric.tellHendelse("varsel_arbeidstaker_not_sent_motebehov_not_available")
             log.info("Not sending Varsel to Arbeidstaker because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")

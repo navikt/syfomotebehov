@@ -3,6 +3,7 @@ package no.nav.syfo.testhelper
 object UserConstants {
     const val ARBEIDSTAKER_FNR = "12345678912"
     const val ARBEIDSTAKER_FNR_2 = "5475678915"
+    private const val MOCK_AKTORID_PREFIX = "10"
 
     @JvmField
     val ARBEIDSTAKER_AKTORID = mockAktorId(ARBEIDSTAKER_FNR)
@@ -22,4 +23,8 @@ object UserConstants {
     const val PERSON_NAME_MIDDLE = "Middle"
     const val PERSON_NAME_LAST = "Last"
     const val PERSON_FULL_NAME = "$PERSON_NAME_FIRST $PERSON_NAME_MIDDLE $PERSON_NAME_LAST"
+
+    fun mockAktorId(fnr: String): String {
+        return "$MOCK_AKTORID_PREFIX$fnr"
+    }
 }

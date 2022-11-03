@@ -4,15 +4,11 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
-import no.nav.syfo.consumer.aktorregister.domain.Virksomhetsnummer
 import no.nav.syfo.consumer.narmesteleder.NarmesteLederRelasjonDTO
 import no.nav.syfo.consumer.narmesteleder.NarmesteLederRelasjonStatus
 import no.nav.syfo.consumer.narmesteleder.NarmesteLederService
 import no.nav.syfo.dialogmote.DialogmoteStatusService
-import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovService
-import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusHelper
 import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import no.nav.syfo.testhelper.UserConstants
@@ -32,14 +28,8 @@ import java.time.LocalDateTime
 @DirtiesContext
 class VarselServiceTest {
 
-    @MockkBean(relaxed = true)
-    private lateinit var metric: Metric
-
     @MockkBean
     private lateinit var motebehovService: MotebehovService
-
-    @Autowired
-    private lateinit var motebehovStatusHelper: MotebehovStatusHelper
 
     @MockkBean
     private lateinit var oppfolgingstilfelleService: OppfolgingstilfelleService
@@ -56,12 +46,12 @@ class VarselServiceTest {
     @Autowired
     private lateinit var varselService: VarselServiceV2
 
-    private val userFnr = Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR)
+    private val userFnr = UserConstants.ARBEIDSTAKER_FNR
 
-    private val narmesteLederFnr1 = Fodselsnummer("11111111111")
-    private val narmesteLederFnr2 = Fodselsnummer("33333333333")
-    private val virksomhetsnummer1 = Virksomhetsnummer("777888555")
-    private val virksomhetsnummer2 = Virksomhetsnummer("222222222")
+    private val narmesteLederFnr1 = "11111111111"
+    private val narmesteLederFnr2 = "33333333333"
+    private val virksomhetsnummer1 = "777888555"
+    private val virksomhetsnummer2 = "222222222"
 
     @BeforeEach
     fun setup() {
@@ -88,18 +78,18 @@ class VarselServiceTest {
     fun skalSendeVarselTilDenSykmeldteOgAlleNarmesteLedereMedAktivtOppfolgingstilfelle() {
         varselService.sendSvarBehovVarsel(userFnr, "")
 
-        verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr.value) }
-        verify(exactly = 2) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), userFnr.value, any()) }
+        verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
+        verify(exactly = 2) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), userFnr, any()) }
     }
 
     @Test
     fun senderIkkeVarselOmIkkeAktivtOppfolgingstilfelle() {
-        every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(userFnr, virksomhetsnummer2.value) } returns null
+        every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(userFnr, virksomhetsnummer2) } returns null
 
         varselService.sendSvarBehovVarsel(userFnr, "")
 
-        verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr.value) }
-        verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), userFnr.value, any()) }
+        verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
+        verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), userFnr, any()) }
     }
 
     @Test
@@ -108,8 +98,8 @@ class VarselServiceTest {
 
         varselService.sendSvarBehovVarsel(userFnr, "")
 
-        verify(exactly = 0) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr.value) }
-        verify(exactly = 0) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), userFnr.value, any()) }
+        verify(exactly = 0) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
+        verify(exactly = 0) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), userFnr, any()) }
     }
 
     private fun createOppfolgingstilfelle(): PersonOppfolgingstilfelle {
@@ -124,10 +114,10 @@ class VarselServiceTest {
         return listOf(
             NarmesteLederRelasjonDTO(
                 uuid = "123",
-                arbeidstakerPersonIdentNumber = userFnr.value,
+                arbeidstakerPersonIdentNumber = userFnr,
                 virksomhetsnavn = "Yolomaster AS",
-                virksomhetsnummer = virksomhetsnummer1.value,
-                narmesteLederPersonIdentNumber = narmesteLederFnr1.value,
+                virksomhetsnummer = virksomhetsnummer1,
+                narmesteLederPersonIdentNumber = narmesteLederFnr1,
                 narmesteLederTelefonnummer = "123",
                 narmesteLederEpost = "123@123.no",
                 narmesteLederNavn = "Grebb",
@@ -139,10 +129,10 @@ class VarselServiceTest {
             ),
             NarmesteLederRelasjonDTO(
                 uuid = "234",
-                arbeidstakerPersonIdentNumber = userFnr.value,
+                arbeidstakerPersonIdentNumber = userFnr,
                 virksomhetsnavn = "Kakemester AS",
-                virksomhetsnummer = virksomhetsnummer2.value,
-                narmesteLederPersonIdentNumber = narmesteLederFnr2.value,
+                virksomhetsnummer = virksomhetsnummer2,
+                narmesteLederPersonIdentNumber = narmesteLederFnr2,
                 narmesteLederTelefonnummer = "333",
                 narmesteLederEpost = "234@234.no",
                 narmesteLederNavn = "Labben",

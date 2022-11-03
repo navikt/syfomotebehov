@@ -6,9 +6,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
-import no.nav.syfo.consumer.aktorregister.domain.AktorId
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
@@ -91,9 +88,6 @@ class MotebehovVeilederADControllerV2Test {
     private lateinit var restTemplate: RestTemplate
 
     @MockkBean
-    private lateinit var aktorregisterConsumer: AktorregisterConsumer
-
-    @MockkBean
     private lateinit var brukertilgangConsumer: BrukertilgangConsumer
 
     @MockkBean(relaxed = true)
@@ -122,13 +116,14 @@ class MotebehovVeilederADControllerV2Test {
         mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
 
         every { kafkaTemplate.send(any(), any(), any()) } returns mockk<ListenableFuture<SendResult<String, Any>>>(relaxed = true)
-        every { aktorregisterConsumer.getFnrForAktorId(AktorId(ARBEIDSTAKER_AKTORID)) } returns ARBEIDSTAKER_FNR
-        every { aktorregisterConsumer.getFnrForAktorId(AktorId(LEDER_AKTORID)) } returns LEDER_FNR
-        every { aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns ARBEIDSTAKER_AKTORID
-        every { aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(LEDER_FNR)) } returns LEDER_AKTORID
         every { brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR) } returns true
-        every { pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns generatePdlHentPerson(null, null)
-        every { pdlConsumer.person(Fodselsnummer(LEDER_FNR)) } returns generatePdlHentPerson(null, null)
+
+        every { pdlConsumer.aktorid(ARBEIDSTAKER_FNR) } returns ARBEIDSTAKER_AKTORID
+        every { pdlConsumer.aktorid(LEDER_FNR) } returns LEDER_AKTORID
+        every { pdlConsumer.fnr(ARBEIDSTAKER_AKTORID) } returns ARBEIDSTAKER_FNR
+        every { pdlConsumer.fnr(LEDER_AKTORID) } returns LEDER_FNR
+        every { pdlConsumer.person(ARBEIDSTAKER_FNR) } returns generatePdlHentPerson(null, null)
+        every { pdlConsumer.person(LEDER_FNR) } returns generatePdlHentPerson(null, null)
         every { stsConsumer.token() } returns stsToken
     }
 

@@ -2,7 +2,6 @@ package no.nav.syfo.motebehov.motebehovstatus
 
 import java.time.LocalDate
 import javax.inject.Inject
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.motebehov.isCreatedInOppfolgingstilfelle
@@ -23,7 +22,7 @@ class MotebehovStatusService @Inject constructor(
     private val oppfolgingstilfelleService: OppfolgingstilfelleService
 ) {
     fun motebehovStatusForArbeidstaker(
-        arbeidstakerFnr: Fodselsnummer
+        arbeidstakerFnr: String
     ): MotebehovStatus {
         val oppfolgingstilfelle =
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
@@ -33,7 +32,7 @@ class MotebehovStatusService @Inject constructor(
         return motebehovStatus(oppfolgingstilfelle, motebehovList)
     }
     fun motebehovStatusForArbeidsgiver(
-        arbeidstakerFnr: Fodselsnummer,
+        arbeidstakerFnr: String,
         isOwnLeader: Boolean,
         virksomhetsnummer: String
     ): MotebehovStatus {

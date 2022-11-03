@@ -7,7 +7,6 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.api.auth.OIDCUtil
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleService
@@ -48,11 +47,11 @@ class MotebehovArbeidsgiverV2Controller @Inject constructor(
         @RequestParam(name = "virksomhetsnummer") virksomhetsnummer: String
     ): MotebehovStatus {
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver")
-        val fnr = Fodselsnummer(arbeidstakerFnr)
-        brukertilgangService.kastExceptionHvisIkkeTilgang(fnr.value)
+        val fnr = arbeidstakerFnr
+        brukertilgangService.kastExceptionHvisIkkeTilgang(fnr)
 
         val arbeidsgiverFnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
-        val isOwnLeader = arbeidsgiverFnr.value == fnr.value
+        val isOwnLeader = arbeidsgiverFnr == fnr
 
         if (useKandidatlista) {
             return motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(fnr, isOwnLeader, virksomhetsnummer)
@@ -70,11 +69,11 @@ class MotebehovArbeidsgiverV2Controller @Inject constructor(
         @RequestBody nyttMotebehov: @Valid NyttMotebehovArbeidsgiver
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
-        val arbeidstakerFnr = Fodselsnummer(nyttMotebehov.arbeidstakerFnr)
-        brukertilgangService.kastExceptionHvisIkkeTilgang(arbeidstakerFnr.value)
+        val arbeidstakerFnr = nyttMotebehov.arbeidstakerFnr
+        brukertilgangService.kastExceptionHvisIkkeTilgang(arbeidstakerFnr)
 
         val arbeidsgiverFnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
-        val isOwnLeader = arbeidsgiverFnr.value == arbeidstakerFnr.value
+        val isOwnLeader = arbeidsgiverFnr == arbeidstakerFnr
 
         if (useKandidatlista) {
             motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidgiver(

@@ -1,6 +1,5 @@
 package no.nav.syfo.oppfolgingstilfelle
 
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.database.*
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfellePerson
@@ -22,12 +21,12 @@ class OppfolgingstilfelleService @Inject constructor(
         }.firstOrNull()?.let { oppfolgingstilfelle ->
             oppfolgingstilfelle.virksomhetsnummerList.forEach { virksomhetsnummer ->
                 val pPersonOppfolgingstilfelle = oppfolgingstilfelleDAO.get(
-                    fnr = Fodselsnummer(kafkaOppfolgingstilfellePerson.personIdentNumber),
+                    fnr = kafkaOppfolgingstilfellePerson.personIdentNumber,
                     virksomhetsnummer = virksomhetsnummer
                 )
                 if (pPersonOppfolgingstilfelle == null) {
                     oppfolgingstilfelleDAO.create(
-                        fnr = Fodselsnummer(kafkaOppfolgingstilfellePerson.personIdentNumber),
+                        fnr = kafkaOppfolgingstilfellePerson.personIdentNumber,
                         oppfolgingstilfelle = oppfolgingstilfelle,
                         virksomhetsnummer = virksomhetsnummer
                     )
@@ -40,7 +39,7 @@ class OppfolgingstilfelleService @Inject constructor(
                         metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE_SKIP_DUPLICATE)
                     } else {
                         oppfolgingstilfelleDAO.update(
-                            fnr = Fodselsnummer(kafkaOppfolgingstilfellePerson.personIdentNumber),
+                            fnr = kafkaOppfolgingstilfellePerson.personIdentNumber,
                             oppfolgingstilfelle = oppfolgingstilfelle,
                             virksomhetsnummer = virksomhetsnummer
                         )
@@ -52,7 +51,7 @@ class OppfolgingstilfelleService @Inject constructor(
     }
 
     fun getActiveOppfolgingstilfeller(
-        arbeidstakerFnr: Fodselsnummer
+        arbeidstakerFnr: String
     ): List<PersonVirksomhetOppfolgingstilfelle> {
         return getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr).filter {
             it.isDateInOppfolgingstilfelle(LocalDate.now())
@@ -62,7 +61,7 @@ class OppfolgingstilfelleService @Inject constructor(
     }
 
     fun getActiveOppfolgingstilfelleForArbeidsgiver(
-        arbeidstakerFnr: Fodselsnummer,
+        arbeidstakerFnr: String,
         virksomhetsnummer: String
     ): PersonOppfolgingstilfelle? {
         val oppfolgingstilfelleList = getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr)
@@ -75,13 +74,13 @@ class OppfolgingstilfelleService @Inject constructor(
     }
 
     fun getActiveOppfolgingstilfelleForArbeidstaker(
-        arbeidstakerFnr: Fodselsnummer
+        arbeidstakerFnr: String
     ): PersonOppfolgingstilfelle? {
         return getActiveOppfolgingstilfelle(arbeidstakerFnr, getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr))
     }
 
     private fun getPOppfolgingstilfellerInActiveOppfolgingstilfelle(
-        arbeidstakerFnr: Fodselsnummer
+        arbeidstakerFnr: String
     ): List<PPersonOppfolgingstilfelle> {
         val oppfolgingstilfelleList = oppfolgingstilfelleDAO.get(arbeidstakerFnr)
 
@@ -108,7 +107,7 @@ class OppfolgingstilfelleService @Inject constructor(
     }
 
     private fun getActiveOppfolgingstilfelle(
-        arbeidstakerFnr: Fodselsnummer,
+        arbeidstakerFnr: String,
         oppfolgingstilfelleList: List<PPersonOppfolgingstilfelle>
     ): PersonOppfolgingstilfelle? {
         val activeOppfolgingstilfeller: List<PersonOppfolgingstilfelle> = oppfolgingstilfelleList.map {

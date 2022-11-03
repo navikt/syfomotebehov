@@ -2,7 +2,6 @@ package no.nav.syfo.dialogmote
 
 import java.time.LocalDate
 import javax.inject.Inject
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring
 import no.nav.syfo.dialogmote.database.DialogmoteDAO
 import no.nav.syfo.dialogmote.database.Dialogmote
@@ -18,7 +17,7 @@ class DialogmoteStatusService @Inject constructor(
     fun receiveKDialogmoteStatusendring(kDialogmote: KDialogmoteStatusEndring) {
         LOG.info("Received record isdialogmote statusendring")
 
-        val fnr = Fodselsnummer(kDialogmote.getPersonIdent())
+        val fnr = kDialogmote.getPersonIdent()
         val virksomhetsnummer = kDialogmote.getVirksomhetsnummer()
         val moteExternUUID = kDialogmote.getDialogmoteUuid()
         val statusEndringTidspunkt = convertInstantToLocalDateTime(kDialogmote.getStatusEndringTidspunkt())
@@ -59,7 +58,7 @@ class DialogmoteStatusService @Inject constructor(
     }
 
     fun isDialogmotePlanlagtEtterDato(
-        arbeidstakerFnr: Fodselsnummer,
+        arbeidstakerFnr: String,
         virksomhetsnummer: String?,
         dato: LocalDate
     ): Boolean {

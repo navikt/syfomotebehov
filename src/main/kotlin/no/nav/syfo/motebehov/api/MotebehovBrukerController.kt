@@ -4,7 +4,6 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.api.auth.OIDCUtil
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.Motebehov
@@ -34,10 +33,8 @@ class MotebehovBrukerController @Inject constructor(
         @RequestParam(name = "virksomhetsnummer") virksomhetsnummer: String
     ): List<Motebehov> {
         val fnr =
-            if (StringUtils.isEmpty(arbeidstakerFnr)) OIDCUtil.fnrFraOIDCEkstern(contextHolder) else Fodselsnummer(
-                arbeidstakerFnr!!
-            )
-        brukertilgangService.kastExceptionHvisIkkeTilgang(fnr.value)
+            if (StringUtils.isEmpty(arbeidstakerFnr)) OIDCUtil.fnrFraOIDCEkstern(contextHolder) else arbeidstakerFnr!!
+        brukertilgangService.kastExceptionHvisIkkeTilgang(fnr)
 
         return if (virksomhetsnummer.isNotEmpty()) {
             motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(fnr, false, virksomhetsnummer)
@@ -50,8 +47,8 @@ class MotebehovBrukerController @Inject constructor(
     ) {
         val arbeidstakerFnr = if (nyttMotebehov.arbeidstakerFnr.isNullOrEmpty()) {
             OIDCUtil.fnrFraOIDCEkstern(contextHolder)
-        } else Fodselsnummer(nyttMotebehov.arbeidstakerFnr)
-        brukertilgangService.kastExceptionHvisIkkeTilgang(arbeidstakerFnr.value)
+        } else nyttMotebehov.arbeidstakerFnr
+        brukertilgangService.kastExceptionHvisIkkeTilgang(arbeidstakerFnr)
 
         motebehovService.lagreMotebehov(
             OIDCUtil.fnrFraOIDCEkstern(contextHolder),

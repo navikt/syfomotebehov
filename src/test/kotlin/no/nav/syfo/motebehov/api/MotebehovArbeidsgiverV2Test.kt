@@ -5,8 +5,6 @@ import io.mockk.every
 import io.mockk.verify
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
@@ -100,9 +98,6 @@ class MotebehovArbeidsgiverV2Test {
     private lateinit var restTemplate: RestTemplate
 
     @MockkBean
-    private lateinit var aktorregisterConsumer: AktorregisterConsumer
-
-    @MockkBean
     private lateinit var pdlConsumer: PdlConsumer
 
     @MockkBean
@@ -122,11 +117,12 @@ class MotebehovArbeidsgiverV2Test {
 
     @BeforeEach
     fun setUp() {
-        every { aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns ARBEIDSTAKER_AKTORID
-        every { aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(LEDER_FNR)) } returns LEDER_AKTORID
         every { brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR) } returns true
-        every { pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns generatePdlHentPerson(null, null)
-        every { pdlConsumer.isKode6(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns false
+        every { pdlConsumer.person(ARBEIDSTAKER_FNR) } returns generatePdlHentPerson(null, null)
+        every { pdlConsumer.aktorid(ARBEIDSTAKER_FNR) } returns ARBEIDSTAKER_AKTORID
+        every { pdlConsumer.aktorid(LEDER_FNR) } returns LEDER_AKTORID
+
+        every { pdlConsumer.isKode6(ARBEIDSTAKER_FNR) } returns false
         every { stsConsumer.token() } returns stsToken
 
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
@@ -562,8 +558,8 @@ class MotebehovArbeidsgiverV2Test {
 
     private fun cleanDB() {
         motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID)
-        oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(Fodselsnummer(ARBEIDSTAKER_FNR))
-        dialogmotekandidatDAO.delete(Fodselsnummer(ARBEIDSTAKER_FNR))
+        oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(ARBEIDSTAKER_FNR)
+        dialogmotekandidatDAO.delete(ARBEIDSTAKER_FNR)
     }
 
     private fun mockBehandlendEnhetWithTilgangskontroll(fnr: String) {
@@ -581,7 +577,7 @@ class MotebehovArbeidsgiverV2Test {
         dialogmotekandidatDAO.create(
             dialogmotekandidatExternalUUID = UUID.randomUUID().toString(),
             createdAt = LocalDateTime.now().minusDays(DAYS_START_SVAR_BEHOV),
-            fnr = Fodselsnummer(ARBEIDSTAKER_FNR),
+            fnr = ARBEIDSTAKER_FNR,
             kandidat = true,
             arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name
         )

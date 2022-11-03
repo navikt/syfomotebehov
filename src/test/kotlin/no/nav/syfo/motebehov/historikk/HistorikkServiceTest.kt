@@ -3,9 +3,6 @@ package no.nav.syfo.motebehov.historikk
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
-import no.nav.syfo.consumer.aktorregister.domain.AktorId
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.pdl.PdlPersonNavn
 import no.nav.syfo.consumer.pdl.fullName
@@ -28,9 +25,6 @@ import java.time.LocalDateTime
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
 class HistorikkServiceTest {
-
-    @MockkBean
-    private lateinit var aktorregisterConsumer: AktorregisterConsumer
 
     @MockkBean
     private lateinit var motebehovService: MotebehovService
@@ -62,10 +56,11 @@ class HistorikkServiceTest {
 
     @BeforeEach
     fun setup() {
-        every { aktorregisterConsumer.getFnrForAktorId(AktorId(NL1_AKTORID)) } returns NL1_FNR
-        every { aktorregisterConsumer.getFnrForAktorId(AktorId(NL3_AKTORID)) } returns NL3_FNR
-        every { pdlConsumer.person(Fodselsnummer(NL1_FNR)) } returns pdlPersonResponseNL1
-        every { pdlConsumer.person(Fodselsnummer(NL3_FNR)) } returns pdlPersonResponseNL3
+        every { pdlConsumer.aktorid(NL1_FNR) } returns NL1_AKTORID
+        every { pdlConsumer.fnr(NL1_AKTORID) } returns NL1_FNR
+        every { pdlConsumer.fnr(NL3_AKTORID) } returns NL3_FNR
+        every { pdlConsumer.person(NL1_FNR) } returns pdlPersonResponseNL1
+        every { pdlConsumer.person(NL3_FNR) } returns pdlPersonResponseNL3
     }
 
     @Test
@@ -83,7 +78,7 @@ class HistorikkServiceTest {
             behandletTidspunkt = LocalDateTime.now()
         )
 
-        every { motebehovService.hentMotebehovListe(Fodselsnummer(SM_FNR)) } returns listOf(
+        every { motebehovService.hentMotebehovListe(SM_FNR) } returns listOf(
             motebehov1,
             motebehov2
         )

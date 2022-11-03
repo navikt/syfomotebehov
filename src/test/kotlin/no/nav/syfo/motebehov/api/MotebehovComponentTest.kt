@@ -5,8 +5,6 @@ import io.mockk.every
 import io.mockk.verify
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
@@ -67,9 +65,6 @@ class MotebehovComponentTest {
     private lateinit var restTemplate: RestTemplate
 
     @MockkBean
-    private lateinit var aktorregisterConsumer: AktorregisterConsumer
-
-    @MockkBean
     private lateinit var pdlConsumer: PdlConsumer
 
     @MockkBean(relaxed = true)
@@ -94,11 +89,13 @@ class MotebehovComponentTest {
 
     @BeforeEach
     fun setUp() {
-        every { aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns ARBEIDSTAKER_AKTORID
-        every { aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(LEDER_FNR)) } returns LEDER_AKTORID
         every { brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR) } returns true
-        every { pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns generatePdlHentPerson(null, null)
-        every { pdlConsumer.isKode6(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns false
+        every { pdlConsumer.person(ARBEIDSTAKER_FNR) } returns generatePdlHentPerson(null, null)
+        every { pdlConsumer.aktorid(ARBEIDSTAKER_FNR) } returns ARBEIDSTAKER_AKTORID
+        every { pdlConsumer.fnr(ARBEIDSTAKER_AKTORID) } returns ARBEIDSTAKER_FNR
+        every { pdlConsumer.aktorid(LEDER_FNR) } returns LEDER_AKTORID
+        every { pdlConsumer.fnr(LEDER_AKTORID) } returns LEDER_FNR
+        every { pdlConsumer.isKode6(ARBEIDSTAKER_FNR) } returns false
         every { stsConsumer.token() } returns stsToken
 
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()

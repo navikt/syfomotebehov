@@ -3,7 +3,6 @@ package no.nav.syfo.dialogmotekandidat
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.verify
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
 import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndring
@@ -62,7 +61,7 @@ internal class DialogmotekandidatServiceTest {
     @Test
     fun skalLagreNyKandidatEndring() {
         val existingKandidat = dialogmotekandidatDAO.get(
-            Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR)
+            UserConstants.ARBEIDSTAKER_FNR
         )
 
         assertThat(existingKandidat).isNull()
@@ -76,7 +75,7 @@ internal class DialogmotekandidatServiceTest {
         )
 
         val kandidatAfterKafkaMessage = dialogmotekandidatDAO.get(
-            Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR)
+            UserConstants.ARBEIDSTAKER_FNR
         )
 
         assertThat(kandidatAfterKafkaMessage).isNotNull
@@ -97,7 +96,7 @@ internal class DialogmotekandidatServiceTest {
         )
 
         val existingKandidat = dialogmotekandidatDAO.get(
-            Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR)
+            UserConstants.ARBEIDSTAKER_FNR
         )
 
         assertThat(existingKandidat).isNotNull
@@ -113,7 +112,7 @@ internal class DialogmotekandidatServiceTest {
         )
 
         val updatedKandidat = dialogmotekandidatDAO.get(
-            Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR)
+            UserConstants.ARBEIDSTAKER_FNR
         )
 
         assertThat(updatedKandidat).isNotNull
@@ -145,7 +144,7 @@ internal class DialogmotekandidatServiceTest {
         dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteKandidatMelding)
 
         val kandidatStatus = dialogmotekandidatDAO.get(
-            Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR)
+            UserConstants.ARBEIDSTAKER_FNR
         )
 
         // Nyeste melding er den som har blitt persistert

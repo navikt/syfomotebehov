@@ -5,8 +5,6 @@ import io.mockk.every
 import io.mockk.verify
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.sts.StsConsumer
@@ -98,9 +96,6 @@ class MotebehovArbeidstakerV2Test {
     private lateinit var restTemplate: RestTemplate
 
     @MockkBean
-    private lateinit var aktorregisterConsumer: AktorregisterConsumer
-
-    @MockkBean
     private lateinit var pdlConsumer: PdlConsumer
 
     @MockkBean
@@ -117,10 +112,11 @@ class MotebehovArbeidstakerV2Test {
 
     @BeforeEach
     fun setUp() {
-        every { aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns ARBEIDSTAKER_AKTORID
-        every { pdlConsumer.person(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns generatePdlHentPerson(null, null)
+        every { pdlConsumer.person(ARBEIDSTAKER_FNR) } returns generatePdlHentPerson(null, null)
+        every { pdlConsumer.aktorid(any()) } returns ARBEIDSTAKER_AKTORID
+        every { pdlConsumer.fnr(any()) } returns ARBEIDSTAKER_FNR
         every { stsConsumer.token() } returns stsToken
-        every { pdlConsumer.isKode6(Fodselsnummer(ARBEIDSTAKER_FNR)) } returns false
+        every { pdlConsumer.isKode6(ARBEIDSTAKER_FNR) } returns false
 
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
         mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
@@ -580,7 +576,7 @@ class MotebehovArbeidstakerV2Test {
         dialogmotekandidatDAO.create(
             dialogmotekandidatExternalUUID = UUID.randomUUID().toString(),
             createdAt = LocalDateTime.now().minusDays(DAYS_START_SVAR_BEHOV),
-            fnr = Fodselsnummer(ARBEIDSTAKER_FNR),
+            fnr = ARBEIDSTAKER_FNR,
             kandidat = true,
             arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name
         )
@@ -593,7 +589,7 @@ class MotebehovArbeidstakerV2Test {
 
     private fun cleanDB() {
         motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID)
-        oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(Fodselsnummer(ARBEIDSTAKER_FNR))
-        dialogmotekandidatDAO.delete(Fodselsnummer(ARBEIDSTAKER_FNR))
+        oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(ARBEIDSTAKER_FNR)
+        dialogmotekandidatDAO.delete(ARBEIDSTAKER_FNR)
     }
 }
