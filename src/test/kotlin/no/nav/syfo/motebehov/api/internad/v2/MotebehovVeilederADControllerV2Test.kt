@@ -209,7 +209,7 @@ class MotebehovVeilederADControllerV2Test {
         val (_, tekst1, tidspunkt1) = historikkListe[1]
         assertThat(tekst1).isEqualTo(HistorikkService.MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID)
         val today = LocalDateTime.now()
-        assertThat(tidspunkt1.minusNanos(tidspunkt1.nano.toLong())).isEqualTo(today.minusNanos(today.nano.toLong()))
+        assertThat(tidspunkt1.isEqual(today))
     }
 
     @Test
