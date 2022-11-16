@@ -76,7 +76,6 @@ class PdlConsumer(
                 metric.tellHendelse("call_pdl_success")
                 try {
                     val aktorid = pdlIdenterReponse.data?.hentIdenter?.identer?.first()?.ident!!
-                    LOG.info("PDL DEBUG (AKTORID): $aktorid")
                     return aktorid
                 } catch (e: NoSuchElementException) {
                     LOG.info("Error while requesting AKTORID from PDL. Empty list in hentIdenter response")
@@ -116,7 +115,6 @@ class PdlConsumer(
                 metric.tellHendelse("call_pdl_success")
                 try {
                     val fnr = pdlIdenterReponse.data?.hentIdenter?.identer?.first()?.ident!!
-                    LOG.info("PDL DEBUG (FNR): $fnr")
                     return fnr
                 } catch (e: NoSuchElementException) {
                     LOG.info("Error while requesting FNR from PDL. Empty list in hentIdenter response")
