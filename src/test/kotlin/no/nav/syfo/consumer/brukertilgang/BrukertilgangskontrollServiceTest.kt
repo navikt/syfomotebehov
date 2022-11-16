@@ -4,7 +4,6 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.api.auth.OIDCIssuer.EKSTERN
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -34,7 +33,7 @@ class BrukertilgangskontrollServiceTest {
         val oppslattFnr = "11038973567"
 
         every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns true
-        every { pdlConsumer.isKode6(Fodselsnummer(oppslattFnr)) } returns true
+        every { pdlConsumer.isKode6(oppslattFnr) } returns true
 
         val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(innloggetFnr, oppslattFnr, EKSTERN)
         Assertions.assertEquals(false, tilgang)
@@ -45,7 +44,7 @@ class BrukertilgangskontrollServiceTest {
         val oppslattFnr = "10038973552"
 
         every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns false
-        every { pdlConsumer.isKode6(Fodselsnummer(oppslattFnr)) } returns false
+        every { pdlConsumer.isKode6(oppslattFnr) } returns false
 
         val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(oppslattFnr, oppslattFnr, EKSTERN)
         Assertions.assertEquals(true, tilgang)
@@ -57,7 +56,7 @@ class BrukertilgangskontrollServiceTest {
         val oppslattFnr = "10038973561"
 
         every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns true
-        every { pdlConsumer.isKode6(Fodselsnummer(oppslattFnr)) } returns false
+        every { pdlConsumer.isKode6(oppslattFnr) } returns false
 
         val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(innloggetFnr, oppslattFnr, EKSTERN)
         Assertions.assertEquals(true, tilgang)

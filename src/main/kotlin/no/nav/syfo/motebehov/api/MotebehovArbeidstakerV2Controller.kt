@@ -42,7 +42,7 @@ class MotebehovArbeidstakerV2Controller @Inject constructor(
     )
     fun motebehovStatusArbeidstaker(): MotebehovStatus {
         val fnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
-        brukertilgangService.kastExceptionHvisIkkeTilgang(fnr.value)
+        brukertilgangService.kastExceptionHvisIkkeTilgang(fnr)
 
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker")
 
@@ -64,7 +64,7 @@ class MotebehovArbeidstakerV2Controller @Inject constructor(
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker")
 
         val arbeidstakerFnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
-        brukertilgangService.kastExceptionHvisIkkeTilgang(arbeidstakerFnr.value)
+        brukertilgangService.kastExceptionHvisIkkeTilgang(arbeidstakerFnr)
 
         if (useKandidatlista) {
             motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidstaker(

@@ -3,7 +3,6 @@ package no.nav.syfo.api.auth.tokenX
 import javax.ws.rs.ForbiddenException
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 
 object TokenXUtil {
     @Throws(ForbiddenException::class)
@@ -27,14 +26,14 @@ object TokenXUtil {
         return claims
     }
 
-    fun JwtTokenClaims.fnrFromIdportenTokenX(): Fodselsnummer {
-        return Fodselsnummer(this.getStringClaim("pid"))
+    fun JwtTokenClaims.fnrFromIdportenTokenX(): String {
+        return this.getStringClaim("pid")
     }
 
-    fun fnrFromIdportenTokenX(contextHolder: TokenValidationContextHolder): Fodselsnummer {
+    fun fnrFromIdportenTokenX(contextHolder: TokenValidationContextHolder): String {
         val context = contextHolder.tokenValidationContext
         val claims = context.getClaims(TokenXIssuer.TOKENX)
-        return Fodselsnummer(claims.getStringClaim("pid"))
+        return claims.getStringClaim("pid")
     }
 
     fun tokenFromTokenX(contextHolder: TokenValidationContextHolder): String {

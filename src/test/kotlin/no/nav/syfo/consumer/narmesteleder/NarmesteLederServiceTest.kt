@@ -2,7 +2,6 @@ package no.nav.syfo.consumer.narmesteleder
 
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR_2
 import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
@@ -37,7 +36,7 @@ internal class NarmesteLederServiceTest {
         every { narmesteLederClient.getNarmesteledere(any()) } returns relasjoner
 
         val allNarmesteLederRelations =
-            narmesteLederService.getAllNarmesteLederRelations(Fodselsnummer(ARBEIDSTAKER_FNR))
+            narmesteLederService.getAllNarmesteLederRelations(ARBEIDSTAKER_FNR)
 
         assertThat(allNarmesteLederRelations?.size).isEqualTo(1)
     }
@@ -62,7 +61,7 @@ internal class NarmesteLederServiceTest {
         every { narmesteLederClient.getNarmesteledere(any()) } returns relasjoner
 
         val allNarmesteLederRelations =
-            narmesteLederService.getAllNarmesteLederRelations(Fodselsnummer(ARBEIDSTAKER_FNR))
+            narmesteLederService.getAllNarmesteLederRelations(ARBEIDSTAKER_FNR)
 
         assertThat(allNarmesteLederRelations?.size).isEqualTo(1)
     }

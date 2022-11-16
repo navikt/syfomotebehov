@@ -1,7 +1,6 @@
 package no.nav.syfo.motebehov
 
 import no.nav.syfo.api.exception.ConflictException
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
 import no.nav.syfo.motebehov.motebehovstatus.isMotebehovAvailableForAnswer
@@ -19,8 +18,8 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
     private val oppfolgingstilfelleService: OppfolgingstilfelleService
 ) {
     fun createMotebehovForArbeidgiver(
-        innloggetFnr: Fodselsnummer,
-        arbeidstakerFnr: Fodselsnummer,
+        innloggetFnr: String,
+        arbeidstakerFnr: String,
         isOwnLeader: Boolean,
         nyttMotebehov: NyttMotebehovArbeidsgiver
     ) {
@@ -53,7 +52,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
     }
 
     @Transactional
-    fun createMotebehovForArbeidstaker(arbeidstakerFnr: Fodselsnummer, motebehovSvar: MotebehovSvar) {
+    fun createMotebehovForArbeidstaker(arbeidstakerFnr: String, motebehovSvar: MotebehovSvar) {
         val activeOppolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
         if (activeOppolgingstilfelle != null) {
             val motebehovStatus = motebehovStatusServiceV2.motebehovStatusForArbeidstaker(arbeidstakerFnr)

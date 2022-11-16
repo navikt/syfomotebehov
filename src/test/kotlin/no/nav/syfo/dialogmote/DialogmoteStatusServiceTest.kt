@@ -1,7 +1,6 @@
 package no.nav.syfo.dialogmote
 
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring
 import no.nav.syfo.dialogmote.database.DialogmoteDAO
 import no.nav.syfo.dialogmote.database.DialogmoteStatusEndringType
@@ -68,7 +67,7 @@ internal class DialogmoteStatusServiceTest {
     @Test
     fun skalLagreNyttDialogmoteInnkalling() {
         val moteFraDBBefore = dialogmoteDAO.get(
-            Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
+            UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
         assertThat(moteFraDBBefore.size).isEqualTo(0)
@@ -81,7 +80,7 @@ internal class DialogmoteStatusServiceTest {
         )
 
         val moteFraDBAfter = dialogmoteDAO.get(
-            Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
+            UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
         assertThat(moteFraDBAfter.size).isEqualTo(1)
@@ -91,7 +90,7 @@ internal class DialogmoteStatusServiceTest {
     @Test
     fun skalIkkeLagreNyttDialogmoteHvisIkkeInnkallingEllerTidsendring() {
         val moteFraDBBefore = dialogmoteDAO.get(
-            Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
+            UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
         assertThat(moteFraDBBefore.size).isEqualTo(0)
@@ -104,7 +103,7 @@ internal class DialogmoteStatusServiceTest {
         )
 
         val moteFraDBAfter = dialogmoteDAO.get(
-            Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
+            UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
         assertThat(moteFraDBAfter.isEmpty()).isTrue
@@ -119,7 +118,7 @@ internal class DialogmoteStatusServiceTest {
             )
         )
         val moteFraDBBefore = dialogmoteDAO.get(
-            Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
+            UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
         assertThat(moteFraDBBefore.size).isEqualTo(1)
@@ -132,7 +131,7 @@ internal class DialogmoteStatusServiceTest {
             )
         )
         val moteFraDBAfter = dialogmoteDAO.get(
-            Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
+            UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
         assertThat(moteFraDBAfter.isEmpty()).isTrue
@@ -147,7 +146,7 @@ internal class DialogmoteStatusServiceTest {
             )
         )
         val moteFraDBBefore = dialogmoteDAO.get(
-            Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
+            UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
         assertThat(moteFraDBBefore.size).isEqualTo(1)
@@ -161,7 +160,7 @@ internal class DialogmoteStatusServiceTest {
             )
         )
         val moteFraDBAfter = dialogmoteDAO.get(
-            Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
+            UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
         assertThat(moteFraDBAfter.size).isEqualTo(1)
@@ -180,7 +179,7 @@ internal class DialogmoteStatusServiceTest {
         )
 
         val moteFraDBBefore = dialogmoteDAO.get(
-            Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
+            UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
         assertThat(moteFraDBBefore.size).isEqualTo(1)
@@ -197,7 +196,7 @@ internal class DialogmoteStatusServiceTest {
 
         dialogmoteStatusService.receiveKDialogmoteStatusendring(oldRecord)
         val moteFraDBAfter = dialogmoteDAO.get(
-            Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR), UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
+            UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
         )
 
         assertThat(moteFraDBAfter.size).isEqualTo(1)
@@ -217,7 +216,7 @@ internal class DialogmoteStatusServiceTest {
         )
 
         val isMote = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
-            Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR),
+            UserConstants.ARBEIDSTAKER_FNR,
             UserConstants.VIRKSOMHETSNUMMER,
             LocalDate.now()
         )
@@ -238,7 +237,7 @@ internal class DialogmoteStatusServiceTest {
         )
 
         val isMote = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
-            Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR),
+            UserConstants.ARBEIDSTAKER_FNR,
             UserConstants.VIRKSOMHETSNUMMER,
             todayLocalDateTime.toLocalDate()
         )
@@ -257,7 +256,7 @@ internal class DialogmoteStatusServiceTest {
         )
 
         val isMote = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
-            Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR),
+            UserConstants.ARBEIDSTAKER_FNR,
             UserConstants.VIRKSOMHETSNUMMER,
             LocalDate.now()
         )

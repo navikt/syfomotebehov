@@ -3,7 +3,7 @@ package no.nav.syfo.motebehov.motebehovstatus
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
+import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmote.DialogmoteStatusService
 import no.nav.syfo.dialogmotekandidat.DialogmotekandidatService
 import no.nav.syfo.dialogmotekandidat.database.DialogmoteKandidatEndring
@@ -13,6 +13,7 @@ import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import no.nav.syfo.testhelper.UserConstants
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -40,10 +41,19 @@ class MotebehovStatusServiceTest {
     @MockkBean
     private lateinit var oppfolgingstilfelleService: OppfolgingstilfelleService
 
+    @MockkBean
+    private lateinit var pdlConsumer: PdlConsumer
+
     @Autowired
     private lateinit var motebehovStatusServiceV2: MotebehovStatusServiceV2
 
-    private val userFnr = Fodselsnummer(UserConstants.ARBEIDSTAKER_FNR)
+    private val userFnr = UserConstants.ARBEIDSTAKER_FNR
+
+    @BeforeEach
+    fun setUp() {
+        every { pdlConsumer.aktorid(any()) } returns UserConstants.ARBEIDSTAKER_AKTORID
+        every { pdlConsumer.fnr(any()) } returns UserConstants.ARBEIDSTAKER_FNR
+    }
 
     @Test
     fun kandidatWithNoDialogmoteGivesStatusSvarBehov() {
@@ -51,7 +61,6 @@ class MotebehovStatusServiceTest {
         every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(userFnr) } returns createOppfolgingstilfelle()
         every { motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(userFnr) } returns emptyList()
         every { dialogmotekandidatService.getDialogmotekandidatStatus(userFnr) } returns createDialogmoteKandidatEndring()
-
         val motebehovStatusForArbeidstaker =
             motebehovStatusServiceV2.motebehovStatusForArbeidstaker(userFnr)
 

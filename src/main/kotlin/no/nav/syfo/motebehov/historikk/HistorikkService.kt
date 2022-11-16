@@ -1,8 +1,5 @@
 package no.nav.syfo.motebehov.historikk
 
-import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
-import no.nav.syfo.consumer.aktorregister.domain.AktorId
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.pdl.fullName
 import no.nav.syfo.motebehov.Motebehov
@@ -13,12 +10,11 @@ import javax.inject.Inject
 
 @Service
 class HistorikkService @Inject constructor(
-    private val aktorregisterConsumer: AktorregisterConsumer,
     private val motebehovService: MotebehovService,
     private val pdlConsumer: PdlConsumer
 ) {
     fun hentHistorikkListe(arbeidstakerFnr: String): List<Historikk> {
-        val motebehovListe = motebehovService.hentMotebehovListe(Fodselsnummer(arbeidstakerFnr))
+        val motebehovListe = motebehovService.hentMotebehovListe(arbeidstakerFnr)
 
         val historikkListe = hentOpprettetMotebehov(motebehovListe)
         historikkListe.addAll(hentBehandlendeMotebehovHistorikk(motebehovListe))
@@ -36,7 +32,7 @@ class HistorikkService @Inject constructor(
     }
 
     private fun getNameOfCreatedBy(motebehov: Motebehov): String {
-        val createdByFnr = Fodselsnummer(aktorregisterConsumer.getFnrForAktorId(AktorId(motebehov.opprettetAv)))
+        val createdByFnr = pdlConsumer.fnr(motebehov.opprettetAv)
         return pdlConsumer.person(createdByFnr)?.fullName() ?: ""
     }
 

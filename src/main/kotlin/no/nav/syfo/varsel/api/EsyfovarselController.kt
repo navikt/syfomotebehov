@@ -27,7 +27,7 @@ class EsyfovarselController @Inject constructor(
     )
     fun erVarslet39Uker(): Boolean {
         val fnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
-        brukertilgangService.kastExceptionHvisIkkeTilgang(fnr.value)
+        brukertilgangService.kastExceptionHvisIkkeTilgang(fnr)
 
         metric.tellEndepunktKall("call_endpoint_esyfovarsel_39uker")
 

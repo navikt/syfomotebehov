@@ -7,5 +7,11 @@ data class PdlRequest(
 
 data class Variables(
     val ident: String,
+    val grupper: String = IdentType.FOLKEREGISTERIDENT.name,
     val navnHistorikk: Boolean = false
 )
+
+enum class IdentType {
+    FOLKEREGISTERIDENT,
+    AKTORID
+}

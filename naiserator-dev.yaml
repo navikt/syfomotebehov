@@ -98,8 +98,6 @@ spec:
       value: 'false'
     - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
       value: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
-    - name: AKTORREGISTER_REST_URL
-      value: https://app-q1.adeo.no/aktoerregister/api/v1
     - name: PDL_URL
       value: https://pdl-api.nais.preprod.local/graphql
     - name: SYFOBRUKERTILGANG_URL

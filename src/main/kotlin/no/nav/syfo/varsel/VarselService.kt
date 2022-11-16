@@ -1,9 +1,7 @@
 package no.nav.syfo.varsel
 
-import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
-import no.nav.syfo.consumer.aktorregister.domain.AktorId
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.esyfovarsel.EsyfovarselConsumer
+import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmote.DialogmoteStatusService
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.Motebehov
@@ -21,7 +19,7 @@ import javax.inject.Inject
 @Service
 class VarselService @Inject constructor(
     private val metric: Metric,
-    private val aktorregisterConsumer: AktorregisterConsumer,
+    private val pdlConsumer: PdlConsumer,
     private val esyfovarselConsumer: EsyfovarselConsumer,
     private val motebehovService: MotebehovService,
     private val motebehovStatusService: MotebehovStatusService,
@@ -30,21 +28,21 @@ class VarselService @Inject constructor(
     private val dialogmoteStatusService: DialogmoteStatusService,
 ) {
     fun sendVarselTilNaermesteLeder(motebehovsvarVarselInfo: MotebehovsvarVarselInfo) {
-        val arbeidstakerFnr = aktorregisterConsumer.getFnrForAktorId(AktorId(motebehovsvarVarselInfo.sykmeldtAktorId))
+        val arbeidstakerFnr = pdlConsumer.fnr(motebehovsvarVarselInfo.sykmeldtAktorId)
         val aktivtOppfolgingstilfelleForArbeidsgiver =
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
-                Fodselsnummer(arbeidstakerFnr),
+                arbeidstakerFnr,
                 motebehovsvarVarselInfo.orgnummer
             )
         val isDialogmoteAlleredePlanlagt = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
-            Fodselsnummer(arbeidstakerFnr),
+            arbeidstakerFnr,
             motebehovsvarVarselInfo.orgnummer, aktivtOppfolgingstilfelleForArbeidsgiver?.fom ?: LocalDate.now()
         )
 
         if (!isDialogmoteAlleredePlanlagt) {
             val isSvarBehovVarselAvailableForLeder = isSvarBehovVarselAvailable(
                 motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
-                    Fodselsnummer(arbeidstakerFnr),
+                    arbeidstakerFnr,
                     false,
                     motebehovsvarVarselInfo.orgnummer
                 ),
@@ -69,16 +67,16 @@ class VarselService @Inject constructor(
 
     fun sendVarselTilArbeidstaker(motebehovsvarVarselInfo: MotebehovsvarSykmeldtVarselInfo) {
         val aktivtOppfolgingstilfelleForArbeidstaker =
-            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr))
+            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(motebehovsvarVarselInfo.arbeidstakerFnr)
 
         val isDialogmoteAlleredePlanlagt = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
-            Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr),
+            motebehovsvarVarselInfo.arbeidstakerFnr,
             motebehovsvarVarselInfo.orgnummer, aktivtOppfolgingstilfelleForArbeidstaker?.fom ?: LocalDate.now()
         )
 
         if (!isDialogmoteAlleredePlanlagt) {
             val isSvarBehovVarselAvailableForArbeidstaker = isSvarBehovVarselAvailable(
-                motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(Fodselsnummer(motebehovsvarVarselInfo.arbeidstakerFnr)),
+                motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(motebehovsvarVarselInfo.arbeidstakerFnr),
                 aktivtOppfolgingstilfelleForArbeidstaker
             )
             if (!isSvarBehovVarselAvailableForArbeidstaker) {
@@ -95,9 +93,9 @@ class VarselService @Inject constructor(
     }
 
     fun has39UkerVarselBeenSent(
-        arbeidtakerFnr: Fodselsnummer
+        arbeidtakerFnr: String
     ): Boolean {
-        val aktorId = aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidtakerFnr)
+        val aktorId = pdlConsumer.aktorid(arbeidtakerFnr)
         return esyfovarselConsumer.varsel39Sent(aktorId)
     }
 

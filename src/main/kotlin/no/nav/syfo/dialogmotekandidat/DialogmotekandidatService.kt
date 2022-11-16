@@ -1,6 +1,5 @@
 package no.nav.syfo.dialogmotekandidat
 
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.dialogmotekandidat.database.DialogmoteKandidatEndring
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndring
@@ -21,7 +20,7 @@ class DialogmotekandidatService @Inject constructor(
 ) {
     fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
         log.info("Testing: Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} og arsak ${dialogmotekandidatEndring.arsak}")
-        val ansattFnr = Fodselsnummer(dialogmotekandidatEndring.personIdentNumber)
+        val ansattFnr = dialogmotekandidatEndring.personIdentNumber
 
         val existingKandidat = dialogmotekandidatDAO.get(ansattFnr)
 
@@ -68,7 +67,7 @@ class DialogmotekandidatService @Inject constructor(
         }
     }
 
-    fun getDialogmotekandidatStatus(arbeidstakerFnr: Fodselsnummer): DialogmoteKandidatEndring? {
+    fun getDialogmotekandidatStatus(arbeidstakerFnr: String): DialogmoteKandidatEndring? {
         return dialogmotekandidatDAO.get(arbeidstakerFnr)
     }
 

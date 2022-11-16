@@ -5,7 +5,6 @@ import no.nav.syfo.api.auth.OIDCIssuer.EKSTERN
 import no.nav.syfo.api.auth.OIDCUtil
 import no.nav.syfo.api.auth.tokenX.TokenXUtil
 import no.nav.syfo.cache.CacheConfig
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
@@ -25,7 +24,7 @@ class BrukertilgangService @Inject constructor(
     }
 
     fun kastExceptionHvisIkkeTilgangTilAnsattTokenX(fnr: String) {
-        val innloggetIdent = TokenXUtil.fnrFromIdportenTokenX(contextHolder).value
+        val innloggetIdent = TokenXUtil.fnrFromIdportenTokenX(contextHolder)
 
         val harTilgang = harTilgangTilOppslaattBruker(innloggetIdent, fnr, TokenXUtil.TokenXIssuer.TOKENX)
         if (!harTilgang) {
@@ -34,7 +33,7 @@ class BrukertilgangService @Inject constructor(
     }
 
     fun kastExceptionHvisIkkeTilgang(fnr: String) {
-        val innloggetIdent = OIDCUtil.fnrFraOIDCEkstern(contextHolder).value
+        val innloggetIdent = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
         val harTilgang = harTilgangTilOppslaattBruker(innloggetIdent, fnr, EKSTERN)
 
         if (!harTilgang) {
@@ -67,6 +66,6 @@ class BrukertilgangService @Inject constructor(
     }
 
     private fun isBrukerGradertForInformasjon(fnr: String): Boolean {
-        return pdlConsumer.isKode6(Fodselsnummer(fnr))
+        return pdlConsumer.isKode6(fnr)
     }
 }

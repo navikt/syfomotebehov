@@ -1,9 +1,8 @@
 package no.nav.syfo.motebehov
 
 import no.nav.syfo.api.exception.ConflictException
-import no.nav.syfo.consumer.aktorregister.AktorregisterConsumer
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.consumer.behandlendeenhet.BehandlendeEnhetConsumer
+import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.database.PMotebehov
@@ -20,17 +19,17 @@ import javax.inject.Inject
 @Service
 class MotebehovService @Inject constructor(
     private val metric: Metric,
-    private val aktorregisterConsumer: AktorregisterConsumer,
     private val behandlendeEnhetConsumer: BehandlendeEnhetConsumer,
     private val oversikthendelseService: OversikthendelseService,
-    private val motebehovDAO: MotebehovDAO
+    private val motebehovDAO: MotebehovDAO,
+    private val pdlConsumer: PdlConsumer
 ) {
     @Transactional
-    fun behandleUbehandledeMotebehov(arbeidstakerFnr: Fodselsnummer, veilederIdent: String) {
-        val arbeidstakerAktorId = aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr)
+    fun behandleUbehandledeMotebehov(arbeidstakerFnr: String, veilederIdent: String) {
+        val arbeidstakerAktorId = pdlConsumer.aktorid(arbeidstakerFnr)
         val pMotebehovUbehandletList = motebehovDAO.hentUbehandledeMotebehov(arbeidstakerAktorId)
         if (pMotebehovUbehandletList.isNotEmpty()) {
-            val behandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.value, null).enhetId
+            val behandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr, null).enhetId
             pMotebehovUbehandletList.forEach { pMotebehov ->
                 val antallOppdatering = motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(pMotebehov.uuid, veilederIdent)
                 if (antallOppdatering == 1) {
@@ -44,24 +43,24 @@ class MotebehovService @Inject constructor(
         }
     }
 
-    fun hentMotebehovListe(arbeidstakerFnr: Fodselsnummer): List<Motebehov> {
-        val arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr)
+    fun hentMotebehovListe(arbeidstakerFnr: String): List<Motebehov> {
+        val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
         return motebehovDAO.hentMotebehovListeForAktoer(arbeidstakerAktoerId)
             .stream()
             .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
             .collect(Collectors.toList())
     }
 
-    fun hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr: Fodselsnummer): List<Motebehov> {
-        val arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(arbeidstakerFnr.value))
+    fun hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr: String): List<Motebehov> {
+        val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
         return motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktoerId)
             .stream()
             .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
             .collect(Collectors.toList())
     }
 
-    fun hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr: Fodselsnummer, isOwnLeader: Boolean, virksomhetsnummer: String): List<Motebehov> {
-        val arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(Fodselsnummer(arbeidstakerFnr.value))
+    fun hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr: String, isOwnLeader: Boolean, virksomhetsnummer: String): List<Motebehov> {
+        val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
         return motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerAktoerId, isOwnLeader, virksomhetsnummer)
             .stream()
             .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
@@ -70,20 +69,20 @@ class MotebehovService @Inject constructor(
 
     @Transactional
     fun lagreMotebehov(
-        innloggetFNR: Fodselsnummer,
-        arbeidstakerFnr: Fodselsnummer,
+        innloggetFNR: String,
+        arbeidstakerFnr: String,
         virksomhetsnummer: String,
         skjemaType: MotebehovSkjemaType,
         motebehovSvar: MotebehovSvar
     ): UUID {
-        val innloggetBrukerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(innloggetFNR)
-        val arbeidstakerAktoerId = aktorregisterConsumer.getAktorIdForFodselsnummer(arbeidstakerFnr)
-        val arbeidstakerBehandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr.value, null).enhetId
+        val innloggetBrukerAktoerId = pdlConsumer.aktorid(innloggetFNR)
+        val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
+        val arbeidstakerBehandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr, null).enhetId
         val motebehov = mapNyttMotebehovToPMotebehov(
             innloggetBrukerAktoerId,
             arbeidstakerAktoerId,
-            innloggetFNR.value,
-            arbeidstakerFnr.value,
+            innloggetFNR,
+            arbeidstakerFnr,
             arbeidstakerBehandlendeEnhet,
             virksomhetsnummer,
             skjemaType,
@@ -123,13 +122,13 @@ class MotebehovService @Inject constructor(
         )
     }
 
-    private fun mapPMotebehovToMotebehov(arbeidstakerFnr: Fodselsnummer, pMotebehov: PMotebehov): Motebehov {
+    private fun mapPMotebehovToMotebehov(arbeidstakerFnr: String, pMotebehov: PMotebehov): Motebehov {
         return Motebehov(
             id = pMotebehov.uuid,
             opprettetDato = pMotebehov.opprettetDato,
             aktorId = pMotebehov.aktoerId,
             opprettetAv = pMotebehov.opprettetAv,
-            arbeidstakerFnr = arbeidstakerFnr.value,
+            arbeidstakerFnr = arbeidstakerFnr,
             virksomhetsnummer = pMotebehov.virksomhetsnummer,
             motebehovSvar = MotebehovSvar(
                 harMotebehov = pMotebehov.harMotebehov,

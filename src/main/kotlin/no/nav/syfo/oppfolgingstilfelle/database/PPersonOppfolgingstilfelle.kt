@@ -1,6 +1,5 @@
 package no.nav.syfo.oppfolgingstilfelle.database
 
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -17,7 +16,7 @@ data class PPersonOppfolgingstilfelle(
 
 fun PPersonOppfolgingstilfelle.mapToPersonOppfolgingstilfelle(): PersonOppfolgingstilfelle {
     return PersonOppfolgingstilfelle(
-        fnr = Fodselsnummer(this.fnr),
+        fnr = this.fnr,
         fom = this.fom,
         tom = this.tom
     )

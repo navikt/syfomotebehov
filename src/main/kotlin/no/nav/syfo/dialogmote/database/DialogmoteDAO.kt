@@ -4,7 +4,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 import javax.inject.Inject
-import no.nav.syfo.consumer.aktorregister.domain.Fodselsnummer
 import no.nav.syfo.util.convert
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -19,14 +18,14 @@ import org.springframework.transaction.annotation.Transactional
 class DialogmoteDAO @Inject constructor(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 ) {
-    fun get(fnr: Fodselsnummer, virksomhetsnummer: String, dialogmoteExternUUID: String): List<Dialogmote> {
+    fun get(fnr: String, virksomhetsnummer: String, dialogmoteExternUUID: String): List<Dialogmote> {
         val query = """
             SELECT *
             FROM dialogmoter
             WHERE person_ident = :person_ident AND virksomhetsnummer = :virksomhetsnummer AND dialogmote_extern_uuid = :dialogmoteExternUUID
         """.trimIndent()
         val mapSql = MapSqlParameterSource()
-            .addValue("person_ident", fnr.value)
+            .addValue("person_ident", fnr)
             .addValue("virksomhetsnummer", virksomhetsnummer)
             .addValue("dialogmoteExternUUID", dialogmoteExternUUID)
         return namedParameterJdbcTemplate.query(
@@ -37,7 +36,7 @@ class DialogmoteDAO @Inject constructor(
     }
 
     fun update(
-        fnr: Fodselsnummer,
+        fnr: String,
         virksomhetsnummer: String,
         dialogmoteExternUUID: String,
         statusEndringType: String,
@@ -51,7 +50,7 @@ class DialogmoteDAO @Inject constructor(
         val mapSaveSql = MapSqlParameterSource()
             .addValue("db_endring_tidspunkt", convert(LocalDateTime.now()))
             .addValue("statusEndringType", statusEndringType)
-            .addValue("fnr", fnr.value)
+            .addValue("fnr", fnr)
             .addValue("virksomhetsnummer", virksomhetsnummer)
             .addValue("dialogmoteExternUUID", dialogmoteExternUUID)
             .addValue("statusEndringTidspunkt", statusEndringTidspunkt)
@@ -63,7 +62,7 @@ class DialogmoteDAO @Inject constructor(
         dialogmoteTidspunkt: LocalDateTime,
         statusEndringTidspunkt: LocalDateTime,
         statusEndringType: String,
-        fnr: Fodselsnummer,
+        fnr: String,
         virksomhetsnummer: String
     ): UUID {
         val uuid = UUID.randomUUID()
@@ -78,13 +77,13 @@ class DialogmoteDAO @Inject constructor(
             .addValue("statusEndringTidspunkt", convert(statusEndringTidspunkt))
             .addValue("dbEndringTidspunkt", convert(LocalDateTime.now()))
             .addValue("statusEndringType", statusEndringType)
-            .addValue("fnr", fnr.value)
+            .addValue("fnr", fnr)
             .addValue("virksomhetsnummer", virksomhetsnummer)
         namedParameterJdbcTemplate.update(query, mapSaveSql)
         return uuid
     }
 
-    fun delete(fnr: Fodselsnummer, virksomhetsnummer: String, moteExternUUID: String): Int {
+    fun delete(fnr: String, virksomhetsnummer: String, moteExternUUID: String): Int {
         val dialogmoter = get(fnr, virksomhetsnummer, moteExternUUID)
         return if (dialogmoter.isNotEmpty()) {
             val dialogmoteIder: List<String> = dialogmoter.map {
@@ -101,7 +100,7 @@ class DialogmoteDAO @Inject constructor(
     }
 
     fun getAktiveDialogmoterPaVirksomhetEtterDato(
-        fnr: Fodselsnummer,
+        fnr: String,
         virksomhetsnummer: String,
         dialogmoteTidspunkt: LocalDate
     ): List<Dialogmote> {
@@ -111,7 +110,7 @@ class DialogmoteDAO @Inject constructor(
             WHERE person_ident = :person_ident AND virksomhetsnummer = :virksomhetsnummer AND (CAST (dialogmote_tidspunkt AS DATE) = :dialogmoteTidspunkt OR CAST (dialogmote_tidspunkt AS DATE) > :dialogmoteTidspunkt)
         """.trimIndent()
         val mapSql = MapSqlParameterSource()
-            .addValue("person_ident", fnr.value)
+            .addValue("person_ident", fnr)
             .addValue("virksomhetsnummer", virksomhetsnummer)
             .addValue("dialogmoteTidspunkt", convert(dialogmoteTidspunkt))
         return namedParameterJdbcTemplate.query(
@@ -122,7 +121,7 @@ class DialogmoteDAO @Inject constructor(
     }
 
     fun getAktiveDialogmoterEtterDato(
-        fnr: Fodselsnummer,
+        fnr: String,
         dialogmoteTidspunkt: LocalDate
     ): List<Dialogmote> {
         val query = """
@@ -131,7 +130,7 @@ class DialogmoteDAO @Inject constructor(
             WHERE person_ident = :person_ident AND (CAST (dialogmote_tidspunkt AS DATE) = :dialogmoteTidspunkt OR CAST (dialogmote_tidspunkt AS DATE) > :dialogmoteTidspunkt)
         """.trimIndent()
         val mapSql = MapSqlParameterSource()
-            .addValue("person_ident", fnr.value)
+            .addValue("person_ident", fnr)
             .addValue("dialogmoteTidspunkt", convert(dialogmoteTidspunkt))
         return namedParameterJdbcTemplate.query(
             query,
