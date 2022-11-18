@@ -11,7 +11,7 @@ class MigrateAktorIdComponent(
     private val motebehovDAO: MotebehovDAO,
     private val pdlConsumer: PdlConsumer
 ) {
-    @Scheduled(cron = "*/30 * * * * *")
+    @Scheduled(cron = "0 0 21 * * *")
     fun run() {
         log.info("Running migration job")
         val motebehovUtenFnr = motebehovDAO.hentMotebehovUtenFnr()
@@ -30,6 +30,7 @@ class MigrateAktorIdComponent(
             if (motebehovDAO.oppdaterMotebehovMedOpprettetAvFnr(uuid, fnrOpprettetAv) == 0)
                 log.info("Klarte ikke oppdatere opprettet av fnr for UUID $uuid")
         }
+        log.info("Finished running migration job")
     }
 
     companion object {
