@@ -11,7 +11,7 @@ class MigrateAktorIdComponent(
     private val motebehovDAO: MotebehovDAO,
     private val pdlConsumer: PdlConsumer
 ) {
-    @Scheduled(cron = "0 */15 * * * *")
+    @Scheduled(cron = "0 */30 * * * *")
     fun run() {
         log.info("Running migration job")
         val motebehovUtenFnr = motebehovDAO.hentMotebehovUtenFnr()
