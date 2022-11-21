@@ -25,7 +25,7 @@ import java.util.UUID
 class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate, private val jdbcTemplate: JdbcTemplate) {
 
     fun hentMotebehovUtenFnr(): List<PMotebehov> {
-        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE sm_fnr is null OR opprettet_av_fnr is null OFFSET 0 ROWS FETCH NEXT 50000 ROWS ONLY", innsendingRowMapper)).orElse(emptyList())
+        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE sm_fnr is null OR opprettet_av_fnr is null OFFSET 0 ROWS FETCH NEXT 10000 ROWS ONLY", innsendingRowMapper)).orElse(emptyList())
     }
 
     fun oppdaterMotebehovMedSmFnr(uuid: UUID, smFnr: String): Int {
