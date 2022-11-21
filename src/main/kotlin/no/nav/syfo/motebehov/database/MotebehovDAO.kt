@@ -23,21 +23,6 @@ import java.util.UUID
 @Transactional
 @Repository
 class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate, private val jdbcTemplate: JdbcTemplate) {
-
-    fun hentMotebehovUtenFnr(): List<PMotebehov> {
-        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE sm_fnr is null OR opprettet_av_fnr is null", innsendingRowMapper)).orElse(emptyList())
-    }
-
-    fun oppdaterMotebehovMedSmFnr(uuid: UUID, smFnr: String): Int {
-        val oppdaterSql = "UPDATE motebehov SET sm_fnr = ? WHERE motebehov_uuid = ?"
-        return jdbcTemplate.update(oppdaterSql, smFnr, uuid.toString())
-    }
-
-    fun oppdaterMotebehovMedOpprettetAvFnr(uuid: UUID, opprettetAvFnr: String): Int {
-        val oppdaterSql = "UPDATE motebehov SET opprettet_av_fnr = ? WHERE motebehov_uuid = ?"
-        return jdbcTemplate.update(oppdaterSql, opprettetAvFnr, uuid.toString())
-    }
-
     fun hentMotebehovListeForAktoer(aktoerId: String): List<PMotebehov> {
         return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ?", innsendingRowMapper, aktoerId)).orElse(emptyList())
     }
