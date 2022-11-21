@@ -19,7 +19,7 @@ class DialogmotekandidatService @Inject constructor(
     private val useKandidatlista: Boolean
 ) {
     fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
-        log.info("Testing: Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} og arsak ${dialogmotekandidatEndring.arsak}")
+        log.info("[${dialogmotekandidatEndring.personIdentNumber}] Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} og arsak ${dialogmotekandidatEndring.arsak}")
         val ansattFnr = dialogmotekandidatEndring.personIdentNumber
 
         val existingKandidat = dialogmotekandidatDAO.get(ansattFnr)
@@ -27,7 +27,7 @@ class DialogmotekandidatService @Inject constructor(
         // Store latest kandidat-info
         when {
             existingKandidat == null -> {
-                log.info("Testing: Lagrer ny kandidat i databasen")
+                log.info("[${dialogmotekandidatEndring.personIdentNumber}] Lagrer ny kandidat i databasen")
                 dialogmotekandidatDAO.create(
                     dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
                     createdAt = dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime(),
@@ -38,12 +38,12 @@ class DialogmotekandidatService @Inject constructor(
             }
 
             existingKandidat.createdAt.isEqualOrAfter(dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime()) -> {
-                log.info("Skip KafkaDialogmotekandidatEndring message because newer change exists")
+                log.info("[${dialogmotekandidatEndring.personIdentNumber}] Skip KafkaDialogmotekandidatEndring message because newer change exists")
                 return
             }
 
             else -> {
-                log.info("Testing: Oppdaterer eksisterende kandidat i databasen")
+                log.info("[${dialogmotekandidatEndring.personIdentNumber}] Oppdaterer eksisterende kandidat i databasen")
                 dialogmotekandidatDAO.update(
                     dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
                     createdAt = dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime(),
@@ -58,11 +58,12 @@ class DialogmotekandidatService @Inject constructor(
         val isNotKandidatFromBefore = existingKandidat == null || !existingKandidat.kandidat
 
         if (!isNotKandidatFromBefore) {
-            log.info("Not sending varsel because person is kandidat from before")
+            log.info("[${dialogmotekandidatEndring.personIdentNumber}] Not sending varsel because person is kandidat from before")
             return
         } else if (!dialogmotekandidatEndring.kandidat) {
-            log.info("Not sending varsel because message has kandidat=false")
+            log.info("[${dialogmotekandidatEndring.personIdentNumber}] Not sending varsel because message has kandidat=false")
         } else {
+            log.info("[${dialogmotekandidatEndring.personIdentNumber}] Sending varsel")
             varselServiceV2.sendSvarBehovVarsel(ansattFnr, dialogmotekandidatEndring.uuid)
         }
     }

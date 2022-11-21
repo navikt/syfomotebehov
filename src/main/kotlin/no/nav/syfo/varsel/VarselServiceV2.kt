@@ -35,21 +35,22 @@ class VarselServiceV2 @Inject constructor(
 
         if (isDialogmoteAlleredePlanlagt) {
             logDialogmoteAlleredePlanlagt()
+            log.info("[$ansattFnr] Dialogmote allerde planlagt")
             return
         }
 
-        log.info("Testing: Henter nærmeste ledere..")
+        log.info("[$ansattFnr] Henter nærmeste ledere..")
         val narmesteLederRelations = narmesteLederService.getAllNarmesteLederRelations(ansattFnr)
 
         val amountOfVirksomheter = narmesteLederRelations?.distinctBy { it.virksomhetsnummer }?.size ?: 0
 
-        log.info("Antall unike nærmeste ledere for kandidatUuid $kandidatUuid: ${narmesteLederRelations?.size ?: 0}, antall virksomheter: $amountOfVirksomheter")
+        log.info("[$ansattFnr] Antall unike nærmeste ledere for kandidatUuid $kandidatUuid: ${narmesteLederRelations?.size ?: 0}, antall virksomheter: $amountOfVirksomheter")
 
-        log.info("Testing: Sender varsel til arbeidstaker")
+        log.info("[$ansattFnr] Sender varsel til arbeidstaker")
         sendVarselTilArbeidstaker(ansattFnr, ansattesOppfolgingstilfelle)
 
         narmesteLederRelations?.forEach {
-            log.info("Testing: Sender varsel til virksomhet ${it.virksomhetsnummer}")
+            log.info("[$ansattFnr] Sender varsel til virksomhet ${it.virksomhetsnummer}")
             sendVarselTilNaermesteLeder(
                 ansattFnr,
                 it.narmesteLederPersonIdentNumber,
@@ -77,8 +78,10 @@ class VarselServiceV2 @Inject constructor(
             ),
             aktivtOppfolgingstilfelle
         )
+        log.info("[$ansattFnr] AVAILABLE: $isSvarBehovVarselAvailableForLeder")
         if (isSvarBehovVarselAvailableForLeder) {
             metric.tellHendelse("varsel_leder_sent")
+            log.info("[$ansattFnr] varsel sent to $naermesteLederFnr @ $virksomhetsnummer")
             esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(
                 naermesteLederFnr,
                 ansattFnr,
@@ -86,7 +89,7 @@ class VarselServiceV2 @Inject constructor(
             )
         } else {
             metric.tellHendelse("varsel_leder_not_sent_motebehov_not_available")
-            log.info("Not sending Varsel to Narmeste Leder because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")
+            log.info("[$ansattFnr] Not sending Varsel to $naermesteLederFnr @ $virksomhetsnummer because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")
         }
     }
 
