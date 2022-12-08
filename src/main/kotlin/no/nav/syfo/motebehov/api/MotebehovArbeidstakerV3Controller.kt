@@ -7,11 +7,9 @@ import no.nav.syfo.api.auth.tokenX.TokenXUtil.TokenXIssuer
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleService
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.MotebehovSvar
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
-import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
@@ -25,9 +23,7 @@ import javax.validation.Valid
 class MotebehovArbeidstakerV3Controller @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
     private val metric: Metric,
-    private val motebehovStatusService: MotebehovStatusService,
     private val motebehovStatusServiceV2: MotebehovStatusServiceV2,
-    private val motebehovOppfolgingstilfelleService: MotebehovOppfolgingstilfelleService,
     private val motebehovOppfolgingstilfelleServiceV2: MotebehovOppfolgingstilfelleServiceV2,
     private val brukertilgangService: BrukertilgangService,
     @Value("\${dialogmote.frontend.client.id}")
@@ -35,9 +31,7 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
     @Value("\${ditt.sykefravaer.frontend.client.id}")
     val dittSykefravaerClientId: String,
     @Value("\${tokenx.idp}")
-    val dialogmoteTokenxIdp: String,
-    @Value("\${toggle.kandidatlista}")
-    private val useKandidatlista: Boolean,
+    val dialogmoteTokenxIdp: String
 ) {
     @GetMapping(
         value = ["/motebehov"],
@@ -56,11 +50,7 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
 
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker")
 
-        if (useKandidatlista) {
-            return motebehovStatusServiceV2.motebehovStatusForArbeidstaker(arbeidstakerFnr)
-        }
-
-        return motebehovStatusService.motebehovStatusForArbeidstaker(arbeidstakerFnr)
+        return motebehovStatusServiceV2.motebehovStatusForArbeidstaker(arbeidstakerFnr)
     }
 
     @PostMapping(
@@ -75,23 +65,16 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
         val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
             contextHolder,
             dialogmoteTokenxIdp,
-            dialogmoteClientId,
+            dialogmoteClientId
         )
             .fnrFromIdportenTokenX()
 
         brukertilgangService.kastExceptionHvisIkkeTilgangTilSegSelv(arbeidstakerFnr)
 
-        if (useKandidatlista) {
-            motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidstaker(
-                arbeidstakerFnr,
-                nyttMotebehovSvar
-            )
-        } else {
-            motebehovOppfolgingstilfelleService.createMotehovForArbeidstaker(
-                arbeidstakerFnr,
-                nyttMotebehovSvar
-            )
-        }
+        motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidstaker(
+            arbeidstakerFnr,
+            nyttMotebehovSvar
+        )
     }
 
     @GetMapping(
@@ -102,16 +85,12 @@ class MotebehovArbeidstakerV3Controller @Inject constructor(
         val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
             contextHolder,
             dialogmoteTokenxIdp,
-            dialogmoteClientId,
+            dialogmoteClientId
         )
             .fnrFromIdportenTokenX()
 
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker_all")
 
-        if (useKandidatlista) {
-            return motebehovStatusServiceV2.motebehovStatusForArbeidstaker(arbeidstakerFnr)
-        }
-
-        return motebehovStatusService.motebehovStatusForArbeidstaker(arbeidstakerFnr)
+        return motebehovStatusServiceV2.motebehovStatusForArbeidstaker(arbeidstakerFnr)
     }
 }

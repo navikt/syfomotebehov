@@ -6,11 +6,9 @@ import no.nav.syfo.api.auth.tokenX.TokenXUtil
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleService
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiver
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
-import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusService
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
@@ -25,17 +23,13 @@ import javax.validation.constraints.Pattern
 class MotebehovArbeidsgiverV3Controller @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
     private val metric: Metric,
-    private val motebehovOppfolgingstilfelleService: MotebehovOppfolgingstilfelleService,
     private val motebehovOppfolgingstilfelleServiceV2: MotebehovOppfolgingstilfelleServiceV2,
-    private val motebehovStatusService: MotebehovStatusService,
     private val motebehovStatusServiceV2: MotebehovStatusServiceV2,
     private val brukertilgangService: BrukertilgangService,
     @Value("\${dialogmote.frontend.client.id}")
     val dialogmoteClientId: String,
     @Value("\${tokenx.idp}")
-    val dialogmoteTokenxIdp: String,
-    @Value("\${toggle.kandidatlista}")
-    private val useKandidatlista: Boolean,
+    val dialogmoteTokenxIdp: String
 ) {
     @GetMapping(
         value = ["/motebehov"],
@@ -53,11 +47,7 @@ class MotebehovArbeidsgiverV3Controller @Inject constructor(
         val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
         val isOwnLeader = arbeidsgiverFnr == ansattFnr
 
-        if (useKandidatlista) {
-            return motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(ansattFnr, isOwnLeader, virksomhetsnummer)
-        }
-
-        return motebehovStatusService.motebehovStatusForArbeidsgiver(ansattFnr, isOwnLeader, virksomhetsnummer)
+        return motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(ansattFnr, isOwnLeader, virksomhetsnummer)
     }
 
     @PostMapping(
@@ -77,20 +67,11 @@ class MotebehovArbeidsgiverV3Controller @Inject constructor(
         val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
         val isOwnLeader = arbeidsgiverFnr == ansattFnr
 
-        if (useKandidatlista) {
-            motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidgiver(
-                innloggetFnr,
-                ansattFnr,
-                isOwnLeader,
-                nyttMotebehov
-            )
-        } else {
-            motebehovOppfolgingstilfelleService.createMotehovForArbeidgiver(
-                innloggetFnr,
-                ansattFnr,
-                isOwnLeader,
-                nyttMotebehov
-            )
-        }
+        motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidgiver(
+            innloggetFnr,
+            ansattFnr,
+            isOwnLeader,
+            nyttMotebehov
+        )
     }
 }

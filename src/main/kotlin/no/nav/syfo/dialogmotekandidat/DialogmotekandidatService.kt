@@ -7,16 +7,13 @@ import no.nav.syfo.util.isEqualOrAfter
 import no.nav.syfo.util.toNorwegianLocalDateTime
 import no.nav.syfo.varsel.VarselServiceV2
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import javax.inject.Inject
 
 @Service
 class DialogmotekandidatService @Inject constructor(
     private val dialogmotekandidatDAO: DialogmotekandidatDAO,
-    private val varselServiceV2: VarselServiceV2,
-    @Value("\${toggle.kandidatlista}")
-    private val useKandidatlista: Boolean
+    private val varselServiceV2: VarselServiceV2
 ) {
     fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
         log.info("Testing: Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} og arsak ${dialogmotekandidatEndring.arsak}")
