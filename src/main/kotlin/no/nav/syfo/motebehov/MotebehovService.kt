@@ -1,5 +1,9 @@
 package no.nav.syfo.motebehov
 
+import java.time.LocalDateTime
+import java.util.*
+import java.util.stream.Collectors
+import javax.inject.Inject
 import no.nav.syfo.api.exception.ConflictException
 import no.nav.syfo.consumer.behandlendeenhet.BehandlendeEnhetConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
@@ -7,20 +11,16 @@ import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.database.PMotebehov
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
-import no.nav.syfo.oversikthendelse.OversikthendelseService
+import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
-import java.util.*
-import java.util.stream.Collectors
-import javax.inject.Inject
 
 @Service
 class MotebehovService @Inject constructor(
     private val metric: Metric,
     private val behandlendeEnhetConsumer: BehandlendeEnhetConsumer,
-    private val oversikthendelseService: OversikthendelseService,
+    private val personoppgavehendelseService: PersonoppgavehendelseService,
     private val motebehovDAO: MotebehovDAO,
     private val pdlConsumer: PdlConsumer
 ) {
@@ -29,11 +29,10 @@ class MotebehovService @Inject constructor(
         val arbeidstakerAktorId = pdlConsumer.aktorid(arbeidstakerFnr)
         val pMotebehovUbehandletList = motebehovDAO.hentUbehandledeMotebehov(arbeidstakerAktorId)
         if (pMotebehovUbehandletList.isNotEmpty()) {
-            val behandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr, null).enhetId
             pMotebehovUbehandletList.forEach { pMotebehov ->
                 val antallOppdatering = motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(pMotebehov.uuid, veilederIdent)
                 if (antallOppdatering == 1) {
-                    oversikthendelseService.sendOversikthendelseBehandlet(pMotebehov.uuid, arbeidstakerFnr, behandlendeEnhet)
+                    personoppgavehendelseService.sendPersonoppgaveHendelseBehandlet(pMotebehov.uuid, arbeidstakerFnr)
                 }
             }
         } else {
@@ -88,11 +87,11 @@ class MotebehovService @Inject constructor(
             skjemaType,
             motebehovSvar
         )
-        val id = motebehovDAO.create(motebehov)
+        val uuid = motebehovDAO.create(motebehov)
         if (motebehovSvar.harMotebehov) {
-            oversikthendelseService.sendOversikthendelseMottatt(id, arbeidstakerFnr, arbeidstakerBehandlendeEnhet)
+            personoppgavehendelseService.sendPersonoppgaveHendelseMottatt(uuid, arbeidstakerFnr)
         }
-        return id
+        return uuid
     }
 
     private fun mapNyttMotebehovToPMotebehov(

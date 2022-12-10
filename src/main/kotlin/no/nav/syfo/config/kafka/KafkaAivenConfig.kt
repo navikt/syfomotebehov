@@ -1,9 +1,12 @@
 package no.nav.syfo.config.kafka
 
+import no.nav.syfo.varsel.esyfovarsel.JacksonKafkaSerializer
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.config.SaslConfigs
 import org.apache.kafka.common.config.SslConfigs
+import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.annotation.EnableKafka
@@ -90,6 +93,30 @@ class KafkaAivenConfig(
                 ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG,
                 "" + (10 * 1024 * 1024)
             )
+        }
+    }
+
+    fun commonKafkaAivenProducerConfig(): HashMap<String, Any> {
+        return HashMap<String, Any>().apply {
+            putAll(commonKafkaAivenConfig())
+            put(
+                ProducerConfig.ACKS_CONFIG,
+                "all"
+            )
+            put(
+                ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+                StringSerializer::class.java
+            )
+            put(
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+                JacksonKafkaSerializer::class.java
+            )
+            /*
+        this[ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG] = "true"
+        this[ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION] = "1"
+        this[ProducerConfig.MAX_BLOCK_MS_CONFIG] = "15000"
+        this[ProducerConfig.RETRIES_CONFIG] = "100000"
+            * */
         }
     }
 }
