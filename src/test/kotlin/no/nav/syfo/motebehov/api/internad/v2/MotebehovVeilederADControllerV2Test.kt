@@ -247,7 +247,7 @@ class MotebehovVeilederADControllerV2Test {
         assertThat(motebehovListe[0].behandletVeilederIdent).isEqualTo(null)
         assertNotNull(motebehovListe[1].behandletTidspunkt)
         assertThat(motebehovListe[1].behandletVeilederIdent).isEqualTo(VEILEDER_ID)
-        verify(exactly = 2) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(),any()) }
+        verify(exactly = 2) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
     }
 
     @Test
@@ -269,7 +269,7 @@ class MotebehovVeilederADControllerV2Test {
         assertThat(motebehovListe1[0].behandletVeilederIdent).isEqualTo(VEILEDER_ID)
         assertNotNull(motebehovListe1[1].behandletTidspunkt)
         assertThat(motebehovListe1[1].behandletVeilederIdent).isEqualTo(VEILEDER_2_ID)
-        verify(exactly = 3) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(),any()) }
+        verify(exactly = 3) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
     }
 
     @Test
