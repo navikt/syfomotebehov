@@ -12,7 +12,7 @@ import org.springframework.kafka.core.ProducerFactory
 
 @EnableKafka
 @Configuration
-class KafkaEsyfovarselConfig(
+class EsyfovarselKafkaConfig(
     private val kafkaAivenConfig: KafkaAivenConfig,
 ) {
     @Bean("EsyfovarselProducerFactory")
