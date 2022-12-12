@@ -54,9 +54,6 @@ spec:
           cluster: prod-gcp
     outbound:
       rules:
-        - application: esyfovarsel
-          namespace: team-esyfo
-          cluster: prod-gcp
         - application: isnarmesteleder
           namespace: teamsykefravr
           cluster: prod-gcp
@@ -103,8 +100,6 @@ spec:
       value: "prod-fss.teamsykefravr.syfo-tilgangskontroll"
     - name: TILGANGSKONTROLLAPI_URL
       value: https://syfo-tilgangskontroll.nais.adeo.no/syfo-tilgangskontroll/api/tilgang
-    - name: ESYFOVARSELAPI_URL
-      value: https://esyfovarsel.intern.nav.no/api/bruker
     - name: SECURITY_TOKEN_SERVICE_REST_URL
       value: https://security-token-service.nais.adeo.no
     - name: SYFOBEHANDLENDEENHET_CLIENT_ID
