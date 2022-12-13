@@ -16,7 +16,7 @@ class DialogmotekandidatService @Inject constructor(
     private val varselServiceV2: VarselServiceV2
 ) {
     fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
-        log.info("Testing: Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} og arsak ${dialogmotekandidatEndring.arsak}")
+        log.info("Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} og arsak ${dialogmotekandidatEndring.arsak}")
         val ansattFnr = dialogmotekandidatEndring.personIdentNumber
 
         val existingKandidat = dialogmotekandidatDAO.get(ansattFnr)
