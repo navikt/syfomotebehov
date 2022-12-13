@@ -24,7 +24,7 @@ class DialogmotekandidatService @Inject constructor(
         // Store latest kandidat-info
         when {
             existingKandidat == null -> {
-                log.info("Testing: Lagrer ny kandidat i databasen")
+                log.info("Lagrer ny kandidat i databasen")
                 dialogmotekandidatDAO.create(
                     dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
                     createdAt = dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime(),
@@ -40,7 +40,7 @@ class DialogmotekandidatService @Inject constructor(
             }
 
             else -> {
-                log.info("Testing: Oppdaterer eksisterende kandidat i databasen")
+                log.info("Oppdaterer eksisterende kandidat i databasen")
                 dialogmotekandidatDAO.update(
                     dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
                     createdAt = dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime(),
