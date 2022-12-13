@@ -38,18 +38,17 @@ class VarselServiceV2 @Inject constructor(
             return
         }
 
-        log.info("Testing: Henter nærmeste ledere..")
         val narmesteLederRelations = narmesteLederService.getAllNarmesteLederRelations(ansattFnr)
 
         val amountOfVirksomheter = narmesteLederRelations?.distinctBy { it.virksomhetsnummer }?.size ?: 0
 
         log.info("Antall unike nærmeste ledere for kandidatUuid $kandidatUuid: ${narmesteLederRelations?.size ?: 0}, antall virksomheter: $amountOfVirksomheter")
 
-        log.info("Testing: Sender varsel til arbeidstaker")
+        log.info("Sender varsel til arbeidstaker")
         sendVarselTilArbeidstaker(ansattFnr, ansattesOppfolgingstilfelle)
 
         narmesteLederRelations?.forEach {
-            log.info("Testing: Sender varsel til virksomhet ${it.virksomhetsnummer}")
+            log.info("Sender varsel til virksomhet ${it.virksomhetsnummer}")
             sendVarselTilNaermesteLeder(
                 ansattFnr,
                 it.narmesteLederPersonIdentNumber,

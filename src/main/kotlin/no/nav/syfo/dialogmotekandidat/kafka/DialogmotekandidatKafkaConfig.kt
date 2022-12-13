@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @EnableKafka
 @Configuration
-class KafkaDialogmotekandidatConfig @Inject constructor(
+class DialogmotekandidatKafkaConfig @Inject constructor(
     private val kafkaAivenConfig: KafkaAivenConfig
 ) {
     @Bean
