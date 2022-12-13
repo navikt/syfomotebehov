@@ -30,7 +30,7 @@ class PersonoppgavehendelseService @Inject constructor(
         personoppgaveHendelseType: PersonoppgavehendelseType
     ) {
         val hendelse = mapToKPersonoppgavehendelse(fnr, personoppgaveHendelseType)
-        personoppgavehendelseProducer.sendPersonoppgavehendelse(hendelse, motebehovUUID)
+        personoppgavehendelseProducer.sendPersonoppgavehendelse(motebehovUUID, hendelse)
     }
 
     private fun mapToKPersonoppgavehendelse(

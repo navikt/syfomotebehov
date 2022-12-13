@@ -15,8 +15,8 @@ class PersonoppgavehendelseProducer @Autowired constructor(
     @Qualifier("PersonoppgavehendelseTemplate") private val kafkaTemplate: KafkaTemplate<String, KPersonoppgavehendelse>,
 ) {
     fun sendPersonoppgavehendelse(
-        kPersonoppgavehendelse: KPersonoppgavehendelse,
         personoppgaveId: UUID,
+        kPersonoppgavehendelse: KPersonoppgavehendelse,
     ) {
         try {
             log.info("Sending personoppgavehendelse of type ${kPersonoppgavehendelse.hendelsetype}, personoppgaveId: $personoppgaveId")
