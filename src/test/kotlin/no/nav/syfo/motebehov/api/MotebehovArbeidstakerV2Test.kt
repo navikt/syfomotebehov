@@ -18,7 +18,6 @@ import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
-import no.nav.syfo.oversikthendelse.OversikthendelseProducer
 import no.nav.syfo.testhelper.*
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker
 import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
@@ -52,6 +51,7 @@ import java.time.LocalDateTime
 import java.util.*
 import java.util.function.Consumer
 import javax.inject.Inject
+import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseProducer
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
@@ -102,7 +102,7 @@ class MotebehovArbeidstakerV2Test {
     private lateinit var stsConsumer: StsConsumer
 
     @MockkBean(relaxed = true)
-    private lateinit var oversikthendelseProducer: OversikthendelseProducer
+    private lateinit var personoppgavehendelseProducer: PersonoppgavehendelseProducer
 
     private lateinit var mockRestServiceServer: MockRestServiceServer
 
@@ -507,7 +507,7 @@ class MotebehovArbeidstakerV2Test {
         val motebehovList = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(ARBEIDSTAKER_AKTORID)
 
         assertEquals(2, motebehovList.size)
-        verify(exactly = 2) { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
+        verify(exactly = 2) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
     }
 
     private fun submitMotebehovAndSendOversikthendelse(motebehovSvar: MotebehovSvar) {
@@ -520,9 +520,9 @@ class MotebehovArbeidstakerV2Test {
 
         motebehovArbeidstakerController.submitMotebehovArbeidstaker(motebehovSvar)
         if (motebehovSvar.harMotebehov) {
-            verify { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
+            verify { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         } else {
-            verify(exactly = 0) { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
+            verify(exactly = 0) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         }
     }
 
@@ -555,9 +555,9 @@ class MotebehovArbeidstakerV2Test {
         assertThat(motebehov.skjemaType).isEqualTo(motebehovStatus.skjemaType)
         assertThat(motebehov.motebehovSvar).usingRecursiveComparison().isEqualTo(motebehovSvar)
         if (harBehov) {
-            verify { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
+            verify { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         } else {
-            verify(exactly = 0) { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
+            verify(exactly = 0) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         }
     }
 

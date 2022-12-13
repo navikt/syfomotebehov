@@ -2,8 +2,11 @@ package no.nav.syfo.motebehov.api.internad.v2
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.verify
+import java.text.ParseException
+import java.time.LocalDateTime
+import java.util.function.Consumer
+import javax.inject.Inject
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
@@ -15,6 +18,7 @@ import no.nav.syfo.motebehov.NyttMotebehov
 import no.nav.syfo.motebehov.api.MotebehovBrukerController
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.historikk.HistorikkService
+import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseProducer
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnVeilederADV2
 import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
@@ -31,9 +35,9 @@ import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import no.nav.syfo.testhelper.mockSvarFraSyfoTilgangskontrollV2TilgangTilBruker
-import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -43,17 +47,10 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cache.CacheManager
 import org.springframework.http.HttpStatus
-import org.springframework.kafka.core.KafkaTemplate
-import org.springframework.kafka.support.SendResult
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.client.MockRestServiceServer
-import org.springframework.util.concurrent.ListenableFuture
 import org.springframework.web.client.RestTemplate
-import java.text.ParseException
-import java.time.LocalDateTime
-import java.util.function.Consumer
-import javax.inject.Inject
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
@@ -96,8 +93,8 @@ class MotebehovVeilederADControllerV2Test {
     @MockkBean
     private lateinit var stsConsumer: StsConsumer
 
-    @MockkBean
-    private lateinit var kafkaTemplate: KafkaTemplate<String, Any>
+    @MockkBean(relaxed = true)
+    private lateinit var personoppgavehendelseProducer: PersonoppgavehendelseProducer
 
     private lateinit var mockRestServiceServer: MockRestServiceServer
 
@@ -115,7 +112,7 @@ class MotebehovVeilederADControllerV2Test {
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
         mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
 
-        every { kafkaTemplate.send(any(), any(), any()) } returns mockk<ListenableFuture<SendResult<String, Any>>>(relaxed = true)
+        every { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) } returns Unit
         every { brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR) } returns true
 
         every { pdlConsumer.aktorid(ARBEIDSTAKER_FNR) } returns ARBEIDSTAKER_AKTORID
@@ -250,7 +247,7 @@ class MotebehovVeilederADControllerV2Test {
         assertThat(motebehovListe[0].behandletVeilederIdent).isEqualTo(null)
         assertNotNull(motebehovListe[1].behandletTidspunkt)
         assertThat(motebehovListe[1].behandletVeilederIdent).isEqualTo(VEILEDER_ID)
-        verify(exactly = 2) { kafkaTemplate.send(any(), any(), any()) }
+        verify(exactly = 2) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
     }
 
     @Test
@@ -272,7 +269,7 @@ class MotebehovVeilederADControllerV2Test {
         assertThat(motebehovListe1[0].behandletVeilederIdent).isEqualTo(VEILEDER_ID)
         assertNotNull(motebehovListe1[1].behandletTidspunkt)
         assertThat(motebehovListe1[1].behandletVeilederIdent).isEqualTo(VEILEDER_2_ID)
-        verify(exactly = 3) { kafkaTemplate.send(any(), any(), any()) }
+        verify(exactly = 3) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
     }
 
     @Test

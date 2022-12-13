@@ -3,6 +3,10 @@ package no.nav.syfo.motebehov.api
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
+import java.util.function.Consumer
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
@@ -19,7 +23,7 @@ import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
-import no.nav.syfo.oversikthendelse.OversikthendelseProducer
+import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseProducer
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnVeilederADV2
 import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
@@ -35,7 +39,7 @@ import no.nav.syfo.testhelper.clearCache
 import no.nav.syfo.testhelper.generator.*
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll
-import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -50,10 +54,6 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.web.client.RestTemplate
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
-import java.util.function.Consumer
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
@@ -107,7 +107,7 @@ class MotebehovArbeidsgiverV2Test {
     private lateinit var stsConsumer: StsConsumer
 
     @MockkBean(relaxed = true)
-    private lateinit var oversikthendelseProducer: OversikthendelseProducer
+    private lateinit var personoppgavehendelseProducer: PersonoppgavehendelseProducer
 
     private lateinit var mockRestServiceServer: MockRestServiceServer
 
@@ -503,9 +503,9 @@ class MotebehovArbeidsgiverV2Test {
             )
         )
         if (motebehovSvar.harMotebehov) {
-            verify { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
+            verify { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         } else {
-            verify(exactly = 0) { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
+            verify(exactly = 0) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         }
     }
 
@@ -545,9 +545,9 @@ class MotebehovArbeidsgiverV2Test {
         assertThat(motebehov.skjemaType).isEqualTo(motebehovStatus.skjemaType)
         assertThat(motebehov.motebehovSvar).usingRecursiveComparison().isEqualTo(motebehovSvar)
         if (harBehov) {
-            verify { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
+            verify { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         } else {
-            verify(exactly = 0) { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
+            verify(exactly = 0) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         }
     }
 

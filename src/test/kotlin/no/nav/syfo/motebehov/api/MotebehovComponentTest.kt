@@ -10,7 +10,6 @@ import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.motebehov.database.MotebehovDAO
-import no.nav.syfo.oversikthendelse.OversikthendelseProducer
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker
 import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
@@ -38,6 +37,7 @@ import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.web.client.RestTemplate
 import java.util.function.Consumer
 import javax.inject.Inject
+import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseProducer
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
@@ -68,7 +68,7 @@ class MotebehovComponentTest {
     private lateinit var pdlConsumer: PdlConsumer
 
     @MockkBean(relaxed = true)
-    private lateinit var oversikthendelseProducer: OversikthendelseProducer
+    private lateinit var personoppgavehendelseProducer: PersonoppgavehendelseProducer
 
     @MockkBean
     private lateinit var brukertilgangConsumer: BrukertilgangConsumer
@@ -161,9 +161,9 @@ class MotebehovComponentTest {
         assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
         assertThat(motebehov.motebehovSvar).usingRecursiveComparison().isEqualTo(motebehovSvar)
         if (harBehov) {
-            verify { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
+            verify { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         } else {
-            verify(exactly = 0) { oversikthendelseProducer.sendOversikthendelse(any(), any()) }
+            verify(exactly = 0) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         }
     }
 
