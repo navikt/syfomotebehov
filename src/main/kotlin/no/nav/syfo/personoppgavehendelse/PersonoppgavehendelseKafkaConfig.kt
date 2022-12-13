@@ -11,7 +11,7 @@ import org.springframework.kafka.core.*
 
 @EnableKafka
 @Configuration
-class KafkaPersonoppgavehendelseConfig @Inject constructor(
+class PersonoppgavehendelseKafkaConfig @Inject constructor(
     private val kafkaAivenConfig: KafkaAivenConfig
 ) {
     @Bean("PersonoppgavehendelseProducerFactory")
