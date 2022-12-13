@@ -111,12 +111,6 @@ class KafkaAivenConfig(
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
                 JacksonKafkaSerializer::class.java
             )
-            /*
-        this[ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG] = "true"
-        this[ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION] = "1"
-        this[ProducerConfig.MAX_BLOCK_MS_CONFIG] = "15000"
-        this[ProducerConfig.RETRIES_CONFIG] = "100000"
-            * */
         }
     }
 }
