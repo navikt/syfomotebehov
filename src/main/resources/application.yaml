@@ -8,10 +8,6 @@ no.nav.security:
         accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
         cookiename: selvbetjening-idtoken
         proxy-url: http://webproxy.nais:8088
-      intern:
-        discoveryurl: <naiserator>
-        accepted_audience: modiabrukerdialog-p,modiabrukerdialog-q1,veilarblogin-p,veilarblogin-q1,fpsak-frontend-p,fpsak-frontend-q1,fplos-p,fplos-q1
-        cookiename: ID_token
       internazureadv2:
         discoveryurl: ${azure.app.well.known.url}
         accepted_audience: ${azure.app.client.id}
