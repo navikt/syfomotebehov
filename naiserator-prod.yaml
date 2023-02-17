@@ -59,6 +59,7 @@ spec:
           cluster: prod-gcp
   azure:
     application:
+      allowAllUsers: true
       enabled: true
       tenant: nav.no
       replyURLs:
