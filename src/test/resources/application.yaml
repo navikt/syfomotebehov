@@ -56,17 +56,10 @@ no.nav.security:
         discoveryurl: http://selvbetjening-metadata
         accepted_audience: aud-localhost
         cookie_name: localhost-idtoken
-      intern:
-        discoveryurl: http://intern-metadata
-        accepted_audience: aud-localhost
-        cookiename: localhost-idtoken
       internazureadv2:
         discoveryurl: http://internazureadv2-metadata
         accepted_audience: azure.app.client.id
         cookiename: localhost-idtoken
-      sts:
-        discoveryurl: http://sts-metadata
-        accepted_audience: clientID
       tokenx:
         discoveryurl: http://tokenx-metadata
         accepted_audience: clientID

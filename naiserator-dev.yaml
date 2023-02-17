@@ -109,8 +109,6 @@ spec:
       value: "dev-gcp.teamsykefravr.syfobehandlendeenhet"
     - name: SYFOBEHANDLENDEENHET_URL
       value: "https://syfobehandlendeenhet.dev.intern.nav.no"
-    - name: NO_NAV_SECURITY_JWT_ISSUER_INTERN_DISCOVERYURL
-      value: https://isso-q.adeo.no:443/isso/oauth2/.well-known/openid-configuration
     - name: KAFKA_ENV_NAME
       value: q1
     - name: DIALOGMOTE_FRONTEND_CLIENT_ID
