@@ -5,7 +5,8 @@ on:
       - master
     paths:
       - '.github/workflows/alerts.yaml'
-      - 'alerts.yaml'
+      - '.nais/alerts-fss.yaml'
+      - '.nais/alerts-gcp.yaml'
 jobs:
   apply-alerts:
     name: Apply alerts to cluster
@@ -13,9 +14,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v1
-      - name: deploy to prod
+      - name: deploy to prod-fss
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-fss
-          RESOURCE: alerts.yaml
+          RESOURCE: .nais/alerts-fss.yaml
+      - name: deploy to prod-gcp
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          RESOURCE: .nais/alerts-gcp.yaml
