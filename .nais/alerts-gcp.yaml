@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: syfomotebehov-alerts
+  namespace: team-esyfo
+  labels:
+    team: team-esyfo
+spec:
+  groups:
+    - name: syfomotebehov-alerts
+      rules:
+        - alert: KAFKA ISOPPFOLGINGSTILFELLE-TOPIC CONSUMER LAG
+          expr: kafka_consumergroup_group_topic_sum_lag{topic="teamsykefravr.isoppfolgingstilfelle-oppfolgingstilfelle-person", group="syfomotebehov-p-isoppfolgingstilfelle"} > 0
+          for: 15m
+          annotations:
+            summary: "syfomotebehov har ukonsumerte Kafkameldinger på isoppfolgingstilfelle-topic"
+            action: "Finn ut hvorfor syfomotebehov har stoppet å konsumere fra topic"
+          labels:
+            namespace: team-esyfo
+            severity: warning

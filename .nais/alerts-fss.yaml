@@ -1,0 +1,38 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: syfomotebehov-alerts
+  namespace: team-esyfo
+  labels:
+    team: team-esyfo
+spec:
+  groups:
+    - name: syfomotebehov-alerts
+      rules:
+        - alert: SYFOMOTEBEHOV IS DOWN!
+          expr: kube_deployment_status_replicas_available{deployment="syfomotebehov"} == 0
+          for: 5m
+          annotations:
+            summary: "App syfomotebehov er nede"
+            action: "Undersøk hvorfor syfomotebehov er nede"
+          labels:
+            namespace: team-esyfo
+            severity: critical
+        - alert: HIGH RATIO OF HTTP 5XX RESPONSE
+          expr: (100 * (sum by (backend) (rate(nginx_ingress_controller_requests{namespace="team-esyfo", status=~"^5\\d\\d", service="syfomotebehov"}[5m]))) / (sum by (backend) (rate(nginx_ingress_controller_requests{namespace="team-esyfo", service="syfomotebehov"}[5m])))) > 2
+          for: 5m
+          annotations:
+            summary: "App syfomotebehov har en høy andel 500-feil"
+            action: "Sjekk i Grafana eller logger hvorfor syfomotebehov returnerer mange 500-feil"
+          labels:
+            namespace: team-esyfo
+            severity: warning
+        - alert: HIGH RATIO OF HTTP 4XX RESPONSE
+          expr: (100 * (sum by (backend) (rate(nginx_ingress_controller_requests{namespace="team-esyfo", status=~"^4\\d\\d", service="syfomotebehov"}[5m]))) / (sum by (backend) (rate(nginx_ingress_controller_requests{namespace="team-esyfo", service="syfomotebehov"}[5m])))) > 10
+          for: 5m
+          annotations:
+            summary: "App syfomotebehov har en høy andel 400-feil"
+            action: "Sjekk i Grafana eller logger hvorfor syfomotebehov returnerer mange 400-feil"
+          labels:
+            namespace: team-esyfo
+            severity: warning
