@@ -18,8 +18,9 @@ import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
+import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseProducer
 import no.nav.syfo.testhelper.*
-import no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker
+import no.nav.syfo.testhelper.OidcTestHelper.loggInnBrukerTokenX
 import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
@@ -51,12 +52,11 @@ import java.time.LocalDateTime
 import java.util.*
 import java.util.function.Consumer
 import javax.inject.Inject
-import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseProducer
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
-class MotebehovArbeidstakerV2Test {
+class MotebehovArbeidstakerControllerV3Test {
     @Value("\${azure.openid.config.token.endpoint}")
     private lateinit var azureTokenEndpoint: String
 
@@ -67,7 +67,7 @@ class MotebehovArbeidstakerV2Test {
     private lateinit var tilgangskontrollUrl: String
 
     @Inject
-    private lateinit var motebehovArbeidstakerController: MotebehovArbeidstakerV2Controller
+    private lateinit var motebehovArbeidstakerController: MotebehovArbeidstakerV3Controller
 
     @Inject
     private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV2
@@ -110,6 +110,12 @@ class MotebehovArbeidstakerV2Test {
 
     private val stsToken = generateStsToken().access_token
 
+    @Value("\${tokenx.idp}")
+    private lateinit var tokenxIdp: String
+
+    @Value("\${dialogmote.frontend.client.id}")
+    private lateinit var dialogmoteClientId: String
+
     @BeforeEach
     fun setUp() {
         every { pdlConsumer.person(ARBEIDSTAKER_FNR) } returns generatePdlHentPerson(null, null)
@@ -120,7 +126,7 @@ class MotebehovArbeidstakerV2Test {
 
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
         mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
-        loggInnBruker(contextHolder, ARBEIDSTAKER_FNR)
+        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId, tokenxIdp)
         cleanDB()
     }
 
@@ -147,9 +153,6 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus With Today Outside OppfolgingstilfelleStart`() {
-        loggUtAlle(contextHolder)
-        loggInnBruker(contextHolder, ARBEIDSTAKER_FNR)
-
         dbCreateOppfolgingstilfelle(
             oppfolgingstilfelleDAO,
             generateOppfolgingstilfellePerson(
@@ -164,9 +167,6 @@ class MotebehovArbeidstakerV2Test {
 
     @Test
     fun `get MotebehovStatus With Today Outside OppfolgingstilfelleEnd`() {
-        loggUtAlle(contextHolder)
-        loggInnBruker(contextHolder, ARBEIDSTAKER_FNR)
-
         dbCreateOppfolgingstilfelle(
             oppfolgingstilfelleDAO,
             generateOppfolgingstilfellePerson(
@@ -319,7 +319,7 @@ class MotebehovArbeidstakerV2Test {
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
 
         resetMockRestServers()
-        loggInnBruker(contextHolder, ARBEIDSTAKER_FNR)
+        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId, tokenxIdp)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstaker()
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
