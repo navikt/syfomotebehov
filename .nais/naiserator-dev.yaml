@@ -121,6 +121,6 @@ spec:
     - name: DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID
       value: dev-gcp:flex:ditt-sykefravaer
     - name: ISNARMESTELEDER_URL
-      value: "https://isnarmesteleder.dev.intern.nav.no"
+      value: "https://isnarmesteleder.intern.dev.nav.no"
     - name: ISNARMESTELEDER_CLIENT_ID
       value: "dev-gcp.teamsykefravr.isnarmesteleder"
