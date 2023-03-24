@@ -129,7 +129,7 @@ class MotebehovVeilederADControllerV2Test {
         mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
 
         every { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) } returns Unit
-        every { brukertilgangConsumer.hasAccessToAnsattTokenX(ARBEIDSTAKER_FNR) } returns true
+        every { brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR) } returns true
 
         every { pdlConsumer.aktorid(ARBEIDSTAKER_FNR) } returns ARBEIDSTAKER_AKTORID
         every { pdlConsumer.aktorid(LEDER_FNR) } returns LEDER_AKTORID

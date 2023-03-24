@@ -3,7 +3,6 @@ package no.nav.syfo.consumer.brukertilgang
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.api.auth.OIDCIssuer.EKSTERN
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -35,7 +34,7 @@ class BrukertilgangskontrollServiceTest {
         every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns true
         every { pdlConsumer.isKode6(oppslattFnr) } returns true
 
-        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(innloggetFnr, oppslattFnr, EKSTERN)
+        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(innloggetFnr, oppslattFnr)
         Assertions.assertEquals(false, tilgang)
     }
 
@@ -46,7 +45,7 @@ class BrukertilgangskontrollServiceTest {
         every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns false
         every { pdlConsumer.isKode6(oppslattFnr) } returns false
 
-        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(oppslattFnr, oppslattFnr, EKSTERN)
+        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(oppslattFnr, oppslattFnr)
         Assertions.assertEquals(true, tilgang)
     }
 
@@ -58,7 +57,7 @@ class BrukertilgangskontrollServiceTest {
         every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns true
         every { pdlConsumer.isKode6(oppslattFnr) } returns false
 
-        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(innloggetFnr, oppslattFnr, EKSTERN)
+        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(innloggetFnr, oppslattFnr)
         Assertions.assertEquals(true, tilgang)
     }
 
@@ -69,7 +68,7 @@ class BrukertilgangskontrollServiceTest {
 
         every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns false
 
-        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(innloggetFnr, oppslattFnr, EKSTERN)
+        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(innloggetFnr, oppslattFnr)
         Assertions.assertEquals(false, tilgang)
     }
 
@@ -80,7 +79,7 @@ class BrukertilgangskontrollServiceTest {
         every { brukertilgangConsumer.hasAccessToAnsatt(any()) } returns false
 
         val tilgang =
-            tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetFnr, innloggetFnr, EKSTERN)
+            tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetFnr, innloggetFnr)
         Assertions.assertEquals(false, tilgang)
     }
 
@@ -92,7 +91,7 @@ class BrukertilgangskontrollServiceTest {
         every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns true
 
         val tilgang =
-            tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetFnr, oppslattFnr, EKSTERN)
+            tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetFnr, oppslattFnr)
         Assertions.assertEquals(false, tilgang)
     }
 
@@ -104,7 +103,7 @@ class BrukertilgangskontrollServiceTest {
         every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns false
 
         val tilgang =
-            tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetFnr, oppslattFnr, EKSTERN)
+            tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetFnr, oppslattFnr)
         Assertions.assertEquals(true, tilgang)
     }
 }
