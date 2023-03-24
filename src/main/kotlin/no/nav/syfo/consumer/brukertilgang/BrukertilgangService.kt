@@ -1,8 +1,6 @@
 package no.nav.syfo.consumer.brukertilgang
 
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import no.nav.syfo.api.auth.OIDCIssuer.EKSTERN
-import no.nav.syfo.api.auth.OIDCUtil
 import no.nav.syfo.api.auth.tokenX.TokenXUtil
 import no.nav.syfo.cache.CacheConfig
 import no.nav.syfo.consumer.pdl.PdlConsumer
@@ -23,27 +21,18 @@ class BrukertilgangService @Inject constructor(
         }
     }
 
-    fun kastExceptionHvisIkkeTilgangTilAnsattTokenX(fnr: String) {
+    fun kastExceptionHvisIkkeTilgangTilAnsatt(fnr: String) {
         val innloggetIdent = TokenXUtil.fnrFromIdportenTokenX(contextHolder)
 
-        val harTilgang = harTilgangTilOppslaattBruker(innloggetIdent, fnr, TokenXUtil.TokenXIssuer.TOKENX)
+        val harTilgang = harTilgangTilOppslaattBruker(innloggetIdent, fnr)
         if (!harTilgang) {
             throw ForbiddenException("Ikke tilgang til arbeidstaker: inlogget person har ikke tilgang til den ansatte eller den ansatte er gradert for informasjon")
         }
     }
 
-    fun kastExceptionHvisIkkeTilgang(fnr: String) {
-        val innloggetIdent = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
-        val harTilgang = harTilgangTilOppslaattBruker(innloggetIdent, fnr, EKSTERN)
-
-        if (!harTilgang) {
-            throw ForbiddenException("Ikke tilgang til arbeidstaker: inlogget person har ikke tilgang til den ansatte eller den ansatte er gradert for informasjon")
-        }
-    }
-
-    fun harTilgangTilOppslaattBruker(innloggetIdent: String, ansattFnr: String, issuerName: String): Boolean {
+    fun harTilgangTilOppslaattBruker(innloggetIdent: String, ansattFnr: String): Boolean {
         return try {
-            !(sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetIdent, ansattFnr, issuerName) || isBrukerGradertForInformasjon(ansattFnr))
+            !(sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetIdent, ansattFnr) || isBrukerGradertForInformasjon(ansattFnr))
         } catch (e: ForbiddenException) {
             false
         }
@@ -56,13 +45,9 @@ class BrukertilgangService @Inject constructor(
     )
     fun sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(
         innloggetIdent: String,
-        oppslaattFnr: String,
-        issuerName: String
+        oppslaattFnr: String
     ): Boolean {
-        if (EKSTERN.equals(issuerName)) {
-            return !(oppslaattFnr == innloggetIdent || brukertilgangConsumer.hasAccessToAnsatt(oppslaattFnr))
-        }
-        return !(oppslaattFnr == innloggetIdent || brukertilgangConsumer.hasAccessToAnsattTokenX(oppslaattFnr))
+        return !(oppslaattFnr == innloggetIdent || brukertilgangConsumer.hasAccessToAnsatt(oppslaattFnr))
     }
 
     private fun isBrukerGradertForInformasjon(fnr: String): Boolean {
