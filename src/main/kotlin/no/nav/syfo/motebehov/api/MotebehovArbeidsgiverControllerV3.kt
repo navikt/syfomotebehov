@@ -20,7 +20,7 @@ import javax.validation.constraints.Pattern
 @RestController
 @ProtectedWithClaims(issuer = TokenXUtil.TokenXIssuer.TOKENX, claimMap = ["acr=Level4"])
 @RequestMapping(value = ["/api/v3"])
-class MotebehovArbeidsgiverV3Controller @Inject constructor(
+class MotebehovArbeidsgiverControllerV3 @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
     private val metric: Metric,
     private val motebehovOppfolgingstilfelleServiceV2: MotebehovOppfolgingstilfelleServiceV2,

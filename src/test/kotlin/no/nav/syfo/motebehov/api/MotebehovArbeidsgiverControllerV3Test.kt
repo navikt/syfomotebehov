@@ -69,7 +69,7 @@ class MotebehovArbeidsgiverControllerV3Test {
     private lateinit var tilgangskontrollUrl: String
 
     @Autowired
-    private lateinit var motebehovArbeidsgiverController: MotebehovArbeidsgiverV3Controller
+    private lateinit var motebehovArbeidsgiverController: MotebehovArbeidsgiverControllerV3
 
     @Autowired
     private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV2

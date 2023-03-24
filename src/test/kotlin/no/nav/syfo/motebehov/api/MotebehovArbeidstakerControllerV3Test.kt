@@ -67,7 +67,7 @@ class MotebehovArbeidstakerControllerV3Test {
     private lateinit var tilgangskontrollUrl: String
 
     @Inject
-    private lateinit var motebehovArbeidstakerController: MotebehovArbeidstakerV3Controller
+    private lateinit var motebehovArbeidstakerController: MotebehovArbeidstakerControllerV3
 
     @Inject
     private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV2
