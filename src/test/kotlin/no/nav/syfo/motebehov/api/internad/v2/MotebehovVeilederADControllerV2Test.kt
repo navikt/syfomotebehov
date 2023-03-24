@@ -14,12 +14,15 @@ import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.motebehov.MotebehovSvar
-import no.nav.syfo.motebehov.NyttMotebehov
-import no.nav.syfo.motebehov.api.MotebehovBrukerController
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiver
+import no.nav.syfo.motebehov.api.MotebehovArbeidsgiverControllerV3
+import no.nav.syfo.motebehov.api.MotebehovArbeidstakerControllerV3
+import no.nav.syfo.motebehov.api.dbCreateOppfolgingstilfelle
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.historikk.HistorikkService
+import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseProducer
-import no.nav.syfo.testhelper.OidcTestHelper.loggInnBruker
+import no.nav.syfo.testhelper.OidcTestHelper.loggInnBrukerTokenX
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnVeilederADV2
 import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
@@ -31,6 +34,7 @@ import no.nav.syfo.testhelper.UserConstants.VEILEDER_2_ID
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.clearCache
+import no.nav.syfo.testhelper.generator.generateOppfolgingstilfellePerson
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
@@ -67,7 +71,13 @@ class MotebehovVeilederADControllerV2Test {
     private lateinit var behandlendeenhetUrl: String
 
     @Inject
-    private lateinit var motebehovController: MotebehovBrukerController
+    private lateinit var motebehovArbeidstakerControllerV3: MotebehovArbeidstakerControllerV3
+
+    @Inject
+    private lateinit var motebehovArbeidsgiverControllerV3: MotebehovArbeidsgiverControllerV3
+
+    @Inject
+    private lateinit var oppfolgingstilfelleDAO: OppfolgingstilfelleDAO
 
     @Inject
     private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV2
@@ -105,6 +115,12 @@ class MotebehovVeilederADControllerV2Test {
 
     private val stsToken = generateStsToken().access_token
 
+    @Value("\${tokenx.idp}")
+    private lateinit var tokenxIdp: String
+
+    @Value("\${dialogmote.frontend.client.id}")
+    private lateinit var dialogmoteClientId: String
+
     @BeforeEach
     fun setUp() {
         cleanDB()
@@ -113,7 +129,7 @@ class MotebehovVeilederADControllerV2Test {
         mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
 
         every { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) } returns Unit
-        every { brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR) } returns true
+        every { brukertilgangConsumer.hasAccessToAnsattTokenX(ARBEIDSTAKER_FNR) } returns true
 
         every { pdlConsumer.aktorid(ARBEIDSTAKER_FNR) } returns ARBEIDSTAKER_AKTORID
         every { pdlConsumer.aktorid(LEDER_FNR) } returns LEDER_AKTORID
@@ -122,6 +138,8 @@ class MotebehovVeilederADControllerV2Test {
         every { pdlConsumer.person(ARBEIDSTAKER_FNR) } returns generatePdlHentPerson(null, null)
         every { pdlConsumer.person(LEDER_FNR) } returns generatePdlHentPerson(null, null)
         every { stsConsumer.token() } returns stsToken
+
+        createOppfolgingstilfelle()
     }
 
     @AfterEach
@@ -146,7 +164,7 @@ class MotebehovVeilederADControllerV2Test {
     @Throws(ParseException::class)
     fun `arbeidsgiver lagrer Motebehov og Veileder henter Motebehov`() {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
-        val nyttMotebehov = arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        val nyttMotebehov = arbeidsgiverLagrerMotebehov()
 
         // Veileder henter møtebehov
         resetMockRestServers()
@@ -165,7 +183,7 @@ class MotebehovVeilederADControllerV2Test {
     @Throws(ParseException::class)
     fun `arbeidstaker lagrer Motebehov og Veileder henter Motebehov`() {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
-        val nyttMotebehov = sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true)
+        val motebehovSvar = sykmeldtLagrerMotebehov(true)
 
         // Veileder henter møtebehov
         resetMockRestServers()
@@ -177,14 +195,14 @@ class MotebehovVeilederADControllerV2Test {
         assertThat(motebehov.opprettetAv).isEqualTo(ARBEIDSTAKER_AKTORID)
         assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
         assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
-        assertThat(motebehov.motebehovSvar).usingRecursiveComparison().isEqualTo(nyttMotebehov.motebehovSvar)
+        assertThat(motebehov.motebehovSvar).usingRecursiveComparison().isEqualTo(motebehovSvar)
     }
 
     @Test
     @Throws(Exception::class)
     fun `hent Historikk`() {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
-        arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        arbeidsgiverLagrerMotebehov()
         resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
@@ -213,9 +231,9 @@ class MotebehovVeilederADControllerV2Test {
     @Throws(ParseException::class)
     fun `hent ubehandlede Motebehov`() {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
-        sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true)
+        sykmeldtLagrerMotebehov(true)
         resetMockRestServers()
-        arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        arbeidsgiverLagrerMotebehov()
         resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
@@ -233,9 +251,9 @@ class MotebehovVeilederADControllerV2Test {
     @Throws(ParseException::class)
     fun `behandle kun motebehov med Motebehov`() {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
-        sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, false)
+        sykmeldtLagrerMotebehov(false)
         resetMockRestServers()
-        arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        arbeidsgiverLagrerMotebehov()
         resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
@@ -254,10 +272,10 @@ class MotebehovVeilederADControllerV2Test {
     @Throws(ParseException::class)
     fun `behandle Motebehov og ulik Veileder behandler`() {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
-        sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true)
+        sykmeldtLagrerMotebehov(true)
         behandleMotebehov(ARBEIDSTAKER_AKTORID, VEILEDER_ID)
         resetMockRestServers()
-        arbeidsgiverLagrerMotebehov(LEDER_FNR, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        arbeidsgiverLagrerMotebehov()
         resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_2_ID)
         mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
@@ -276,7 +294,7 @@ class MotebehovVeilederADControllerV2Test {
     @Throws(ParseException::class)
     fun `behandle ikkeeksisterende Motebehov`() {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
-        sykmeldtLagrerMotebehov(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER, true)
+        sykmeldtLagrerMotebehov(true)
         behandleMotebehov(ARBEIDSTAKER_AKTORID, VEILEDER_ID)
         resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_2_ID)
@@ -285,42 +303,33 @@ class MotebehovVeilederADControllerV2Test {
         assertThrows<RuntimeException> { motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR) }
     }
 
-    private fun arbeidsgiverLagrerMotebehov(
-        lederFnr: String,
-        arbeidstakerFnr: String,
-        virksomhetsnummer: String
-    ): NyttMotebehov {
-        loggInnBruker(contextHolder, lederFnr)
+    private fun arbeidsgiverLagrerMotebehov(): NyttMotebehovArbeidsgiver {
+        loggInnBrukerTokenX(contextHolder, LEDER_FNR, dialogmoteClientId, tokenxIdp)
+
         val motebehovSvar = MotebehovSvar(
             harMotebehov = true,
             forklaring = ""
         )
-        val nyttMotebehov = NyttMotebehov(
-            arbeidstakerFnr = arbeidstakerFnr,
-            virksomhetsnummer = virksomhetsnummer,
+        val nyttMotebehov = NyttMotebehovArbeidsgiver(
+            arbeidstakerFnr = ARBEIDSTAKER_FNR,
+            virksomhetsnummer = VIRKSOMHETSNUMMER,
             motebehovSvar = motebehovSvar
         )
-        motebehovController.lagreMotebehov(nyttMotebehov)
+        motebehovArbeidsgiverControllerV3.lagreMotebehovArbeidsgiver(nyttMotebehov)
         return nyttMotebehov
     }
 
     private fun sykmeldtLagrerMotebehov(
-        sykmeldtFnr: String,
-        virksomhetsnummer: String,
         harBehov: Boolean
-    ): NyttMotebehov {
-        loggInnBruker(contextHolder, sykmeldtFnr)
+    ): MotebehovSvar {
+        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId, tokenxIdp)
+
         val motebehovSvar = MotebehovSvar(
             harMotebehov = harBehov,
             forklaring = ""
         )
-        val nyttMotebehov = NyttMotebehov(
-            arbeidstakerFnr = sykmeldtFnr,
-            virksomhetsnummer = virksomhetsnummer,
-            motebehovSvar = motebehovSvar
-        )
-        motebehovController.lagreMotebehov(nyttMotebehov)
-        return nyttMotebehov
+        motebehovArbeidstakerControllerV3.submitMotebehovArbeidstaker(motebehovSvar)
+        return motebehovSvar
     }
 
     private fun behandleMotebehov(aktoerId: String, veileder: String) {
@@ -353,6 +362,15 @@ class MotebehovVeilederADControllerV2Test {
         )
     }
 
+    private fun createOppfolgingstilfelle() {
+        dbCreateOppfolgingstilfelle(
+            oppfolgingstilfelleDAO,
+            generateOppfolgingstilfellePerson(virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER)).copy(
+                personIdentNumber = ARBEIDSTAKER_FNR,
+            )
+        )
+    }
+
     private fun resetMockRestServers() {
         mockRestServiceServer.reset()
         mockRestServiceWithProxyServer.reset()
@@ -360,5 +378,6 @@ class MotebehovVeilederADControllerV2Test {
 
     private fun cleanDB() {
         motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID)
+        oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(ARBEIDSTAKER_FNR)
     }
 }
