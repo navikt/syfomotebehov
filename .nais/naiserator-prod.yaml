@@ -76,8 +76,6 @@ spec:
         mountPath: "/secrets/syfomotebehovdb/config"
       - kvPath: "/kv/prod/fss/syfomotebehov/team-esyfo"
         mountPath: "/var/run/secrets/nais.io/vault"
-  envFrom:
-    - configmap: loginservice-idporten
   kafka:
     pool: nav-prod
   env:
