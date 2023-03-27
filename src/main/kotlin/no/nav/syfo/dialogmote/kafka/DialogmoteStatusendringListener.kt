@@ -20,7 +20,7 @@ class DialogmoteStatusendringListener(
         consumerRecord: ConsumerRecord<String, KDialogmoteStatusEndring>,
         acknowledgment: Acknowledgment
     ) {
-        LOG.warn("Got record from $DIALOGMOTE_STATUSENDRING_TOPIC topic for dialogmoteUuid: ${consumerRecord.value().getDialogmoteUuid()}")
+        LOG.info("Got record from $DIALOGMOTE_STATUSENDRING_TOPIC topic for dialogmoteUuid: ${consumerRecord.value().getDialogmoteUuid()}")
         try {
             dialogmoteStatusService.receiveKDialogmoteStatusendring(consumerRecord.value())
             acknowledgment.acknowledge()
