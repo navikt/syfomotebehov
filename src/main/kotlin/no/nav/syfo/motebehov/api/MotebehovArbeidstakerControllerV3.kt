@@ -20,7 +20,7 @@ import javax.validation.Valid
 @RestController
 @ProtectedWithClaims(issuer = TokenXIssuer.TOKENX, claimMap = ["acr=Level4"])
 @RequestMapping(value = ["/api/v3/arbeidstaker"])
-class MotebehovArbeidstakerV3Controller @Inject constructor(
+class MotebehovArbeidstakerControllerV3 @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
     private val metric: Metric,
     private val motebehovStatusServiceV2: MotebehovStatusServiceV2,
