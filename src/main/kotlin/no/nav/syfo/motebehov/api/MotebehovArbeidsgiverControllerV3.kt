@@ -2,14 +2,15 @@ package no.nav.syfo.motebehov.api
 
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import no.nav.syfo.api.auth.OIDCIssuer
-import no.nav.syfo.api.auth.OIDCUtil
+import no.nav.syfo.api.auth.tokenX.TokenXUtil
+import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiver
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import javax.inject.Inject
@@ -17,14 +18,18 @@ import javax.validation.Valid
 import javax.validation.constraints.Pattern
 
 @RestController
-@ProtectedWithClaims(issuer = OIDCIssuer.EKSTERN, claimMap = ["acr=Level4"])
-@RequestMapping(value = ["/api/v2"])
-class MotebehovArbeidsgiverV2Controller @Inject constructor(
+@ProtectedWithClaims(issuer = TokenXUtil.TokenXIssuer.TOKENX, claimMap = ["acr=Level4"])
+@RequestMapping(value = ["/api/v3"])
+class MotebehovArbeidsgiverControllerV3 @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
     private val metric: Metric,
     private val motebehovOppfolgingstilfelleServiceV2: MotebehovOppfolgingstilfelleServiceV2,
     private val motebehovStatusServiceV2: MotebehovStatusServiceV2,
-    private val brukertilgangService: BrukertilgangService
+    private val brukertilgangService: BrukertilgangService,
+    @Value("\${dialogmote.frontend.client.id}")
+    val dialogmoteClientId: String,
+    @Value("\${tokenx.idp}")
+    val dialogmoteTokenxIdp: String
 ) {
     @GetMapping(
         value = ["/motebehov"],
@@ -35,13 +40,14 @@ class MotebehovArbeidsgiverV2Controller @Inject constructor(
         @RequestParam(name = "virksomhetsnummer") virksomhetsnummer: String
     ): MotebehovStatus {
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver")
-        val fnr = arbeidstakerFnr
-        brukertilgangService.kastExceptionHvisIkkeTilgang(fnr)
+        TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteTokenxIdp, dialogmoteClientId)
+        val ansattFnr = arbeidstakerFnr
+        brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsattTokenX(ansattFnr)
 
-        val arbeidsgiverFnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
-        val isOwnLeader = arbeidsgiverFnr == fnr
+        val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
+        val isOwnLeader = arbeidsgiverFnr == ansattFnr
 
-        return motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(fnr, isOwnLeader, virksomhetsnummer)
+        return motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(ansattFnr, isOwnLeader, virksomhetsnummer)
     }
 
     @PostMapping(
@@ -53,15 +59,17 @@ class MotebehovArbeidsgiverV2Controller @Inject constructor(
         @RequestBody nyttMotebehov: @Valid NyttMotebehovArbeidsgiver
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
-        val arbeidstakerFnr = nyttMotebehov.arbeidstakerFnr
-        brukertilgangService.kastExceptionHvisIkkeTilgang(arbeidstakerFnr)
+        val innloggetFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteTokenxIdp, dialogmoteClientId)
+            .fnrFromIdportenTokenX()
+        val ansattFnr = nyttMotebehov.arbeidstakerFnr
+        brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsattTokenX(ansattFnr)
 
-        val arbeidsgiverFnr = OIDCUtil.fnrFraOIDCEkstern(contextHolder)
-        val isOwnLeader = arbeidsgiverFnr == arbeidstakerFnr
+        val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
+        val isOwnLeader = arbeidsgiverFnr == ansattFnr
 
         motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidgiver(
-            OIDCUtil.fnrFraOIDCEkstern(contextHolder),
-            arbeidstakerFnr,
+            innloggetFnr,
+            ansattFnr,
             isOwnLeader,
             nyttMotebehov
         )

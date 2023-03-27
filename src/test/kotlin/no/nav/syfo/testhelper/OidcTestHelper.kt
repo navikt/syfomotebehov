@@ -8,6 +8,7 @@ import no.nav.security.token.support.core.jwt.JwtToken
 import no.nav.security.token.support.test.JwtTokenGenerator
 import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.api.auth.OIDCIssuer.EKSTERN
+import no.nav.syfo.api.auth.tokenX.TokenXUtil
 import java.text.ParseException
 import java.util.*
 import kotlin.collections.HashMap
@@ -22,6 +23,17 @@ object OidcTestHelper {
     fun loggInnBruker(contextHolder: TokenValidationContextHolder, fnr: String?) {
         val jwt = generateSignedJwtToken(fnr)
         settOIDCValidationContext(contextHolder, jwt, EKSTERN)
+    }
+
+    fun loggInnBrukerTokenX(contextHolder: TokenValidationContextHolder, brukerFnr: String, clientId: String, idp: String) {
+        val claimsSet = JWTClaimsSet.Builder()
+            .claim("pid", brukerFnr)
+            .claim("client_id", clientId)
+            .claim("idp", idp)
+            .build()
+
+        val jwt = JwtTokenGenerator.createSignedJWT(claimsSet)
+        settOIDCValidationContext(contextHolder, jwt, TokenXUtil.TokenXIssuer.TOKENX)
     }
 
     @JvmStatic
