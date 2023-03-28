@@ -42,7 +42,7 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver")
         TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteTokenxIdp, dialogmoteClientId)
         val ansattFnr = arbeidstakerFnr
-        brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsattTokenX(ansattFnr)
+        brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(ansattFnr)
 
         val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
         val isOwnLeader = arbeidsgiverFnr == ansattFnr
@@ -62,7 +62,7 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         val innloggetFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteTokenxIdp, dialogmoteClientId)
             .fnrFromIdportenTokenX()
         val ansattFnr = nyttMotebehov.arbeidstakerFnr
-        brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsattTokenX(ansattFnr)
+        brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(ansattFnr)
 
         val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
         val isOwnLeader = arbeidsgiverFnr == ansattFnr

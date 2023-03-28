@@ -1,8 +1,6 @@
 package no.nav.syfo.consumer.brukertilgang
 
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import no.nav.syfo.api.auth.OIDCIssuer
-import no.nav.syfo.api.auth.OIDCUtil
 import no.nav.syfo.api.auth.tokenX.TokenXUtil
 import no.nav.syfo.consumer.tokenx.tokendings.TokenDingsConsumer
 import no.nav.syfo.metric.Metric
@@ -32,38 +30,6 @@ class BrukertilgangConsumer(
     @Value("\${syfobrukertilgang.client.id}") private val targetApp: String
 ) {
     fun hasAccessToAnsatt(ansattFnr: String): Boolean {
-        val callId = createCallId()
-
-        val response = webClient
-            .get()
-            .uri("$baseUrl/api/v1/tilgang/ansatt/$ansattFnr")
-            .header(
-                HttpHeaders.AUTHORIZATION,
-                bearerCredentials(OIDCUtil.tokenFraOIDC(contextHolder, OIDCIssuer.EKSTERN))
-            )
-            .header(NAV_CALL_ID_HEADER, callId)
-            .header(NAV_CONSUMER_ID_HEADER, APP_CONSUMER_ID)
-            .accept(MediaType.APPLICATION_JSON)
-            .retrieve()
-            .onStatus({ obj: HttpStatus -> obj.value() == 401 }) { response ->
-                metric.countOutgoingReponses(METRIC_CALL_BRUKERTILGANG, response.rawStatusCode())
-                Mono.error(RequestUnauthorizedException("Unauthorized request to get access to Ansatt from Syfobrukertilgang"))
-            }
-            .onStatus({ obj: HttpStatus -> obj.is4xxClientError }) { response ->
-                logError(response, callId)
-                Mono.error(RuntimeException("4xx"))
-            }
-            .onStatus({ obj: HttpStatus -> obj.is5xxServerError }) { response ->
-                logError(response, callId)
-                Mono.error(RuntimeException("5xx"))
-            }
-            .bodyToMono<Boolean>()
-            .block()
-        metric.countOutgoingReponses(METRIC_CALL_BRUKERTILGANG, 200)
-        return response ?: false
-    }
-
-    fun hasAccessToAnsattTokenX(ansattFnr: String): Boolean {
         val callId = createCallId()
         val exchangedToken = tokenDingsConsumer.exchangeToken(TokenXUtil.tokenFromTokenX(contextHolder), targetApp)
 

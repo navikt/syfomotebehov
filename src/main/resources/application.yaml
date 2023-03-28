@@ -3,11 +3,6 @@ app.name: syfomotebehov
 no.nav.security:
   jwt:
     issuer:
-      selvbetjening:
-        discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
-        accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
-        cookiename: selvbetjening-idtoken
-        proxy-url: http://webproxy.nais:8088
       internazureadv2:
         discoveryurl: ${azure.app.well.known.url}
         accepted_audience: ${azure.app.client.id}

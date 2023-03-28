@@ -52,10 +52,6 @@ toggle.enable:
 no.nav.security:
   jwt:
     issuer:
-      selvbetjening:
-        discoveryurl: http://selvbetjening-metadata
-        accepted_audience: aud-localhost
-        cookie_name: localhost-idtoken
       internazureadv2:
         discoveryurl: http://internazureadv2-metadata
         accepted_audience: azure.app.client.id

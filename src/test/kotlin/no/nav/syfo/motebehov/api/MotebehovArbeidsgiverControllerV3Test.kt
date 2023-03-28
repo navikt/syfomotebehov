@@ -123,7 +123,7 @@ class MotebehovArbeidsgiverControllerV3Test {
 
     @BeforeEach
     fun setUp() {
-        every { brukertilgangConsumer.hasAccessToAnsattTokenX(ARBEIDSTAKER_FNR) } returns true
+        every { brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR) } returns true
         every { pdlConsumer.person(ARBEIDSTAKER_FNR) } returns generatePdlHentPerson(null, null)
         every { pdlConsumer.aktorid(ARBEIDSTAKER_FNR) } returns ARBEIDSTAKER_AKTORID
         every { pdlConsumer.aktorid(LEDER_FNR) } returns LEDER_AKTORID
