@@ -52,13 +52,14 @@ class DialogmotekandidatService @Inject constructor(
         }
 
         // Send svar behov varsel if no kandidat==true exists from before
-        val isNotKandidatFromBefore = existingKandidat == null || !existingKandidat.kandidat
+        val isKandidatFromBefore = existingKandidat != null && existingKandidat.kandidat
 
-        if (!isNotKandidatFromBefore) {
+        if (!dialogmotekandidatEndring.kandidat) {
+            log.info("Ferdigstill varsel because message has kandidat=false")
+            varselServiceV2.ferdigstillSvarMotebehovVarsel(ansattFnr, dialogmotekandidatEndring.uuid)
+        } else if (isKandidatFromBefore) {
             log.info("Not sending varsel because person is kandidat from before")
             return
-        } else if (!dialogmotekandidatEndring.kandidat) {
-            log.info("Not sending varsel because message has kandidat=false")
         } else {
             varselServiceV2.sendSvarBehovVarsel(ansattFnr, dialogmotekandidatEndring.uuid)
         }

@@ -6,12 +6,12 @@ import java.io.Serializable
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 sealed interface EsyfovarselHendelse : Serializable {
     val type: HendelseType
-    var data: Any?
+    var data: VarselData?
 }
 
 data class NarmesteLederHendelse(
     override val type: HendelseType,
-    override var data: Any?,
+    override var data: VarselData?,
     val narmesteLederFnr: String,
     val arbeidstakerFnr: String,
     val orgnummer: String
@@ -19,7 +19,7 @@ data class NarmesteLederHendelse(
 
 data class ArbeidstakerHendelse(
     override val type: HendelseType,
-    override var data: Any?,
+    override var data: VarselData?,
     val arbeidstakerFnr: String,
     val orgnummer: String?
 ) : EsyfovarselHendelse
@@ -28,3 +28,11 @@ enum class HendelseType {
     NL_DIALOGMOTE_SVAR_MOTEBEHOV,
     SM_DIALOGMOTE_SVAR_MOTEBEHOV,
 }
+
+data class VarselData(
+    val status: VarselStatus? = null
+)
+
+data class VarselStatus(
+    val ferdigstilt: Boolean
+)

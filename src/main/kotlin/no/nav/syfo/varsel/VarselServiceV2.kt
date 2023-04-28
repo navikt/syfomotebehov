@@ -57,6 +57,32 @@ class VarselServiceV2 @Inject constructor(
         }
     }
 
+    fun ferdigstillSvarMotebehovVarsel(ansattFnr: String, kandidatUuid: String) {
+
+        ferdigstillSvarMotebehovVarselForArbeidstaker(ansattFnr)
+
+        val narmesteLederRelations = narmesteLederService.getAllNarmesteLederRelations(ansattFnr)
+
+        narmesteLederRelations?.forEach {
+            log.info("Ferdigstiller varsel til virksomhet ${it.virksomhetsnummer}")
+            ferdigstillSvarMotebehovVarselForNaermesteLeder(ansattFnr, it.narmesteLederPersonIdentNumber, it.virksomhetsnummer)
+        }
+
+        esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ansattFnr)
+    }
+
+    fun ferdigstillSvarMotebehovVarselForNaermesteLeder(
+        ansattFnr: String,
+        naermesteLederFnr: String,
+        virksomhetsnummer: String
+    ) {
+        esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(naermesteLederFnr, ansattFnr, virksomhetsnummer)
+    }
+
+    fun ferdigstillSvarMotebehovVarselForArbeidstaker(ansattFnr: String) {
+        esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ansattFnr)
+    }
+
     private fun sendVarselTilNaermesteLeder(
         ansattFnr: String,
         naermesteLederFnr: String,
