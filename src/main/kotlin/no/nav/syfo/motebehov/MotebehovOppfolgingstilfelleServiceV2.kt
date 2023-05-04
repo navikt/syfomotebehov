@@ -5,6 +5,7 @@ import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
 import no.nav.syfo.motebehov.motebehovstatus.isMotebehovAvailableForAnswer
 import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
+import no.nav.syfo.varsel.VarselServiceV2
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -15,7 +16,8 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
     private val metric: Metric,
     private val motebehovService: MotebehovService,
     private val motebehovStatusServiceV2: MotebehovStatusServiceV2,
-    private val oppfolgingstilfelleService: OppfolgingstilfelleService
+    private val oppfolgingstilfelleService: OppfolgingstilfelleService,
+    private val varselServiceV2: VarselServiceV2
 ) {
     fun createMotebehovForArbeidgiver(
         innloggetFnr: String,
@@ -35,6 +37,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                     motebehovStatus.skjemaType!!,
                     nyttMotebehov.motebehovSvar
                 )
+                varselServiceV2.ferdigstillSvarMotebehovVarselForNaermesteLeder(arbeidstakerFnr, innloggetFnr, nyttMotebehov.virksomhetsnummer)
                 metric.tellBesvarMotebehov(
                     activeOppfolgingstilfelle,
                     motebehovStatus.skjemaType,
@@ -75,6 +78,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                         motebehovSvar
                     )
                 }
+                varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(arbeidstakerFnr)
                 metric.tellBesvarMotebehov(
                     activeOppolgingstilfelle,
                     motebehovStatus.skjemaType,

@@ -39,6 +39,7 @@ import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import no.nav.syfo.testhelper.mockSvarFraSyfoTilgangskontrollV2TilgangTilBruker
+import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
@@ -93,6 +94,9 @@ class MotebehovVeilederADControllerV2Test {
 
     @Inject
     private lateinit var restTemplate: RestTemplate
+
+    @MockkBean(relaxed = true)
+    private lateinit var esyfovarselService: EsyfovarselService
 
     @MockkBean
     private lateinit var brukertilgangConsumer: BrukertilgangConsumer

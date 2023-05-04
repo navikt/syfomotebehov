@@ -39,6 +39,7 @@ import no.nav.syfo.testhelper.clearCache
 import no.nav.syfo.testhelper.generator.*
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll
+import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
@@ -96,6 +97,9 @@ class MotebehovArbeidsgiverControllerV3Test {
 
     @Autowired
     private lateinit var restTemplate: RestTemplate
+
+    @MockkBean(relaxed = true)
+    private lateinit var esyfovarselService: EsyfovarselService
 
     @MockkBean
     private lateinit var pdlConsumer: PdlConsumer
@@ -513,6 +517,8 @@ class MotebehovArbeidsgiverControllerV3Test {
         } else {
             verify(exactly = 0) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         }
+        verify { esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(any(), ARBEIDSTAKER_FNR, any()) }
+        verify(exactly = 0) { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ARBEIDSTAKER_FNR) }
     }
 
     private fun lagreOgHentMotebehovOgSendOversikthendelse(harBehov: Boolean) {
@@ -555,6 +561,8 @@ class MotebehovArbeidsgiverControllerV3Test {
         } else {
             verify(exactly = 0) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         }
+        verify { esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(any(), any(), any()) }
+        verify(exactly = 0) { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(motebehov.arbeidstakerFnr) }
     }
 
     private fun resetMockRestServers() {
