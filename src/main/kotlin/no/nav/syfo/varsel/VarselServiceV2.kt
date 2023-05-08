@@ -1,7 +1,7 @@
 package no.nav.syfo.varsel
 
 import no.nav.syfo.consumer.narmesteleder.NarmesteLederService
-import no.nav.syfo.dialogmote.DialogmoteStatusService
+import no.nav.syfo.dialogmote.database.DialogmoteDAO
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusHelper
@@ -20,18 +20,15 @@ class VarselServiceV2 @Inject constructor(
     private val motebehovStatusHelper: MotebehovStatusHelper,
     private val oppfolgingstilfelleService: OppfolgingstilfelleService,
     private val esyfovarselService: EsyfovarselService,
-    private val dialogmoteStatusService: DialogmoteStatusService,
-    private val narmesteLederService: NarmesteLederService
+    private val narmesteLederService: NarmesteLederService,
+    private val dialogmoteDAO: DialogmoteDAO
 ) {
     fun sendSvarBehovVarsel(ansattFnr: String, kandidatUuid: String) {
         val ansattesOppfolgingstilfelle =
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(ansattFnr)
 
-        val isDialogmoteAlleredePlanlagt = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
-            ansattFnr,
-            null,
-            ansattesOppfolgingstilfelle?.fom ?: LocalDate.now()
-        )
+        val isDialogmoteAlleredePlanlagt =
+            dialogmoteDAO.getAktiveDialogmoterEtterDato(ansattFnr, ansattesOppfolgingstilfelle?.fom ?: LocalDate.now()).isNotEmpty()
 
         if (isDialogmoteAlleredePlanlagt) {
             logDialogmoteAlleredePlanlagt()
@@ -57,18 +54,18 @@ class VarselServiceV2 @Inject constructor(
         }
     }
 
-    fun ferdigstillSvarMotebehovVarsel(ansattFnr: String, kandidatUuid: String) {
+    fun ferdigstillSvarMotebehovVarselForNarmesteLederOgArbeidstaker(ansattFnr: String, virksomhetsnummer: String? = null) {
 
         ferdigstillSvarMotebehovVarselForArbeidstaker(ansattFnr)
 
         val narmesteLederRelations = narmesteLederService.getAllNarmesteLederRelations(ansattFnr)
 
         narmesteLederRelations?.forEach {
-            log.info("Ferdigstiller varsel til virksomhet ${it.virksomhetsnummer}")
-            ferdigstillSvarMotebehovVarselForNaermesteLeder(ansattFnr, it.narmesteLederPersonIdentNumber, it.virksomhetsnummer)
+            if (virksomhetsnummer == null || virksomhetsnummer.equals(it.virksomhetsnummer)) {
+                log.info("Ferdigstiller varsel til virksomhet ${it.virksomhetsnummer}")
+                ferdigstillSvarMotebehovVarselForNaermesteLeder(ansattFnr, it.narmesteLederPersonIdentNumber, it.virksomhetsnummer)
+            }
         }
-
-        esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ansattFnr)
     }
 
     fun ferdigstillSvarMotebehovVarselForNaermesteLeder(

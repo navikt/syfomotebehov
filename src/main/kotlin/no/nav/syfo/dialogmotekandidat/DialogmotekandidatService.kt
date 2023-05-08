@@ -13,7 +13,7 @@ import javax.inject.Inject
 @Service
 class DialogmotekandidatService @Inject constructor(
     private val dialogmotekandidatDAO: DialogmotekandidatDAO,
-    private val varselServiceV2: VarselServiceV2
+    private val varselServiceV2: VarselServiceV2,
 ) {
     fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
         log.info("Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} og arsak ${dialogmotekandidatEndring.arsak}")
@@ -56,7 +56,7 @@ class DialogmotekandidatService @Inject constructor(
 
         if (!dialogmotekandidatEndring.kandidat) {
             log.info("Ferdigstill varsel because message has kandidat=false")
-            varselServiceV2.ferdigstillSvarMotebehovVarsel(ansattFnr, dialogmotekandidatEndring.uuid)
+            varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLederOgArbeidstaker(ansattFnr)
         } else if (isKandidatFromBefore) {
             log.info("Not sending varsel because person is kandidat from before")
             return

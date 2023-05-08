@@ -7,7 +7,9 @@ import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.narmesteleder.NarmesteLederRelasjonDTO
 import no.nav.syfo.consumer.narmesteleder.NarmesteLederRelasjonStatus
 import no.nav.syfo.consumer.narmesteleder.NarmesteLederService
-import no.nav.syfo.dialogmote.DialogmoteStatusService
+import no.nav.syfo.dialogmote.database.Dialogmote
+import no.nav.syfo.dialogmote.database.DialogmoteDAO
+import no.nav.syfo.dialogmote.database.DialogmoteStatusEndringType
 import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
@@ -21,7 +23,9 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.LocalDateTime.now
+import java.util.*
+import java.util.UUID.randomUUID
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
@@ -38,7 +42,7 @@ class VarselServiceTest {
     private lateinit var esyfovarselService: EsyfovarselService
 
     @MockkBean
-    private lateinit var dialogmoteStatusService: DialogmoteStatusService
+    private lateinit var dialogmoteDAO: DialogmoteDAO
 
     @MockkBean
     private lateinit var narmesteLederService: NarmesteLederService
@@ -62,7 +66,7 @@ class VarselServiceTest {
                 any()
             )
         } returns createOppfolgingstilfelle()
-        every { dialogmoteStatusService.isDialogmotePlanlagtEtterDato(any(), any(), any()) } returns false
+        every { dialogmoteDAO.getAktiveDialogmoterEtterDato(any(), any()) } returns emptyList()
         every {
             motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
                 any(),
@@ -94,7 +98,17 @@ class VarselServiceTest {
 
     @Test
     fun senderIkkeVarselDersomDialogmotePlanlagt() {
-        every { dialogmoteStatusService.isDialogmotePlanlagtEtterDato(userFnr, any(), any()) } returns true
+        every { dialogmoteDAO.getAktiveDialogmoterEtterDato(any(), any()) } returns listOf(
+            Dialogmote(
+                randomUUID(),
+                randomUUID(),
+                now(),
+                now(),
+                DialogmoteStatusEndringType.INNKALT,
+                userFnr,
+                virksomhetsnummer1
+            )
+        )
 
         varselService.sendSvarBehovVarsel(userFnr, "")
 
@@ -124,7 +138,7 @@ class VarselServiceTest {
                 aktivFom = LocalDate.now().minusYears(10),
                 aktivTom = null,
                 arbeidsgiverForskutterer = false,
-                timestamp = LocalDateTime.now(),
+                timestamp = now(),
                 status = NarmesteLederRelasjonStatus.INNMELDT_AKTIV
             ),
             NarmesteLederRelasjonDTO(
@@ -139,7 +153,7 @@ class VarselServiceTest {
                 aktivFom = LocalDate.now().minusYears(16),
                 aktivTom = null,
                 arbeidsgiverForskutterer = false,
-                timestamp = LocalDateTime.now(),
+                timestamp = now(),
                 status = NarmesteLederRelasjonStatus.INNMELDT_AKTIV
             )
         )
