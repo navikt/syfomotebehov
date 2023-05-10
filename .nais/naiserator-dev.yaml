@@ -58,6 +58,9 @@ spec:
         - application: isyfomock
           namespace: teamsykefravr
           cluster: dev-gcp
+        - application: tms-min-side-proxy
+          namespace: min-side
+          cluster: dev-gcp
     outbound:
       rules:
         - application: isnarmesteleder

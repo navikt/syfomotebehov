@@ -55,6 +55,9 @@ spec:
         - application: ditt-sykefravaer
           namespace: flex
           cluster: prod-gcp
+        - application: tms-min-side-proxy
+          namespace: min-side
+          cluster: prod-gcp
     outbound:
       rules:
         - application: isnarmesteleder
