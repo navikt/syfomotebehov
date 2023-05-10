@@ -115,6 +115,8 @@ spec:
       value: p
     - name: DIALOGMOTE_FRONTEND_CLIENT_ID
       value: prod-gcp:team-esyfo:dialogmote-frontend
+    - name: TMS_MIN_SIDE_PROXY_CLIENT_ID
+      value: prod-gcp:min-side:tms-min-side-proxy
     - name: SYFOBRUKERTILGANG_CLIENT_ID
       value: prod-fss:team-esyfo:syfobrukertilgang
     - name: TOKENX_IDP

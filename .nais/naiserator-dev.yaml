@@ -118,6 +118,8 @@ spec:
       value: q1
     - name: DIALOGMOTE_FRONTEND_CLIENT_ID
       value: dev-gcp:team-esyfo:dialogmote-frontend
+    - name: TMS_MIN_SIDE_PROXY_CLIENT_ID
+      value: dev-gcp:min-side:tms-min-side-proxy
     - name: SYFOBRUKERTILGANG_CLIENT_ID
       value: dev-fss:team-esyfo:syfobrukertilgang
     - name: TOKENX_IDP
