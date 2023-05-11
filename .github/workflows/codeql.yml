@@ -36,7 +36,8 @@ jobs:
       uses: github/codeql-action/init@v2
       with:
         languages: ${{ matrix.language }}
-
+    - run: |
+        ./gradlew shadowJar -x test
     - name: Autobuild
       uses: github/codeql-action/autobuild@v2
       env:
