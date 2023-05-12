@@ -36,6 +36,23 @@ jobs:
       uses: github/codeql-action/init@v2
       with:
         languages: ${{ matrix.language }}
+    - name: Setup java
+      uses: actions/setup-java@v3
+      with:
+        distribution: adopt
+        java-version: '11.x'
+    - uses: actions/cache@v3
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-cache-${{ hashFiles('build.gradle.kts') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-cache-
+    - uses: actions/cache@v3
+      with:
+        path: ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-wrapper-
     - name: Build
       run: |
         ./gradlew shadowJar -x test
