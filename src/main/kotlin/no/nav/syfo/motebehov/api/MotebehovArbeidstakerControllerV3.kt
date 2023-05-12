@@ -30,19 +30,22 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
     val dialogmoteClientId: String,
     @Value("\${ditt.sykefravaer.frontend.client.id}")
     val dittSykefravaerClientId: String,
+    @Value("\${tms-min-side-proxy.client.id}")
+    val minSideClientId: String,
     @Value("\${tokenx.idp}")
-    val dialogmoteTokenxIdp: String
+    val dialogmoteTokenxIdp: String,
 ) {
     @GetMapping(
         value = ["/motebehov"],
-        produces = [MediaType.APPLICATION_JSON_VALUE]
+        produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun motebehovStatusArbeidstaker(): MotebehovStatus {
         val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
             contextHolder,
             dialogmoteTokenxIdp,
             dialogmoteClientId,
-            dittSykefravaerClientId
+            dittSykefravaerClientId,
+            minSideClientId,
         )
             .fnrFromIdportenTokenX()
 
@@ -56,16 +59,17 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
     @PostMapping(
         value = ["/motebehov"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE]
+        produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun submitMotebehovArbeidstaker(
-        @RequestBody nyttMotebehovSvar: @Valid MotebehovSvar
+        @RequestBody nyttMotebehovSvar: @Valid MotebehovSvar,
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker")
         val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
             contextHolder,
             dialogmoteTokenxIdp,
-            dialogmoteClientId
+            dialogmoteClientId,
+            minSideClientId,
         )
             .fnrFromIdportenTokenX()
 
@@ -73,19 +77,20 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
 
         motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidstaker(
             arbeidstakerFnr,
-            nyttMotebehovSvar
+            nyttMotebehovSvar,
         )
     }
 
     @GetMapping(
         value = ["/motebehov/all"],
-        produces = [MediaType.APPLICATION_JSON_VALUE]
+        produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun motebehovStatusArbeidstakerWithCodeSixUsers(): MotebehovStatus {
         val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
             contextHolder,
             dialogmoteTokenxIdp,
-            dialogmoteClientId
+            dialogmoteClientId,
+            minSideClientId,
         )
             .fnrFromIdportenTokenX()
 
