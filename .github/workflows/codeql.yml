@@ -36,10 +36,9 @@ jobs:
       uses: github/codeql-action/init@v2
       with:
         languages: ${{ matrix.language }}
-    - run: |
+    - name: Build
+      run: |
         ./gradlew shadowJar -x test
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
       env:
         ORG_GRADLE_PROJECT_githubUser: x-access-token
         ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
