@@ -44,7 +44,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                     nyttMotebehov.motebehovSvar,
                     false
                 )
-                if(motebehovStatus.skjemaType == MotebehovSkjemaType.SVAR_BEHOV) {
+                if (motebehovStatus.skjemaType == MotebehovSkjemaType.SVAR_BEHOV) {
                     varselServiceV2.ferdigstillSvarMotebehovVarselForNaermesteLeder(arbeidstakerFnr, innloggetFnr, nyttMotebehov.virksomhetsnummer)
                 }
             } else {
@@ -87,7 +87,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                     motebehovSvar,
                     true
                 )
-                if(motebehovStatus.skjemaType == MotebehovSkjemaType.SVAR_BEHOV) {
+                if (motebehovStatus.skjemaType == MotebehovSkjemaType.SVAR_BEHOV) {
                     varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(arbeidstakerFnr)
                 }
             } else {
