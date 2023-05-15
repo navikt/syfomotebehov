@@ -408,6 +408,8 @@ class MotebehovArbeidstakerControllerV3Test {
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
 
         submitMotebehovAndSendOversikthendelse(motebehovSvar)
+        verify { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ARBEIDSTAKER_FNR) }
+        verify(exactly = 0) { esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(any(), any(), any()) }
 
         mockRestServiceServer.reset()
 
@@ -528,8 +530,6 @@ class MotebehovArbeidstakerControllerV3Test {
         } else {
             verify(exactly = 0) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         }
-        verify { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ARBEIDSTAKER_FNR) }
-        verify(exactly = 0) { esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(any(), any(), any()) }
     }
 
     private fun lagreOgHentMotebehovOgSendOversikthendelse(harBehov: Boolean) {
