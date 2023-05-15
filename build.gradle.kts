@@ -121,6 +121,10 @@ tasks {
             mergeStrategy = "append"
             isZip64 = true
         }
+        configureEach {
+            append("META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports")
+            append("META-INF/spring/org.springframework.boot.actuate.autoconfigure.web.ManagementContextConfiguration.imports")
+        }
         mergeServiceFiles()
     }
 
