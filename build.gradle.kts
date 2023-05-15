@@ -81,7 +81,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-jta-atomikos")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
-    implementation("io.micrometer:micrometer-registry-prometheus:1.8.2")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.10.5")
 
     implementation("no.nav.security:token-validation-spring:${Versions.tokenSupportVersion}")
 
@@ -123,6 +123,7 @@ tasks {
         }
         configureEach {
             append("META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports")
+            append("META-INF/spring/org.springframework.boot.actuate.autoconfigure.web.ManagementContextConfiguration.imports")
         }
         mergeServiceFiles()
     }
