@@ -55,7 +55,7 @@ jobs:
           ${{ runner.os }}-gradle-wrapper-
     - name: Build
       run: |
-        ./gradlew shadowJar -x test
+        ./gradlew shadowJar -x test -Dorg.gradle.jvmargs=-Xmx1g -debug
       env:
         ORG_GRADLE_PROJECT_githubUser: x-access-token
         ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
