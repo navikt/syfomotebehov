@@ -198,6 +198,7 @@ internal class DialogmotekandidatServiceTest {
 
         dialogmotekandidatService.receiveDialogmotekandidatEndring(unntak)
 
-        verify(exactly = 1) { varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLederOgArbeidstaker(any()) }
+        verify(exactly = 1) { varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(any()) }
+        verify(exactly = 1) { varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLedere(any()) }
     }
 }

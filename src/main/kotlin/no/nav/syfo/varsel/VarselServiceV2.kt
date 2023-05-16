@@ -1,5 +1,6 @@
 package no.nav.syfo.varsel
 
+import no.nav.syfo.consumer.narmesteleder.NarmesteLederRelasjonDTO
 import no.nav.syfo.consumer.narmesteleder.NarmesteLederService
 import no.nav.syfo.dialogmote.database.DialogmoteDAO
 import no.nav.syfo.metric.Metric
@@ -35,7 +36,7 @@ class VarselServiceV2 @Inject constructor(
             return
         }
 
-        val narmesteLederRelations = narmesteLederService.getAllNarmesteLederRelations(ansattFnr)
+        val narmesteLederRelations = narmesteLedere(ansattFnr)
 
         val amountOfVirksomheter = narmesteLederRelations?.distinctBy { it.virksomhetsnummer }?.size ?: 0
 
@@ -54,21 +55,21 @@ class VarselServiceV2 @Inject constructor(
         }
     }
 
-    fun ferdigstillSvarMotebehovVarselForNarmesteLederOgArbeidstaker(ansattFnr: String, virksomhetsnummer: String? = null) {
-
-        ferdigstillSvarMotebehovVarselForArbeidstaker(ansattFnr)
-
-        val narmesteLederRelations = narmesteLederService.getAllNarmesteLederRelations(ansattFnr)
-
-        narmesteLederRelations?.forEach {
-            if (virksomhetsnummer == null || virksomhetsnummer.equals(it.virksomhetsnummer)) {
-                log.info("Ferdigstiller varsel til virksomhet ${it.virksomhetsnummer}")
-                ferdigstillSvarMotebehovVarselForNaermesteLeder(ansattFnr, it.narmesteLederPersonIdentNumber, it.virksomhetsnummer)
-            }
+    fun ferdigstillSvarMotebehovVarselForNarmesteLedere(ansattFnr: String) {
+        narmesteLedere(ansattFnr)?.forEach {
+            log.info("Ferdigstiller varsel til virksomhet ${it.virksomhetsnummer}")
+            ferdigstillSvarMotebehovVarselForNarmesteLeder(ansattFnr, it.narmesteLederPersonIdentNumber, it.virksomhetsnummer)
         }
     }
 
-    fun ferdigstillSvarMotebehovVarselForNaermesteLeder(
+    fun ferdigstillSvarMotebehovVarselForNarmesteLeder(ansattFnr: String, virksomhetsnummer: String) {
+        narmesteLeder(ansattFnr, virksomhetsnummer)?.let {
+            log.info("Ferdigstiller varsel til virksomhet ${it.virksomhetsnummer}")
+            ferdigstillSvarMotebehovVarselForNarmesteLeder(ansattFnr, it.narmesteLederPersonIdentNumber, it.virksomhetsnummer)
+        }
+    }
+
+    fun ferdigstillSvarMotebehovVarselForNarmesteLeder(
         ansattFnr: String,
         naermesteLederFnr: String,
         virksomhetsnummer: String
@@ -124,6 +125,14 @@ class VarselServiceV2 @Inject constructor(
             metric.tellHendelse("varsel_arbeidstaker_not_sent_motebehov_not_available")
             log.info("Not sending Varsel to Arbeidstaker because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")
         }
+    }
+
+    private fun narmesteLeder(ansattFnr: String, virksomhetsnummer: String): NarmesteLederRelasjonDTO? {
+        return narmesteLedere(ansattFnr)?.firstOrNull { virksomhetsnummer.equals(it.virksomhetsnummer) }
+    }
+
+    private fun narmesteLedere(ansattFnr: String): List<NarmesteLederRelasjonDTO>? {
+        return narmesteLederService.getAllNarmesteLederRelations(ansattFnr)
     }
 
     private fun logDialogmoteAlleredePlanlagt() {

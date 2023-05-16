@@ -92,7 +92,8 @@ internal class DialogmoteStatusServiceTest {
         assertThat(moteFraDBAfter.size).isEqualTo(1)
         assertThat(moteFraDBAfter[0].personIdent).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
 
-        verify(exactly = 1) { varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLederOgArbeidstaker(any(), any()) }
+        verify(exactly = 1) { varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(any()) }
+        verify(exactly = 1) { varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLeder(any(), any()) }
     }
 
     @Test

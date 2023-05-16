@@ -59,7 +59,8 @@ class DialogmoteStatusService @Inject constructor(
         }
 
         if (DialogmoteStatusEndringType.INNKALT.name == statusEndringType) {
-            varselService.ferdigstillSvarMotebehovVarselForNarmesteLederOgArbeidstaker(fnr, virksomhetsnummer)
+            varselService.ferdigstillSvarMotebehovVarselForArbeidstaker(fnr)
+            varselService.ferdigstillSvarMotebehovVarselForNarmesteLeder(fnr, virksomhetsnummer)
         }
     }
 
