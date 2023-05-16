@@ -63,6 +63,9 @@ spec:
         - application: isnarmesteleder
           namespace: teamsykefravr
           cluster: prod-gcp
+        - application: syfo-tilgangskontroll
+          namespace: teamsykefravr
+          cluster: prod-gcp
   azure:
     application:
       allowAllUsers: true
@@ -102,9 +105,9 @@ spec:
     - name: SYFOBRUKERTILGANG_URL
       value: https://syfobrukertilgang.nais.adeo.no
     - name: SYFOTILGANGSKONTROLL_CLIENT_ID
-      value: "prod-fss.teamsykefravr.syfo-tilgangskontroll"
+      value: "prod-gcp.teamsykefravr.syfo-tilgangskontroll"
     - name: TILGANGSKONTROLLAPI_URL
-      value: https://syfo-tilgangskontroll.nais.adeo.no/syfo-tilgangskontroll/api/tilgang
+      value: https://syfo-tilgangskontroll.intern.nav.no/syfo-tilgangskontroll/api/tilgang
     - name: SECURITY_TOKEN_SERVICE_REST_URL
       value: https://security-token-service.nais.adeo.no
     - name: SYFOBEHANDLENDEENHET_CLIENT_ID
