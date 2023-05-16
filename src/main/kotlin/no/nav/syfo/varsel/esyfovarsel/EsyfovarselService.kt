@@ -30,7 +30,7 @@ class EsyfovarselService(private val producer: EsyfovarselProducer) {
     fun ferdigstillSvarMotebehovForArbeidsgiver(narmestelederFnr: String, ansattFnr: String, orgnummer: String) {
         val esyfovarselHendelse = NarmesteLederHendelse(
             HendelseType.NL_DIALOGMOTE_SVAR_MOTEBEHOV,
-            VarselData(VarselStatus(true)),
+            VarselData(VarselStatus(ferdigstilt = true)),
             narmestelederFnr,
             ansattFnr,
             orgnummer
@@ -41,7 +41,7 @@ class EsyfovarselService(private val producer: EsyfovarselProducer) {
     fun ferdigstillSvarMotebehovForArbeidstaker(ansattFnr: String) {
         val esyfovarselHendelse = ArbeidstakerHendelse(
             HendelseType.SM_DIALOGMOTE_SVAR_MOTEBEHOV,
-            VarselData(VarselStatus(true)),
+            VarselData(VarselStatus(ferdigstilt = true)),
             ansattFnr,
             null
         )
