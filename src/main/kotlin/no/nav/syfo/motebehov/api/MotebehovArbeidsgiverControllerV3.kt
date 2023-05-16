@@ -29,34 +29,33 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
     @Value("\${dialogmote.frontend.client.id}")
     val dialogmoteClientId: String,
     @Value("\${tokenx.idp}")
-    val dialogmoteTokenxIdp: String
+    val dialogmoteTokenxIdp: String,
 ) {
     @GetMapping(
         value = ["/motebehov"],
-        produces = [MediaType.APPLICATION_JSON_VALUE]
+        produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun motebehovStatusArbeidsgiver(
         @RequestParam(name = "fnr") arbeidstakerFnr: @Pattern(regexp = "^[0-9]{11}$") String,
-        @RequestParam(name = "virksomhetsnummer") virksomhetsnummer: String
+        @RequestParam(name = "virksomhetsnummer") virksomhetsnummer: String,
     ): MotebehovStatus {
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver")
         TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteTokenxIdp, dialogmoteClientId)
-        val ansattFnr = arbeidstakerFnr
-        brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(ansattFnr)
+        brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(arbeidstakerFnr)
 
         val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
-        val isOwnLeader = arbeidsgiverFnr == ansattFnr
+        val isOwnLeader = arbeidsgiverFnr == arbeidstakerFnr
 
-        return motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(ansattFnr, isOwnLeader, virksomhetsnummer)
+        return motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(arbeidstakerFnr, isOwnLeader, virksomhetsnummer)
     }
 
     @PostMapping(
         value = ["/motebehov"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE]
+        produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun lagreMotebehovArbeidsgiver(
-        @RequestBody nyttMotebehov: @Valid NyttMotebehovArbeidsgiver
+        @RequestBody nyttMotebehov: @Valid NyttMotebehovArbeidsgiver,
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
         val innloggetFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteTokenxIdp, dialogmoteClientId)
@@ -71,7 +70,7 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
             innloggetFnr,
             ansattFnr,
             isOwnLeader,
-            nyttMotebehov
+            nyttMotebehov,
         )
     }
 }
