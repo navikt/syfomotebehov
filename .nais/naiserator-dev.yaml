@@ -69,6 +69,9 @@ spec:
         - application: syfo-tilgangskontroll
           namespace: teamsykefravr
           cluster: dev-gcp
+        - application: syfobrukertilgang
+          namespace: team-esyfo
+          cluster: dev-gcp
   azure:
     application:
       allowAllUsers: true
@@ -106,7 +109,7 @@ spec:
     - name: PDL_URL
       value: https://pdl-api.nais.preprod.local/graphql
     - name: SYFOBRUKERTILGANG_URL
-      value: https://syfobrukertilgang.nais.preprod.local
+      value: https://syfobrukertilgang.intern.dev.nav.no
     - name: SYFOTILGANGSKONTROLL_CLIENT_ID
       value: "dev-gcp.teamsykefravr.syfo-tilgangskontroll"
     - name: TILGANGSKONTROLLAPI_URL
