@@ -66,6 +66,12 @@ spec:
         - application: isnarmesteleder
           namespace: teamsykefravr
           cluster: dev-gcp
+        - application: syfo-tilgangskontroll
+          namespace: teamsykefravr
+          cluster: dev-gcp
+        - application: syfobrukertilgang
+          namespace: team-esyfo
+          cluster: dev-gcp
   azure:
     application:
       allowAllUsers: true
@@ -103,11 +109,11 @@ spec:
     - name: PDL_URL
       value: https://pdl-api.nais.preprod.local/graphql
     - name: SYFOBRUKERTILGANG_URL
-      value: https://syfobrukertilgang.nais.preprod.local
+      value: https://syfobrukertilgang.intern.dev.nav.no
     - name: SYFOTILGANGSKONTROLL_CLIENT_ID
-      value: "dev-fss.teamsykefravr.syfo-tilgangskontroll"
+      value: "dev-gcp.teamsykefravr.syfo-tilgangskontroll"
     - name: TILGANGSKONTROLLAPI_URL
-      value: https://syfo-tilgangskontroll.nais.preprod.local/syfo-tilgangskontroll/api/tilgang
+      value: https://syfo-tilgangskontroll.intern.dev.nav.no/syfo-tilgangskontroll/api/tilgang
     - name: SECURITY_TOKEN_SERVICE_REST_URL
       value: https://security-token-service.nais.preprod.local
     - name: SYFOBEHANDLENDEENHET_CLIENT_ID

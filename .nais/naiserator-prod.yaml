@@ -63,6 +63,12 @@ spec:
         - application: isnarmesteleder
           namespace: teamsykefravr
           cluster: prod-gcp
+        - application: syfo-tilgangskontroll
+          namespace: teamsykefravr
+          cluster: prod-gcp
+        - application: syfobrukertilgang
+          namespace: team-esyfo
+          cluster: prod-gcp
   azure:
     application:
       allowAllUsers: true
@@ -100,11 +106,11 @@ spec:
     - name: PDL_URL
       value: https://pdl-api.nais.adeo.no/graphql
     - name: SYFOBRUKERTILGANG_URL
-      value: https://syfobrukertilgang.nais.adeo.no
+      value: https://syfobrukertilgang.intern.nav.no
     - name: SYFOTILGANGSKONTROLL_CLIENT_ID
-      value: "prod-fss.teamsykefravr.syfo-tilgangskontroll"
+      value: "prod-gcp.teamsykefravr.syfo-tilgangskontroll"
     - name: TILGANGSKONTROLLAPI_URL
-      value: https://syfo-tilgangskontroll.nais.adeo.no/syfo-tilgangskontroll/api/tilgang
+      value: https://syfo-tilgangskontroll.intern.nav.no/syfo-tilgangskontroll/api/tilgang
     - name: SECURITY_TOKEN_SERVICE_REST_URL
       value: https://security-token-service.nais.adeo.no
     - name: SYFOBEHANDLENDEENHET_CLIENT_ID
@@ -118,7 +124,7 @@ spec:
     - name: TMS_MIN_SIDE_PROXY_CLIENT_ID
       value: prod-gcp:min-side:tms-min-side-proxy
     - name: SYFOBRUKERTILGANG_CLIENT_ID
-      value: prod-fss:team-esyfo:syfobrukertilgang
+      value: prod-gcp:team-esyfo:syfobrukertilgang
     - name: TOKENX_IDP
       value: https://oidc.difi.no/idporten-oidc-provider/
     - name: DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID
