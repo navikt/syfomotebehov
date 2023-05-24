@@ -5,7 +5,6 @@ import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.tokenX.TokenXUtil
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.TokenXIssuer
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
-import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.MotebehovSvar
@@ -25,7 +24,6 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
     private val metric: Metric,
     private val motebehovStatusServiceV2: MotebehovStatusServiceV2,
     private val motebehovOppfolgingstilfelleServiceV2: MotebehovOppfolgingstilfelleServiceV2,
-    private val brukertilgangService: BrukertilgangService,
     @Value("\${dialogmote.frontend.client.id}")
     val dialogmoteClientId: String,
     @Value("\${ditt.sykefravaer.frontend.client.id}")
@@ -49,8 +47,6 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         )
             .fnrFromIdportenTokenX()
 
-        brukertilgangService.kastExceptionHvisIkkeTilgangTilSegSelv(arbeidstakerFnr)
-
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker")
 
         return motebehovStatusServiceV2.motebehovStatusForArbeidstaker(arbeidstakerFnr)
@@ -72,8 +68,6 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
             minSideClientId,
         )
             .fnrFromIdportenTokenX()
-
-        brukertilgangService.kastExceptionHvisIkkeTilgangTilSegSelv(arbeidstakerFnr)
 
         motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidstaker(
             arbeidstakerFnr,
