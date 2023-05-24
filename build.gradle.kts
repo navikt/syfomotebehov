@@ -23,7 +23,7 @@ plugins {
     id("java")
     id("org.jetbrains.kotlin.plugin.allopen") version "1.6.10"
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("org.springframework.boot") version "2.6.6"
+    id("org.springframework.boot") version "2.7.11"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
 }
@@ -81,7 +81,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-jta-atomikos")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
-    implementation("io.micrometer:micrometer-registry-prometheus:1.8.2")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.10.5")
 
     implementation("no.nav.security:token-validation-spring:${Versions.tokenSupportVersion}")
 
@@ -120,6 +120,10 @@ tasks {
             paths = listOf("META-INF/spring.factories")
             mergeStrategy = "append"
             isZip64 = true
+        }
+        configureEach {
+            append("META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports")
+            append("META-INF/spring/org.springframework.boot.actuate.autoconfigure.web.ManagementContextConfiguration.imports")
         }
         mergeServiceFiles()
     }
