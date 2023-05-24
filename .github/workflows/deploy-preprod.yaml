@@ -9,6 +9,10 @@ jobs:
   build:
     name: Checkout code and create docker tag
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
     env:
       ORG_GRADLE_PROJECT_githubUser: x-access-token
       ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
