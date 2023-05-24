@@ -3,7 +3,6 @@ package no.nav.syfo.consumer.brukertilgang
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.consumer.pdl.PdlConsumer
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -20,30 +19,14 @@ class BrukertilgangskontrollServiceTest {
     @MockkBean
     private lateinit var brukertilgangConsumer: BrukertilgangConsumer
 
-    @MockkBean
-    private lateinit var pdlConsumer: PdlConsumer
-
     @Autowired
     private lateinit var tilgangskontrollService: BrukertilgangService
-
-    @Test
-    fun harTilgangTilOppslaattBrukerGirFalseNaarOppslaattBrukerErKode6() {
-        val innloggetFnr = "3333333"
-        val oppslattFnr = "11038973567"
-
-        every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns true
-        every { pdlConsumer.isKode6(oppslattFnr) } returns true
-
-        val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(innloggetFnr, oppslattFnr)
-        Assertions.assertEquals(false, tilgang)
-    }
 
     @Test
     fun harTilgangTilOppslaattBrukerGirTrueNaarManSporOmSegSelv() {
         val oppslattFnr = "10038973552"
 
         every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns false
-        every { pdlConsumer.isKode6(oppslattFnr) } returns false
 
         val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(oppslattFnr, oppslattFnr)
         Assertions.assertEquals(true, tilgang)
@@ -55,7 +38,6 @@ class BrukertilgangskontrollServiceTest {
         val oppslattFnr = "10038973561"
 
         every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns true
-        every { pdlConsumer.isKode6(oppslattFnr) } returns false
 
         val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(innloggetFnr, oppslattFnr)
         Assertions.assertEquals(true, tilgang)
