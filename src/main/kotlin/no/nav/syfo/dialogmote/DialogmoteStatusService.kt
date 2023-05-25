@@ -7,12 +7,14 @@ import no.nav.syfo.dialogmote.database.DialogmoteDAO
 import no.nav.syfo.dialogmote.database.Dialogmote
 import no.nav.syfo.dialogmote.database.DialogmoteStatusEndringType
 import no.nav.syfo.util.convertInstantToLocalDateTime
+import no.nav.syfo.varsel.VarselServiceV2
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
 class DialogmoteStatusService @Inject constructor(
-    private val dialogmoteDAO: DialogmoteDAO
+    private val dialogmoteDAO: DialogmoteDAO,
+    private val varselService: VarselServiceV2
 ) {
     fun receiveKDialogmoteStatusendring(kDialogmote: KDialogmoteStatusEndring) {
         LOG.info("Received record isdialogmote statusendring")
@@ -54,6 +56,11 @@ class DialogmoteStatusService @Inject constructor(
                     dialogmoteDAO.delete(fnr, virksomhetsnummer, moteExternUUID)
                 }
             }
+        }
+
+        if (DialogmoteStatusEndringType.INNKALT.name == statusEndringType) {
+            varselService.ferdigstillSvarMotebehovVarselForArbeidstaker(fnr)
+            varselService.ferdigstillSvarMotebehovVarselForNarmesteLeder(fnr, virksomhetsnummer)
         }
     }
 

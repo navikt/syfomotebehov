@@ -13,7 +13,7 @@ import javax.inject.Inject
 @Service
 class DialogmotekandidatService @Inject constructor(
     private val dialogmotekandidatDAO: DialogmotekandidatDAO,
-    private val varselServiceV2: VarselServiceV2
+    private val varselServiceV2: VarselServiceV2,
 ) {
     fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
         log.info("Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} og arsak ${dialogmotekandidatEndring.arsak}")
@@ -52,13 +52,15 @@ class DialogmotekandidatService @Inject constructor(
         }
 
         // Send svar behov varsel if no kandidat==true exists from before
-        val isNotKandidatFromBefore = existingKandidat == null || !existingKandidat.kandidat
+        val isKandidatFromBefore = existingKandidat != null && existingKandidat.kandidat
 
-        if (!isNotKandidatFromBefore) {
+        if (!dialogmotekandidatEndring.kandidat) {
+            log.info("Ferdigstill varsel because message has kandidat=false")
+            varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(ansattFnr)
+            varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLedere(ansattFnr)
+        } else if (isKandidatFromBefore) {
             log.info("Not sending varsel because person is kandidat from before")
             return
-        } else if (!dialogmotekandidatEndring.kandidat) {
-            log.info("Not sending varsel because message has kandidat=false")
         } else {
             varselServiceV2.sendSvarBehovVarsel(ansattFnr, dialogmotekandidatEndring.uuid)
         }

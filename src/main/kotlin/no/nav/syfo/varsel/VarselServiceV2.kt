@@ -1,7 +1,8 @@
 package no.nav.syfo.varsel
 
+import no.nav.syfo.consumer.narmesteleder.NarmesteLederRelasjonDTO
 import no.nav.syfo.consumer.narmesteleder.NarmesteLederService
-import no.nav.syfo.dialogmote.DialogmoteStatusService
+import no.nav.syfo.dialogmote.database.DialogmoteDAO
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusHelper
@@ -20,25 +21,22 @@ class VarselServiceV2 @Inject constructor(
     private val motebehovStatusHelper: MotebehovStatusHelper,
     private val oppfolgingstilfelleService: OppfolgingstilfelleService,
     private val esyfovarselService: EsyfovarselService,
-    private val dialogmoteStatusService: DialogmoteStatusService,
-    private val narmesteLederService: NarmesteLederService
+    private val narmesteLederService: NarmesteLederService,
+    private val dialogmoteDAO: DialogmoteDAO
 ) {
     fun sendSvarBehovVarsel(ansattFnr: String, kandidatUuid: String) {
         val ansattesOppfolgingstilfelle =
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(ansattFnr)
 
-        val isDialogmoteAlleredePlanlagt = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
-            ansattFnr,
-            null,
-            ansattesOppfolgingstilfelle?.fom ?: LocalDate.now()
-        )
+        val isDialogmoteAlleredePlanlagt =
+            dialogmoteDAO.getAktiveDialogmoterEtterDato(ansattFnr, ansattesOppfolgingstilfelle?.fom ?: LocalDate.now()).isNotEmpty()
 
         if (isDialogmoteAlleredePlanlagt) {
             logDialogmoteAlleredePlanlagt()
             return
         }
 
-        val narmesteLederRelations = narmesteLederService.getAllNarmesteLederRelations(ansattFnr)
+        val narmesteLederRelations = narmesteLedere(ansattFnr)
 
         val amountOfVirksomheter = narmesteLederRelations?.distinctBy { it.virksomhetsnummer }?.size ?: 0
 
@@ -55,6 +53,32 @@ class VarselServiceV2 @Inject constructor(
                 it.virksomhetsnummer
             )
         }
+    }
+
+    fun ferdigstillSvarMotebehovVarselForNarmesteLedere(ansattFnr: String) {
+        narmesteLedere(ansattFnr)?.forEach {
+            log.info("Ferdigstiller varsel til virksomhet ${it.virksomhetsnummer}")
+            ferdigstillSvarMotebehovVarselForNarmesteLeder(ansattFnr, it.narmesteLederPersonIdentNumber, it.virksomhetsnummer)
+        }
+    }
+
+    fun ferdigstillSvarMotebehovVarselForNarmesteLeder(ansattFnr: String, virksomhetsnummer: String) {
+        narmesteLeder(ansattFnr, virksomhetsnummer)?.let {
+            log.info("Ferdigstiller varsel til virksomhet ${it.virksomhetsnummer}")
+            ferdigstillSvarMotebehovVarselForNarmesteLeder(ansattFnr, it.narmesteLederPersonIdentNumber, it.virksomhetsnummer)
+        }
+    }
+
+    fun ferdigstillSvarMotebehovVarselForNarmesteLeder(
+        ansattFnr: String,
+        naermesteLederFnr: String,
+        virksomhetsnummer: String
+    ) {
+        esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(naermesteLederFnr, ansattFnr, virksomhetsnummer)
+    }
+
+    fun ferdigstillSvarMotebehovVarselForArbeidstaker(ansattFnr: String) {
+        esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ansattFnr)
     }
 
     private fun sendVarselTilNaermesteLeder(
@@ -101,6 +125,14 @@ class VarselServiceV2 @Inject constructor(
             metric.tellHendelse("varsel_arbeidstaker_not_sent_motebehov_not_available")
             log.info("Not sending Varsel to Arbeidstaker because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")
         }
+    }
+
+    private fun narmesteLeder(ansattFnr: String, virksomhetsnummer: String): NarmesteLederRelasjonDTO? {
+        return narmesteLedere(ansattFnr)?.firstOrNull { virksomhetsnummer.equals(it.virksomhetsnummer) }
+    }
+
+    private fun narmesteLedere(ansattFnr: String): List<NarmesteLederRelasjonDTO>? {
+        return narmesteLederService.getAllNarmesteLederRelations(ansattFnr)
     }
 
     private fun logDialogmoteAlleredePlanlagt() {

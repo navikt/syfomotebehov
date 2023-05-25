@@ -1,11 +1,14 @@
 package no.nav.syfo.dialogmote
 
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.verify
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring
 import no.nav.syfo.dialogmote.database.DialogmoteDAO
 import no.nav.syfo.dialogmote.database.DialogmoteStatusEndringType
 import no.nav.syfo.testhelper.UserConstants
 import no.nav.syfo.util.convertLocalDateTimeToInstant
+import no.nav.syfo.varsel.VarselServiceV2
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -33,6 +36,9 @@ internal class DialogmoteStatusServiceTest {
 
     @Inject
     private lateinit var dialogmoteStatusService: DialogmoteStatusService
+
+    @MockkBean(relaxed = true)
+    private lateinit var varselServiceV2: VarselServiceV2
 
     val externMoteUUID = "bae778f2-a085-11e8-98d0-529269fb1459"
     val dialogmotetidspunkt = convertLocalDateTimeToInstant(LocalDateTime.now().plusWeeks(4))
@@ -85,6 +91,9 @@ internal class DialogmoteStatusServiceTest {
 
         assertThat(moteFraDBAfter.size).isEqualTo(1)
         assertThat(moteFraDBAfter[0].personIdent).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
+
+        verify(exactly = 1) { varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(any()) }
+        verify(exactly = 1) { varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLeder(any(), any()) }
     }
 
     @Test

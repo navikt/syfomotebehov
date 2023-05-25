@@ -32,6 +32,7 @@ import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import no.nav.syfo.testhelper.generator.generateOppfolgingstilfellePerson
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.generator.generateStsToken
+import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
@@ -94,6 +95,9 @@ class MotebehovArbeidstakerControllerV3Test {
 
     @Autowired
     private lateinit var restTemplate: RestTemplate
+
+    @MockkBean(relaxed = true)
+    private lateinit var esyfovarselService: EsyfovarselService
 
     @MockkBean
     private lateinit var pdlConsumer: PdlConsumer
@@ -404,6 +408,8 @@ class MotebehovArbeidstakerControllerV3Test {
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
 
         submitMotebehovAndSendOversikthendelse(motebehovSvar)
+        verify { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ARBEIDSTAKER_FNR) }
+        verify(exactly = 0) { esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(any(), any(), any()) }
 
         mockRestServiceServer.reset()
 
@@ -559,6 +565,8 @@ class MotebehovArbeidstakerControllerV3Test {
         } else {
             verify(exactly = 0) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         }
+        verify { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(motebehov.arbeidstakerFnr) }
+        verify(exactly = 0) { esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(any(), any(), any()) }
     }
 
     private fun mockBehandlendEnhetWithTilgangskontroll(fnr: String) {

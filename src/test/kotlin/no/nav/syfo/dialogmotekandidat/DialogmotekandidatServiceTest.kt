@@ -164,6 +164,7 @@ internal class DialogmotekandidatServiceTest {
         dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
 
         verify(exactly = 1) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
+        verify(exactly = 0) { varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(any()) }
     }
 
     @Test
@@ -177,5 +178,27 @@ internal class DialogmotekandidatServiceTest {
         dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
 
         verify(exactly = 0) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
+    }
+
+    @Test
+    fun skalFerdigsstilleVarselDersomIkkeKandidat() {
+        val forsteGangKandidat = generateDialogmotekandidatEndring(
+            kandidat = true,
+            arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
+            OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
+        )
+
+        dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
+
+        val unntak = generateDialogmotekandidatEndring(
+            kandidat = false,
+            arsak = DialogmotekandidatEndringArsak.UNNTAK.name,
+            OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
+        )
+
+        dialogmotekandidatService.receiveDialogmotekandidatEndring(unntak)
+
+        verify(exactly = 1) { varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(any()) }
+        verify(exactly = 1) { varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLedere(any()) }
     }
 }
