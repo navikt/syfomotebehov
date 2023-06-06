@@ -38,18 +38,21 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun motebehovStatusArbeidstaker(): MotebehovStatus {
-        val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
+        TokenXUtil.validateTokenXClaims(
             contextHolder,
             dialogmoteTokenxIdp,
-            dialogmoteClientId,
             dittSykefravaerClientId,
-            minSideClientId,
         )
             .fnrFromIdportenTokenX()
 
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker")
 
-        return motebehovStatusServiceV2.motebehovStatusForArbeidstaker(arbeidstakerFnr)
+        // This endpoint is only used by Ditt sykefravær. Should be removed when they stop calling it. Until then, return empty result
+        return MotebehovStatus(
+            false,
+            null,
+            null,
+        )
     }
 
     @PostMapping(
