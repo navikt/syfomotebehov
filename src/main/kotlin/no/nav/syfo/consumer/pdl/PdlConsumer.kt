@@ -136,7 +136,7 @@ class PdlConsumer(
         val stsToken: String = stsConsumer.token()
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
-        headers.set(TEMA_HEADER, ALLE_TEMA_HEADERVERDI)
+        headers.set(PDL_BEHANDLINGSNUMMER_HEADER, BEHANDLINGSNUMMER_MOTEBEHOV)
         headers.set(AUTHORIZATION, bearerCredentials(stsToken))
         headers.set(NAV_CONSUMER_TOKEN_HEADER, bearerCredentials(stsToken))
         return HttpEntity(request, headers)
