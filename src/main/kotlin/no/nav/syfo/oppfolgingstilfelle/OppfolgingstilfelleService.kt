@@ -5,7 +5,6 @@ import no.nav.syfo.oppfolgingstilfelle.database.*
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfellePerson
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.previouslyProcessed
 import org.springframework.stereotype.Service
-import java.time.LocalDate
 import javax.inject.Inject
 
 @Service
@@ -54,7 +53,7 @@ class OppfolgingstilfelleService @Inject constructor(
         arbeidstakerFnr: String,
     ): List<PersonVirksomhetOppfolgingstilfelle> {
         return getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr).filter {
-            it.isDateInOppfolgingstilfelle(LocalDate.now())
+            it.isActiveLast16Days()
         }.map {
             it.mapToPersonVirksomhetOppfolgingstilfelle()
         }
@@ -66,7 +65,7 @@ class OppfolgingstilfelleService @Inject constructor(
     ): PersonOppfolgingstilfelle? {
         val oppfolgingstilfelleList = getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr)
         val oppfolgingstilfelleVirksomhet = oppfolgingstilfelleList.find { it.virksomhetsnummer == virksomhetsnummer }
-        return if (oppfolgingstilfelleVirksomhet != null && oppfolgingstilfelleVirksomhet.isDateInOppfolgingstilfelle(LocalDate.now())) {
+        return if (oppfolgingstilfelleVirksomhet != null && oppfolgingstilfelleVirksomhet.isActiveLast16Days()) {
             getActiveOppfolgingstilfelle(arbeidstakerFnr, oppfolgingstilfelleList)
         } else {
             null
