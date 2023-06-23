@@ -18,13 +18,13 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
     private val motebehovService: MotebehovService,
     private val motebehovStatusServiceV2: MotebehovStatusServiceV2,
     private val oppfolgingstilfelleService: OppfolgingstilfelleService,
-    private val varselServiceV2: VarselServiceV2
+    private val varselServiceV2: VarselServiceV2,
 ) {
     fun createMotebehovForArbeidgiver(
         innloggetFnr: String,
         arbeidstakerFnr: String,
         isOwnLeader: Boolean,
-        nyttMotebehov: NyttMotebehovArbeidsgiver
+        nyttMotebehov: NyttMotebehovArbeidsgiver,
     ) {
         val activeOppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, nyttMotebehov.virksomhetsnummer)
         if (activeOppfolgingstilfelle != null) {
@@ -36,13 +36,13 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                     arbeidstakerFnr,
                     nyttMotebehov.virksomhetsnummer,
                     motebehovStatus.skjemaType!!,
-                    nyttMotebehov.motebehovSvar
+                    nyttMotebehov.motebehovSvar,
                 )
                 metric.tellBesvarMotebehov(
                     activeOppfolgingstilfelle,
                     motebehovStatus.skjemaType,
                     nyttMotebehov.motebehovSvar,
-                    false
+                    false,
                 )
                 if (motebehovStatus.skjemaType == MotebehovSkjemaType.SVAR_BEHOV) {
                     varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLeder(arbeidstakerFnr, innloggetFnr, nyttMotebehov.virksomhetsnummer)
@@ -53,7 +53,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
             }
         } else {
             metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSGIVER)
-            throwCreateMotebehovFailed("Failed to create Motebehov for Arbeidsgiver: Found no Virksomhetsnummer with active Oppfolgingstilfelle for ${nyttMotebehov.virksomhetsnummer}")
+            throwCreateMotebehovFailed("Failed to create Motebehov for Arbeidsgiver: Found no active Oppfolgingstilfelle for ${nyttMotebehov.virksomhetsnummer}")
         }
     }
 
@@ -78,14 +78,14 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                         arbeidstakerFnr,
                         virksomhetsnummer,
                         motebehovStatus.skjemaType!!,
-                        motebehovSvar
+                        motebehovSvar,
                     )
                 }
                 metric.tellBesvarMotebehov(
                     activeOppolgingstilfelle,
                     motebehovStatus.skjemaType,
                     motebehovSvar,
-                    true
+                    true,
                 )
                 if (motebehovStatus.skjemaType == MotebehovSkjemaType.SVAR_BEHOV) {
                     varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(arbeidstakerFnr)
