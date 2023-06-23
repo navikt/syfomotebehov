@@ -85,10 +85,10 @@ class OppfolgingstilfelleService @Inject constructor(
         val oppfolgingstilfelleList = oppfolgingstilfelleDAO.get(arbeidstakerFnr)
 
         val activeOppfolgingstilfelleList = oppfolgingstilfelleList.filter {
-            it.isDateInOppfolgingstilfelle(LocalDate.now())
+            it.isActiveLast16Days()
         }
         val expiredOppfolgingstilfelleList = oppfolgingstilfelleList.filterNot {
-            it.isDateInOppfolgingstilfelle(LocalDate.now())
+            it.isActiveLast16Days()
         }
         return when {
             activeOppfolgingstilfelleList.isEmpty() -> {
