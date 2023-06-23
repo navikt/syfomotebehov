@@ -58,7 +58,7 @@ class MotebehovStatusServiceTest {
     @Test
     fun kandidatWithNoDialogmoteGivesStatusSvarBehov() {
         every { dialogmoteStatusService.isDialogmotePlanlagtEtterDato(userFnr, null, any()) } returns false
-        every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(userFnr) } returns createOppfolgingstilfelle()
+        every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleLast16daysForArbeidstaker(userFnr) } returns createOppfolgingstilfelle()
         every { motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(userFnr) } returns emptyList()
         every { dialogmotekandidatService.getDialogmotekandidatStatus(userFnr) } returns createDialogmoteKandidatEndring()
         val motebehovStatusForArbeidstaker =
@@ -70,7 +70,7 @@ class MotebehovStatusServiceTest {
     @Test
     fun kandidatWithDialogmoteGivesNoMotebehov() {
         every { dialogmoteStatusService.isDialogmotePlanlagtEtterDato(userFnr, null, any()) } returns true
-        every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(userFnr) } returns createOppfolgingstilfelle()
+        every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleLast16daysForArbeidstaker(userFnr) } returns createOppfolgingstilfelle()
         every { motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(userFnr) } returns emptyList()
         every { dialogmotekandidatService.getDialogmotekandidatStatus(userFnr) } returns createDialogmoteKandidatEndring()
 
@@ -83,7 +83,7 @@ class MotebehovStatusServiceTest {
     @Test
     fun noDialogmoteAndNoKandidatGivesMeldBehov() {
         every { dialogmoteStatusService.isDialogmotePlanlagtEtterDato(userFnr, null, any()) } returns false
-        every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(userFnr) } returns createOppfolgingstilfelle()
+        every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleLast16daysForArbeidstaker(userFnr) } returns createOppfolgingstilfelle()
         every { motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(userFnr) } returns emptyList()
         every { dialogmotekandidatService.getDialogmotekandidatStatus(userFnr) } returns null
 

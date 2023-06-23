@@ -174,8 +174,8 @@ class MotebehovArbeidstakerControllerV3Test {
         dbCreateOppfolgingstilfelle(
             oppfolgingstilfelleDAO,
             generateOppfolgingstilfellePerson(
-                start = LocalDate.now().minusDays(10),
-                end = LocalDate.now().minusDays(1),
+                start = LocalDate.now().minusDays(17),
+                end = LocalDate.now().minusDays(16),
             ),
         )
 

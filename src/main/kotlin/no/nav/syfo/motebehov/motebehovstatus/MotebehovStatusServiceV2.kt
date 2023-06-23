@@ -21,7 +21,7 @@ class MotebehovStatusServiceV2 @Inject constructor(
         arbeidstakerFnr: String
     ): MotebehovStatus {
         val oppfolgingstilfelle =
-            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
+            oppfolgingstilfelleService.getActiveOppfolgingstilfelleLast16daysForArbeidstaker(arbeidstakerFnr)
         val hasUpcomingDialogmote: Boolean = hasUpcomingDialogmote(arbeidstakerFnr, null, oppfolgingstilfelle)
         val motebehovList: List<Motebehov> =
             motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr)
