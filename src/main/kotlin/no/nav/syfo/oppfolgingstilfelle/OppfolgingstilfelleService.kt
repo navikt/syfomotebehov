@@ -5,7 +5,6 @@ import no.nav.syfo.oppfolgingstilfelle.database.*
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfellePerson
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.previouslyProcessed
 import org.springframework.stereotype.Service
-import java.time.LocalDate
 import java.time.LocalDate.now
 import javax.inject.Inject
 
