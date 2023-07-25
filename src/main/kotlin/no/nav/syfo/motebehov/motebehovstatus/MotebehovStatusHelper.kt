@@ -5,9 +5,8 @@ import no.nav.syfo.motebehov.isCreatedInOppfolgingstilfelle
 import no.nav.syfo.motebehov.isSvarBehovForOppfolgingstilfelle
 import no.nav.syfo.motebehov.isUbehandlet
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
-import no.nav.syfo.oppfolgingstilfelle.database.isDateInOppfolgingstilfelle
+import no.nav.syfo.oppfolgingstilfelle.database.isSykmeldtNow
 import org.springframework.stereotype.Component
-import java.time.LocalDate
 
 const val WEEKS_START_SVAR_BEHOV = 16
 const val DAYS_START_SVAR_BEHOV = WEEKS_START_SVAR_BEHOV * 7L
@@ -49,7 +48,7 @@ class MotebehovStatusHelper {
         oppfolgingstilfelle: PersonOppfolgingstilfelle?,
     ): Boolean {
         oppfolgingstilfelle?.let {
-            if (!oppfolgingstilfelle.isDateInOppfolgingstilfelle(LocalDate.now())) {
+            if (!oppfolgingstilfelle.isSykmeldtNow()) {
                 return false
             }
 

@@ -53,7 +53,7 @@ class OppfolgingstilfelleService @Inject constructor(
         arbeidstakerFnr: String,
     ): List<PersonVirksomhetOppfolgingstilfelle> {
         return getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr).filter {
-            it.isActiveLast16Days()
+            it.isSykmeldtLast16Days()
         }.map {
             it.mapToPersonVirksomhetOppfolgingstilfelle()
         }
@@ -65,7 +65,7 @@ class OppfolgingstilfelleService @Inject constructor(
     ): PersonOppfolgingstilfelle? {
         val oppfolgingstilfelleList = getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr)
         val oppfolgingstilfelleVirksomhet = oppfolgingstilfelleList.find { it.virksomhetsnummer == virksomhetsnummer }
-        return if (oppfolgingstilfelleVirksomhet != null && oppfolgingstilfelleVirksomhet.isActiveLast16Days()) {
+        return if (oppfolgingstilfelleVirksomhet != null && oppfolgingstilfelleVirksomhet.isSykmeldtLast16Days()) {
             getActiveOppfolgingstilfelle(arbeidstakerFnr, oppfolgingstilfelleList)
         } else {
             null
@@ -84,10 +84,10 @@ class OppfolgingstilfelleService @Inject constructor(
         val oppfolgingstilfelleList = oppfolgingstilfelleDAO.get(arbeidstakerFnr)
 
         val activeOppfolgingstilfelleList = oppfolgingstilfelleList.filter {
-            it.isActiveLast16Days()
+            it.isSykmeldtLast16Days()
         }
         val expiredOppfolgingstilfelleList = oppfolgingstilfelleList.filterNot {
-            it.isActiveLast16Days()
+            it.isSykmeldtLast16Days()
         }
         return when {
             activeOppfolgingstilfelleList.isEmpty() -> {
