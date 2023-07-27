@@ -63,7 +63,7 @@ class VarselServiceTest {
         every {
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
                 any(),
-                any()
+                any(),
             )
         } returns createOppfolgingstilfelle()
         every { dialogmoteDAO.getAktiveDialogmoterEtterDato(any(), any()) } returns emptyList()
@@ -71,7 +71,7 @@ class VarselServiceTest {
             motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
                 any(),
                 any(),
-                any()
+                any(),
             )
         } returns emptyList()
         every { motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(any()) } returns emptyList()
@@ -97,6 +97,20 @@ class VarselServiceTest {
     }
 
     @Test
+    fun senderIkkeVarselOmIkkeSykmeldtLenger() {
+        every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(userFnr, virksomhetsnummer2) } returns PersonOppfolgingstilfelle(
+            userFnr,
+            LocalDate.now().minusMonths(4),
+            LocalDate.now().minusDays(1),
+        )
+
+        varselService.sendSvarBehovVarsel(userFnr, "")
+
+        verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
+        verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), userFnr, any()) }
+    }
+
+    @Test
     fun senderIkkeVarselDersomDialogmotePlanlagt() {
         every { dialogmoteDAO.getAktiveDialogmoterEtterDato(any(), any()) } returns listOf(
             Dialogmote(
@@ -106,8 +120,8 @@ class VarselServiceTest {
                 now(),
                 DialogmoteStatusEndringType.INNKALT,
                 userFnr,
-                virksomhetsnummer1
-            )
+                virksomhetsnummer1,
+            ),
         )
 
         varselService.sendSvarBehovVarsel(userFnr, "")
@@ -119,8 +133,8 @@ class VarselServiceTest {
     private fun createOppfolgingstilfelle(): PersonOppfolgingstilfelle {
         return PersonOppfolgingstilfelle(
             userFnr,
-            LocalDate.now().minusWeeks(4),
-            LocalDate.now().minusMonths(2)
+            LocalDate.now().minusMonths(4),
+            LocalDate.now().plusWeeks(2),
         )
     }
 
@@ -139,7 +153,7 @@ class VarselServiceTest {
                 aktivTom = null,
                 arbeidsgiverForskutterer = false,
                 timestamp = now(),
-                status = NarmesteLederRelasjonStatus.INNMELDT_AKTIV
+                status = NarmesteLederRelasjonStatus.INNMELDT_AKTIV,
             ),
             NarmesteLederRelasjonDTO(
                 uuid = "234",
@@ -154,8 +168,8 @@ class VarselServiceTest {
                 aktivTom = null,
                 arbeidsgiverForskutterer = false,
                 timestamp = now(),
-                status = NarmesteLederRelasjonStatus.INNMELDT_AKTIV
-            )
+                status = NarmesteLederRelasjonStatus.INNMELDT_AKTIV,
+            ),
         )
     }
 }

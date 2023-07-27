@@ -5,6 +5,7 @@ import no.nav.syfo.motebehov.isCreatedInOppfolgingstilfelle
 import no.nav.syfo.motebehov.isSvarBehovForOppfolgingstilfelle
 import no.nav.syfo.motebehov.isUbehandlet
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
+import no.nav.syfo.oppfolgingstilfelle.database.isSykmeldtNow
 import org.springframework.stereotype.Component
 
 const val WEEKS_START_SVAR_BEHOV = 16
@@ -19,39 +20,43 @@ class MotebehovStatusHelper {
         hasUpcomingDialogmote: Boolean,
         oppfolgingstilfelle: PersonOppfolgingstilfelle?,
         isDialogmoteKandidat: Boolean,
-        motebehovList: List<Motebehov>
+        motebehovList: List<Motebehov>,
     ): MotebehovStatus {
         if (hasUpcomingDialogmote || oppfolgingstilfelle == null) {
             return MotebehovStatus(
                 false,
                 null,
-                null
+                null,
             )
         } else if (isDialogmoteKandidat) {
             return MotebehovStatus(
                 true,
                 MotebehovSkjemaType.SVAR_BEHOV,
-                getNewestSvarBehovMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList)
+                getNewestSvarBehovMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList),
             )
         } else {
             return MotebehovStatus(
                 true,
                 MotebehovSkjemaType.MELD_BEHOV,
-                getNewestMeldBehovMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList)
+                getNewestMeldBehovMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList),
             )
         }
     }
 
     fun isSvarBehovVarselAvailable(
         motebehovList: List<Motebehov>,
-        oppfolgingstilfelle: PersonOppfolgingstilfelle?
+        oppfolgingstilfelle: PersonOppfolgingstilfelle?,
     ): Boolean {
         oppfolgingstilfelle?.let {
+            if (!oppfolgingstilfelle.isSykmeldtNow()) {
+                return false
+            }
+
             val motebehovStatus = motebehovStatus(
                 false,
                 oppfolgingstilfelle,
                 true,
-                motebehovList
+                motebehovList,
             )
 
             return getNewestMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList)
@@ -64,11 +69,11 @@ class MotebehovStatusHelper {
 
     fun getNewestSvarBehovMotebehovInOppfolgingstilfelle(
         oppfolgingstilfelle: PersonOppfolgingstilfelle,
-        motebehovList: List<Motebehov>
+        motebehovList: List<Motebehov>,
     ): Motebehov? {
         getNewestMotebehovInOppfolgingstilfelle(
             oppfolgingstilfelle,
-            motebehovList
+            motebehovList,
         )?.let {
             if (it.isSvarBehovForOppfolgingstilfelle(oppfolgingstilfelle) || it.isUbehandlet()) {
                 return it
@@ -79,11 +84,11 @@ class MotebehovStatusHelper {
 
     fun getNewestMeldBehovMotebehovInOppfolgingstilfelle(
         oppfolgingstilfelle: PersonOppfolgingstilfelle,
-        motebehovList: List<Motebehov>
+        motebehovList: List<Motebehov>,
     ): Motebehov? {
         getNewestMotebehovInOppfolgingstilfelle(
             oppfolgingstilfelle,
-            motebehovList
+            motebehovList,
         )?.let {
             if (it.isUbehandlet()) {
                 return it
@@ -94,7 +99,7 @@ class MotebehovStatusHelper {
 
     fun getNewestMotebehovInOppfolgingstilfelle(
         oppfolgingstilfelle: PersonOppfolgingstilfelle,
-        motebehovList: List<Motebehov>
+        motebehovList: List<Motebehov>,
     ): Motebehov? {
         val motebehovListCreatedInOppfolgingstilfelle =
             motebehovList.filter { it.isCreatedInOppfolgingstilfelle(oppfolgingstilfelle) }

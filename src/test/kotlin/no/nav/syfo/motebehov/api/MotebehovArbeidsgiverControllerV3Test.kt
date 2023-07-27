@@ -150,7 +150,7 @@ class MotebehovArbeidsgiverControllerV3Test {
                 Consumer { cacheName: String ->
                     val cache = cacheManager.getCache(cacheName)
                     cache?.clear()
-                }
+                },
             )
         cleanDB()
         AzureAdV2TokenConsumer.Companion.clearCache()
@@ -171,8 +171,8 @@ class MotebehovArbeidsgiverControllerV3Test {
             oppfolgingstilfelleDAO,
             generateOppfolgingstilfellePerson(
                 start = LocalDate.now().plusDays(1),
-                end = LocalDate.now().plusDays(10)
-            )
+                end = LocalDate.now().plusDays(10),
+            ),
         )
 
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
@@ -187,9 +187,9 @@ class MotebehovArbeidsgiverControllerV3Test {
         dbCreateOppfolgingstilfelle(
             oppfolgingstilfelleDAO,
             generateOppfolgingstilfellePerson(
-                start = LocalDate.now().minusDays(10),
-                end = LocalDate.now().minusDays(1)
-            )
+                start = LocalDate.now().minusDays(17),
+                end = LocalDate.now().minusDays(16),
+            ),
         )
 
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
@@ -203,8 +203,8 @@ class MotebehovArbeidsgiverControllerV3Test {
             oppfolgingstilfelleDAO,
             generateOppfolgingstilfellePerson(
                 start = activeOppfolgingstilfelleStartDate.minusDays(2),
-                end = activeOppfolgingstilfelleStartDate.minusDays(1)
-            )
+                end = activeOppfolgingstilfelleStartDate.minusDays(1),
+            ),
         )
 
         dbCreateOppfolgingstilfelle(
@@ -212,8 +212,8 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(
                 start = activeOppfolgingstilfelleStartDate,
                 end = LocalDate.now().plusDays(1),
-                virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER_2)
-            )
+                virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER_2),
+            ),
         )
 
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
@@ -229,8 +229,8 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(
                 start = activeOppfolgingstilfelleStartDate.minusDays(2),
                 end = activeOppfolgingstilfelleStartDate.minusDays(1),
-                virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER_2)
-            )
+                virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER_2),
+            ),
         )
 
         dbCreateOppfolgingstilfelle(
@@ -238,8 +238,8 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(
                 start = activeOppfolgingstilfelleStartDate,
                 end = LocalDate.now().plusDays(1),
-                virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER)
-            )
+                virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER),
+            ),
         )
 
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
@@ -255,8 +255,8 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(
                 start = activeOppfolgingstilfelleStartDate.minusDays(2),
                 end = activeOppfolgingstilfelleStartDate,
-                virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER_2)
-            )
+                virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER_2),
+            ),
         )
 
         dbCreateOppfolgingstilfelle(
@@ -264,8 +264,8 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(
                 start = activeOppfolgingstilfelleStartDate,
                 end = LocalDate.now().plusDays(1),
-                virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER)
-            )
+                virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER),
+            ),
         )
 
         createKandidatInDB()
@@ -276,14 +276,13 @@ class MotebehovArbeidsgiverControllerV3Test {
 
     @Test
     fun getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedBy2Oppfolgingstilfeller() {
-
         dbCreateOppfolgingstilfelle(
             oppfolgingstilfelleDAO,
             generateOppfolgingstilfellePerson(
                 start = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).minusDays(1),
                 end = LocalDate.now(),
-                virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER)
-            )
+                virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER),
+            ),
         )
 
         dbCreateOppfolgingstilfelle(
@@ -291,8 +290,8 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(
                 start = LocalDate.now().minusDays(2),
                 end = LocalDate.now().plusDays(1),
-                virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER_2)
-            )
+                virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER_2),
+            ),
         )
 
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
@@ -306,7 +305,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(
                 start = LocalDate.now(),
                 end = LocalDate.now(),
-            )
+            ),
         )
 
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
@@ -320,7 +319,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(
                 start = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).minusDays(1),
                 end = LocalDate.now(),
-            )
+            ),
         )
 
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
@@ -334,7 +333,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(
                 start = LocalDate.now(),
                 end = LocalDate.now().plusDays(1),
-            )
+            ),
         )
 
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
@@ -348,7 +347,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(
                 start = LocalDate.now(),
                 end = LocalDate.now().plusDays(1),
-            )
+            ),
         )
 
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
@@ -374,7 +373,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(
                 start = LocalDate.now(),
                 end = LocalDate.now().plusDays(1),
-            )
+            ),
         )
 
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
@@ -393,7 +392,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(
                 start = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1),
                 end = LocalDate.now().plusDays(1),
-            )
+            ),
         )
 
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
@@ -407,7 +406,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(
                 start = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV),
                 end = LocalDate.now().plusDays(1),
-            )
+            ),
         )
 
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
@@ -423,7 +422,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(
                 start = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).plusDays(1),
                 end = LocalDate.now().plusDays(1),
-            )
+            ),
         )
 
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
@@ -439,7 +438,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(
                 start = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).plusDays(1),
                 end = LocalDate.now().plusDays(1),
-            )
+            ),
         )
 
         val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
@@ -462,7 +461,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(
                 start = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV),
                 end = LocalDate.now().plusDays(1),
-            )
+            ),
         )
 
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
@@ -471,10 +470,9 @@ class MotebehovArbeidsgiverControllerV3Test {
 
     @Test
     fun getMotebehovStatusWithNoMotebehovAndNoMote() {
-
         dbCreateOppfolgingstilfelle(
             oppfolgingstilfelleDAO,
-            generateOppfolgingstilfellePerson()
+            generateOppfolgingstilfellePerson(),
         )
 
         createKandidatInDB()
@@ -487,7 +485,7 @@ class MotebehovArbeidsgiverControllerV3Test {
     fun getMotebehovStatusAndSendOversikthendelseWithMotebehovHarBehovTrue() {
         dbCreateOppfolgingstilfelle(
             oppfolgingstilfelleDAO,
-            generateOppfolgingstilfellePerson()
+            generateOppfolgingstilfellePerson(),
         )
         lagreOgHentMotebehovOgSendOversikthendelse(harBehov = true)
     }
@@ -496,7 +494,7 @@ class MotebehovArbeidsgiverControllerV3Test {
     fun getMotebehovStatusAndSendOversikthendelseWithMotebehovHarBehovFalse() {
         dbCreateOppfolgingstilfelle(
             oppfolgingstilfelleDAO,
-            generateOppfolgingstilfellePerson()
+            generateOppfolgingstilfellePerson(),
         )
         lagreOgHentMotebehovOgSendOversikthendelse(false)
     }
@@ -506,13 +504,13 @@ class MotebehovArbeidsgiverControllerV3Test {
             azureTokenEndpoint,
             mockRestServiceWithProxyServer,
             behandlendeenhetUrl,
-            ARBEIDSTAKER_FNR
+            ARBEIDSTAKER_FNR,
         )
 
         motebehovArbeidsgiverController.lagreMotebehovArbeidsgiver(
             motebehovGenerator.lagNyttMotebehovArbeidsgiver().copy(
-                motebehovSvar = motebehovSvar
-            )
+                motebehovSvar = motebehovSvar,
+            ),
         )
         if (motebehovSvar.harMotebehov) {
             verify { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
@@ -526,7 +524,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             azureTokenEndpoint,
             mockRestServiceWithProxyServer,
             behandlendeenhetUrl,
-            ARBEIDSTAKER_FNR
+            ARBEIDSTAKER_FNR,
         )
 
         createKandidatInDB()
@@ -535,8 +533,8 @@ class MotebehovArbeidsgiverControllerV3Test {
 
         motebehovArbeidsgiverController.lagreMotebehovArbeidsgiver(
             motebehovGenerator.lagNyttMotebehovArbeidsgiver().copy(
-                motebehovSvar = motebehovSvar
-            )
+                motebehovSvar = motebehovSvar,
+            ),
         )
         if (!harBehov) {
             mockRestServiceServer.reset()
@@ -544,7 +542,7 @@ class MotebehovArbeidsgiverControllerV3Test {
 
         val motebehovStatus: MotebehovStatus = motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(
             ARBEIDSTAKER_FNR,
-            VIRKSOMHETSNUMMER
+            VIRKSOMHETSNUMMER,
         )
 
         assertTrue(motebehovStatus.visMotebehov)
@@ -583,7 +581,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             mockRestServiceServer,
             behandlendeenhetUrl,
             tilgangskontrollUrl,
-            fnr
+            fnr,
         )
     }
 
@@ -593,7 +591,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             createdAt = LocalDateTime.now().minusDays(DAYS_START_SVAR_BEHOV),
             fnr = ARBEIDSTAKER_FNR,
             kandidat = true,
-            arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name
+            arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
         )
     }
 }

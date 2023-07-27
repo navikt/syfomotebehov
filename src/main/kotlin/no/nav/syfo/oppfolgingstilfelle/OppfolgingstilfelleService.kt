@@ -5,16 +5,15 @@ import no.nav.syfo.oppfolgingstilfelle.database.*
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfellePerson
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.previouslyProcessed
 import org.springframework.stereotype.Service
-import java.time.LocalDate
 import javax.inject.Inject
 
 @Service
 class OppfolgingstilfelleService @Inject constructor(
     private val metric: Metric,
-    private val oppfolgingstilfelleDAO: OppfolgingstilfelleDAO
+    private val oppfolgingstilfelleDAO: OppfolgingstilfelleDAO,
 ) {
     fun receiveKOppfolgingstilfelle(
-        kafkaOppfolgingstilfellePerson: KafkaOppfolgingstilfellePerson
+        kafkaOppfolgingstilfellePerson: KafkaOppfolgingstilfellePerson,
     ) {
         kafkaOppfolgingstilfellePerson.oppfolgingstilfelleList.sortedByDescending { oppfolgingstilfelle ->
             oppfolgingstilfelle.start
@@ -22,18 +21,18 @@ class OppfolgingstilfelleService @Inject constructor(
             oppfolgingstilfelle.virksomhetsnummerList.forEach { virksomhetsnummer ->
                 val pPersonOppfolgingstilfelle = oppfolgingstilfelleDAO.get(
                     fnr = kafkaOppfolgingstilfellePerson.personIdentNumber,
-                    virksomhetsnummer = virksomhetsnummer
+                    virksomhetsnummer = virksomhetsnummer,
                 )
                 if (pPersonOppfolgingstilfelle == null) {
                     oppfolgingstilfelleDAO.create(
                         fnr = kafkaOppfolgingstilfellePerson.personIdentNumber,
                         oppfolgingstilfelle = oppfolgingstilfelle,
-                        virksomhetsnummer = virksomhetsnummer
+                        virksomhetsnummer = virksomhetsnummer,
                     )
                     metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_CREATE)
                 } else {
                     val isPreviouslyProcessed = kafkaOppfolgingstilfellePerson.previouslyProcessed(
-                        lastUpdatedAt = pPersonOppfolgingstilfelle.sistEndret
+                        lastUpdatedAt = pPersonOppfolgingstilfelle.sistEndret,
                     )
                     if (isPreviouslyProcessed) {
                         metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE_SKIP_DUPLICATE)
@@ -41,7 +40,7 @@ class OppfolgingstilfelleService @Inject constructor(
                         oppfolgingstilfelleDAO.update(
                             fnr = kafkaOppfolgingstilfellePerson.personIdentNumber,
                             oppfolgingstilfelle = oppfolgingstilfelle,
-                            virksomhetsnummer = virksomhetsnummer
+                            virksomhetsnummer = virksomhetsnummer,
                         )
                         metric.tellHendelse(METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE)
                     }
@@ -51,10 +50,10 @@ class OppfolgingstilfelleService @Inject constructor(
     }
 
     fun getActiveOppfolgingstilfeller(
-        arbeidstakerFnr: String
+        arbeidstakerFnr: String,
     ): List<PersonVirksomhetOppfolgingstilfelle> {
         return getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr).filter {
-            it.isDateInOppfolgingstilfelle(LocalDate.now())
+            it.isSykmeldtLast16Days()
         }.map {
             it.mapToPersonVirksomhetOppfolgingstilfelle()
         }
@@ -62,11 +61,11 @@ class OppfolgingstilfelleService @Inject constructor(
 
     fun getActiveOppfolgingstilfelleForArbeidsgiver(
         arbeidstakerFnr: String,
-        virksomhetsnummer: String
+        virksomhetsnummer: String,
     ): PersonOppfolgingstilfelle? {
         val oppfolgingstilfelleList = getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr)
         val oppfolgingstilfelleVirksomhet = oppfolgingstilfelleList.find { it.virksomhetsnummer == virksomhetsnummer }
-        return if (oppfolgingstilfelleVirksomhet != null && oppfolgingstilfelleVirksomhet.isDateInOppfolgingstilfelle(LocalDate.now())) {
+        return if (oppfolgingstilfelleVirksomhet != null && oppfolgingstilfelleVirksomhet.isSykmeldtLast16Days()) {
             getActiveOppfolgingstilfelle(arbeidstakerFnr, oppfolgingstilfelleList)
         } else {
             null
@@ -74,29 +73,31 @@ class OppfolgingstilfelleService @Inject constructor(
     }
 
     fun getActiveOppfolgingstilfelleForArbeidstaker(
-        arbeidstakerFnr: String
+        arbeidstakerFnr: String,
     ): PersonOppfolgingstilfelle? {
         return getActiveOppfolgingstilfelle(arbeidstakerFnr, getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr))
     }
 
     private fun getPOppfolgingstilfellerInActiveOppfolgingstilfelle(
-        arbeidstakerFnr: String
+        arbeidstakerFnr: String,
     ): List<PPersonOppfolgingstilfelle> {
         val oppfolgingstilfelleList = oppfolgingstilfelleDAO.get(arbeidstakerFnr)
 
         val activeOppfolgingstilfelleList = oppfolgingstilfelleList.filter {
-            it.isDateInOppfolgingstilfelle(LocalDate.now())
+            it.isSykmeldtLast16Days()
         }
         val expiredOppfolgingstilfelleList = oppfolgingstilfelleList.filterNot {
-            it.isDateInOppfolgingstilfelle(LocalDate.now())
+            it.isSykmeldtLast16Days()
         }
         return when {
             activeOppfolgingstilfelleList.isEmpty() -> {
                 emptyList()
             }
+
             expiredOppfolgingstilfelleList.isEmpty() -> {
                 activeOppfolgingstilfelleList
             }
+
             else -> {
                 val expiredOverlappingOppfolgingstilfelleList = expiredOppfolgingstilfelleList.filter { expiredOppfolgingstilfelle ->
                     expiredOppfolgingstilfelle.tom.isAfter(activeOppfolgingstilfelleList.minByOrNull { it.fom }!!.fom.minusDays(1))
@@ -108,7 +109,7 @@ class OppfolgingstilfelleService @Inject constructor(
 
     private fun getActiveOppfolgingstilfelle(
         arbeidstakerFnr: String,
-        oppfolgingstilfelleList: List<PPersonOppfolgingstilfelle>
+        oppfolgingstilfelleList: List<PPersonOppfolgingstilfelle>,
     ): PersonOppfolgingstilfelle? {
         val activeOppfolgingstilfeller: List<PersonOppfolgingstilfelle> = oppfolgingstilfelleList.map {
             it.mapToPersonOppfolgingstilfelle()
@@ -121,7 +122,7 @@ class OppfolgingstilfelleService @Inject constructor(
                 PersonOppfolgingstilfelle(
                     fnr = arbeidstakerFnr,
                     fom = minFom,
-                    tom = maxTom
+                    tom = maxTom,
                 )
             } else {
                 activeOppfolgingstilfeller[0]

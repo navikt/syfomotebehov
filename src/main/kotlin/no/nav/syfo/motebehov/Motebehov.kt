@@ -18,7 +18,7 @@ data class Motebehov(
     val tildeltEnhet: String? = null,
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
-    val skjemaType: MotebehovSkjemaType? = null
+    val skjemaType: MotebehovSkjemaType? = null,
 ) : Serializable
 
 fun List<Motebehov>.toMotebehovVeilederDTOList() =
@@ -37,7 +37,7 @@ fun Motebehov.toMotebehovVeilederDTO(): MotebehovVeilederDTO {
         tildeltEnhet = this.tildeltEnhet,
         behandletTidspunkt = this.behandletTidspunkt,
         behandletVeilederIdent = this.behandletVeilederIdent,
-        skjemaType = this.skjemaType
+        skjemaType = this.skjemaType,
     )
 }
 
@@ -47,7 +47,7 @@ fun Motebehov.isUbehandlet(): Boolean {
 
 fun Motebehov.isCreatedInOppfolgingstilfelle(oppfolgingstilfelle: PersonOppfolgingstilfelle): Boolean {
     val createdDate = this.opprettetDato.toLocalDate()
-    return createdDate.isAfter(oppfolgingstilfelle.fom.minusDays(1)) && createdDate.isBefore(oppfolgingstilfelle.tom.plusDays(1))
+    return createdDate.isAfter(oppfolgingstilfelle.fom.minusDays(1)) && createdDate.isBefore(oppfolgingstilfelle.tom.plusDays(17))
 }
 
 fun Motebehov.isSvarBehovForOppfolgingstilfelle(oppfolgingstilfelle: PersonOppfolgingstilfelle): Boolean {
