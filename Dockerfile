@@ -1,4 +1,4 @@
-FROM navikt/java:11-appdynamics
+FROM ghcr.io/navikt/baseimages/temurin:19
 ENV APPD_ENABLED=true
 LABEL org.opencontainers.image.source=https://github.com/navikt/syfomotebehov
 

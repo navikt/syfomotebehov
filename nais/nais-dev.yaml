@@ -35,8 +35,6 @@ spec:
     path: /syfomotebehov/internal/prometheus
   ingresses:
     - "https://syfomotebehov.dev.intern.nav.no"
-    - "https://syfomotebehov.nais.preprod.local"
-    - "https://app-q1.adeo.no/syfomotebehov"
     - "https://syfomotebehov.dev-fss-pub.nais.io"
   tokenx:
     enabled: true
