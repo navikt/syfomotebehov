@@ -119,9 +119,6 @@ class MotebehovVeilederADControllerV2Test {
 
     private val stsToken = generateStsToken().access_token
 
-    @Value("\${tokenx.idp}")
-    private lateinit var tokenxIdp: String
-
     @Value("\${dialogmote.frontend.client.id}")
     private lateinit var dialogmoteClientId: String
 
@@ -308,7 +305,7 @@ class MotebehovVeilederADControllerV2Test {
     }
 
     private fun arbeidsgiverLagrerMotebehov(): NyttMotebehovArbeidsgiver {
-        loggInnBrukerTokenX(contextHolder, LEDER_FNR, dialogmoteClientId, tokenxIdp)
+        loggInnBrukerTokenX(contextHolder, LEDER_FNR, dialogmoteClientId)
 
         val motebehovSvar = MotebehovSvar(
             harMotebehov = true,
@@ -326,7 +323,7 @@ class MotebehovVeilederADControllerV2Test {
     private fun sykmeldtLagrerMotebehov(
         harBehov: Boolean
     ): MotebehovSvar {
-        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId, tokenxIdp)
+        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId)
 
         val motebehovSvar = MotebehovSvar(
             harMotebehov = harBehov,

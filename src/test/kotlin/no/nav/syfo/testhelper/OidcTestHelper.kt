@@ -13,11 +13,10 @@ import java.util.*
 
 object OidcTestHelper {
 
-    fun loggInnBrukerTokenX(contextHolder: TokenValidationContextHolder, brukerFnr: String, clientId: String, idp: String) {
+    fun loggInnBrukerTokenX(contextHolder: TokenValidationContextHolder, brukerFnr: String, clientId: String) {
         val claimsSet = JWTClaimsSet.Builder()
             .claim("pid", brukerFnr)
             .claim("client_id", clientId)
-            .claim("idp", idp)
             .build()
 
         val jwt = JwtTokenGenerator.createSignedJWT(claimsSet)
