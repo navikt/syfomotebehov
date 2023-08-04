@@ -17,7 +17,7 @@ import javax.inject.Inject
 import javax.validation.Valid
 
 @RestController
-@ProtectedWithClaims(issuer = TokenXIssuer.TOKENX, claimMap = ["acr=Level4"])
+@ProtectedWithClaims(issuer = TokenXIssuer.TOKENX, claimMap = ["acr=Level4", "acr=idporten-loa-high"], combineWithOr = true)
 @RequestMapping(value = ["/api/v3/arbeidstaker"])
 class MotebehovArbeidstakerControllerV3 @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,

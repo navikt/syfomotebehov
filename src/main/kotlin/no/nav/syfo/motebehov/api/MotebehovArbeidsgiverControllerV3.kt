@@ -3,6 +3,7 @@ package no.nav.syfo.motebehov.api
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.tokenX.TokenXUtil
+import no.nav.syfo.api.auth.tokenX.TokenXUtil.TokenXIssuer
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
@@ -18,7 +19,7 @@ import javax.validation.Valid
 import javax.validation.constraints.Pattern
 
 @RestController
-@ProtectedWithClaims(issuer = TokenXUtil.TokenXIssuer.TOKENX, claimMap = ["acr=Level4"])
+@ProtectedWithClaims(issuer = TokenXIssuer.TOKENX, claimMap = ["acr=Level4", "acr=idporten-loa-high"], combineWithOr = true)
 @RequestMapping(value = ["/api/v3"])
 class MotebehovArbeidsgiverControllerV3 @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
