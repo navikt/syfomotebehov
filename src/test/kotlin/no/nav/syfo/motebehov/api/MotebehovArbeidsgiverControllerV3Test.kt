@@ -119,9 +119,6 @@ class MotebehovArbeidsgiverControllerV3Test {
 
     private val stsToken = generateStsToken().access_token
 
-    @Value("\${tokenx.idp}")
-    private lateinit var tokenxIdp: String
-
     @Value("\${dialogmote.frontend.client.id}")
     private lateinit var dialogmoteClientId: String
 
@@ -137,7 +134,7 @@ class MotebehovArbeidsgiverControllerV3Test {
 
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
         mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
-        loggInnBrukerTokenX(contextHolder, LEDER_FNR, dialogmoteClientId, tokenxIdp)
+        loggInnBrukerTokenX(contextHolder, LEDER_FNR, dialogmoteClientId)
         cleanDB()
     }
 
@@ -165,7 +162,7 @@ class MotebehovArbeidsgiverControllerV3Test {
     @Test
     fun getMotebehovStatusWithTodayOutsideOppfolgingstilfelleStart() {
         loggUtAlle(contextHolder)
-        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId, tokenxIdp)
+        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId)
 
         dbCreateOppfolgingstilfelle(
             oppfolgingstilfelleDAO,
@@ -182,7 +179,7 @@ class MotebehovArbeidsgiverControllerV3Test {
     @Test
     fun getMotebehovStatusWithTodayOutsideOppfolgingstilfelleEnd() {
         loggUtAlle(contextHolder)
-        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId, tokenxIdp)
+        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId)
 
         dbCreateOppfolgingstilfelle(
             oppfolgingstilfelleDAO,
@@ -361,7 +358,7 @@ class MotebehovArbeidsgiverControllerV3Test {
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
 
         resetMockRestServers()
-        loggInnBrukerTokenX(contextHolder, LEDER_FNR, dialogmoteClientId, tokenxIdp)
+        loggInnBrukerTokenX(contextHolder, LEDER_FNR, dialogmoteClientId)
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
     }

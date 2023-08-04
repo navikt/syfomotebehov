@@ -114,9 +114,6 @@ class MotebehovArbeidstakerControllerV3Test {
 
     private val stsToken = generateStsToken().access_token
 
-    @Value("\${tokenx.idp}")
-    private lateinit var tokenxIdp: String
-
     @Value("\${dialogmote.frontend.client.id}")
     private lateinit var dialogmoteClientId: String
 
@@ -130,7 +127,7 @@ class MotebehovArbeidstakerControllerV3Test {
 
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
         mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
-        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId, tokenxIdp)
+        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId)
         cleanDB()
     }
 
@@ -322,7 +319,7 @@ class MotebehovArbeidstakerControllerV3Test {
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
 
         resetMockRestServers()
-        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId, tokenxIdp)
+        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)

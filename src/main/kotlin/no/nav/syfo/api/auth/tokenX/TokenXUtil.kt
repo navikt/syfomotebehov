@@ -8,7 +8,6 @@ object TokenXUtil {
     @Throws(ForbiddenException::class)
     fun validateTokenXClaims(
         contextHolder: TokenValidationContextHolder,
-        requestedTokenxIdp: String,
         vararg requestedClientId: String,
     ): JwtTokenClaims {
         val context = contextHolder.tokenValidationContext
@@ -17,11 +16,6 @@ object TokenXUtil {
 
         if (!requestedClientId.toList().contains(clientId)) {
             throw ForbiddenException("Uventet client id $clientId")
-        }
-        val idp = claims.getStringClaim("idp")
-        if (idp != requestedTokenxIdp) {
-            // Check that  Idporten was IDP for tokenX
-            throw ForbiddenException("Uventet idp $idp, requestedTokenxIdp: $requestedTokenxIdp")
         }
         return claims
     }

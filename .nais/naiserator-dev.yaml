@@ -128,8 +128,6 @@ spec:
       value: dev-gcp:min-side:tms-min-side-proxy
     - name: SYFOBRUKERTILGANG_CLIENT_ID
       value: dev-gcp:team-esyfo:syfobrukertilgang
-    - name: TOKENX_IDP
-      value: https://oidc-ver2.difi.no/idporten-oidc-provider/
     - name: DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID
       value: dev-gcp:flex:ditt-sykefravaer
     - name: ISNARMESTELEDER_URL

@@ -30,8 +30,6 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
     val dittSykefravaerClientId: String,
     @Value("\${tms-min-side-proxy.client.id}")
     val minSideClientId: String,
-    @Value("\${tokenx.idp}")
-    val dialogmoteTokenxIdp: String,
 ) {
     @GetMapping(
         value = ["/motebehov"],
@@ -40,7 +38,6 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
     fun motebehovStatusArbeidstaker(): MotebehovStatus {
         TokenXUtil.validateTokenXClaims(
             contextHolder,
-            dialogmoteTokenxIdp,
             dittSykefravaerClientId,
         )
             .fnrFromIdportenTokenX()
@@ -66,7 +63,6 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker")
         val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
             contextHolder,
-            dialogmoteTokenxIdp,
             dialogmoteClientId,
             minSideClientId,
         )
@@ -85,7 +81,6 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
     fun motebehovStatusArbeidstakerWithCodeSixUsers(): MotebehovStatus {
         val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
             contextHolder,
-            dialogmoteTokenxIdp,
             dialogmoteClientId,
             minSideClientId,
         )
