@@ -29,8 +29,6 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
     private val brukertilgangService: BrukertilgangService,
     @Value("\${dialogmote.frontend.client.id}")
     val dialogmoteClientId: String,
-    @Value("\${tokenx.idp}")
-    val dialogmoteTokenxIdp: String,
 ) {
     @GetMapping(
         value = ["/motebehov"],
@@ -41,7 +39,7 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         @RequestParam(name = "virksomhetsnummer") virksomhetsnummer: String,
     ): MotebehovStatus {
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver")
-        TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteTokenxIdp, dialogmoteClientId)
+        TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)
         brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(arbeidstakerFnr)
 
         val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
@@ -59,7 +57,7 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         @RequestBody nyttMotebehov: @Valid NyttMotebehovArbeidsgiver,
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
-        val innloggetFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteTokenxIdp, dialogmoteClientId)
+        val innloggetFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)
             .fnrFromIdportenTokenX()
         val ansattFnr = nyttMotebehov.arbeidstakerFnr
         brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(ansattFnr)
