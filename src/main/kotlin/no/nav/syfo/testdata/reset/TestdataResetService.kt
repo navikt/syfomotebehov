@@ -2,6 +2,7 @@ package no.nav.syfo.testdata.reset
 
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.motebehov.database.MotebehovDAO
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import javax.inject.Inject
 
@@ -14,5 +15,10 @@ class TestdataResetService @Inject constructor(
     fun resetTestdata(fnr: String) {
         val aktoerId = pdlConsumer.aktorid(fnr)
         motebehovDAO.nullstillMotebehov(aktoerId)
+        log.info("Nullstiller møtebehov for fnr $fnr")
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(TestdataResetService::class.java)
     }
 }
