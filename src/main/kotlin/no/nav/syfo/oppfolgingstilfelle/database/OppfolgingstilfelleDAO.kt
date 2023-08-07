@@ -98,8 +98,8 @@ class OppfolgingstilfelleDAO @Inject constructor(
     fun nullstillOppfolgingstilfeller(fnr: String): Int {
         val oppfolgingstilfeller = get(fnr)
         return if (oppfolgingstilfeller.isNotEmpty()) {
-            val oppfolgingstilfelleIder: List<UUID> = oppfolgingstilfeller.map {
-                it.uuid
+            val oppfolgingstilfelleIder: List<String> = oppfolgingstilfeller.map {
+                it.uuid.toString()
             }
             namedParameterJdbcTemplate.update(
                 "DELETE FROM oppfolgingstilfelle WHERE oppfolgingstilfelle_uuid IN (:oppfolgingstilfelleIder)",
