@@ -1,15 +1,14 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.github.jengelman.gradle.plugins.shadow.transformers.PropertiesFileTransformer
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "no.nav.syfo"
 
 object Versions {
     const val apacheHttpClientVersion = "4.5.13"
     const val junitJupiterVersion = "5.8.2"
-    const val kotlinJacksonVersion = "2.13.1"
+    const val kotlinJacksonVersion = "2.13.2"
     const val flywayVersion = "8.4.4"
-    const val tokenSupportVersion = "1.3.19"
+    const val tokenSupportVersion = "2.0.5"
     const val ojdbcVersion = "19.3.0.0"
     const val h2Version = "2.1.210"
     const val mockkVersion = "1.12.7"
@@ -19,19 +18,13 @@ object Versions {
 }
 
 plugins {
-    kotlin("jvm") version "1.6.10"
     id("java")
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.6.10"
+    kotlin("jvm") version "1.9.0"
     id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.9.0"
     id("org.springframework.boot") version "2.7.11"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
-}
-
-buildscript {
-    dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10")
-    }
 }
 
 allOpen {
@@ -58,7 +51,10 @@ repositories {
 
 configurations.all {
     resolutionStrategy.eachDependency {
-        if (requested.group == "org.scala-lang" && requested.name == "scala-library" && (requested.version == "2.13.6")) {
+        if (requested.group == "org.scala-lang" &&
+            requested.name == "scala-library" &&
+            requested.version == "2.13.6"
+        ) {
             useVersion("2.13.9")
             because("fixes critical bug CVE-2022-36944 in 2.13.6")
         }
@@ -108,14 +104,16 @@ dependencies {
     testImplementation("com.ninja-squad:springmockk:${Versions.springMockkVersion}")
 }
 
+java.toolchain {
+    languageVersion.set(JavaLanguageVersion.of(19))
+    vendor.set(JvmVendorSpec.ADOPTIUM)
+}
+
 tasks {
     extra["log4j2.version"] = "2.16.0"
 
-    withType<Jar> {
-        manifest.attributes["Main-Class"] = "no.nav.syfo.ApplicationKt"
-    }
-
     withType<ShadowJar> {
+        manifest.attributes["Main-Class"] = "no.nav.syfo.ApplicationKt"
         transform(PropertiesFileTransformer::class.java) {
             paths = listOf("META-INF/spring.factories")
             mergeStrategy = "append"
@@ -128,15 +126,7 @@ tasks {
         mergeServiceFiles()
     }
 
-    named<KotlinCompile>("compileKotlin") {
-        kotlinOptions.jvmTarget = "11"
-    }
-
-    named<KotlinCompile>("compileTestKotlin") {
-        kotlinOptions.jvmTarget = "11"
-    }
-
-    test {
+    withType<Test> {
         useJUnitPlatform()
     }
 }
