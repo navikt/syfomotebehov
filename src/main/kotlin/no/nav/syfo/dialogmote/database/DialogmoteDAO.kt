@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 @Repository
 class DialogmoteDAO @Inject constructor(
-    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate
+    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
 ) {
     fun get(fnr: String, virksomhetsnummer: String, dialogmoteExternUUID: String): List<Dialogmote> {
         val query = """
@@ -31,7 +31,7 @@ class DialogmoteDAO @Inject constructor(
         return namedParameterJdbcTemplate.query(
             query,
             mapSql,
-            dialogmoteRowMapper
+            dialogmoteRowMapper,
         )
     }
 
@@ -40,7 +40,7 @@ class DialogmoteDAO @Inject constructor(
         virksomhetsnummer: String,
         dialogmoteExternUUID: String,
         statusEndringType: String,
-        statusEndringTidspunkt: LocalDateTime
+        statusEndringTidspunkt: LocalDateTime,
     ) {
         val query = """
             UPDATE dialogmoter
@@ -63,7 +63,7 @@ class DialogmoteDAO @Inject constructor(
         statusEndringTidspunkt: LocalDateTime,
         statusEndringType: String,
         fnr: String,
-        virksomhetsnummer: String
+        virksomhetsnummer: String,
     ): UUID {
         val uuid = UUID.randomUUID()
         val query = """
@@ -92,7 +92,7 @@ class DialogmoteDAO @Inject constructor(
             namedParameterJdbcTemplate.update(
                 "DELETE FROM dialogmoter WHERE uuid IN (:dialogmoteIder)",
                 MapSqlParameterSource()
-                    .addValue("dialogmoteIder", dialogmoteIder)
+                    .addValue("dialogmoteIder", dialogmoteIder),
             )
         } else {
             0
@@ -102,7 +102,7 @@ class DialogmoteDAO @Inject constructor(
     fun getAktiveDialogmoterPaVirksomhetEtterDato(
         fnr: String,
         virksomhetsnummer: String,
-        dialogmoteTidspunkt: LocalDate
+        dialogmoteTidspunkt: LocalDate,
     ): List<Dialogmote> {
         val query = """
             SELECT *
@@ -116,13 +116,13 @@ class DialogmoteDAO @Inject constructor(
         return namedParameterJdbcTemplate.query(
             query,
             mapSql,
-            dialogmoteRowMapper
+            dialogmoteRowMapper,
         )
     }
 
     fun getAktiveDialogmoterEtterDato(
         fnr: String,
-        dialogmoteTidspunkt: LocalDate
+        dialogmoteTidspunkt: LocalDate,
     ): List<Dialogmote> {
         val query = """
             SELECT *
@@ -135,7 +135,15 @@ class DialogmoteDAO @Inject constructor(
         return namedParameterJdbcTemplate.query(
             query,
             mapSql,
-            dialogmoteRowMapper
+            dialogmoteRowMapper,
+        )
+    }
+
+    fun nullstillDialogmoter(fnr: String) {
+        namedParameterJdbcTemplate.update(
+            "DELETE FROM dialogmoter WHERE person_ident = :fnr",
+            MapSqlParameterSource()
+                .addValue("fnr", fnr),
         )
     }
 
