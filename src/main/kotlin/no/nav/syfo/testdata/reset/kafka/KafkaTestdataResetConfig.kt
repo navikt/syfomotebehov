@@ -22,7 +22,7 @@ class KafkaTestdataResetConfig(
 ) {
     @Bean
     fun testdataResetConsumerFactory(): ConsumerFactory<String, String> {
-        fun kafkaTesdataResetConsumerConfig(): HashMap<String, Any> {
+        fun kafkaTestdataResetConsumerConfig(): HashMap<String, Any> {
             return HashMap<String, Any>().apply {
                 put(
                     ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
@@ -34,13 +34,13 @@ class KafkaTestdataResetConfig(
                 )
                 put(
                     ConsumerConfig.GROUP_ID_CONFIG,
-                    "$appName-$kafkaEnv-tesdata-reset",
+                    "$appName-$kafkaEnv-testdata-reset",
                 )
             }
         }
 
         val factoryConfig =
-            kafkaAivenConfig.commonKafkaAivenConfig() + kafkaAivenConfig.commonKafkaAivenConsumerConfig() + kafkaTesdataResetConsumerConfig()
+            kafkaAivenConfig.commonKafkaAivenConfig() + kafkaAivenConfig.commonKafkaAivenConsumerConfig() + kafkaTestdataResetConsumerConfig()
 
         return DefaultKafkaConsumerFactory(
             factoryConfig,

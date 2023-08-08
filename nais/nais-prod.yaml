@@ -131,4 +131,3 @@ spec:
       value: "prod-gcp.teamsykefravr.isnarmesteleder"
     - name: SPRING_PROFILES_ACTIVE
       value: remote
-

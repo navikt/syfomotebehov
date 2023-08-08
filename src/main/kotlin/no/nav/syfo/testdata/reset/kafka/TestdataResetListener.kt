@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 
 @Profile("testdatareset")
 @Component
-class TesdataResetListener(
+class TestdataResetListener(
     private val testdataResetService: TestdataResetService,
 ) {
 
@@ -28,14 +28,14 @@ class TesdataResetListener(
             testdataResetService.resetTestdata(fnr)
             acknowledgment.acknowledge()
         } catch (e: JsonProcessingException) {
-            log.error("TesdataResetListener: Kunne ikke deserialisere record", e)
+            log.error("TestdataResetListener: Kunne ikke deserialisere record", e)
         } catch (e: Exception) {
-            log.error("TesdataResetListener: Uventet feil ved lesing av record", e)
+            log.error("TestdataResetListener: Uventet feil ved lesing av record", e)
         }
     }
 
     companion object {
-        private val log = LoggerFactory.getLogger(TesdataResetListener::class.java)
+        private val log = LoggerFactory.getLogger(TestdataResetListener::class.java)
 
         private const val TESTDATA_RESET_TOPIC = "teamsykefravr.testdata-reset"
     }
