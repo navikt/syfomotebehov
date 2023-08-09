@@ -2,7 +2,7 @@ package no.nav.syfo.motebehov
 
 import java.io.Serializable
 
-data class MotebehovVarselVurdering(
+data class MotebehovTilbakemelding(
     val sendVarselTilSykmeldt: Boolean,
     val sendVarselTilArbeidsgiver: Boolean,
     val varseltekst: String,

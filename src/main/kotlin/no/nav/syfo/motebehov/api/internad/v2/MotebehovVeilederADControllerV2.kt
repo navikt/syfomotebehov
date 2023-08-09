@@ -9,7 +9,7 @@ import no.nav.syfo.consumer.pdl.fullName
 import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovService
-import no.nav.syfo.motebehov.MotebehovVarselVurdering
+import no.nav.syfo.motebehov.MotebehovTilbakemelding
 import no.nav.syfo.motebehov.historikk.Historikk
 import no.nav.syfo.motebehov.historikk.HistorikkService
 import no.nav.syfo.motebehov.toMotebehovVeilederDTOList
@@ -64,20 +64,20 @@ class MotebehovVeilederADControllerV2 @Inject constructor(
     }
 
     @PostMapping(
-        value = ["/motebehov/varsel"],
+        value = ["/motebehov/tilbakemelding"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
-    fun sendVarselOmVurdering(
-        @RequestBody varsel: @Valid MotebehovVarselVurdering,
+    fun sendTilbakemelding(
+        @RequestBody varsel: @Valid MotebehovTilbakemelding,
     ) {
-        metric.tellEndepunktKall("veileder_motebehov-varsel_call")
+        metric.tellEndepunktKall("veileder_motebehov-tilbakemelding_call")
         kastExceptionHvisIkkeTilgang(varsel.arbeidstakerFnr)
         if (!Jsoup.isValid(varsel.varseltekst, Safelist.none())) {
             throw BadRequestException("Invalid input")
         }
-        esyfovarselService.sendVarselOmVurdering(varsel)
-        metric.tellEndepunktKall("veileder_motebehov-varsel_call_success")
+        esyfovarselService.sendTilbakemeldingsvarsel(varsel)
+        metric.tellEndepunktKall("veileder_motebehov-tilbakemelding_call_success")
     }
 
     @PostMapping(value = ["/motebehov/{fnr}/behandle"])
