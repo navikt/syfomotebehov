@@ -1,5 +1,6 @@
 package no.nav.syfo.varsel.esyfovarsel
 
+import no.nav.syfo.motebehov.MotebehovVarselVurdering
 import no.nav.syfo.varsel.esyfovarsel.domain.*
 import no.nav.syfo.varsel.esyfovarsel.domain.HendelseType.NL_DIALOGMOTE_SVAR_MOTEBEHOV
 import no.nav.syfo.varsel.esyfovarsel.domain.HendelseType.SM_DIALOGMOTE_SVAR_MOTEBEHOV
@@ -29,6 +30,34 @@ class EsyfovarselService(private val producer: EsyfovarselProducer) {
             orgnummer = null,
         )
         producer.sendVarselTilEsyfovarsel(esyfovarselHendelse)
+    }
+
+    fun sendVarselOmVurdering(varsel: MotebehovVarselVurdering) {
+        if (varsel.sendVarselTilSykmeldt) {
+            val sykmeldtHendelse = ArbeidstakerHendelse(
+                type = HendelseType.SM_DIALOGMOTE_MOTEBEHOV_VURDERING,
+                ferdigstill = false,
+                data = VarselDataMotebehovVurdering(varsel.varseltekst),
+                arbeidstakerFnr = varsel.arbeidstakerFnr,
+                orgnummer = varsel.orgnummer,
+            )
+
+            producer.sendVarselTilEsyfovarsel(sykmeldtHendelse)
+        }
+
+        if (varsel.sendVarselTilArbeidsgiver) {
+            val narmestelederHendelse = NarmesteLederHendelse(
+                type = HendelseType.NL_DIALOGMOTE_MOTEBEHOV_VURDERING,
+                ferdigstill = false,
+                data = VarselDataMotebehovVurdering(varsel.varseltekst),
+                narmesteLederFnr = varsel.narmesteLederFnr,
+                arbeidstakerFnr = varsel.arbeidstakerFnr,
+                orgnummer = varsel.orgnummer,
+            )
+
+            producer.sendVarselTilEsyfovarsel(narmestelederHendelse)
+        }
+
     }
 
     fun ferdigstillSvarMotebehovForArbeidsgiver(narmestelederFnr: String, ansattFnr: String, orgnummer: String) {

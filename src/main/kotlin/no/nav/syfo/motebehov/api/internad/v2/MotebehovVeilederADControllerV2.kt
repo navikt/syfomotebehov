@@ -9,12 +9,15 @@ import no.nav.syfo.consumer.pdl.fullName
 import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovService
+import no.nav.syfo.motebehov.MotebehovVarselVurdering
 import no.nav.syfo.motebehov.historikk.Historikk
 import no.nav.syfo.motebehov.historikk.HistorikkService
 import no.nav.syfo.motebehov.toMotebehovVeilederDTOList
+import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import javax.inject.Inject
+import javax.validation.Valid
 import javax.validation.constraints.Pattern
 import javax.ws.rs.ForbiddenException
 
@@ -27,7 +30,8 @@ class MotebehovVeilederADControllerV2 @Inject constructor(
     private val historikkService: HistorikkService,
     private val motebehovService: MotebehovService,
     private val pdlConsumer: PdlConsumer,
-    private val veilederTilgangConsumer: VeilederTilgangConsumer
+    private val veilederTilgangConsumer: VeilederTilgangConsumer,
+    private val esyfovarselService: EsyfovarselService,
 ) {
     @GetMapping(value = ["/motebehov"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentMotebehovListe(
@@ -54,6 +58,21 @@ class MotebehovVeilederADControllerV2 @Inject constructor(
         metric.tellEndepunktKall("veileder_hent_motebehov_historikk")
         kastExceptionHvisIkkeTilgang(sykmeldtFnr)
         return historikkService.hentHistorikkListe(sykmeldtFnr)
+    }
+
+    @PostMapping(
+        value = ["/motebehov/{fnr}/varsel"],
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun sendVarselOmVurdering(
+        @PathVariable(name = "fnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String,
+        @RequestBody varsel: @Valid MotebehovVarselVurdering,
+    ) {
+        metric.tellEndepunktKall("veileder_motebehov-varsel_call")
+        kastExceptionHvisIkkeTilgang(sykmeldtFnr)
+        esyfovarselService.sendVarselOmVurdering(varsel)
+        metric.tellEndepunktKall("veileder_motebehov-varsel_call_success")
     }
 
     @PostMapping(value = ["/motebehov/{fnr}/behandle"])

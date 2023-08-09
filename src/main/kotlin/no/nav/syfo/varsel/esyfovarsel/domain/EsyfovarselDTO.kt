@@ -30,4 +30,10 @@ data class ArbeidstakerHendelse(
 enum class HendelseType {
     NL_DIALOGMOTE_SVAR_MOTEBEHOV,
     SM_DIALOGMOTE_SVAR_MOTEBEHOV,
+    NL_DIALOGMOTE_MOTEBEHOV_VURDERING,
+    SM_DIALOGMOTE_MOTEBEHOV_VURDERING,
 }
+
+data class VarselDataMotebehovVurdering(
+    val vurdering: String,
+)
