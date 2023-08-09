@@ -14,11 +14,14 @@ import no.nav.syfo.motebehov.historikk.Historikk
 import no.nav.syfo.motebehov.historikk.HistorikkService
 import no.nav.syfo.motebehov.toMotebehovVeilederDTOList
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
+import org.jsoup.Jsoup
+import org.jsoup.safety.Safelist
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import javax.inject.Inject
 import javax.validation.Valid
 import javax.validation.constraints.Pattern
+import javax.ws.rs.BadRequestException
 import javax.ws.rs.ForbiddenException
 
 @RestController
@@ -61,16 +64,18 @@ class MotebehovVeilederADControllerV2 @Inject constructor(
     }
 
     @PostMapping(
-        value = ["/motebehov/{fnr}/varsel"],
+        value = ["/motebehov/varsel"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun sendVarselOmVurdering(
-        @PathVariable(name = "fnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String,
         @RequestBody varsel: @Valid MotebehovVarselVurdering,
     ) {
         metric.tellEndepunktKall("veileder_motebehov-varsel_call")
-        kastExceptionHvisIkkeTilgang(sykmeldtFnr)
+        kastExceptionHvisIkkeTilgang(varsel.arbeidstakerFnr)
+        if (!Jsoup.isValid(varsel.varseltekst, Safelist.none())) {
+            throw BadRequestException("Invalid input")
+        }
         esyfovarselService.sendVarselOmVurdering(varsel)
         metric.tellEndepunktKall("veileder_motebehov-varsel_call_success")
     }

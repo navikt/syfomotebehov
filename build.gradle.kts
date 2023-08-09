@@ -15,6 +15,7 @@ object Versions {
     const val springMockkVersion = "3.1.1"
     const val confluent = "7.1.1"
     const val isdialogmoteSchema = "1.0.5"
+    const val jsoupVersion = "1.16.1"
 }
 
 plugins {
@@ -92,6 +93,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:6.4")
     implementation("org.apache.commons:commons-lang3:3.5")
     implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:20211018.2")
+    implementation ("org.jsoup:jsoup:${Versions.jsoupVersion}")
 
     testImplementation("org.junit.jupiter:junit-jupiter:${Versions.junitJupiterVersion}")
     testImplementation("no.nav.security:token-validation-test-support:${Versions.tokenSupportVersion}")
