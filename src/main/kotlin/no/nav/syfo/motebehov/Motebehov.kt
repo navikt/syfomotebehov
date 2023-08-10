@@ -12,6 +12,7 @@ data class Motebehov(
     val opprettetDato: LocalDateTime,
     val aktorId: String,
     val opprettetAv: String,
+    val opprettetAvFnr: String,
     val arbeidstakerFnr: String,
     val virksomhetsnummer: String,
     val motebehovSvar: MotebehovSvar,

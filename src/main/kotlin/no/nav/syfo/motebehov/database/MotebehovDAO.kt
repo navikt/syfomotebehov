@@ -111,6 +111,7 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
                     behandletVeilederIdent = rs.getString("behandlet_veileder_ident"),
                     skjemaType = rs.getString("skjematype")?.let { MotebehovSkjemaType.valueOf(it) },
                     sykmeldtFnr = rs.getString("sm_fnr"),
+                    opprettetAvFnr = rs.getString("opprettet_av_fnr"),
                 )
             }
     }

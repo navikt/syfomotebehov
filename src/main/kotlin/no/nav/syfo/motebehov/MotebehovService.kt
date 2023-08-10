@@ -168,6 +168,7 @@ class MotebehovService @Inject constructor(
             opprettetDato = pMotebehov.opprettetDato,
             aktorId = pMotebehov.aktoerId,
             opprettetAv = pMotebehov.opprettetAv,
+            opprettetAvFnr = pMotebehov.opprettetAvFnr!!,
             arbeidstakerFnr = pMotebehov.sykmeldtFnr!!,
             virksomhetsnummer = pMotebehov.virksomhetsnummer,
             motebehovSvar = MotebehovSvar(
