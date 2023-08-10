@@ -110,7 +110,7 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
                     behandletTidspunkt = convertNullable(rs.getTimestamp("behandlet_tidspunkt")),
                     behandletVeilederIdent = rs.getString("behandlet_veileder_ident"),
                     skjemaType = rs.getString("skjematype")?.let { MotebehovSkjemaType.valueOf(it) },
-
+                    sykmeldtFnr = rs.getString("sm_fnr"),
                 )
             }
     }
