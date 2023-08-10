@@ -1,9 +1,5 @@
 package no.nav.syfo.motebehov
 
-import java.time.LocalDateTime
-import java.util.*
-import java.util.stream.Collectors
-import javax.inject.Inject
 import no.nav.syfo.api.exception.ConflictException
 import no.nav.syfo.consumer.behandlendeenhet.BehandlendeEnhetConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
@@ -15,6 +11,10 @@ import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
+import java.util.*
+import java.util.stream.Collectors
+import javax.inject.Inject
 
 @Service
 class MotebehovService @Inject constructor(
@@ -30,14 +30,18 @@ class MotebehovService @Inject constructor(
         val pMotebehovUbehandletList = motebehovDAO.hentUbehandledeMotebehov(arbeidstakerAktorId)
         if (pMotebehovUbehandletList.isNotEmpty()) {
             pMotebehovUbehandletList.forEach { pMotebehov ->
-                val antallOppdatering = motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(pMotebehov.uuid, veilederIdent)
+                val antallOppdatering =
+                    motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(pMotebehov.uuid, veilederIdent)
                 if (antallOppdatering == 1) {
                     personoppgavehendelseService.sendPersonoppgaveHendelseBehandlet(pMotebehov.uuid, arbeidstakerFnr)
                 }
             }
         } else {
             metric.tellHendelse("feil_behandle_motebehov_svar_eksiterer_ikke")
-            log.warn("Ugyldig tilstand: Veileder {} forsøkte å behandle motebehovsvar som ikke eksisterer. Kaster Http-409", veilederIdent)
+            log.warn(
+                "Ugyldig tilstand: Veileder {} forsøkte å behandle motebehovsvar som ikke eksisterer. Kaster Http-409",
+                veilederIdent
+            )
             throw ConflictException()
         }
     }
@@ -50,6 +54,15 @@ class MotebehovService @Inject constructor(
             .collect(Collectors.toList())
     }
 
+    fun hentMotebehov(arbeidstakerFnr: String, motebehovId: String): Motebehov? {
+        return motebehovDAO
+            .hentMotebehov(motebehovId)
+            .stream()
+            .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
+            .collect(Collectors.toList())
+            .firstOrNull()
+    }
+
     fun hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr: String): List<Motebehov> {
         val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
         return motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktoerId)
@@ -58,9 +71,17 @@ class MotebehovService @Inject constructor(
             .collect(Collectors.toList())
     }
 
-    fun hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerFnr: String, isOwnLeader: Boolean, virksomhetsnummer: String): List<Motebehov> {
+    fun hentMotebehovListeForArbeidstakerOpprettetAvLeder(
+        arbeidstakerFnr: String,
+        isOwnLeader: Boolean,
+        virksomhetsnummer: String
+    ): List<Motebehov> {
         val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
-        return motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerAktoerId, isOwnLeader, virksomhetsnummer)
+        return motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
+            arbeidstakerAktoerId,
+            isOwnLeader,
+            virksomhetsnummer
+        )
             .stream()
             .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
             .collect(Collectors.toList())
@@ -76,7 +97,8 @@ class MotebehovService @Inject constructor(
     ): UUID {
         val innloggetBrukerAktoerId = pdlConsumer.aktorid(innloggetFNR)
         val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
-        val arbeidstakerBehandlendeEnhet = behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr, null).enhetId
+        val arbeidstakerBehandlendeEnhet =
+            behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr, null).enhetId
         val motebehov = mapNyttMotebehovToPMotebehov(
             innloggetBrukerAktoerId,
             arbeidstakerAktoerId,

@@ -1,5 +1,6 @@
 package no.nav.syfo.varsel.esyfovarsel
 
+import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.motebehov.MotebehovTilbakemelding
 import no.nav.syfo.varsel.esyfovarsel.domain.*
 import no.nav.syfo.varsel.esyfovarsel.domain.HendelseType.NL_DIALOGMOTE_SVAR_MOTEBEHOV
@@ -32,32 +33,29 @@ class EsyfovarselService(private val producer: EsyfovarselProducer) {
         producer.sendVarselTilEsyfovarsel(esyfovarselHendelse)
     }
 
-    fun sendTilbakemeldingsvarsel(varsel: MotebehovTilbakemelding) {
-        if (varsel.sendVarselTilSykmeldt) {
+    fun sendTilbakemeldingsvarsel(tilbakemelding: MotebehovTilbakemelding, motebehov: Motebehov) {
+        if (motebehov.opprettetAv === motebehov.arbeidstakerFnr) {
             val sykmeldtHendelse = ArbeidstakerHendelse(
                 type = HendelseType.SM_DIALOGMOTE_MOTEBEHOV_TILBAKEMELDING,
                 ferdigstill = false,
-                data = VarselDataMotebehovTilbakemelding(varsel.varseltekst),
-                arbeidstakerFnr = varsel.arbeidstakerFnr,
-                orgnummer = varsel.orgnummer,
+                data = VarselDataMotebehovTilbakemelding(tilbakemelding.varseltekst),
+                arbeidstakerFnr = motebehov.arbeidstakerFnr,
+                orgnummer = motebehov.virksomhetsnummer,
             )
 
             producer.sendVarselTilEsyfovarsel(sykmeldtHendelse)
-        }
-
-        if (varsel.sendVarselTilArbeidsgiver) {
+        } else {
             val narmestelederHendelse = NarmesteLederHendelse(
                 type = HendelseType.NL_DIALOGMOTE_MOTEBEHOV_TILBAKEMELDING,
                 ferdigstill = false,
-                data = VarselDataMotebehovTilbakemelding(varsel.varseltekst),
-                narmesteLederFnr = varsel.narmesteLederFnr,
-                arbeidstakerFnr = varsel.arbeidstakerFnr,
-                orgnummer = varsel.orgnummer,
+                data = VarselDataMotebehovTilbakemelding(tilbakemelding.varseltekst),
+                narmesteLederFnr = motebehov.opprettetAv,
+                arbeidstakerFnr = motebehov.arbeidstakerFnr,
+                orgnummer = motebehov.virksomhetsnummer,
             )
 
             producer.sendVarselTilEsyfovarsel(narmestelederHendelse)
         }
-
     }
 
     fun ferdigstillSvarMotebehovForArbeidsgiver(narmestelederFnr: String, ansattFnr: String, orgnummer: String) {

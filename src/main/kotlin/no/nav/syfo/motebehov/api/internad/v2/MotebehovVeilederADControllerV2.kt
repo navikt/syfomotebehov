@@ -23,6 +23,7 @@ import javax.validation.Valid
 import javax.validation.constraints.Pattern
 import javax.ws.rs.BadRequestException
 import javax.ws.rs.ForbiddenException
+import javax.ws.rs.NotFoundException
 
 @RestController
 @ProtectedWithClaims(issuer = INTERN_AZUREAD_V2)
@@ -64,19 +65,28 @@ class MotebehovVeilederADControllerV2 @Inject constructor(
     }
 
     @PostMapping(
-        value = ["/motebehov/tilbakemelding"],
+        value = ["/motebehov/{fnr}/tilbakemelding"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun sendTilbakemelding(
-        @RequestBody varsel: @Valid MotebehovTilbakemelding,
+        @PathVariable(name = "fnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String,
+        @RequestBody tilbakemelding: @Valid MotebehovTilbakemelding,
     ) {
         metric.tellEndepunktKall("veileder_motebehov-tilbakemelding_call")
-        kastExceptionHvisIkkeTilgang(varsel.arbeidstakerFnr)
-        if (!Jsoup.isValid(varsel.varseltekst, Safelist.none())) {
+        kastExceptionHvisIkkeTilgang(sykmeldtFnr)
+
+        val motebehov = motebehovService.hentMotebehov(sykmeldtFnr, tilbakemelding.motebehovId)
+
+        if (motebehov === null) {
+            throw NotFoundException()
+        }
+
+        if (!Jsoup.isValid(tilbakemelding.varseltekst, Safelist.none()) || motebehov.arbeidstakerFnr !== sykmeldtFnr) {
             throw BadRequestException("Invalid input")
         }
-        esyfovarselService.sendTilbakemeldingsvarsel(varsel)
+
+        esyfovarselService.sendTilbakemeldingsvarsel(tilbakemelding, motebehov)
         metric.tellEndepunktKall("veileder_motebehov-tilbakemelding_call_success")
     }
 

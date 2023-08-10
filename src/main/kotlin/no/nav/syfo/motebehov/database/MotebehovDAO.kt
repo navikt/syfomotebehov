@@ -43,6 +43,10 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
         return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND har_motebehov = 1 AND behandlet_veileder_ident IS NULL", innsendingRowMapper, aktoerId)).orElse(emptyList())
     }
 
+    fun hentMotebehov(motebehovId: String): List<PMotebehov> {
+        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE motebehov_uuid = ?", innsendingRowMapper, motebehovId)).orElse(emptyList())
+    }
+
     fun oppdaterUbehandledeMotebehovTilBehandlet(
         motebehovUUID: UUID,
         veilederIdent: String
