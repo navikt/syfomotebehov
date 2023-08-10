@@ -65,7 +65,7 @@ class MotebehovVeilederADControllerV2 @Inject constructor(
     }
 
     @PostMapping(
-        value = ["/motebehov/{fnr}/tilbakemelding"],
+        value = ["/motebehov/tilbakemelding"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
