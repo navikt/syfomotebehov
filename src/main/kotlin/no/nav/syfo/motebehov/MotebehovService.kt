@@ -54,11 +54,11 @@ class MotebehovService @Inject constructor(
             .collect(Collectors.toList())
     }
 
-    fun hentMotebehov(arbeidstakerFnr: String, motebehovId: String): Motebehov? {
+    fun hentMotebehov(motebehovId: String): Motebehov? {
         return motebehovDAO
             .hentMotebehov(motebehovId)
             .stream()
-            .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
+            .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(dbMotebehov) }
             .collect(Collectors.toList())
             .firstOrNull()
     }
@@ -150,6 +150,25 @@ class MotebehovService @Inject constructor(
             aktorId = pMotebehov.aktoerId,
             opprettetAv = pMotebehov.opprettetAv,
             arbeidstakerFnr = arbeidstakerFnr,
+            virksomhetsnummer = pMotebehov.virksomhetsnummer,
+            motebehovSvar = MotebehovSvar(
+                harMotebehov = pMotebehov.harMotebehov,
+                forklaring = pMotebehov.forklaring
+            ),
+            tildeltEnhet = pMotebehov.tildeltEnhet,
+            behandletTidspunkt = pMotebehov.behandletTidspunkt,
+            behandletVeilederIdent = pMotebehov.behandletVeilederIdent,
+            skjemaType = pMotebehov.skjemaType
+        )
+    }
+
+    private fun mapPMotebehovToMotebehov(pMotebehov: PMotebehov): Motebehov {
+        return Motebehov(
+            id = pMotebehov.uuid,
+            opprettetDato = pMotebehov.opprettetDato,
+            aktorId = pMotebehov.aktoerId,
+            opprettetAv = pMotebehov.opprettetAv,
+            arbeidstakerFnr = pMotebehov.sykmeldtFnr!!,
             virksomhetsnummer = pMotebehov.virksomhetsnummer,
             motebehovSvar = MotebehovSvar(
                 harMotebehov = pMotebehov.harMotebehov,

@@ -70,19 +70,19 @@ class MotebehovVeilederADControllerV2 @Inject constructor(
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun sendTilbakemelding(
-        @PathVariable(name = "fnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String,
         @RequestBody tilbakemelding: @Valid MotebehovTilbakemelding,
     ) {
         metric.tellEndepunktKall("veileder_motebehov-tilbakemelding_call")
-        kastExceptionHvisIkkeTilgang(sykmeldtFnr)
 
-        val motebehov = motebehovService.hentMotebehov(sykmeldtFnr, tilbakemelding.motebehovId)
+        val motebehov = motebehovService.hentMotebehov(tilbakemelding.motebehovId)
 
         if (motebehov === null) {
             throw NotFoundException()
         }
 
-        if (!Jsoup.isValid(tilbakemelding.varseltekst, Safelist.none()) || motebehov.arbeidstakerFnr !== sykmeldtFnr) {
+        kastExceptionHvisIkkeTilgang(motebehov.arbeidstakerFnr)
+
+        if (!Jsoup.isValid(tilbakemelding.varseltekst, Safelist.none())) {
             throw BadRequestException("Invalid input")
         }
 
