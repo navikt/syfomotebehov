@@ -5,6 +5,7 @@ import no.nav.syfo.motebehov.database.PMotebehov
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
+import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
 import no.nav.syfo.testhelper.UserConstants.NAV_ENHET
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
@@ -27,7 +28,8 @@ class MotebehovGenerator {
         motebehovSvar = motebehovSvar.copy(harMotebehov = true),
         tildeltEnhet = NAV_ENHET,
         behandletVeilederIdent = VEILEDER_ID,
-        behandletTidspunkt = LocalDateTime.now()
+        behandletTidspunkt = LocalDateTime.now(),
+        opprettetAvFnr = LEDER_FNR
     )
     private val nyttMotebehovArbeidstaker = NyttMotebehov(
         arbeidstakerFnr = ARBEIDSTAKER_FNR,
