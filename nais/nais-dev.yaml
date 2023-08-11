@@ -132,3 +132,5 @@ spec:
       value: "https://isnarmesteleder.intern.dev.nav.no"
     - name: ISNARMESTELEDER_CLIENT_ID
       value: "dev-gcp.teamsykefravr.isnarmesteleder"
+    - name: SPRING_PROFILES_ACTIVE
+      value: remote,testdatareset
