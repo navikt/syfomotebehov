@@ -1,5 +1,7 @@
 package no.nav.syfo.varsel.esyfovarsel
 
+import no.nav.syfo.motebehov.Motebehov
+import no.nav.syfo.motebehov.MotebehovTilbakemelding
 import no.nav.syfo.varsel.esyfovarsel.domain.*
 import no.nav.syfo.varsel.esyfovarsel.domain.HendelseType.NL_DIALOGMOTE_SVAR_MOTEBEHOV
 import no.nav.syfo.varsel.esyfovarsel.domain.HendelseType.SM_DIALOGMOTE_SVAR_MOTEBEHOV
@@ -29,6 +31,31 @@ class EsyfovarselService(private val producer: EsyfovarselProducer) {
             orgnummer = null,
         )
         producer.sendVarselTilEsyfovarsel(esyfovarselHendelse)
+    }
+
+    fun sendTilbakemeldingsvarsel(tilbakemelding: MotebehovTilbakemelding, motebehov: Motebehov) {
+        if (motebehov.opprettetAvFnr == motebehov.arbeidstakerFnr) {
+            val sykmeldtHendelse = ArbeidstakerHendelse(
+                type = HendelseType.SM_DIALOGMOTE_MOTEBEHOV_TILBAKEMELDING,
+                ferdigstill = false,
+                data = VarselDataMotebehovTilbakemelding(tilbakemelding.varseltekst),
+                arbeidstakerFnr = motebehov.arbeidstakerFnr,
+                orgnummer = motebehov.virksomhetsnummer,
+            )
+
+            producer.sendVarselTilEsyfovarsel(sykmeldtHendelse)
+        } else {
+            val narmestelederHendelse = NarmesteLederHendelse(
+                type = HendelseType.NL_DIALOGMOTE_MOTEBEHOV_TILBAKEMELDING,
+                ferdigstill = false,
+                data = VarselDataMotebehovTilbakemelding(tilbakemelding.varseltekst),
+                narmesteLederFnr = motebehov.opprettetAvFnr,
+                arbeidstakerFnr = motebehov.arbeidstakerFnr,
+                orgnummer = motebehov.virksomhetsnummer,
+            )
+
+            producer.sendVarselTilEsyfovarsel(narmestelederHendelse)
+        }
     }
 
     fun ferdigstillSvarMotebehovForArbeidsgiver(narmestelederFnr: String, ansattFnr: String, orgnummer: String) {

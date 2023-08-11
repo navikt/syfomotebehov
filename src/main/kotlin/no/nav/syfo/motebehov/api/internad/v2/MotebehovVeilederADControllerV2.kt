@@ -9,14 +9,21 @@ import no.nav.syfo.consumer.pdl.fullName
 import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovService
+import no.nav.syfo.motebehov.MotebehovTilbakemelding
 import no.nav.syfo.motebehov.historikk.Historikk
 import no.nav.syfo.motebehov.historikk.HistorikkService
 import no.nav.syfo.motebehov.toMotebehovVeilederDTOList
+import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
+import org.jsoup.Jsoup
+import org.jsoup.safety.Safelist
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import javax.inject.Inject
+import javax.validation.Valid
 import javax.validation.constraints.Pattern
+import javax.ws.rs.BadRequestException
 import javax.ws.rs.ForbiddenException
+import javax.ws.rs.NotFoundException
 
 @RestController
 @ProtectedWithClaims(issuer = INTERN_AZUREAD_V2)
@@ -27,7 +34,8 @@ class MotebehovVeilederADControllerV2 @Inject constructor(
     private val historikkService: HistorikkService,
     private val motebehovService: MotebehovService,
     private val pdlConsumer: PdlConsumer,
-    private val veilederTilgangConsumer: VeilederTilgangConsumer
+    private val veilederTilgangConsumer: VeilederTilgangConsumer,
+    private val esyfovarselService: EsyfovarselService,
 ) {
     @GetMapping(value = ["/motebehov"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentMotebehovListe(
@@ -54,6 +62,32 @@ class MotebehovVeilederADControllerV2 @Inject constructor(
         metric.tellEndepunktKall("veileder_hent_motebehov_historikk")
         kastExceptionHvisIkkeTilgang(sykmeldtFnr)
         return historikkService.hentHistorikkListe(sykmeldtFnr)
+    }
+
+    @PostMapping(
+        value = ["/motebehov/tilbakemelding"],
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun sendTilbakemelding(
+        @RequestBody tilbakemelding: @Valid MotebehovTilbakemelding,
+    ) {
+        metric.tellEndepunktKall("veileder_motebehov-tilbakemelding_call")
+
+        val motebehov = motebehovService.hentMotebehov(tilbakemelding.motebehovId)
+
+        if (motebehov === null) {
+            throw NotFoundException()
+        }
+
+        kastExceptionHvisIkkeTilgang(motebehov.arbeidstakerFnr)
+
+        if (!Jsoup.isValid(tilbakemelding.varseltekst, Safelist.none())) {
+            throw BadRequestException("Invalid input")
+        }
+
+        esyfovarselService.sendTilbakemeldingsvarsel(tilbakemelding, motebehov)
+        metric.tellEndepunktKall("veileder_motebehov-tilbakemelding_call_success")
     }
 
     @PostMapping(value = ["/motebehov/{fnr}/behandle"])
