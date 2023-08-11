@@ -34,7 +34,7 @@ class EsyfovarselService(private val producer: EsyfovarselProducer) {
     }
 
     fun sendTilbakemeldingsvarsel(tilbakemelding: MotebehovTilbakemelding, motebehov: Motebehov) {
-        if (motebehov.opprettetAvFnr === motebehov.arbeidstakerFnr) {
+        if (motebehov.opprettetAvFnr == motebehov.arbeidstakerFnr) {
             val sykmeldtHendelse = ArbeidstakerHendelse(
                 type = HendelseType.SM_DIALOGMOTE_MOTEBEHOV_TILBAKEMELDING,
                 ferdigstill = false,
