@@ -4,6 +4,12 @@ on: push
 jobs:
   jar-app:
     uses: navikt/teamesyfo-github-actions-workflows/.github/workflows/fss-jar-app.yaml@main
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+      packages: write
+      id-token: write
     secrets: inherit
     with:
       app: syfomotebehov
