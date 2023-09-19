@@ -17,4 +17,5 @@ enum class DialogmotekandidatEndringArsak {
     STOPPUNKT,
     DIALOGMOTE_FERDIGSTILT,
     UNNTAK,
+    LUKKET,
 }
