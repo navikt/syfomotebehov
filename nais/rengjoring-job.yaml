@@ -1,9 +1,0 @@
-apiVersion: nais.io/v1
-kind: Naisjob
-metadata:
-  labels:
-    team: team-esyfo
-  name: hostrengjoring
-  namespace: team-esyfo
-spec:
-  image: {{ image }}

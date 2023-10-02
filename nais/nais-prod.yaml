@@ -86,6 +86,7 @@ spec:
         mountPath: "/secrets/syfomotebehovdb/config"
       - kvPath: "/kv/prod/fss/syfomotebehov/team-esyfo"
         mountPath: "/var/run/secrets/nais.io/vault"
+  leaderElection: true
   kafka:
     pool: nav-prod
   env:
@@ -130,4 +131,4 @@ spec:
     - name: ISNARMESTELEDER_CLIENT_ID
       value: "prod-gcp.teamsykefravr.isnarmesteleder"
     - name: SPRING_PROFILES_ACTIVE
-      value: remote
+      value: remote,behandle_ubehandlede_motebehov

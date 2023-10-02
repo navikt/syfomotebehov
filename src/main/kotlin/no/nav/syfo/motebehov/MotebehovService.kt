@@ -48,8 +48,8 @@ class MotebehovService @Inject constructor(
     }
 
     @Transactional
-    fun behandleUbehandledeMotebehovHostrengjoring2023() {
-        val pMotebehovUbehandletList = motebehovDAO.hentUbehandledeMotebehovEldreEnnDato(LocalDate.of(2023, 6, 1))
+    fun behandleUbehandledeMotebehovTidligereEnnDato(dato: LocalDate) {
+        val pMotebehovUbehandletList = motebehovDAO.hentUbehandledeMotebehovEldreEnnDato(dato)
         if (pMotebehovUbehandletList.isNotEmpty()) {
             pMotebehovUbehandletList.forEach { pMotebehov ->
                 val antallOppdatering =
