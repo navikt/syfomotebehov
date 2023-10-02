@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.sql.ResultSet
 import java.sql.Types
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 import java.util.UUID
@@ -41,6 +42,10 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
 
     fun hentUbehandledeMotebehov(aktoerId: String): List<PMotebehov> {
         return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND har_motebehov = 1 AND behandlet_veileder_ident IS NULL", innsendingRowMapper, aktoerId)).orElse(emptyList())
+    }
+
+    fun hentUbehandledeMotebehovEldreEnnDato(date: LocalDate): List<PMotebehov> {
+        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE opprettet_dato > ? AND har_motebehov = 1 AND behandlet_veileder_ident IS NULL", innsendingRowMapper, convert(date))).orElse(emptyList())
     }
 
     fun hentMotebehov(motebehovId: String): List<PMotebehov> {

@@ -11,6 +11,7 @@ import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 import java.util.stream.Collectors
@@ -42,6 +43,23 @@ class MotebehovService @Inject constructor(
                 "Ugyldig tilstand: Veileder {} forsøkte å behandle motebehovsvar som ikke eksisterer. Kaster Http-409",
                 veilederIdent
             )
+            throw ConflictException()
+        }
+    }
+
+    @Transactional
+    fun behandleUbehandledeMotebehovHostrengjoring2023() {
+        val pMotebehovUbehandletList = motebehovDAO.hentUbehandledeMotebehovEldreEnnDato(LocalDate.of(2023, 6, 1))
+        if (pMotebehovUbehandletList.isNotEmpty()) {
+            pMotebehovUbehandletList.forEach { pMotebehov ->
+                val antallOppdatering =
+                    motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(pMotebehov.uuid, "X000000")
+                if (antallOppdatering == 1) {
+                    personoppgavehendelseService.sendPersonoppgaveHendelseBehandlet(pMotebehov.uuid, pMotebehov.sykmeldtFnr!!)
+                }
+            }
+        } else {
+            log.warn("Ugyldig tilstand: Forsøkte å behandle motebehovsvar som ikke eksisterer. Kaster Http-409")
             throw ConflictException()
         }
     }
