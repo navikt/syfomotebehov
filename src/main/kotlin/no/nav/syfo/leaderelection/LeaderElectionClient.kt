@@ -1,5 +1,6 @@
 package no.nav.syfo.leaderelection
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.syfo.metric.Metric
@@ -33,7 +34,7 @@ class LeaderElectionClient @Inject constructor(
             val leader = objectMapper.readValue(response, Leader::class.java)
             isHostLeader(leader)
         } catch (e: IOException) {
-            log.error("Couldn't map response from electorPath to LeaderPod object", e)
+            log.error("Couldn't map response from electorPath to Leader object", e)
             metric.tellHendelse("isLeader_feilet")
             throw RuntimeException("Couldn't map response from electorpath to LeaderPod object", e)
         } catch (e: Exception) {
@@ -48,6 +49,7 @@ class LeaderElectionClient @Inject constructor(
         return hostName == leader.name
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private data class Leader(val name: String)
 
     companion object {
