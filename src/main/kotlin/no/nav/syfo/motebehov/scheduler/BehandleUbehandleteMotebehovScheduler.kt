@@ -15,7 +15,7 @@ class BehandleUbehandleteMotebehovScheduler @Inject constructor(
     private val leaderElectionClient: LeaderElectionClient,
     private val motebehovService: MotebehovService,
 ) {
-    @Scheduled(cron = "0 */5 * 3 OCT ?")
+    @Scheduled(cron = "0 0 11 4 OCT ?")
     fun runCleanupJob() {
         log.info("Running BehandleUbehandleteMotebehovScheduler job")
         if (leaderElectionClient.isLeader()) {
