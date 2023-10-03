@@ -134,4 +134,4 @@ spec:
     - name: ISNARMESTELEDER_CLIENT_ID
       value: "dev-gcp.teamsykefravr.isnarmesteleder"
     - name: SPRING_PROFILES_ACTIVE
-      value: remote,testdatareset,behandle_ubehandlede_motebehov
+      value: remote,testdatareset

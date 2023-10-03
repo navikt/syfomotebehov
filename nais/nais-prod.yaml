@@ -131,4 +131,4 @@ spec:
     - name: ISNARMESTELEDER_CLIENT_ID
       value: "prod-gcp.teamsykefravr.isnarmesteleder"
     - name: SPRING_PROFILES_ACTIVE
-      value: remote,behandle_ubehandlede_motebehov
+      value: remote
