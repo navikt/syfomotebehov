@@ -15,7 +15,7 @@ class BehandleUbehandleteMotebehovScheduler @Inject constructor(
     private val leaderElectionClient: LeaderElectionClient,
     private val motebehovService: MotebehovService,
 ) {
-    @Scheduled(cron = "0 0 11 4 OCT ?")
+    @Scheduled(cron = "0 0 11 * * *")
     fun runCleanupJob() {
         log.info("Running BehandleUbehandleteMotebehovScheduler job")
         if (leaderElectionClient.isLeader()) {
@@ -23,7 +23,8 @@ class BehandleUbehandleteMotebehovScheduler @Inject constructor(
             val fakeVeilederIdent = "X000000"
 
             log.info("Behandler ubehandlede møtebehov opprettet tidligere enn $dato")
-            motebehovService.behandleUbehandledeMotebehovOpprettetTidligereEnnDato(dato, fakeVeilederIdent)
+            val updatedCount = motebehovService.behandleUbehandledeMotebehovOpprettetTidligereEnnDato(dato, fakeVeilederIdent)
+            log.info("Behandlet $updatedCount ubehandlede møtebehov")
         }
     }
 

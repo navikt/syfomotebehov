@@ -48,7 +48,8 @@ class MotebehovService @Inject constructor(
     }
 
     @Transactional
-    fun behandleUbehandledeMotebehovOpprettetTidligereEnnDato(dato: LocalDate, veilederIdent: String) {
+    fun behandleUbehandledeMotebehovOpprettetTidligereEnnDato(dato: LocalDate, veilederIdent: String): Int {
+        var updatedCount = 0
         motebehovDAO.hentUbehandledeMotebehovEldreEnnDato(dato)
             .forEach { pMotebehov ->
                 pMotebehov.sykmeldtFnr?.let {
@@ -56,9 +57,11 @@ class MotebehovService @Inject constructor(
                         motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(pMotebehov.uuid, veilederIdent)
                     if (antallOppdatering == 1) {
                         personoppgavehendelseService.sendPersonoppgaveHendelseBehandlet(pMotebehov.uuid, it)
+                        updatedCount++
                     }
                 }
             }
+        return updatedCount
     }
 
     fun hentMotebehovListe(arbeidstakerFnr: String): List<Motebehov> {
