@@ -24,9 +24,14 @@ class LeaderElectionClient @Inject constructor(
         metric.tellHendelse("isLeader_kalt")
         val url = "http://$electorpath"
 
-        return try {
+        try {
             val response: Leader? = restTemplate.getForObject(url, Leader::class.java)
-            isHostLeader(response!!)
+            if (response == null) {
+                log.error("Call to elector returned null")
+                metric.tellHendelse("isLeader_feilet")
+                throw RuntimeException("Call to elector returned null")
+            }
+            return isHostLeader(response)
         } catch (e: IOException) {
             log.error("Couldn't map response from electorPath to Leader object", e)
             metric.tellHendelse("isLeader_feilet")
