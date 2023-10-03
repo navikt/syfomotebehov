@@ -12,7 +12,7 @@ import java.net.InetAddress
 import javax.inject.Inject
 
 @Service
-class LeaderElectionService @Inject constructor(
+class LeaderElectionClient @Inject constructor(
     private val metric: Metric,
     private val restTemplate: RestTemplate,
     @Value("\${elector.path}")
@@ -30,7 +30,7 @@ class LeaderElectionService @Inject constructor(
         val response: String = restTemplate.getForObject(url, String::class.java)
 
         return try {
-            val leader = objectMapper.readValue(response, LeaderPod::class.java)
+            val leader = objectMapper.readValue(response, Leader::class.java)
             isHostLeader(leader)
         } catch (e: IOException) {
             log.error("Couldn't map response from electorPath to LeaderPod object", e)
@@ -43,13 +43,14 @@ class LeaderElectionService @Inject constructor(
         }
     }
 
-    private fun isHostLeader(leader: LeaderPod): Boolean {
+    private fun isHostLeader(leader: Leader): Boolean {
         val hostName = InetAddress.getLocalHost().hostName
-        val leaderName: String = leader.name
-        return hostName == leaderName
+        return hostName == leader.name
     }
 
+    private data class Leader(val name: String)
+
     companion object {
-        private val log = LoggerFactory.getLogger(LeaderElectionService::class.java)
+        private val log = LoggerFactory.getLogger(LeaderElectionClient::class.java)
     }
 }

@@ -1,6 +1,6 @@
 package no.nav.syfo.motebehov.scheduler
 
-import no.nav.syfo.leaderelection.LeaderElectionService
+import no.nav.syfo.leaderelection.LeaderElectionClient
 import no.nav.syfo.motebehov.MotebehovService
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
@@ -12,13 +12,13 @@ import javax.inject.Inject
 @Component
 @Profile("behandle_ubehandlede_motebehov")
 class BehandleUbehandleteMotebehovScheduler @Inject constructor(
-    private val leaderElectionService: LeaderElectionService,
+    private val leaderElectionClient: LeaderElectionClient,
     private val motebehovService: MotebehovService,
 ) {
-    @Scheduled(cron = "0 15 9 3 OCT ?")
+    @Scheduled(cron = "0 */5 * 3 OCT ?")
     fun runCleanupJob() {
         log.info("Running BehandleUbehandleteMotebehovScheduler job")
-        if (leaderElectionService.isLeader()) {
+        if (leaderElectionClient.isLeader()) {
             val dato = LocalDate.of(2023, 6, 1)
             val fakeVeilederIdent = "X000000"
 
