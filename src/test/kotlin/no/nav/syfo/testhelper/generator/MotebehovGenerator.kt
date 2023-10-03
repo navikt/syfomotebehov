@@ -16,7 +16,7 @@ import java.util.*
 class MotebehovGenerator {
     private val motebehovSvar = MotebehovSvar(
         harMotebehov = true,
-        forklaring = ""
+        forklaring = "",
     )
     private val motebehov = Motebehov(
         id = UUID.randomUUID(),
@@ -29,30 +29,26 @@ class MotebehovGenerator {
         tildeltEnhet = NAV_ENHET,
         behandletVeilederIdent = VEILEDER_ID,
         behandletTidspunkt = LocalDateTime.now(),
-        opprettetAvFnr = LEDER_FNR
+        opprettetAvFnr = LEDER_FNR,
     )
     private val nyttMotebehovArbeidstaker = NyttMotebehov(
         arbeidstakerFnr = ARBEIDSTAKER_FNR,
         virksomhetsnummer = VIRKSOMHETSNUMMER,
         motebehovSvar = motebehovSvar,
-        tildeltEnhet = NAV_ENHET
+        tildeltEnhet = NAV_ENHET,
     )
 
     private val nyttMotebehovArbeidsgiver = NyttMotebehovArbeidsgiver(
         arbeidstakerFnr = ARBEIDSTAKER_FNR,
         virksomhetsnummer = VIRKSOMHETSNUMMER,
         motebehovSvar = motebehovSvar,
-        tildeltEnhet = NAV_ENHET
+        tildeltEnhet = NAV_ENHET,
     )
 
     fun lagMotebehovSvar(harBehov: Boolean): MotebehovSvar {
         return motebehovSvar.copy(
-            harMotebehov = harBehov
+            harMotebehov = harBehov,
         )
-    }
-
-    fun lagNyttMotebehovFraAT(): NyttMotebehov {
-        return nyttMotebehovArbeidstaker.copy()
     }
 
     fun lagNyttMotebehovArbeidsgiver(): NyttMotebehovArbeidsgiver {
@@ -67,11 +63,17 @@ class MotebehovGenerator {
         virksomhetsnummer = VIRKSOMHETSNUMMER,
         forklaring = "Megling",
         harMotebehov = true,
-        tildeltEnhet = NAV_ENHET
+        tildeltEnhet = NAV_ENHET,
+        sykmeldtFnr = ARBEIDSTAKER_FNR,
     )
 
     fun getOpprettetDato(erGyldig: Boolean): LocalDateTime {
-        return if (erGyldig) LocalDateTime.now().minusDays(MOTEBEHOVSVAR_GYLDIGHET_DAGER.toLong()) else LocalDateTime.now().minusDays(MOTEBEHOVSVAR_GYLDIGHET_DAGER + 1.toLong())
+        return if (erGyldig) {
+            LocalDateTime.now().minusDays(MOTEBEHOVSVAR_GYLDIGHET_DAGER.toLong())
+        } else {
+            LocalDateTime.now()
+                .minusDays(MOTEBEHOVSVAR_GYLDIGHET_DAGER + 1.toLong())
+        }
     }
 
     fun generatePmotebehov(): PMotebehov {

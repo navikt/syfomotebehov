@@ -45,7 +45,7 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
     }
 
     fun hentUbehandledeMotebehovEldreEnnDato(date: LocalDate): List<PMotebehov> {
-        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE opprettet_dato > ? AND har_motebehov = 1 AND behandlet_veileder_ident IS NULL", innsendingRowMapper, convert(date))).orElse(emptyList())
+        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE opprettet_dato < ? AND har_motebehov = 1 AND behandlet_veileder_ident IS NULL", innsendingRowMapper, convert(date))).orElse(emptyList())
     }
 
     fun hentMotebehov(motebehovId: String): List<PMotebehov> {
@@ -54,7 +54,7 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
 
     fun oppdaterUbehandledeMotebehovTilBehandlet(
         motebehovUUID: UUID,
-        veilederIdent: String
+        veilederIdent: String,
     ): Int {
         val oppdaterSql = "UPDATE motebehov SET behandlet_tidspunkt = ?, behandlet_veileder_ident = ? WHERE motebehov_uuid = ? AND har_motebehov = 1 AND behandlet_veileder_ident IS NULL"
         return jdbcTemplate.update(oppdaterSql, convert(LocalDateTime.now()), veilederIdent, motebehovUUID.toString())
@@ -93,7 +93,7 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
             namedParameterJdbcTemplate.update(
                 "DELETE FROM motebehov WHERE motebehov_uuid IN (:motebehovIder)",
                 MapSqlParameterSource()
-                    .addValue("motebehovIder", motebehovIder)
+                    .addValue("motebehovIder", motebehovIder),
             )
         } else {
             0
