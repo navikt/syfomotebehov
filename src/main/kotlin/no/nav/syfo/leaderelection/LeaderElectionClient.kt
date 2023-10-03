@@ -1,7 +1,5 @@
 package no.nav.syfo.leaderelection
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.syfo.metric.Metric
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -24,14 +22,11 @@ class LeaderElectionClient @Inject constructor(
             return false
         }
         metric.tellHendelse("isLeader_kalt")
-        val objectMapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         val url = "http://$electorpath"
 
-        val response: String = restTemplate.getForObject(url, String::class.java)
-
         return try {
-            val leader = objectMapper.readValue(response, Leader::class.java)
-            isHostLeader(leader)
+            val response: Leader? = restTemplate.getForObject(url, Leader::class.java)
+            isHostLeader(response!!)
         } catch (e: IOException) {
             log.error("Couldn't map response from electorPath to Leader object", e)
             metric.tellHendelse("isLeader_feilet")
