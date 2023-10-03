@@ -1,6 +1,5 @@
 package no.nav.syfo.leaderelection
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.syfo.metric.Metric
@@ -49,8 +48,10 @@ class LeaderElectionClient @Inject constructor(
         return hostName == leader.name
     }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private data class Leader(val name: String)
+    private data class Leader(
+        val name: String,
+        val lastUpdate: String,
+    )
 
     companion object {
         private val log = LoggerFactory.getLogger(LeaderElectionClient::class.java)
