@@ -45,7 +45,6 @@ class LeaderElectionClient @Inject constructor(
 
     private data class Leader(
         val name: String,
-        val lastUpdate: String,
     )
 
     companion object {
