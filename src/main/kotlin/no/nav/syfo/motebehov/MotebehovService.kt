@@ -11,6 +11,7 @@ import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 import java.util.stream.Collectors
@@ -22,7 +23,7 @@ class MotebehovService @Inject constructor(
     private val behandlendeEnhetConsumer: BehandlendeEnhetConsumer,
     private val personoppgavehendelseService: PersonoppgavehendelseService,
     private val motebehovDAO: MotebehovDAO,
-    private val pdlConsumer: PdlConsumer
+    private val pdlConsumer: PdlConsumer,
 ) {
     @Transactional
     fun behandleUbehandledeMotebehov(arbeidstakerFnr: String, veilederIdent: String) {
@@ -40,10 +41,27 @@ class MotebehovService @Inject constructor(
             metric.tellHendelse("feil_behandle_motebehov_svar_eksiterer_ikke")
             log.warn(
                 "Ugyldig tilstand: Veileder {} forsøkte å behandle motebehovsvar som ikke eksisterer. Kaster Http-409",
-                veilederIdent
+                veilederIdent,
             )
             throw ConflictException()
         }
+    }
+
+    @Transactional
+    fun behandleUbehandledeMotebehovOpprettetTidligereEnnDato(dato: LocalDate, veilederIdent: String): Int {
+        var updatedCount = 0
+        motebehovDAO.hentUbehandledeMotebehovEldreEnnDato(dato)
+            .forEach { pMotebehov ->
+                pMotebehov.sykmeldtFnr?.let {
+                    val antallOppdatering =
+                        motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(pMotebehov.uuid, veilederIdent)
+                    if (antallOppdatering == 1) {
+                        personoppgavehendelseService.sendPersonoppgaveHendelseBehandlet(pMotebehov.uuid, it)
+                        updatedCount++
+                    }
+                }
+            }
+        return updatedCount
     }
 
     fun hentMotebehovListe(arbeidstakerFnr: String): List<Motebehov> {
@@ -74,13 +92,13 @@ class MotebehovService @Inject constructor(
     fun hentMotebehovListeForArbeidstakerOpprettetAvLeder(
         arbeidstakerFnr: String,
         isOwnLeader: Boolean,
-        virksomhetsnummer: String
+        virksomhetsnummer: String,
     ): List<Motebehov> {
         val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
         return motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
             arbeidstakerAktoerId,
             isOwnLeader,
-            virksomhetsnummer
+            virksomhetsnummer,
         )
             .stream()
             .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
@@ -93,7 +111,7 @@ class MotebehovService @Inject constructor(
         arbeidstakerFnr: String,
         virksomhetsnummer: String,
         skjemaType: MotebehovSkjemaType,
-        motebehovSvar: MotebehovSvar
+        motebehovSvar: MotebehovSvar,
     ): UUID {
         val innloggetBrukerAktoerId = pdlConsumer.aktorid(innloggetFNR)
         val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
@@ -107,7 +125,7 @@ class MotebehovService @Inject constructor(
             arbeidstakerBehandlendeEnhet,
             virksomhetsnummer,
             skjemaType,
-            motebehovSvar
+            motebehovSvar,
         )
         val uuid = motebehovDAO.create(motebehov)
         if (motebehovSvar.harMotebehov) {
@@ -124,7 +142,7 @@ class MotebehovService @Inject constructor(
         tildeltEnhet: String,
         virksomhetsnummer: String,
         skjemaType: MotebehovSkjemaType,
-        motebehovSvar: MotebehovSvar
+        motebehovSvar: MotebehovSvar,
     ): PMotebehov {
         return PMotebehov(
             uuid = UUID.randomUUID(),
@@ -139,7 +157,7 @@ class MotebehovService @Inject constructor(
             behandletTidspunkt = null,
             skjemaType = skjemaType,
             sykmeldtFnr = arbeidstakerFnr,
-            opprettetAvFnr = innloggetFnr
+            opprettetAvFnr = innloggetFnr,
         )
     }
 
@@ -154,12 +172,12 @@ class MotebehovService @Inject constructor(
             virksomhetsnummer = pMotebehov.virksomhetsnummer,
             motebehovSvar = MotebehovSvar(
                 harMotebehov = pMotebehov.harMotebehov,
-                forklaring = pMotebehov.forklaring
+                forklaring = pMotebehov.forklaring,
             ),
             tildeltEnhet = pMotebehov.tildeltEnhet,
             behandletTidspunkt = pMotebehov.behandletTidspunkt,
             behandletVeilederIdent = pMotebehov.behandletVeilederIdent,
-            skjemaType = pMotebehov.skjemaType
+            skjemaType = pMotebehov.skjemaType,
         )
     }
 
@@ -174,12 +192,12 @@ class MotebehovService @Inject constructor(
             virksomhetsnummer = pMotebehov.virksomhetsnummer,
             motebehovSvar = MotebehovSvar(
                 harMotebehov = pMotebehov.harMotebehov,
-                forklaring = pMotebehov.forklaring
+                forklaring = pMotebehov.forklaring,
             ),
             tildeltEnhet = pMotebehov.tildeltEnhet,
             behandletTidspunkt = pMotebehov.behandletTidspunkt,
             behandletVeilederIdent = pMotebehov.behandletVeilederIdent,
-            skjemaType = pMotebehov.skjemaType
+            skjemaType = pMotebehov.skjemaType,
         )
     }
 

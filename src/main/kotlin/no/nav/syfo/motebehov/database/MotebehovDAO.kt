@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.sql.ResultSet
 import java.sql.Types
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 import java.util.UUID
@@ -43,13 +44,17 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
         return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND har_motebehov = 1 AND behandlet_veileder_ident IS NULL", innsendingRowMapper, aktoerId)).orElse(emptyList())
     }
 
+    fun hentUbehandledeMotebehovEldreEnnDato(date: LocalDate): List<PMotebehov> {
+        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE opprettet_dato < ? AND har_motebehov = 1 AND behandlet_veileder_ident IS NULL", innsendingRowMapper, convert(date))).orElse(emptyList())
+    }
+
     fun hentMotebehov(motebehovId: String): List<PMotebehov> {
         return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE motebehov_uuid = ?", innsendingRowMapper, motebehovId)).orElse(emptyList())
     }
 
     fun oppdaterUbehandledeMotebehovTilBehandlet(
         motebehovUUID: UUID,
-        veilederIdent: String
+        veilederIdent: String,
     ): Int {
         val oppdaterSql = "UPDATE motebehov SET behandlet_tidspunkt = ?, behandlet_veileder_ident = ? WHERE motebehov_uuid = ? AND har_motebehov = 1 AND behandlet_veileder_ident IS NULL"
         return jdbcTemplate.update(oppdaterSql, convert(LocalDateTime.now()), veilederIdent, motebehovUUID.toString())
@@ -88,7 +93,7 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
             namedParameterJdbcTemplate.update(
                 "DELETE FROM motebehov WHERE motebehov_uuid IN (:motebehovIder)",
                 MapSqlParameterSource()
-                    .addValue("motebehovIder", motebehovIder)
+                    .addValue("motebehovIder", motebehovIder),
             )
         } else {
             0

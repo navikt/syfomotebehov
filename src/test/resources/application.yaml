@@ -93,3 +93,4 @@ token.x.client.id: "tokenx-client-id"
 token.x.private.jwk: "tokenx-jwk"
 isnarmesteleder.url: "something"
 isnarmesteleder.client.id: "something"
+elector.path: dont_look_for_leader
