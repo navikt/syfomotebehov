@@ -30,6 +30,8 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
     val dittSykefravaerClientId: String,
     @Value("\${tms-min-side-proxy.client.id}")
     val minSideClientId: String,
+    @Value("\${esyfo-proxy.client.id}")
+    val esyfoProxyClientId: String,
 ) {
     @GetMapping(
         value = ["/motebehov"],
@@ -65,6 +67,7 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
             contextHolder,
             dialogmoteClientId,
             minSideClientId,
+            esyfoProxyClientId
         )
             .fnrFromIdportenTokenX()
 
@@ -83,6 +86,7 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
             contextHolder,
             dialogmoteClientId,
             minSideClientId,
+            esyfoProxyClientId
         )
             .fnrFromIdportenTokenX()
 
