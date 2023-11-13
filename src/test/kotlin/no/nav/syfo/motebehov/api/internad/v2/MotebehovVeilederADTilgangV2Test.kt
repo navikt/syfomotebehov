@@ -6,7 +6,7 @@ import no.nav.syfo.testhelper.OidcTestHelper.loggInnVeilederADV2
 import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
-import no.nav.syfo.testhelper.mockSvarFraSyfoTilgangskontrollV2TilgangTilBruker
+import no.nav.syfo.testhelper.mockSvarFraIstilgangskontrollTilgangTilBruker
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Qualifier
@@ -29,7 +29,7 @@ class MotebehovVeilederADTilgangV2Test {
     @Value("\${azure.openid.config.token.endpoint}")
     private lateinit var azureTokenEndpoint: String
 
-    @Value("\${tilgangskontrollapi.url}")
+    @Value("\${istilgangskontroll.url}")
     private lateinit var tilgangskontrollUrl: String
 
     @Inject
@@ -65,37 +65,37 @@ class MotebehovVeilederADTilgangV2Test {
     @Throws(ParseException::class)
     fun `veileder nektes tilgang`() {
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
-        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.FORBIDDEN)
+        mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.FORBIDDEN)
         assertThrows<ForbiddenException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
     }
 
     @Test
     @Throws(ParseException::class)
-    fun `klientfeil mot Syfotilgangskontroll`() {
+    fun `klientfeil mot istilgangskontroll`() {
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
-        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.BAD_REQUEST)
+        mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.BAD_REQUEST)
         assertThrows<HttpClientErrorException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
     }
 
     @Test
     @Throws(ParseException::class)
-    fun `teknisk feil i Syfotilgangskontroll`() {
+    fun `teknisk feil i istilgangskontroll`() {
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
-        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.INTERNAL_SERVER_ERROR)
+        mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.INTERNAL_SERVER_ERROR)
         assertThrows<HttpServerErrorException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
     }
 
-    private fun mockSvarFraSyfoTilgangskontroll(
+    private fun mockSvarFraIstilgangskontroll(
         fnr: String,
-        status: HttpStatus
+        status: HttpStatus,
     ) {
-        mockSvarFraSyfoTilgangskontrollV2TilgangTilBruker(
+        mockSvarFraIstilgangskontrollTilgangTilBruker(
             azureTokenEndpoint = azureTokenEndpoint,
             tilgangskontrollUrl = tilgangskontrollUrl,
             mockRestServiceServer = mockRestServiceServer,
             mockRestServiceWithProxyServer = mockRestServiceWithProxyServer,
             status = status,
-            fnr = fnr
+            fnr = fnr,
         )
     }
 }

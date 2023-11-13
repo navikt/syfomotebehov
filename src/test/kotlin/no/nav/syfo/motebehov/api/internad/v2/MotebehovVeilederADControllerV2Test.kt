@@ -38,7 +38,7 @@ import no.nav.syfo.testhelper.generator.generateOppfolgingstilfellePerson
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
-import no.nav.syfo.testhelper.mockSvarFraSyfoTilgangskontrollV2TilgangTilBruker
+import no.nav.syfo.testhelper.mockSvarFraIstilgangskontrollTilgangTilBruker
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.AfterEach
@@ -65,7 +65,7 @@ class MotebehovVeilederADControllerV2Test {
     @Value("\${azure.openid.config.token.endpoint}")
     private lateinit var azureTokenEndpoint: String
 
-    @Value("\${tilgangskontrollapi.url}")
+    @Value("\${istilgangskontroll.url}")
     private lateinit var tilgangskontrollUrl: String
 
     @Value("\${syfobehandlendeenhet.url}")
@@ -155,7 +155,7 @@ class MotebehovVeilederADControllerV2Test {
                 Consumer { cacheName: String ->
                     val cache = cacheManager.getCache(cacheName)
                     cache?.clear()
-                }
+                },
             )
         cleanDB()
         AzureAdV2TokenConsumer.Companion.clearCache()
@@ -170,7 +170,7 @@ class MotebehovVeilederADControllerV2Test {
         // Veileder henter møtebehov
         resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
-        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
+        mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
         assertThat(motebehovListe).size().isOne
         val motebehov = motebehovListe[0]
@@ -189,7 +189,7 @@ class MotebehovVeilederADControllerV2Test {
         // Veileder henter møtebehov
         resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
-        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
+        mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
         assertThat(motebehovListe).size().isOne
         val motebehov = motebehovListe[0]
@@ -206,16 +206,16 @@ class MotebehovVeilederADControllerV2Test {
         arbeidsgiverLagrerMotebehov()
         resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
-        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
+        mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
         val motebehov = motebehovListe[0]
         resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
-        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
+        mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
         resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
-        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
+        mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val historikkListe = motebehovVeilederController.hentMotebehovHistorikk(ARBEIDSTAKER_FNR)
         assertThat(historikkListe).size().isEqualTo(2)
         val (opprettetAv, tekst, tidspunkt) = historikkListe[0]
@@ -237,14 +237,14 @@ class MotebehovVeilederADControllerV2Test {
         arbeidsgiverLagrerMotebehov()
         resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
-        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
+        mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
 
         motebehovListe.forEach(
             Consumer { motebehovVeilederDTO ->
                 assertThat(motebehovVeilederDTO.behandletTidspunkt).isNull()
                 assertThat(motebehovVeilederDTO.behandletVeilederIdent).isNull()
-            }
+            },
         )
     }
 
@@ -257,10 +257,10 @@ class MotebehovVeilederADControllerV2Test {
         arbeidsgiverLagrerMotebehov()
         resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_ID)
-        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
+        mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
         resetMockRestServers()
-        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
+        mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
         assertThat(motebehovListe[0].behandletTidspunkt).isNull()
         assertThat(motebehovListe[0].behandletVeilederIdent).isEqualTo(null)
@@ -279,10 +279,10 @@ class MotebehovVeilederADControllerV2Test {
         arbeidsgiverLagrerMotebehov()
         resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_2_ID)
-        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
+        mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
         resetMockRestServers()
-        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
+        mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe1 = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
         assertNotNull(motebehovListe1[0].behandletTidspunkt)
         assertThat(motebehovListe1[0].behandletVeilederIdent).isEqualTo(VEILEDER_ID)
@@ -299,7 +299,7 @@ class MotebehovVeilederADControllerV2Test {
         behandleMotebehov(ARBEIDSTAKER_AKTORID, VEILEDER_ID)
         resetMockRestServers()
         loggInnVeilederADV2(contextHolder, VEILEDER_2_ID)
-        mockSvarFraSyfoTilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
+        mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
 
         assertThrows<RuntimeException> { motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR) }
     }
@@ -309,25 +309,25 @@ class MotebehovVeilederADControllerV2Test {
 
         val motebehovSvar = MotebehovSvar(
             harMotebehov = true,
-            forklaring = ""
+            forklaring = "",
         )
         val nyttMotebehov = NyttMotebehovArbeidsgiver(
             arbeidstakerFnr = ARBEIDSTAKER_FNR,
             virksomhetsnummer = VIRKSOMHETSNUMMER,
-            motebehovSvar = motebehovSvar
+            motebehovSvar = motebehovSvar,
         )
         motebehovArbeidsgiverControllerV3.lagreMotebehovArbeidsgiver(nyttMotebehov)
         return nyttMotebehov
     }
 
     private fun sykmeldtLagrerMotebehov(
-        harBehov: Boolean
+        harBehov: Boolean,
     ): MotebehovSvar {
         loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId)
 
         val motebehovSvar = MotebehovSvar(
             harMotebehov = harBehov,
-            forklaring = ""
+            forklaring = "",
         )
         motebehovArbeidstakerControllerV3.submitMotebehovArbeidstaker(motebehovSvar)
         return motebehovSvar
@@ -340,17 +340,17 @@ class MotebehovVeilederADControllerV2Test {
         }
     }
 
-    private fun mockSvarFraSyfoTilgangskontroll(
+    private fun mockSvarFraIstilgangskontroll(
         fnr: String,
-        status: HttpStatus
+        status: HttpStatus,
     ) {
-        mockSvarFraSyfoTilgangskontrollV2TilgangTilBruker(
+        mockSvarFraIstilgangskontrollTilgangTilBruker(
             azureTokenEndpoint = azureTokenEndpoint,
             tilgangskontrollUrl = tilgangskontrollUrl,
             mockRestServiceServer = mockRestServiceServer,
             mockRestServiceWithProxyServer = mockRestServiceWithProxyServer,
             status = status,
-            fnr = fnr
+            fnr = fnr,
         )
     }
 
@@ -359,7 +359,7 @@ class MotebehovVeilederADControllerV2Test {
             azureTokenEndpoint,
             mockRestServiceWithProxyServer,
             behandlendeenhetUrl,
-            fnr
+            fnr,
         )
     }
 
@@ -368,7 +368,7 @@ class MotebehovVeilederADControllerV2Test {
             oppfolgingstilfelleDAO,
             generateOppfolgingstilfellePerson(virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER)).copy(
                 personIdentNumber = ARBEIDSTAKER_FNR,
-            )
+            ),
         )
     }
 

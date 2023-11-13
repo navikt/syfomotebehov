@@ -14,47 +14,47 @@ import org.springframework.web.client.*
 
 @Service
 class VeilederTilgangConsumer(
-    @Value("\${syfotilgangskontroll.client.id}") private val syfotilgangskontrollClientId: String,
-    @Value("\${tilgangskontrollapi.url}") private val tilgangskontrollUrl: String,
+    @Value("\${istilgangskontroll.client.id}") private val istilgangskontrollClientId: String,
+    @Value("\${istilgangskontroll.url}") private val istilgangskontrollUrl: String,
     private val azureAdV2TokenConsumer: AzureAdV2TokenConsumer,
     private val metric: Metric,
     private val template: RestTemplate,
-    private val oidcContextHolder: TokenValidationContextHolder
+    private val oidcContextHolder: TokenValidationContextHolder,
 ) {
     private val tilgangskontrollPersonUrl: String
 
     init {
-        tilgangskontrollPersonUrl = "$tilgangskontrollUrl$TILGANGSKONTROLL_PERSON_PATH"
+        tilgangskontrollPersonUrl = "$istilgangskontrollUrl$TILGANGSKONTROLL_PERSON_PATH"
     }
 
     fun sjekkVeiledersTilgangTilPersonMedOBO(fnr: String): Boolean {
         val token = OIDCUtil.tokenFraOIDC(oidcContextHolder, OIDCIssuer.INTERN_AZUREAD_V2)
         val oboToken = azureAdV2TokenConsumer.getOnBehalfOfToken(
-            scopeClientId = syfotilgangskontrollClientId,
-            token = token
+            scopeClientId = istilgangskontrollClientId,
+            token = token,
         )
 
         return try {
-            template.exchange(
+            val tilgang = template.exchange(
                 tilgangskontrollPersonUrl,
                 HttpMethod.GET,
                 entity(
                     personIdentNumber = fnr,
-                    token = oboToken
+                    token = oboToken,
                 ),
-                String::class.java
+                Tilgang::class.java,
             )
-            true
+            tilgang.body!!.erGodkjent
         } catch (e: HttpClientErrorException) {
             if (e.rawStatusCode == 403) {
                 false
             } else {
-                LOG.error("HttpClientErrorException mot syfo-tilgangskontroll med status ${e.rawStatusCode}", e)
+                LOG.error("HttpClientErrorException mot istilgangskontroll med status ${e.rawStatusCode}", e)
                 metric.tellHendelse(METRIC_CALL_VEILEDERTILGANG_USER_FAIL)
                 throw e
             }
         } catch (e: HttpServerErrorException) {
-            LOG.error("HttpServerErrorException mot syfo-tilgangskontroll med status ${e.rawStatusCode}", e)
+            LOG.error("HttpServerErrorException mot istilgangskontroll med status ${e.rawStatusCode}", e)
             metric.tellHendelse(METRIC_CALL_VEILEDERTILGANG_USER_FAIL)
             throw e
         }
@@ -62,7 +62,7 @@ class VeilederTilgangConsumer(
 
     private fun entity(
         personIdentNumber: String,
-        token: String
+        token: String,
     ): HttpEntity<String> {
         val headers = HttpHeaders()
         headers.accept = listOf(MediaType.APPLICATION_JSON)
@@ -76,9 +76,10 @@ class VeilederTilgangConsumer(
     companion object {
         private val LOG = LoggerFactory.getLogger(VeilederTilgangConsumer::class.java)
 
-        private const val METRIC_CALL_VEILEDERTILGANG_BASE = "call_syfotilgangskontroll"
+        private const val METRIC_CALL_VEILEDERTILGANG_BASE = "call_istilgangskontroll"
         private const val METRIC_CALL_VEILEDERTILGANG_USER_FAIL = "${METRIC_CALL_VEILEDERTILGANG_BASE}_user_fail"
 
-        const val TILGANGSKONTROLL_PERSON_PATH = "/navident/person"
+        const val TILGANGSKONTROLL_COMMON_PATH = "/api/tilgang/navident"
+        const val TILGANGSKONTROLL_PERSON_PATH = "$TILGANGSKONTROLL_COMMON_PATH/person"
     }
 }
