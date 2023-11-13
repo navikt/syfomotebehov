@@ -20,14 +20,14 @@ fun mockAndExpectBehandlendeEnhetRequest(
     azureTokenEndpoint: String,
     mockRestServiceWithProxyServer: MockRestServiceServer,
     behandlendeenhetUrl: String,
-    fnr: String
+    fnr: String,
 ) {
     val uriString = UriComponentsBuilder.fromHttpUrl(behandlendeenhetUrl)
         .path(BEHANDLENDEENHET_PATH)
         .toUriString()
     val behandlendeEnhet = BehandlendeEnhet(
         UserConstants.NAV_ENHET,
-        UserConstants.NAV_ENHET_NAVN
+        UserConstants.NAV_ENHET_NAVN,
     )
 
     val systemToken = generateAzureAdV2TokenResponse()
@@ -53,26 +53,26 @@ fun mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll(
     mockRestServiceServer: MockRestServiceServer,
     behandlendeenhetUrl: String,
     tilgangskontrollUrl: String,
-    fnr: String
+    fnr: String,
 ) {
     val uriString = UriComponentsBuilder.fromHttpUrl(behandlendeenhetUrl)
         .path(BEHANDLENDEENHET_PATH)
         .toUriString()
     val behandlendeEnhet = BehandlendeEnhet(
         UserConstants.NAV_ENHET,
-        UserConstants.NAV_ENHET_NAVN
+        UserConstants.NAV_ENHET_NAVN,
     )
 
     val systemToken = generateAzureAdV2TokenResponse()
 
     mockAndExpectAzureADV2(mockRestServiceWithProxyServer, azureTokenEndpoint, systemToken)
-    mockSvarFraSyfoTilgangskontrollV2TilgangTilBruker(
+    mockSvarFraIstilgangskontrollTilgangTilBruker(
         azureTokenEndpoint,
         tilgangskontrollUrl,
         mockRestServiceWithProxyServer,
         mockRestServiceServer,
         fnr,
-        HttpStatus.OK
+        HttpStatus.OK,
     )
 
     try {

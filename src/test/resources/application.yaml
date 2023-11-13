@@ -71,8 +71,8 @@ dev: true
 
 syfobehandlendeenhet.client.id: "dev-fss:teamsykefravr:syfobehandlendeenhet"
 syfobehandlendeenhet.url: "https://syfobehandlendeenhet"
-syfotilgangskontroll.client.id: "syfotilgangskontrollId"
-tilgangskontrollapi.url: "https://www.ikke.no"
+istilgangskontroll.client.id: "istilgangskontrollId"
+istilgangskontroll.url: "https://www.ikke.no"
 security.token.service.rest.url: "https://security-token-service"
 kafka.brokers: localhost://9092
 kafka.truststore.path: /truststore

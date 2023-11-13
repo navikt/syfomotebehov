@@ -64,7 +64,7 @@ class MotebehovArbeidstakerControllerV3Test {
     @Value("\${syfobehandlendeenhet.url}")
     private lateinit var behandlendeenhetUrl: String
 
-    @Value("\${tilgangskontrollapi.url}")
+    @Value("\${istilgangskontroll.url}")
     private lateinit var tilgangskontrollUrl: String
 
     @Inject
