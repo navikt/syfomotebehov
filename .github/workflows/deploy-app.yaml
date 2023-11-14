@@ -3,7 +3,7 @@ on: push
 
 jobs:
   jar-app:
-    uses: navikt/teamesyfo-github-actions-workflows/.github/workflows/fss-jar-app.yaml@main
+    uses: navikt/teamesyfo-github-actions-workflows/.github/workflows/fss-jar-app.yaml@fix-dependabot-2
     permissions:
       actions: read
       contents: read
