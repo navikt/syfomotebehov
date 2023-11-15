@@ -16,6 +16,11 @@ object Versions {
     const val confluent = "7.1.1"
     const val isdialogmoteSchema = "1.0.5"
     const val jsoupVersion = "1.16.1"
+    const val logstashVersion = "6.4"
+    const val slf4jVersion = "1.7.35"
+    const val javaxInjectVersion = "1"
+    const val owaspSanitizerVersion = "20211018.2"
+    const val apacheCommonsVersion = "3.5"
 }
 
 plugins {
@@ -88,11 +93,11 @@ dependencies {
     implementation("io.confluent:kafka-schema-registry:${Versions.confluent}")
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:${Versions.isdialogmoteSchema}")
     implementation("org.flywaydb:flyway-core:${Versions.flywayVersion}")
-    implementation("javax.inject:javax.inject:1")
-    implementation("org.slf4j:slf4j-api:1.7.35")
-    implementation("net.logstash.logback:logstash-logback-encoder:6.4")
-    implementation("org.apache.commons:commons-lang3:3.5")
-    implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:20211018.2")
+    implementation("javax.inject:javax.inject:${Versions.javaxInjectVersion}")
+    implementation("org.slf4j:slf4j-api:${Versions.slf4jVersion}")
+    implementation("net.logstash.logback:logstash-logback-encoder:${Versions.logstashVersion}")
+    implementation("org.apache.commons:commons-lang3:${Versions.apacheCommonsVersion}")
+    implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:${Versions.owaspSanitizerVersion}")
     implementation("org.jsoup:jsoup:${Versions.jsoupVersion}")
 
     testImplementation("org.junit.jupiter:junit-jupiter:${Versions.junitJupiterVersion}")
