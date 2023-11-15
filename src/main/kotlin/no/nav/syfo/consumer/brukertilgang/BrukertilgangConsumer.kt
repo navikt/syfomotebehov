@@ -42,7 +42,7 @@ class BrukertilgangConsumer(
             .accept(MediaType.APPLICATION_JSON)
             .retrieve()
             .onStatus({ obj: HttpStatusCode -> obj.value() == 401 }) { response ->
-                metric.countOutgoingReponses(METRIC_CALL_BRUKERTILGANG, response.rawStatusCode())
+                metric.countOutgoingReponses(METRIC_CALL_BRUKERTILGANG, response.statusCode().value())
                 Mono.error(RequestUnauthorizedException("Unauthorized request to get access to Ansatt from Syfobrukertilgang"))
             }
             .onStatus({ obj: HttpStatusCode -> obj.is4xxClientError }) { response ->

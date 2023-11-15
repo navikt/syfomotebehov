@@ -22,9 +22,6 @@ import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.historikk.HistorikkService
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseProducer
-import no.nav.syfo.testhelper.OidcTestHelper.loggInnBrukerTokenX
-import no.nav.syfo.testhelper.OidcTestHelper.loggInnVeilederADV2
-import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
@@ -148,7 +145,6 @@ class MotebehovVeilederADControllerV2Test {
         // Verify all expectations met
         mockRestServiceServer.verify()
         mockRestServiceWithProxyServer.verify()
-        loggUtAlle(contextHolder)
         resetMockRestServers()
         cacheManager.cacheNames
             .forEach(
@@ -169,7 +165,6 @@ class MotebehovVeilederADControllerV2Test {
 
         // Veileder henter møtebehov
         resetMockRestServers()
-        loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
         assertThat(motebehovListe).size().isOne
@@ -188,7 +183,6 @@ class MotebehovVeilederADControllerV2Test {
 
         // Veileder henter møtebehov
         resetMockRestServers()
-        loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
         assertThat(motebehovListe).size().isOne
@@ -205,16 +199,13 @@ class MotebehovVeilederADControllerV2Test {
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
         arbeidsgiverLagrerMotebehov()
         resetMockRestServers()
-        loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
         val motebehov = motebehovListe[0]
         resetMockRestServers()
-        loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
         resetMockRestServers()
-        loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val historikkListe = motebehovVeilederController.hentMotebehovHistorikk(ARBEIDSTAKER_FNR)
         assertThat(historikkListe).size().isEqualTo(2)
@@ -236,7 +227,6 @@ class MotebehovVeilederADControllerV2Test {
         resetMockRestServers()
         arbeidsgiverLagrerMotebehov()
         resetMockRestServers()
-        loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         val motebehovListe = motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
 
@@ -256,7 +246,6 @@ class MotebehovVeilederADControllerV2Test {
         resetMockRestServers()
         arbeidsgiverLagrerMotebehov()
         resetMockRestServers()
-        loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
         resetMockRestServers()
@@ -278,7 +267,6 @@ class MotebehovVeilederADControllerV2Test {
         resetMockRestServers()
         arbeidsgiverLagrerMotebehov()
         resetMockRestServers()
-        loggInnVeilederADV2(contextHolder, VEILEDER_2_ID)
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
         resetMockRestServers()
@@ -298,15 +286,12 @@ class MotebehovVeilederADControllerV2Test {
         sykmeldtLagrerMotebehov(true)
         behandleMotebehov(ARBEIDSTAKER_AKTORID, VEILEDER_ID)
         resetMockRestServers()
-        loggInnVeilederADV2(contextHolder, VEILEDER_2_ID)
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
 
         assertThrows<RuntimeException> { motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR) }
     }
 
     private fun arbeidsgiverLagrerMotebehov(): NyttMotebehovArbeidsgiver {
-        loggInnBrukerTokenX(contextHolder, LEDER_FNR, dialogmoteClientId)
-
         val motebehovSvar = MotebehovSvar(
             harMotebehov = true,
             forklaring = "",
@@ -323,8 +308,6 @@ class MotebehovVeilederADControllerV2Test {
     private fun sykmeldtLagrerMotebehov(
         harBehov: Boolean,
     ): MotebehovSvar {
-        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId)
-
         val motebehovSvar = MotebehovSvar(
             harMotebehov = harBehov,
             forklaring = "",

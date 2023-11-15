@@ -24,14 +24,10 @@ import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseProducer
-import no.nav.syfo.testhelper.OidcTestHelper.loggInnBrukerTokenX
-import no.nav.syfo.testhelper.OidcTestHelper.loggInnVeilederADV2
-import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
-import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER_2
 import no.nav.syfo.testhelper.assertion.assertMotebehovStatus
@@ -134,13 +130,11 @@ class MotebehovArbeidsgiverControllerV3Test {
 
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
         mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
-        loggInnBrukerTokenX(contextHolder, LEDER_FNR, dialogmoteClientId)
         cleanDB()
     }
 
     @AfterEach
     fun tearDown() {
-        loggUtAlle(contextHolder)
         resetMockRestServers()
         cacheManager.cacheNames
             .forEach(
@@ -161,9 +155,6 @@ class MotebehovArbeidsgiverControllerV3Test {
 
     @Test
     fun getMotebehovStatusWithTodayOutsideOppfolgingstilfelleStart() {
-        loggUtAlle(contextHolder)
-        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId)
-
         dbCreateOppfolgingstilfelle(
             oppfolgingstilfelleDAO,
             generateOppfolgingstilfellePerson(
@@ -178,9 +169,6 @@ class MotebehovArbeidsgiverControllerV3Test {
 
     @Test
     fun getMotebehovStatusWithTodayOutsideOppfolgingstilfelleEnd() {
-        loggUtAlle(contextHolder)
-        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId)
-
         dbCreateOppfolgingstilfelle(
             oppfolgingstilfelleDAO,
             generateOppfolgingstilfellePerson(
@@ -351,14 +339,11 @@ class MotebehovArbeidsgiverControllerV3Test {
         submitMotebehovAndSendOversikthendelse(motebehovSvar)
 
         resetMockRestServers()
-        loggUtAlle(contextHolder)
-        loggInnVeilederADV2(contextHolder, VEILEDER_ID)
 
         mockBehandlendEnhetWithTilgangskontroll(ARBEIDSTAKER_FNR)
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
 
         resetMockRestServers()
-        loggInnBrukerTokenX(contextHolder, LEDER_FNR, dialogmoteClientId)
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
     }

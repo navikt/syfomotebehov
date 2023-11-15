@@ -3,10 +3,7 @@ package no.nav.syfo.motebehov.api.internad.v2
 import jakarta.ws.rs.ForbiddenException
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.testhelper.OidcTestHelper.loggInnVeilederADV2
-import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
-import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.mockSvarFraIstilgangskontrollTilgangTilBruker
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
@@ -58,13 +55,11 @@ class MotebehovVeilederADTilgangV2Test {
     fun tearDown() {
         mockRestServiceServer.verify()
         mockRestServiceWithProxyServer.verify()
-        loggUtAlle(contextHolder)
     }
 
     @Test
     @Throws(ParseException::class)
     fun `veileder nektes tilgang`() {
-        loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.FORBIDDEN)
         assertThrows<ForbiddenException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
     }
@@ -72,7 +67,6 @@ class MotebehovVeilederADTilgangV2Test {
     @Test
     @Throws(ParseException::class)
     fun `klientfeil mot istilgangskontroll`() {
-        loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.BAD_REQUEST)
         assertThrows<HttpClientErrorException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
     }
@@ -80,7 +74,6 @@ class MotebehovVeilederADTilgangV2Test {
     @Test
     @Throws(ParseException::class)
     fun `teknisk feil i istilgangskontroll`() {
-        loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.INTERNAL_SERVER_ERROR)
         assertThrows<HttpServerErrorException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
     }

@@ -1,6 +1,5 @@
 package no.nav.syfo.config
 
-import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.context.annotation.*
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.scheduling.annotation.EnableScheduling
@@ -9,7 +8,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.reactive.function.client.WebClient
 
-@AutoConfiguration
+@Configuration
 @EnableTransactionManagement
 @EnableScheduling
 class ApplicationConfig {

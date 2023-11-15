@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true">
+
+    <property name="loggingPattern"
+              value="%d [%-5level] [%thread] %logger{5} - [%X{consumerId}, %X{callId}, %X{userId}] - %m%n"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d [%-5level] [%thread] %logger - [%X{consumerId}, %X{callId}, %X{userId}] - %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>

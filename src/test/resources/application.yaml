@@ -51,13 +51,14 @@ toggle.enable:
 
 no.nav.security:
   jwt:
+    expirythreshold: 1
     issuer:
       internazureadv2:
-        discoveryurl: http://internazureadv2-metadata
+        discoveryurl: http://localhost:${mock-oauth2-server.port}/issuer1/.well-known/openid-configuration
         accepted_audience: azure.app.client.id
         cookiename: localhost-idtoken
       tokenx:
-        discoveryurl: http://tokenx-metadata
+        discoveryurl: http://localhost:${mock-oauth2-server.port}/issuer1/.well-known/openid-configuration
         accepted_audience: clientID
 
 syfobrukertilgang:

@@ -3,7 +3,6 @@ package no.nav.syfo.motebehov.api
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
-import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
@@ -19,19 +18,18 @@ import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseProducer
-import no.nav.syfo.testhelper.*
-import no.nav.syfo.testhelper.OidcTestHelper.loggInnBrukerTokenX
-import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
-import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER_2
 import no.nav.syfo.testhelper.assertion.assertMotebehovStatus
+import no.nav.syfo.testhelper.clearCache
 import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import no.nav.syfo.testhelper.generator.generateOppfolgingstilfellePerson
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.generator.generateStsToken
+import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
+import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -72,9 +70,6 @@ class MotebehovArbeidstakerControllerV3Test {
 
     @Inject
     private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV2
-
-    @Autowired
-    private lateinit var contextHolder: TokenValidationContextHolder
 
     @Autowired
     private lateinit var motebehovDAO: MotebehovDAO
@@ -127,13 +122,11 @@ class MotebehovArbeidstakerControllerV3Test {
 
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
         mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
-        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId)
         cleanDB()
     }
 
     @AfterEach
     fun tearDown() {
-        loggUtAlle(contextHolder)
         resetMockRestServers()
         cacheManager.cacheNames
             .forEach(
@@ -313,13 +306,10 @@ class MotebehovArbeidstakerControllerV3Test {
         submitMotebehovAndSendOversikthendelse(motebehovSvar)
 
         resetMockRestServers()
-        loggUtAlle(contextHolder)
-        OidcTestHelper.loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockBehandlendEnhetWithTilgangskontroll(ARBEIDSTAKER_FNR)
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
 
         resetMockRestServers()
-        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId)
 
         motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
