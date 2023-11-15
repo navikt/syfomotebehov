@@ -7,15 +7,15 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import no.nav.security.token.support.test.spring.TokenGeneratorConfiguration
 import no.nav.syfo.config.kafka.FunctionSerializer
 import org.apache.kafka.common.serialization.StringSerializer
+import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
 
-@Configuration
+@AutoConfiguration
 @Import(TokenGeneratorConfiguration::class)
 class LocalApplicationConfig {
     @Bean

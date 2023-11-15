@@ -33,11 +33,11 @@ class StsConsumer(
                 .uri(getStsTokenUrl())
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .onStatus({ obj: HttpStatus -> obj.is4xxClientError }) { response ->
+                .onStatus({ obj: HttpStatusCode -> obj.is4xxClientError }) { response ->
                     logError(response)
                     Mono.error(RuntimeException("4xx"))
                 }
-                .onStatus({ obj: HttpStatus -> obj.is5xxServerError }) { response ->
+                .onStatus({ obj: HttpStatusCode -> obj.is5xxServerError }) { response ->
                     logError(response)
                     Mono.error(RuntimeException("5xx"))
                 }

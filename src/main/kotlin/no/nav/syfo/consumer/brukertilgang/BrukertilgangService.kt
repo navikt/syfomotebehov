@@ -1,12 +1,12 @@
 package no.nav.syfo.consumer.brukertilgang
 
+import jakarta.ws.rs.ForbiddenException
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.tokenX.TokenXUtil
 import no.nav.syfo.cache.CacheConfig
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import javax.inject.Inject
-import javax.ws.rs.ForbiddenException
 
 @Service
 class BrukertilgangService @Inject constructor(

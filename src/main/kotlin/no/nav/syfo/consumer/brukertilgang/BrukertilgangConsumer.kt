@@ -12,7 +12,7 @@ import no.nav.syfo.util.createCallId
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.ClientResponse
@@ -41,15 +41,15 @@ class BrukertilgangConsumer(
             .header(NAV_CONSUMER_ID_HEADER, APP_CONSUMER_ID)
             .accept(MediaType.APPLICATION_JSON)
             .retrieve()
-            .onStatus({ obj: HttpStatus -> obj.value() == 401 }) { response ->
+            .onStatus({ obj: HttpStatusCode -> obj.value() == 401 }) { response ->
                 metric.countOutgoingReponses(METRIC_CALL_BRUKERTILGANG, response.rawStatusCode())
                 Mono.error(RequestUnauthorizedException("Unauthorized request to get access to Ansatt from Syfobrukertilgang"))
             }
-            .onStatus({ obj: HttpStatus -> obj.is4xxClientError }) { response ->
+            .onStatus({ obj: HttpStatusCode -> obj.is4xxClientError }) { response ->
                 logError(response, callId)
                 Mono.error(RuntimeException("4xx"))
             }
-            .onStatus({ obj: HttpStatus -> obj.is5xxServerError }) { response ->
+            .onStatus({ obj: HttpStatusCode -> obj.is5xxServerError }) { response ->
                 logError(response, callId)
                 Mono.error(RuntimeException("5xx"))
             }

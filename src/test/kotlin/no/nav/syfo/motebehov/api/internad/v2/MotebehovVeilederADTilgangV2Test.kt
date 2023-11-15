@@ -1,5 +1,6 @@
 package no.nav.syfo.motebehov.api.internad.v2
 
+import jakarta.ws.rs.ForbiddenException
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.testhelper.OidcTestHelper.loggInnVeilederADV2
@@ -19,7 +20,6 @@ import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.web.client.*
 import java.text.ParseException
 import javax.inject.Inject
-import javax.ws.rs.ForbiddenException
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
