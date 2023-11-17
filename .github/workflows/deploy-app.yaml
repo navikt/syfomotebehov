@@ -6,7 +6,7 @@ jobs:
     uses: navikt/teamesyfo-github-actions-workflows/.github/workflows/fss-jar-app.yaml@main
     permissions:
       actions: read
-      contents: read
+      contents: write
       security-events: write
       packages: write
       id-token: write
