@@ -82,6 +82,7 @@ dependencies {
 
     implementation("no.nav.security:token-validation-spring:${Versions.tokenSupportVersion}")
 
+    
     implementation("com.oracle.ojdbc:ojdbc8:${Versions.ojdbcVersion}")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("io.confluent:kafka-avro-serializer:${Versions.confluent}")
