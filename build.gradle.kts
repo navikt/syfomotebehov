@@ -23,6 +23,7 @@ object Versions {
     const val owaspSanitizerVersion = "20211018.2"
     const val apacheCommonsVersion = "3.5"
     const val jakartaRsApiVersion = "3.1.0"
+    const val atomikosVersion = "6.0.0"
 }
 
 plugins {
@@ -98,6 +99,8 @@ dependencies {
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:${Versions.isdialogmoteSchema}")
     implementation("org.flywaydb:flyway-core:${Versions.flywayVersion}")
     implementation("javax.inject:javax.inject:${Versions.javaxInjectVersion}")
+
+    implementation("com.atomikos:transactions-spring-boot3-starter:${Versions.atomikosVersion}")
 
     implementation("org.apache.commons:commons-lang3:${Versions.apacheCommonsVersion}")
     implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:${Versions.owaspSanitizerVersion}")
