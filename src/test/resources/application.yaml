@@ -54,11 +54,11 @@ no.nav.security:
     expirythreshold: 1
     issuer:
       internazureadv2:
-        discoveryurl: http://localhost:${mock-oauth2-server.port}/issuer1/.well-known/openid-configuration
+        discoveryurl: http://localhost:8084/issuer1/.well-known/openid-configuration
         accepted_audience: azure.app.client.id
         cookiename: localhost-idtoken
       tokenx:
-        discoveryurl: http://localhost:${mock-oauth2-server.port}/issuer1/.well-known/openid-configuration
+        discoveryurl: http://localhost:8084/issuer1/.well-known/openid-configuration
         accepted_audience: clientID
 
 syfobrukertilgang:

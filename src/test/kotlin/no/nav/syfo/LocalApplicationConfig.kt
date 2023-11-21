@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.MockOAuth2ServerAutoConfiguration
 import no.nav.syfo.config.kafka.FunctionSerializer
 import org.apache.kafka.common.serialization.StringSerializer
@@ -21,6 +22,13 @@ class LocalApplicationConfig {
     @Bean
     fun kafkaTemplate(producerFactory: ProducerFactory<String, Any>): KafkaTemplate<String, Any> {
         return KafkaTemplate(producerFactory)
+    }
+
+    @Bean
+    fun mockOAuthServer(): MockOAuth2Server {
+        var server = MockOAuth2Server()
+        server.start(8084)
+        return server
     }
 
     @Bean

@@ -1,10 +1,11 @@
 package no.nav.syfo.motebehov.api.internad.v2
 
 import jakarta.ws.rs.ForbiddenException
-import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
+import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.mockSvarFraIstilgangskontrollTilgangTilBruker
+import no.nav.syfo.util.TokenValidationUtil
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Qualifier
@@ -33,10 +34,10 @@ class MotebehovVeilederADTilgangV2Test {
     private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV2
 
     @Inject
-    private lateinit var contextHolder: TokenValidationContextHolder
+    private lateinit var restTemplate: RestTemplate
 
     @Inject
-    private lateinit var restTemplate: RestTemplate
+    private lateinit var tokenValidationUtil: TokenValidationUtil
 
     private lateinit var mockRestServiceServer: MockRestServiceServer
 
@@ -61,21 +62,21 @@ class MotebehovVeilederADTilgangV2Test {
     @Throws(ParseException::class)
     fun `veileder nektes tilgang`() {
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.FORBIDDEN)
-        assertThrows<ForbiddenException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
+        assertThrows<ForbiddenException> { kallHentMotebehovListe() }
     }
 
     @Test
     @Throws(ParseException::class)
     fun `klientfeil mot istilgangskontroll`() {
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.BAD_REQUEST)
-        assertThrows<HttpClientErrorException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
+        assertThrows<HttpClientErrorException> { kallHentMotebehovListe() }
     }
 
     @Test
     @Throws(ParseException::class)
     fun `teknisk feil i istilgangskontroll`() {
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.INTERNAL_SERVER_ERROR)
-        assertThrows<HttpServerErrorException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
+        assertThrows<HttpServerErrorException> { kallHentMotebehovListe() }
     }
 
     private fun mockSvarFraIstilgangskontroll(
@@ -90,5 +91,10 @@ class MotebehovVeilederADTilgangV2Test {
             status = status,
             fnr = fnr,
         )
+    }
+
+    private fun kallHentMotebehovListe() {
+        tokenValidationUtil.logInAsNavCounselor(VEILEDER_ID)
+        motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
     }
 }

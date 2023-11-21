@@ -20,6 +20,7 @@ import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseProducer
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
+import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER_2
 import no.nav.syfo.testhelper.assertion.assertMotebehovStatus
@@ -30,6 +31,7 @@ import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll
+import no.nav.syfo.util.TokenValidationUtil
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -91,6 +93,9 @@ class MotebehovArbeidstakerControllerV3Test {
     @Autowired
     private lateinit var restTemplate: RestTemplate
 
+    @Autowired
+    private lateinit var tokenValidationUtil: TokenValidationUtil
+
     @MockkBean(relaxed = true)
     private lateinit var esyfovarselService: EsyfovarselService
 
@@ -109,9 +114,6 @@ class MotebehovArbeidstakerControllerV3Test {
 
     private val stsToken = generateStsToken().access_token
 
-    @Value("\${dialogmote.frontend.client.id}")
-    private lateinit var dialogmoteClientId: String
-
     @BeforeEach
     fun setUp() {
         every { pdlConsumer.person(ARBEIDSTAKER_FNR) } returns generatePdlHentPerson(null, null)
@@ -122,6 +124,7 @@ class MotebehovArbeidstakerControllerV3Test {
 
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
         mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
+        tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
         cleanDB()
     }
 
@@ -307,10 +310,12 @@ class MotebehovArbeidstakerControllerV3Test {
 
         resetMockRestServers()
         mockBehandlendEnhetWithTilgangskontroll(ARBEIDSTAKER_FNR)
+        tokenValidationUtil.logInAsNavCounselor(VEILEDER_ID)
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
 
         resetMockRestServers()
 
+        tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
         motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
     }

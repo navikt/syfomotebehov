@@ -11,6 +11,7 @@ object TokenXUtil {
         vararg requestedClientId: String,
     ): JwtTokenClaims {
         val context = contextHolder.tokenValidationContext
+
         val claims = context.getClaims(TokenXIssuer.TOKENX)
         val clientId = claims.getStringClaim("client_id")
 

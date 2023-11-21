@@ -11,7 +11,6 @@ object UserConstants {
 
     @JvmField
     val LEDER_AKTORID = mockAktorId(LEDER_FNR)
-    const val VIRKSOMHETSNAVN = "Test AS"
     const val VIRKSOMHETSNUMMER = "123456789"
     const val VIRKSOMHETSNUMMER_2 = "123456780"
     const val NAV_ENHET = "0330"
@@ -23,6 +22,7 @@ object UserConstants {
     const val PERSON_NAME_MIDDLE = "Middle"
     const val PERSON_NAME_LAST = "Last"
     const val PERSON_FULL_NAME = "$PERSON_NAME_FIRST $PERSON_NAME_MIDDLE $PERSON_NAME_LAST"
+    const val USER_FNR = "12345678901"
 
     fun mockAktorId(fnr: String): String {
         return "$MOCK_AKTORID_PREFIX$fnr"
