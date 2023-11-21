@@ -8,6 +8,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.MockOAuth2ServerAutoConfiguration
 import no.nav.syfo.config.kafka.FunctionSerializer
 import org.apache.kafka.common.serialization.StringSerializer
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -25,9 +26,9 @@ class LocalApplicationConfig {
     }
 
     @Bean
-    fun mockOAuthServer(): MockOAuth2Server {
+    fun mockOAuthServer(@Value("\${mock.token.server.port}") mockTokenServerPort: Int): MockOAuth2Server {
         var server = MockOAuth2Server()
-        server.start(8084)
+        server.start(mockTokenServerPort)
         return server
     }
 

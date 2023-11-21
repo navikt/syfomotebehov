@@ -131,8 +131,6 @@ class MotebehovVeilederADControllerV2Test {
         every { pdlConsumer.person(LEDER_FNR) } returns generatePdlHentPerson(null, null)
         every { stsConsumer.token() } returns stsToken
 
-        tokenValidationUtil.logInAsNavCounselor(VEILEDER_ID)
-
         createOppfolgingstilfelle()
     }
 
@@ -297,7 +295,7 @@ class MotebehovVeilederADControllerV2Test {
         resetMockRestServers()
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
 
-        assertThrows<RuntimeException> { kallBehandleMotebehov(ARBEIDSTAKER_FNR, VEILEDER_ID) }
+        assertThrows<RuntimeException> { kallBehandleMotebehov(ARBEIDSTAKER_FNR, VEILEDER_2_ID) }
     }
 
     private fun arbeidsgiverLagrerMotebehov(): NyttMotebehovArbeidsgiver {

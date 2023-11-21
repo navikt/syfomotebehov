@@ -146,7 +146,6 @@ class MotebehovArbeidsgiverControllerV3Test {
 
     @Test
     fun getMotebehovStatusWithNoOppfolgingstilfelle() {
-
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(false, null, null)
     }

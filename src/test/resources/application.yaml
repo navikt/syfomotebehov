@@ -46,6 +46,8 @@ srvsyfomotebehov:
 srv.username: "kek"
 srv.password: "bur"
 
+mock.token.server.port: 8081
+
 toggle.enable:
   nullstill: true
 
@@ -54,11 +56,11 @@ no.nav.security:
     expirythreshold: 1
     issuer:
       internazureadv2:
-        discoveryurl: http://localhost:8084/issuer1/.well-known/openid-configuration
+        discoveryurl: http://localhost:${mock.token.server.port}/issuer1/.well-known/openid-configuration
         accepted_audience: azure.app.client.id
         cookiename: localhost-idtoken
       tokenx:
-        discoveryurl: http://localhost:8084/issuer1/.well-known/openid-configuration
+        discoveryurl: http://localhost:${mock.token.server.port}/issuer1/.well-known/openid-configuration
         accepted_audience: clientID
 
 syfobrukertilgang:

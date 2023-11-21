@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component
 
 @Component
 class TokenValidationUtil() {
-
     @Autowired
     private lateinit var contextHolder: TokenValidationContextHolder
 
