@@ -1,11 +1,12 @@
 package no.nav.syfo.motebehov.api.internad.v2
 
-import jakarta.ws.rs.ForbiddenException
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
+import no.nav.syfo.testhelper.OidcTestHelper.loggInnVeilederADV2
+import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.mockSvarFraIstilgangskontrollTilgangTilBruker
-import no.nav.syfo.util.TokenValidationUtil
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Qualifier
@@ -16,7 +17,9 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.web.client.*
+import java.text.ParseException
 import javax.inject.Inject
+import javax.ws.rs.ForbiddenException
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
@@ -33,10 +36,10 @@ class MotebehovVeilederADTilgangV2Test {
     private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV2
 
     @Inject
-    private lateinit var restTemplate: RestTemplate
+    private lateinit var contextHolder: TokenValidationContextHolder
 
     @Inject
-    private lateinit var tokenValidationUtil: TokenValidationUtil
+    private lateinit var restTemplate: RestTemplate
 
     private lateinit var mockRestServiceServer: MockRestServiceServer
 
@@ -55,24 +58,31 @@ class MotebehovVeilederADTilgangV2Test {
     fun tearDown() {
         mockRestServiceServer.verify()
         mockRestServiceWithProxyServer.verify()
+        loggUtAlle(contextHolder)
     }
 
     @Test
+    @Throws(ParseException::class)
     fun `veileder nektes tilgang`() {
+        loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.FORBIDDEN)
-        assertThrows<ForbiddenException> { loggInnOgKallHentMotebehovListe() }
+        assertThrows<ForbiddenException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
     }
 
     @Test
+    @Throws(ParseException::class)
     fun `klientfeil mot istilgangskontroll`() {
+        loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.BAD_REQUEST)
-        assertThrows<HttpClientErrorException> { loggInnOgKallHentMotebehovListe() }
+        assertThrows<HttpClientErrorException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
     }
 
     @Test
+    @Throws(ParseException::class)
     fun `teknisk feil i istilgangskontroll`() {
+        loggInnVeilederADV2(contextHolder, VEILEDER_ID)
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.INTERNAL_SERVER_ERROR)
-        assertThrows<HttpServerErrorException> { loggInnOgKallHentMotebehovListe() }
+        assertThrows<HttpServerErrorException> { motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR) }
     }
 
     private fun mockSvarFraIstilgangskontroll(
@@ -87,10 +97,5 @@ class MotebehovVeilederADTilgangV2Test {
             status = status,
             fnr = fnr,
         )
-    }
-
-    private fun loggInnOgKallHentMotebehovListe() {
-        tokenValidationUtil.logInAsNavCounselor(VEILEDER_ID)
-        motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
     }
 }

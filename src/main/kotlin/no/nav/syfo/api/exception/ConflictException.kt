@@ -1,5 +1,5 @@
 package no.nav.syfo.api.exception
 
-import jakarta.ws.rs.WebApplicationException
+import javax.ws.rs.WebApplicationException
 
 class ConflictException : WebApplicationException(409)

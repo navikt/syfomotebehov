@@ -46,7 +46,7 @@ class VeilederTilgangConsumer(
             )
             tilgang.body!!.erGodkjent
         } catch (e: HttpClientErrorException) {
-            if (e.statusCode.value() == 403) {
+            if (e.rawStatusCode == 403) {
                 false
             } else {
                 LOG.error("HttpClientErrorException mot istilgangskontroll med status ${e.rawStatusCode}", e)

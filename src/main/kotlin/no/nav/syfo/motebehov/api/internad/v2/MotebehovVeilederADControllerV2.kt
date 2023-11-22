@@ -1,8 +1,5 @@
 package no.nav.syfo.motebehov.api.internad.v2
 
-import jakarta.ws.rs.BadRequestException
-import jakarta.ws.rs.ForbiddenException
-import jakarta.ws.rs.NotFoundException
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.OIDCIssuer.INTERN_AZUREAD_V2
@@ -24,6 +21,9 @@ import org.springframework.web.bind.annotation.*
 import javax.inject.Inject
 import javax.validation.Valid
 import javax.validation.constraints.Pattern
+import javax.ws.rs.BadRequestException
+import javax.ws.rs.ForbiddenException
+import javax.ws.rs.NotFoundException
 
 @RestController
 @ProtectedWithClaims(issuer = INTERN_AZUREAD_V2)
