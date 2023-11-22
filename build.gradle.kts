@@ -74,7 +74,6 @@ configurations.all {
             because("fixes critical bug CVE-2022-1471")
         }
     }
-    exclude("ch.qos.logback", module = "logback-classic")
 }
 
 dependencies {
