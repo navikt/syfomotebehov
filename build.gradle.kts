@@ -67,6 +67,12 @@ configurations.all {
             useVersion("2.13.9")
             because("fixes critical bug CVE-2022-36944 in 2.13.6")
         }
+        if (requested.group == "org.yaml" &&
+                requested.name == "snakeyaml"
+        ) {
+            useVersion("2.2")
+            because("fixes critical bug CVE-2022-1471")
+        }
     }
     exclude("ch.qos.logback", module = "logback-classic")
 }
@@ -117,6 +123,30 @@ dependencies {
     testImplementation("com.h2database:h2:${Versions.h2Version}")
     testImplementation("io.mockk:mockk:${Versions.mockkVersion}")
     testImplementation("com.ninja-squad:springmockk:${Versions.springMockkVersion}")
+
+    constraints {
+        implementation("org.apache.zookeeper:zookeeper") {
+            because("CVE-2023-44981")
+            version {
+                require("3.9.1")
+            }
+        }
+
+        implementation("org.json:json") {
+            because("Dependabot reported vulnerability")
+            version {
+                require("20231013")
+            }
+        }
+
+        implementation("com.google.protobuf:protobuf-java") {
+            because("Dependabot reported vulnerability")
+            version {
+                require("3.25.1")
+            }
+        }
+
+    }
 }
 
 java.toolchain {
