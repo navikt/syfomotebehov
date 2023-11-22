@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration scan="false" debug="false">
+<configuration debug="true">
 
-	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-		<encoder>
-			<pattern>[%t, %d, %-5p, %C:%L] - %.-100000m%n</pattern>
-		</encoder>
-	</appender>
+    <property name="loggingPattern"
+              value="%d [%-5level] [%thread] %logger{5} - [%X{consumerId}, %X{callId}, %X{userId}] - %m%n"/>
 
-	<logger name="org.apache.cxf.common.logging" level="WARN" additivity="false"/>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d [%-5level] [%thread] %logger - [%X{consumerId}, %X{callId}, %X{userId}] - %m%n</pattern>
+        </encoder>
+    </appender>
 
-	<root level="INFO">
-		<appender-ref ref="CONSOLE"/>
-	</root>
-
-	<logger name="no.nav.syfo" level="INFO"/>
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
 
 </configuration>
