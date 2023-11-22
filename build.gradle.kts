@@ -74,7 +74,7 @@ configurations.all {
             because("fixes critical bug CVE-2022-1471")
         }
     }
-    exclude("ch.qos.logback", module = "logback-classic")
+    exclude(group = "org.slf4j", module= "slf4j-reload4j")
 }
 
 dependencies {
