@@ -68,7 +68,7 @@ configurations.all {
             because("fixes critical bug CVE-2022-36944 in 2.13.6")
         }
         if (requested.group == "org.yaml" &&
-                requested.name == "snakeyaml"
+            requested.name == "snakeyaml"
         ) {
             useVersion("2.2")
             because("fixes critical bug CVE-2022-1471")
@@ -145,7 +145,6 @@ dependencies {
                 require("3.25.1")
             }
         }
-
     }
 }
 

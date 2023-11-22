@@ -16,7 +16,6 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.web.client.*
-import java.text.ParseException
 import javax.inject.Inject
 
 @ExtendWith(SpringExtension::class)
@@ -59,24 +58,21 @@ class MotebehovVeilederADTilgangV2Test {
     }
 
     @Test
-    @Throws(ParseException::class)
     fun `veileder nektes tilgang`() {
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.FORBIDDEN)
-        assertThrows<ForbiddenException> { kallHentMotebehovListe() }
+        assertThrows<ForbiddenException> { loggInnOgKallHentMotebehovListe() }
     }
 
     @Test
-    @Throws(ParseException::class)
     fun `klientfeil mot istilgangskontroll`() {
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.BAD_REQUEST)
-        assertThrows<HttpClientErrorException> { kallHentMotebehovListe() }
+        assertThrows<HttpClientErrorException> { loggInnOgKallHentMotebehovListe() }
     }
 
     @Test
-    @Throws(ParseException::class)
     fun `teknisk feil i istilgangskontroll`() {
         mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.INTERNAL_SERVER_ERROR)
-        assertThrows<HttpServerErrorException> { kallHentMotebehovListe() }
+        assertThrows<HttpServerErrorException> { loggInnOgKallHentMotebehovListe() }
     }
 
     private fun mockSvarFraIstilgangskontroll(
@@ -93,7 +89,7 @@ class MotebehovVeilederADTilgangV2Test {
         )
     }
 
-    private fun kallHentMotebehovListe() {
+    private fun loggInnOgKallHentMotebehovListe() {
         tokenValidationUtil.logInAsNavCounselor(VEILEDER_ID)
         motebehovVeilederController.hentMotebehovListe(ARBEIDSTAKER_FNR)
     }
