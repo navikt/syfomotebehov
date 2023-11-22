@@ -41,6 +41,7 @@ class MotebehovDAOTest {
     }
 
     @Test
+    @Throws(java.lang.Exception::class)
     fun hentMotebehovListeForAktoer() {
         val pMotebehov = motebehovGenerator.generatePmotebehov()
         insertPMotebehov(pMotebehov)
@@ -62,6 +63,7 @@ class MotebehovDAOTest {
     }
 
     @Test
+    @Throws(java.lang.Exception::class)
     fun hentMotebehovListeForOgOpprettetAvArbeidstakerIkkeGyldig() {
         val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
             opprettetDato = motebehovGenerator.getOpprettetDato(false),
@@ -73,6 +75,7 @@ class MotebehovDAOTest {
     }
 
     @Test
+    @Throws(java.lang.Exception::class)
     fun hentMotebehovListeForOgOpprettetAvArbeidstakerGyldig() {
         val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
             opprettetDato = motebehovGenerator.getOpprettetDato(true),
@@ -92,6 +95,7 @@ class MotebehovDAOTest {
     }
 
     @Test
+    @Throws(java.lang.Exception::class)
     fun hentMotebehovListeForArbeidstakerOpprettetAvLederIkkeGyldig() {
         val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
             opprettetDato = motebehovGenerator.getOpprettetDato(false),
@@ -107,6 +111,7 @@ class MotebehovDAOTest {
     }
 
     @Test
+    @Throws(java.lang.Exception::class)
     fun hentMotebehovListeForArbeidstakerOpprettetAvLederGyldig() {
         val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
             opprettetDato = motebehovGenerator.getOpprettetDato(true),
@@ -153,6 +158,7 @@ class MotebehovDAOTest {
     }
 
     @Test
+    @Throws(java.lang.Exception::class)
     fun lagreMotebehov() {
         val uuid = motebehovDAO.create(motebehovGenerator.generatePmotebehov())
         val motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(ARBEIDSTAKER_AKTORID)

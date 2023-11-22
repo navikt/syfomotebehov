@@ -1,6 +1,6 @@
 package no.nav.syfo.api.auth.tokenX
 
-import jakarta.ws.rs.ForbiddenException
+import javax.ws.rs.ForbiddenException
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
 

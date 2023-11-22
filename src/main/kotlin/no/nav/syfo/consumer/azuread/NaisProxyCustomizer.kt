@@ -1,11 +1,10 @@
 package no.nav.syfo.consumer.azuread
 
-import org.apache.hc.client5.http.classic.HttpClient
-import org.apache.hc.client5.http.impl.classic.HttpClientBuilder
-import org.apache.hc.client5.http.impl.routing.DefaultProxyRoutePlanner
-import org.apache.hc.core5.http.HttpException
-import org.apache.hc.core5.http.HttpHost
-import org.apache.hc.core5.http.protocol.HttpContext
+import org.apache.http.*
+import org.apache.http.client.HttpClient
+import org.apache.http.impl.client.HttpClientBuilder
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner
+import org.apache.http.protocol.HttpContext
 import org.springframework.boot.web.client.RestTemplateCustomizer
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.web.client.RestTemplate
@@ -19,10 +18,11 @@ class NaisProxyCustomizer : RestTemplateCustomizer {
                     @Throws(HttpException::class)
                     public override fun determineProxy(
                         target: HttpHost,
+                        request: HttpRequest,
                         context: HttpContext
                     ): HttpHost? {
                         return if (target.hostName.contains("microsoft")) {
-                            super.determineProxy(target, context)
+                            super.determineProxy(target, request, context)
                         } else null
                     }
                 }

@@ -3,6 +3,11 @@ package no.nav.syfo.motebehov.api
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
+import java.util.function.Consumer
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
@@ -19,6 +24,9 @@ import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseProducer
+import no.nav.syfo.testhelper.OidcTestHelper.loggInnBrukerTokenX
+import no.nav.syfo.testhelper.OidcTestHelper.loggInnVeilederADV2
+import no.nav.syfo.testhelper.OidcTestHelper.loggUtAlle
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
@@ -31,11 +39,12 @@ import no.nav.syfo.testhelper.clearCache
 import no.nav.syfo.testhelper.generator.*
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll
-import no.nav.syfo.util.TokenValidationUtil
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.assertj.core.api.Assertions.*
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -46,10 +55,6 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.web.client.RestTemplate
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
-import java.util.function.Consumer
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
@@ -71,6 +76,9 @@ class MotebehovArbeidsgiverControllerV3Test {
     private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV2
 
     @Autowired
+    private lateinit var contextHolder: TokenValidationContextHolder
+
+    @Autowired
     private lateinit var motebehovDAO: MotebehovDAO
 
     @Autowired
@@ -89,9 +97,6 @@ class MotebehovArbeidsgiverControllerV3Test {
 
     @Autowired
     private lateinit var restTemplate: RestTemplate
-
-    @Autowired
-    private lateinit var tokenValidationUtil: TokenValidationUtil
 
     @MockkBean(relaxed = true)
     private lateinit var esyfovarselService: EsyfovarselService
@@ -114,6 +119,9 @@ class MotebehovArbeidsgiverControllerV3Test {
 
     private val stsToken = generateStsToken().access_token
 
+    @Value("\${dialogmote.frontend.client.id}")
+    private lateinit var dialogmoteClientId: String
+
     @BeforeEach
     fun setUp() {
         every { brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR) } returns true
@@ -126,12 +134,13 @@ class MotebehovArbeidsgiverControllerV3Test {
 
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
         mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
-        tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
+        loggInnBrukerTokenX(contextHolder, LEDER_FNR, dialogmoteClientId)
         cleanDB()
     }
 
     @AfterEach
     fun tearDown() {
+        loggUtAlle(contextHolder)
         resetMockRestServers()
         cacheManager.cacheNames
             .forEach(
@@ -152,6 +161,9 @@ class MotebehovArbeidsgiverControllerV3Test {
 
     @Test
     fun getMotebehovStatusWithTodayOutsideOppfolgingstilfelleStart() {
+        loggUtAlle(contextHolder)
+        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId)
+
         dbCreateOppfolgingstilfelle(
             oppfolgingstilfelleDAO,
             generateOppfolgingstilfellePerson(
@@ -166,6 +178,9 @@ class MotebehovArbeidsgiverControllerV3Test {
 
     @Test
     fun getMotebehovStatusWithTodayOutsideOppfolgingstilfelleEnd() {
+        loggUtAlle(contextHolder)
+        loggInnBrukerTokenX(contextHolder, ARBEIDSTAKER_FNR, dialogmoteClientId)
+
         dbCreateOppfolgingstilfelle(
             oppfolgingstilfelleDAO,
             generateOppfolgingstilfellePerson(
@@ -336,13 +351,14 @@ class MotebehovArbeidsgiverControllerV3Test {
         submitMotebehovAndSendOversikthendelse(motebehovSvar)
 
         resetMockRestServers()
+        loggUtAlle(contextHolder)
+        loggInnVeilederADV2(contextHolder, VEILEDER_ID)
 
         mockBehandlendEnhetWithTilgangskontroll(ARBEIDSTAKER_FNR)
-        tokenValidationUtil.logInAsNavCounselor(VEILEDER_ID)
         motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
 
         resetMockRestServers()
-        tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
+        loggInnBrukerTokenX(contextHolder, LEDER_FNR, dialogmoteClientId)
         motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
     }
