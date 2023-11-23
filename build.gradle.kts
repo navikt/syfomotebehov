@@ -115,15 +115,6 @@ dependencies {
     testImplementation("com.h2database:h2:${Versions.h2Version}")
     testImplementation("io.mockk:mockk:${Versions.mockkVersion}")
     testImplementation("com.ninja-squad:springmockk:${Versions.springMockkVersion}")
-
-    constraints {
-        implementation("org.apache.zookeeper:zookeeper") {
-            because("CVE-2023-44981")
-            version {
-                require("3.9.1")
-            }
-        }
-    }
 }
 
 java.toolchain {
