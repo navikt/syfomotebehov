@@ -124,7 +124,6 @@ dependencies {
             }
         }
     }
-
 }
 
 java.toolchain {
