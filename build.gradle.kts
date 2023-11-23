@@ -17,7 +17,6 @@ object Versions {
     const val isdialogmoteSchema = "1.0.5"
     const val jsoupVersion = "1.16.1"
     const val logstashVersion = "4.10"
-    const val slf4jVersion = "2.0.9"
     const val logbackVersion = "1.4.11"
     const val javaxInjectVersion = "1"
     const val owaspSanitizerVersion = "20211018.2"
@@ -68,7 +67,6 @@ configurations.all {
             because("fixes critical bug CVE-2022-36944 in 2.13.6")
         }
     }
-    exclude(group = "org.slf4j", module= "slf4j-reload4j")
 }
 
 dependencies {
@@ -93,7 +91,6 @@ dependencies {
     }
 
     implementation("net.logstash.logback:logstash-logback-encoder:${Versions.logstashVersion}")
-    implementation("org.slf4j:slf4j-api:${Versions.slf4jVersion}")
     implementation("ch.qos.logback:logback-classic:${Versions.logbackVersion}")
 
     implementation("io.confluent:kafka-avro-serializer:${Versions.confluent}")
