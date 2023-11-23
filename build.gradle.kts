@@ -123,13 +123,6 @@ dependencies {
                 require("3.9.1")
             }
         }
-
-        implementation("org.json:json") {
-            because("Dependabot reported vulnerability")
-            version {
-                require("20231013")
-            }
-        }
     }
 }
 
