@@ -13,7 +13,7 @@ object Versions {
     const val h2Version = "2.1.210"
     const val mockkVersion = "1.12.7"
     const val springMockkVersion = "3.1.1"
-    const val confluent = "7.1.1"
+    const val confluent = "7.5.2"
     const val isdialogmoteSchema = "1.0.5"
     const val jsoupVersion = "1.16.1"
     const val logstashVersion = "4.10"
@@ -128,13 +128,6 @@ dependencies {
             because("Dependabot reported vulnerability")
             version {
                 require("20231013")
-            }
-        }
-
-        implementation("com.google.protobuf:protobuf-java") {
-            because("Dependabot reported vulnerability")
-            version {
-                require("3.25.1")
             }
         }
     }
