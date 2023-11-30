@@ -1,4 +1,4 @@
-package no.nav.syfo.motebehov.api.internad.v2
+package no.nav.syfo.motebehov.api.internad.v3
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -7,6 +7,7 @@ import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
+import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.motebehov.MotebehovSvar
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiver
 import no.nav.syfo.motebehov.api.MotebehovArbeidsgiverControllerV3
@@ -29,6 +30,7 @@ import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.clearCache
 import no.nav.syfo.testhelper.generator.generateOppfolgingstilfellePerson
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
+import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import no.nav.syfo.testhelper.mockSvarFraIstilgangskontrollTilgangTilBruker
 import no.nav.syfo.util.TokenValidationUtil
@@ -39,7 +41,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
@@ -56,7 +57,7 @@ import javax.inject.Inject
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
-class MotebehovVeilederADControllerV2Test {
+class MotebehovVeilederADControllerV3Test {
 
     @Value("\${azure.openid.config.token.endpoint}")
     private lateinit var azureTokenEndpoint: String
@@ -77,17 +78,13 @@ class MotebehovVeilederADControllerV2Test {
     private lateinit var oppfolgingstilfelleDAO: OppfolgingstilfelleDAO
 
     @Inject
-    private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV2
+    private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV3
 
     @Inject
     private lateinit var motebehovDAO: MotebehovDAO
 
     @Inject
     private lateinit var cacheManager: CacheManager
-
-    @Autowired
-    @Qualifier("AzureAD")
-    private lateinit var restTemplateAzureAD: RestTemplate
 
     @Inject
     private lateinit var restTemplate: RestTemplate
@@ -101,18 +98,27 @@ class MotebehovVeilederADControllerV2Test {
     @MockkBean(relaxed = true)
     private lateinit var pdlConsumer: PdlConsumer
 
+    @MockkBean
+    private lateinit var stsConsumer: StsConsumer
+
     @MockkBean(relaxed = true)
     private lateinit var personoppgavehendelseProducer: PersonoppgavehendelseProducer
 
-    private lateinit var mockRestServiceServerAzureAD: MockRestServiceServer
     private lateinit var mockRestServiceServer: MockRestServiceServer
+
+    @Inject
+    @Qualifier("restTemplateWithProxy")
+    private lateinit var restTemplateWithProxy: RestTemplate
+    private lateinit var mockRestServiceWithProxyServer: MockRestServiceServer
+
+    private val stsToken = generateStsToken().access_token
 
     @BeforeEach
     fun setUp() {
         cleanDB()
 
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
-        mockRestServiceServerAzureAD = MockRestServiceServer.bindTo(restTemplateAzureAD).build()
+        mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
 
         every { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) } returns Unit
         every { brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR) } returns true
@@ -123,6 +129,7 @@ class MotebehovVeilederADControllerV2Test {
         every { pdlConsumer.fnr(LEDER_AKTORID) } returns LEDER_FNR
         every { pdlConsumer.person(ARBEIDSTAKER_FNR) } returns generatePdlHentPerson(null, null)
         every { pdlConsumer.person(LEDER_FNR) } returns generatePdlHentPerson(null, null)
+        every { stsConsumer.token() } returns stsToken
 
         createOppfolgingstilfelle()
     }
@@ -131,7 +138,7 @@ class MotebehovVeilederADControllerV2Test {
     fun tearDown() {
         // Verify all expectations met
         mockRestServiceServer.verify()
-        mockRestServiceServerAzureAD.verify()
+        mockRestServiceWithProxyServer.verify()
         resetMockRestServers()
         cacheManager.cacheNames
             .forEach(
@@ -341,7 +348,7 @@ class MotebehovVeilederADControllerV2Test {
             azureTokenEndpoint = azureTokenEndpoint,
             tilgangskontrollUrl = tilgangskontrollUrl,
             mockRestServiceServer = mockRestServiceServer,
-            mockRestServiceServerAzureAD = mockRestServiceServerAzureAD,
+            mockRestServiceWithProxyServer = mockRestServiceWithProxyServer,
             status = status,
             fnr = fnr,
         )
@@ -350,8 +357,7 @@ class MotebehovVeilederADControllerV2Test {
     private fun mockBehandlendEnhet(fnr: String) {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
-            mockRestServiceServerAzureAD,
-            mockRestServiceServer,
+            mockRestServiceWithProxyServer,
             behandlendeenhetUrl,
             fnr,
         )
@@ -368,7 +374,7 @@ class MotebehovVeilederADControllerV2Test {
 
     private fun resetMockRestServers() {
         mockRestServiceServer.reset()
-        mockRestServiceServerAzureAD.reset()
+        mockRestServiceWithProxyServer.reset()
     }
 
     private fun cleanDB() {

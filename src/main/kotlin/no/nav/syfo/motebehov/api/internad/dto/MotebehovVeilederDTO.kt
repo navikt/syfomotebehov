@@ -1,4 +1,4 @@
-package no.nav.syfo.motebehov.api.internad.v2
+package no.nav.syfo.motebehov.api.internad.dto
 
 import no.nav.syfo.motebehov.motebehovstatus.*
 import java.io.Serializable

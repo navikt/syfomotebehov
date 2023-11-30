@@ -1,4 +1,4 @@
-package no.nav.syfo.motebehov.api.internad.v2
+package no.nav.syfo.motebehov.api.internad.v3
 
 import jakarta.ws.rs.BadRequestException
 import jakarta.ws.rs.ForbiddenException
@@ -28,8 +28,8 @@ import javax.validation.constraints.Pattern
 
 @RestController
 @ProtectedWithClaims(issuer = INTERN_AZUREAD_V2)
-@RequestMapping(value = ["/api/internad/v2/veileder"])
-class MotebehovVeilederADControllerV2 @Inject constructor(
+@RequestMapping(value = ["/api/internad/v3/veileder"])
+class MotebehovVeilederADControllerV3 @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
     private val metric: Metric,
     private val historikkService: HistorikkService,
@@ -40,7 +40,7 @@ class MotebehovVeilederADControllerV2 @Inject constructor(
 ) {
     @GetMapping(value = ["/motebehov"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentMotebehovListe(
-        @RequestParam(name = "fnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
+        @RequestHeader(name = "sykmeldtFnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
     ): List<MotebehovVeilederDTO> {
         metric.tellEndepunktKall("veileder_hent_motebehov")
 
@@ -58,7 +58,7 @@ class MotebehovVeilederADControllerV2 @Inject constructor(
 
     @GetMapping(value = ["/historikk"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentMotebehovHistorikk(
-        @RequestParam(name = "fnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
+        @RequestParam(name = "sykmeldtFnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
     ): List<Historikk> {
         metric.tellEndepunktKall("veileder_hent_motebehov_historikk")
         kastExceptionHvisIkkeTilgang(sykmeldtFnr)
@@ -91,9 +91,9 @@ class MotebehovVeilederADControllerV2 @Inject constructor(
         metric.tellEndepunktKall("veileder_motebehov-tilbakemelding_call_success")
     }
 
-    @PostMapping(value = ["/motebehov/{fnr}/behandle"])
+    @PostMapping(value = ["/motebehov/behandle"])
     fun behandleMotebehov(
-        @PathVariable(name = "fnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
+        @RequestHeader(name = "sykmeldtFnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
     ) {
         metric.tellEndepunktKall("veileder_behandle_motebehov_call")
         kastExceptionHvisIkkeTilgang(sykmeldtFnr)
