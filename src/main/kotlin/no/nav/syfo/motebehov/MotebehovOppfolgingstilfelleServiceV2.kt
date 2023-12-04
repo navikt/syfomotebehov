@@ -46,6 +46,9 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                 )
                 if (motebehovStatus.skjemaType == MotebehovSkjemaType.SVAR_BEHOV) {
                     varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLeder(arbeidstakerFnr, innloggetFnr, nyttMotebehov.virksomhetsnummer)
+                    if (isOwnLeader) {
+                        varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(arbeidstakerFnr)
+                    }
                 }
             } else {
                 metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSGIVER)
