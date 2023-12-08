@@ -580,7 +580,6 @@ class MotebehovArbeidsgiverControllerV3Test {
         verify(exactly = 0) { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(motebehov.arbeidstakerFnr) }
     }
 
-
     private fun resetMockRestServers() {
         mockRestServiceServer.reset()
         mockRestServiceWithProxyServer.reset()

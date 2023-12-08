@@ -60,7 +60,7 @@ class BrukertilgangConsumer(
     }
 
     fun logError(response: ClientResponse, callId: String) {
-        metric.countOutgoingReponses(METRIC_CALL_BRUKERTILGANG, response.rawStatusCode())
+        metric.countOutgoingReponses(METRIC_CALL_BRUKERTILGANG, response.statusCode().value())
         LOG.error("Error requesting ansatt access from syfobrukertilgang with callId $callId")
     }
 
