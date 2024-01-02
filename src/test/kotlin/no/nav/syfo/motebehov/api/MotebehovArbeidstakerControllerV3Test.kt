@@ -6,7 +6,6 @@ import io.mockk.verify
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
-import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
 import no.nav.syfo.motebehov.MotebehovSvar
@@ -28,7 +27,6 @@ import no.nav.syfo.testhelper.clearCache
 import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import no.nav.syfo.testhelper.generator.generateOppfolgingstilfellePerson
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
-import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll
 import no.nav.syfo.util.TokenValidationUtil
@@ -102,9 +100,6 @@ class MotebehovArbeidstakerControllerV3Test {
     @MockkBean
     private lateinit var pdlConsumer: PdlConsumer
 
-    @MockkBean
-    private lateinit var stsConsumer: StsConsumer
-
     @MockkBean(relaxed = true)
     private lateinit var personoppgavehendelseProducer: PersonoppgavehendelseProducer
 
@@ -112,14 +107,11 @@ class MotebehovArbeidstakerControllerV3Test {
 
     private val motebehovGenerator = MotebehovGenerator()
 
-    private val stsToken = generateStsToken().access_token
-
     @BeforeEach
     fun setUp() {
         every { pdlConsumer.person(ARBEIDSTAKER_FNR) } returns generatePdlHentPerson(null, null)
         every { pdlConsumer.aktorid(any()) } returns ARBEIDSTAKER_AKTORID
         every { pdlConsumer.fnr(any()) } returns ARBEIDSTAKER_FNR
-        every { stsConsumer.token() } returns stsToken
         every { pdlConsumer.isKode6(ARBEIDSTAKER_FNR) } returns false
 
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()

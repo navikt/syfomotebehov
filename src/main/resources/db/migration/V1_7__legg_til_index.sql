@@ -1,1 +1,0 @@
-CREATE INDEX opprettet_av_aktor_id_index ON MOTEBEHOV(opprettet_av, aktoer_id);

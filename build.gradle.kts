@@ -7,10 +7,8 @@ object Versions {
     const val apacheHttpClientVersion = "5.2.1"
     const val junitJupiterVersion = "5.8.2"
     const val kotlinJacksonVersion = "2.13.2"
-    const val flywayVersion = "8.4.4"
+    const val flywayVersion = "9.22.3"
     const val tokenSupportVersion = "3.2.0"
-    const val ojdbcVersion = "19.3.0.0"
-    const val h2Version = "2.1.210"
     const val mockkVersion = "1.12.7"
     const val springMockkVersion = "3.1.1"
     const val confluent = "7.5.2"
@@ -22,7 +20,9 @@ object Versions {
     const val owaspSanitizerVersion = "20211018.2"
     const val apacheCommonsVersion = "3.5"
     const val jakartaRsApiVersion = "3.1.0"
-    const val atomikosVersion = "6.0.0"
+    const val hikari = "5.0.1"
+    const val postgres = "42.6.0"
+    const val postgresEmbedded = "0.13.4"
 }
 
 plugins {
@@ -85,7 +85,6 @@ dependencies {
 
     implementation("io.micrometer:micrometer-registry-prometheus:1.10.5")
     implementation("no.nav.security:token-validation-spring:${Versions.tokenSupportVersion}")
-    implementation("com.oracle.ojdbc:ojdbc8:${Versions.ojdbcVersion}")
     implementation("org.springframework.kafka:spring-kafka") {
         exclude(group = "log4j", module = "log4j")
     }
@@ -96,15 +95,17 @@ dependencies {
     implementation("io.confluent:kafka-avro-serializer:${Versions.confluent}")
     implementation("io.confluent:kafka-schema-registry:${Versions.confluent}")
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:${Versions.isdialogmoteSchema}")
-    implementation("org.flywaydb:flyway-core:${Versions.flywayVersion}")
     implementation("javax.inject:javax.inject:${Versions.javaxInjectVersion}")
-
-    implementation("com.atomikos:transactions-spring-boot3-starter:${Versions.atomikosVersion}")
 
     implementation("org.apache.commons:commons-lang3:${Versions.apacheCommonsVersion}")
     implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:${Versions.owaspSanitizerVersion}")
     implementation("org.jsoup:jsoup:${Versions.jsoupVersion}")
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:${Versions.jakartaRsApiVersion}")
+
+    implementation("org.flywaydb:flyway-core:${Versions.flywayVersion}")
+    implementation("com.zaxxer:HikariCP:${Versions.hikari}")
+    implementation("org.postgresql:postgresql:${Versions.postgres}")
+    testImplementation("com.opentable.components:otj-pg-embedded:${Versions.postgresEmbedded}")
 
     testImplementation("org.junit.jupiter:junit-jupiter:${Versions.junitJupiterVersion}")
     testImplementation("no.nav.security:token-validation-spring-test:${Versions.tokenSupportVersion}")
@@ -112,7 +113,6 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "junit")
     }
-    testImplementation("com.h2database:h2:${Versions.h2Version}")
     testImplementation("io.mockk:mockk:${Versions.mockkVersion}")
     testImplementation("com.ninja-squad:springmockk:${Versions.springMockkVersion}")
 
@@ -127,8 +127,7 @@ dependencies {
 }
 
 java.toolchain {
-    languageVersion.set(JavaLanguageVersion.of(19))
-    vendor.set(JvmVendorSpec.ADOPTIUM)
+    languageVersion.set(JavaLanguageVersion.of(17))
 }
 
 tasks {
@@ -146,6 +145,9 @@ tasks {
             append("META-INF/spring/org.springframework.boot.actuate.autoconfigure.web.ManagementContextConfiguration.imports")
         }
         mergeServiceFiles()
+        archiveBaseName.set("app")
+        archiveClassifier.set("")
+        archiveVersion.set("")
     }
 
     withType<Test> {

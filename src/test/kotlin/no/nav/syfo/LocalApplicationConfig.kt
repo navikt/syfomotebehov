@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.spring.test.MockOAuth2ServerAutoConfiguration
 import no.nav.syfo.config.kafka.FunctionSerializer
@@ -16,10 +17,19 @@ import org.springframework.context.annotation.Import
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
+import javax.sql.DataSource
 
 @Configuration
 @Import(MockOAuth2ServerAutoConfiguration::class)
 class LocalApplicationConfig {
+
+    private var embeddedPostgres: EmbeddedPostgres = EmbeddedPostgres.builder().start()
+
+    @Bean
+    fun embeddedPostgres(): DataSource {
+        return embeddedPostgres.postgresDatabase
+    }
+
     @Bean
     fun kafkaTemplate(producerFactory: ProducerFactory<String, Any>): KafkaTemplate<String, Any> {
         return KafkaTemplate(producerFactory)

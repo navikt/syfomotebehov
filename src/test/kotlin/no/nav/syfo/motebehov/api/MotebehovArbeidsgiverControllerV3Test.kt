@@ -7,7 +7,6 @@ import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
-import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
 import no.nav.syfo.motebehov.MotebehovSvar
@@ -103,17 +102,12 @@ class MotebehovArbeidsgiverControllerV3Test {
     @MockkBean
     private lateinit var brukertilgangConsumer: BrukertilgangConsumer
 
-    @MockkBean
-    private lateinit var stsConsumer: StsConsumer
-
     @MockkBean(relaxed = true)
     private lateinit var personoppgavehendelseProducer: PersonoppgavehendelseProducer
 
     private lateinit var mockRestServiceServer: MockRestServiceServer
 
     private val motebehovGenerator = MotebehovGenerator()
-
-    private val stsToken = generateStsToken().access_token
 
     @BeforeEach
     fun setUp() {
@@ -123,7 +117,6 @@ class MotebehovArbeidsgiverControllerV3Test {
         every { pdlConsumer.aktorid(LEDER_FNR) } returns LEDER_AKTORID
 
         every { pdlConsumer.isKode6(ARBEIDSTAKER_FNR) } returns false
-        every { stsConsumer.token() } returns stsToken
 
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
         mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()

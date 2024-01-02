@@ -1,6 +1,8 @@
 package no.nav.syfo.consumer.pdl
 
-import no.nav.syfo.consumer.sts.StsConsumer
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import no.nav.syfo.api.auth.OIDCIssuer
+import no.nav.syfo.api.auth.OIDCUtil
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
@@ -16,8 +18,8 @@ import org.springframework.web.client.RestTemplate
 class PdlConsumer(
     private val metric: Metric,
     @Value("\${pdl.url}") private val pdlUrl: String,
-    private val stsConsumer: StsConsumer,
-    private val restTemplate: RestTemplate
+    private val restTemplate: RestTemplate,
+    private val oidcContextHolder: TokenValidationContextHolder
 ) {
     fun person(ident: String): PdlHentPerson? {
         metric.tellHendelse("call_pdl")
@@ -133,12 +135,11 @@ class PdlConsumer(
     }
 
     private fun createRequestEntity(request: PdlRequest): HttpEntity<PdlRequest> {
-        val stsToken: String = stsConsumer.token()
+        val token = OIDCUtil.tokenFraOIDC(oidcContextHolder, OIDCIssuer.INTERN_AZUREAD_V2)
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
         headers.set(PDL_BEHANDLINGSNUMMER_HEADER, BEHANDLINGSNUMMER_MOTEBEHOV)
-        headers.set(AUTHORIZATION, bearerCredentials(stsToken))
-        headers.set(NAV_CONSUMER_TOKEN_HEADER, bearerCredentials(stsToken))
+        headers.set(AUTHORIZATION, bearerCredentials(token))
         return HttpEntity(request, headers)
     }
 

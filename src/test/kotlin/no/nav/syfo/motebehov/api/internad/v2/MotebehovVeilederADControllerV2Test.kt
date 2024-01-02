@@ -10,7 +10,6 @@ import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
-import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.motebehov.MotebehovSvar
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiver
 import no.nav.syfo.motebehov.api.MotebehovArbeidsgiverControllerV3
@@ -32,7 +31,6 @@ import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.clearCache
 import no.nav.syfo.testhelper.generator.generateOppfolgingstilfellePerson
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
-import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import no.nav.syfo.testhelper.mockSvarFraIstilgangskontrollTilgangTilBruker
 import no.nav.syfo.util.TokenValidationUtil
@@ -97,9 +95,6 @@ class MotebehovVeilederADControllerV2Test {
     @MockkBean(relaxed = true)
     private lateinit var pdlConsumer: PdlConsumer
 
-    @MockkBean
-    private lateinit var stsConsumer: StsConsumer
-
     @MockkBean(relaxed = true)
     private lateinit var personoppgavehendelseProducer: PersonoppgavehendelseProducer
 
@@ -109,8 +104,6 @@ class MotebehovVeilederADControllerV2Test {
     @Qualifier("restTemplateWithProxy")
     private lateinit var restTemplateWithProxy: RestTemplate
     private lateinit var mockRestServiceWithProxyServer: MockRestServiceServer
-
-    private val stsToken = generateStsToken().access_token
 
     @BeforeEach
     fun setUp() {
@@ -128,7 +121,6 @@ class MotebehovVeilederADControllerV2Test {
         every { pdlConsumer.fnr(LEDER_AKTORID) } returns LEDER_FNR
         every { pdlConsumer.person(ARBEIDSTAKER_FNR) } returns generatePdlHentPerson(null, null)
         every { pdlConsumer.person(LEDER_FNR) } returns generatePdlHentPerson(null, null)
-        every { stsConsumer.token() } returns stsToken
 
         createOppfolgingstilfelle()
     }

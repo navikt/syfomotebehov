@@ -7,10 +7,6 @@ no.nav.security:
         discoveryurl: ${azure.app.well.known.url}
         accepted_audience: ${azure.app.client.id}
         cookiename: ID_token
-        proxy-url: http://webproxy.nais:8088
-      sts:
-        discoveryurl: http://security-token-service.default/rest/v1/sts/.well-known/openid-configuration
-        accepted_audience: srvesyfovarsel
       tokenx:
         discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
         accepted_audience: ${TOKEN_X_CLIENT_ID}
@@ -30,8 +26,12 @@ server:
 
 spring:
   main.banner-mode: 'off'
-  jta.atomikos.datasource:
-    max-pool-size: 32
-    min-pool-size: 8
+  flyway:
+    enabled: true
+  datasource:
+    url: jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_DATABASE}?user=${DATABASE_USERNAME}&password=${DATABASE_PASSWORD}
+    hikari:
+      minimum-idle: 2
+      maximum-pool-size: 8
 
 dev: false

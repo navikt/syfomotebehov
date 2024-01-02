@@ -42,13 +42,12 @@ Kjør `./gradlew --continue ktlintCheck` eller `./gradlew ktlintFormat`
 ### Pipeline
 
 Pipeline er på Github Action.
-Commits til Master-branch deployes automatisk til dev-fss og prod-fss.
+Commits til Master-branch deployes automatisk til dev-gcp og prod-gcp.
 Commits til ikke-master-branch bygges uten automatisk deploy.
 
 ## Database
 Appen kjører med en lokal H2 in-memory database. Den spinnes opp som en del av applikasjonen og er 
-også tilgjengelig i tester. Du kan logge inn og kjøre spørringer på:
-`localhost/h2` med jdbc_url: `jdbc:h2:mem:testdb`
+også tilgjengelig i tester. 
 
 ## Alerterator
 Syfomotebehov er satt opp med alerterator, slik når appen er nede vil det sendes en varsling til Slack kanalene #veden-alerts.

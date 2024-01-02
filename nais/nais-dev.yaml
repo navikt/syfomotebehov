@@ -8,7 +8,11 @@ metadata:
 spec:
   image: {{ image }}
   port: 8080
-  team: teamsykefravr
+  startup:
+    path: /syfomotebehov/internal/isAlive
+    periodSeconds: 5
+    timeout: 5
+    failureThreshold: 10
   liveness:
     path: /syfomotebehov/internal/isAlive
     initialDelay: 30
@@ -21,11 +25,10 @@ spec:
     timeout: 1
   resources:
     limits:
-      cpu: 2000m
-      memory: 2048Mi
-    requests:
-      cpu: 1000m
       memory: 1024Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
   replicas:
     min: 2
     max: 4
@@ -34,109 +37,91 @@ spec:
     enabled: true
     path: /syfomotebehov/internal/prometheus
   ingresses:
-    - "https://syfomotebehov.dev.intern.nav.no"
-    - "https://syfomotebehov.dev-fss-pub.nais.io"
+    - "https://syfomotebehov.intern.dev.nav.no"
   tokenx:
     enabled: true
+  leaderElection: true
   accessPolicy:
     inbound:
       rules:
-        - application: syfomodiaperson
-          namespace: teamsykefravr
-          cluster: dev-fss
-        - application: syfomodiaperson
-          namespace: teamsykefravr
-          cluster: dev-gcp
+        - application: esyfo-proxy
         - application: dialogmote-frontend
-          namespace: team-esyfo
-          cluster: dev-gcp
-        - application: ditt-sykefravaer
-          namespace: flex
-          cluster: dev-gcp
+        - application: syfomodiaperson
+          namespace: teamsykefravr
         - application: isyfomock
           namespace: teamsykefravr
-          cluster: dev-gcp
+        - application: ditt-sykefravaer
+          namespace: flex
         - application: tms-min-side-proxy
           namespace: min-side
-          cluster: dev-gcp
-        - application: esyfo-proxy
-          namespace: team-esyfo
-          cluster: dev-gcp
     outbound:
+      external:
+        - host: "pdl-api.dev-fss-pub.nais.io"
       rules:
-        - application: isnarmesteleder
-          namespace: teamsykefravr
-          cluster: dev-gcp
+        - application: esyfovarsel
+        - application: syfobrukertilgang
         - application: istilgangskontroll
           namespace: teamsykefravr
-          cluster: dev-gcp
-        - application: syfobrukertilgang
-          namespace: team-esyfo
-          cluster: dev-gcp
+        - application: syfobehandlendeenhet
+          namespace: teamsykefravr
+        - application: isnarmesteleder
+          namespace: teamsykefravr
   azure:
     application:
       allowAllUsers: true
       enabled: true
       tenant: trygdeetaten.no
-      replyURLs:
-        - "https://syfomotebehov.dev.intern.nav.no/oauth2/callback"
       claims:
         extra:
           - "NAVident"
-  vault:
+  idporten:
     enabled: true
-    paths:
-      - kvPath: "/oracle/data/dev/creds/syfomotebehov_q1-user"
-        mountPath: "/secrets/syfomotebehovdb/credentials"
-      - kvPath: "/oracle/data/dev/config/syfomotebehov_q1"
-        mountPath: "/secrets/syfomotebehovdb/config"
-      - kvPath: "/kv/preprod/fss/syfomotebehov/team-esyfo"
-        mountPath: "/var/run/secrets/nais.io/vault"
-  leaderElection: true
+    sidecar:
+      enabled: true
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_14
+        databases:
+          - name: syfomotebehov-db
+        diskAutoresize: true
   kafka:
     pool: nav-dev
   env:
     - name: APP_NAME
       value: "syfomotebehov"
-    - name: APPDYNAMICS_CONTROLLER_HOST_NAME
-      value: appdynamics.adeo.no
-    - name: APPDYNAMICS_CONTROLLER_PORT
-      value: "443"
-    - name: APPDYNAMICS_CONTROLLER_SSL_ENABLED
-      value: "true"
-    - name: toggle_enable_nullstill
-      value: 'false'
-    - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
-      value: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
+    - name: KAFKA_ENV_NAME
+      value: "q1"
+    - name: DIALOGMOTE_FRONTEND_CLIENT_ID
+      value: "dev-gcp:team-esyfo:dialogmote-frontend"
+    - name: TMS_MIN_SIDE_PROXY_CLIENT_ID
+      value: "dev-gcp:min-side:tms-min-side-proxy"
+    - name: ESYFO_PROXY_CLIENT_ID
+      value: "dev-gcp:team-esyfo:esyfo-proxy"
+    - name: SYFOBRUKERTILGANG_CLIENT_ID
+      value: "dev-gcp:team-esyfo:syfobrukertilgang"
+    - name: DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID
+      value: "dev-gcp:flex:ditt-sykefravaer"
+    - name: PDL_CLIENT_ID
+      value: "dev-fss.pdl.pdl-api"
     - name: PDL_URL
-      value: https://pdl-api.nais.preprod.local/graphql
-    - name: SYFOBRUKERTILGANG_URL
-      value: https://syfobrukertilgang.intern.dev.nav.no
+      value: "https://pdl-api.dev-fss-pub.nais.io/graphql"
     - name: ISTILGANGSKONTROLL_CLIENT_ID
-      value: dev-gcp.teamsykefravr.istilgangskontroll
+      value: "dev-gcp.teamsykefravr.istilgangskontroll"
     - name: ISTILGANGSKONTROLL_URL
-      value: https://istilgangskontroll.intern.dev.nav.no
-    - name: SECURITY_TOKEN_SERVICE_REST_URL
-      value: https://security-token-service.nais.preprod.local
+      value: "http://istilgangskontroll.teamsykefravr"
+    - name: SYFOBRUKERTILGANG_CLIENT_ID
+      value: "dev-gcp.team-esyfo.syfobrukertilgang"
+    - name: SYFOBRUKERTILGANG_URL
+      value: "http://syfobrukertilgang"
+    - name: ESYFOVARSEL_CLIENT_ID
+      value: "dev-gcp.team-esyfo.esyfovarsel"
+    - name: ESYFOVARSEL_URL
+      value: "http://esyfovarsel"
     - name: SYFOBEHANDLENDEENHET_CLIENT_ID
       value: "dev-gcp.teamsykefravr.syfobehandlendeenhet"
     - name: SYFOBEHANDLENDEENHET_URL
-      value: "https://syfobehandlendeenhet.intern.dev.nav.no"
-    - name: KAFKA_ENV_NAME
-      value: q1
-    - name: DIALOGMOTE_FRONTEND_CLIENT_ID
-      value: dev-gcp:team-esyfo:dialogmote-frontend
-    - name: TMS_MIN_SIDE_PROXY_CLIENT_ID
-      value: dev-gcp:min-side:tms-min-side-proxy
-    - name: ESYFO_PROXY_CLIENT_ID
-      value: dev-gcp:team-esyfo:esyfo-proxy
-    - name: SYFOBRUKERTILGANG_CLIENT_ID
-      value: dev-gcp:team-esyfo:syfobrukertilgang
-    - name: DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID
-      value: dev-gcp:flex:ditt-sykefravaer
-    - name: ISNARMESTELEDER_URL
-      value: "https://isnarmesteleder.intern.dev.nav.no"
+      value: "http://syfobehandlendeenhet.teamsykefravr"
     - name: ISNARMESTELEDER_CLIENT_ID
       value: "dev-gcp.teamsykefravr.isnarmesteleder"
-    - name: SPRING_PROFILES_ACTIVE
-      value: remote,testdatareset
+    - name: ISNARMESTELEDER_URL
+      value: "http://isnarmesteleder.teamsykefravr"
