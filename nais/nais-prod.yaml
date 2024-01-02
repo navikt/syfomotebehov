@@ -66,6 +66,7 @@ spec:
           namespace: teamsykefravr
   azure:
     application:
+      allowAllUsers: true
       enabled: true
       tenant: nav.no
       claims:
