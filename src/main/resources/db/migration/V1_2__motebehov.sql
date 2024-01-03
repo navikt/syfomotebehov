@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS MOTEBEHOV;
+
 CREATE TABLE MOTEBEHOV (
   id                          SERIAL PRIMARY KEY,
   motebehov_uuid              VARCHAR(36) NOT NULL UNIQUE,

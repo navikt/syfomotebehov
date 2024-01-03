@@ -40,10 +40,10 @@ class DialogmoteStatusService @Inject constructor(
                 )
             }
         } else {
-            val statusEndringTidstpunktInLastSavedMeeting =
+            val statusEndringTidspunktInLastSavedMeeting =
                 getNewestSavedEndring(existingDialogmoter).statusEndringTidspunkt
 
-            if (statusEndringTidspunkt.isAfter(statusEndringTidstpunktInLastSavedMeeting)) {
+            if (statusEndringTidspunkt.isAfter(statusEndringTidspunktInLastSavedMeeting)) {
                 if (isMoteInnkallingEllerEndring(statusEndringType)) {
                     dialogmoteDAO.update(
                         fnr,
