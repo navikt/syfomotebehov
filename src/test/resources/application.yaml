@@ -32,7 +32,9 @@ azure:
         endpoint: "https://login.microsoftonline.com/id/oauth2/v2.0/token"
 
 aktorregister.rest.url: "aktorregister.url"
+pdl.client.id: "dev-fss.pdl.pdl-api"
 pdl.url: "https://pdl"
+
 
 srvsyfomotebehov:
   username: "kek"
