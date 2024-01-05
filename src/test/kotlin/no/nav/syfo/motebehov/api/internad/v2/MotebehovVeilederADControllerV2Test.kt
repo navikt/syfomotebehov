@@ -41,6 +41,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
@@ -83,6 +84,10 @@ class MotebehovVeilederADControllerV2Test {
     @Inject
     private lateinit var cacheManager: CacheManager
 
+    @Autowired
+    @Qualifier("AzureAD")
+    private lateinit var restTemplateAzureAD: RestTemplate
+
     @Inject
     private lateinit var restTemplate: RestTemplate
 
@@ -98,19 +103,15 @@ class MotebehovVeilederADControllerV2Test {
     @MockkBean(relaxed = true)
     private lateinit var personoppgavehendelseProducer: PersonoppgavehendelseProducer
 
+    private lateinit var mockRestServiceServerAzureAD: MockRestServiceServer
     private lateinit var mockRestServiceServer: MockRestServiceServer
-
-    @Inject
-    @Qualifier("restTemplateWithProxy")
-    private lateinit var restTemplateWithProxy: RestTemplate
-    private lateinit var mockRestServiceWithProxyServer: MockRestServiceServer
 
     @BeforeEach
     fun setUp() {
         cleanDB()
 
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
-        mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
+        mockRestServiceServerAzureAD = MockRestServiceServer.bindTo(restTemplateAzureAD).build()
 
         every { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) } returns Unit
         every { brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR) } returns true
@@ -129,7 +130,7 @@ class MotebehovVeilederADControllerV2Test {
     fun tearDown() {
         // Verify all expectations met
         mockRestServiceServer.verify()
-        mockRestServiceWithProxyServer.verify()
+        mockRestServiceServerAzureAD.verify()
         resetMockRestServers()
         cacheManager.cacheNames
             .forEach(
@@ -339,7 +340,7 @@ class MotebehovVeilederADControllerV2Test {
             azureTokenEndpoint = azureTokenEndpoint,
             tilgangskontrollUrl = tilgangskontrollUrl,
             mockRestServiceServer = mockRestServiceServer,
-            mockRestServiceWithProxyServer = mockRestServiceWithProxyServer,
+            mockRestServiceServerAzureAD = mockRestServiceServerAzureAD,
             status = status,
             fnr = fnr,
         )
@@ -348,7 +349,8 @@ class MotebehovVeilederADControllerV2Test {
     private fun mockBehandlendEnhet(fnr: String) {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
-            mockRestServiceWithProxyServer,
+            mockRestServiceServerAzureAD,
+            mockRestServiceServer,
             behandlendeenhetUrl,
             fnr,
         )
@@ -365,7 +367,7 @@ class MotebehovVeilederADControllerV2Test {
 
     private fun resetMockRestServers() {
         mockRestServiceServer.reset()
-        mockRestServiceWithProxyServer.reset()
+        mockRestServiceServerAzureAD.reset()
     }
 
     private fun cleanDB() {

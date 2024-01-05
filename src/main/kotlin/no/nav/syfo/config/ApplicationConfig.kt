@@ -1,5 +1,6 @@
 package no.nav.syfo.config
 
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.*
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.scheduling.annotation.EnableScheduling
@@ -18,6 +19,10 @@ class ApplicationConfig {
     @Primary
     @Bean
     fun restTemplate() = RestTemplate()
+
+    @Bean
+    @Qualifier("AzureAD")
+    fun restTemplateAzureAd() = RestTemplate()
 
     @Bean
     fun webClient() = WebClient

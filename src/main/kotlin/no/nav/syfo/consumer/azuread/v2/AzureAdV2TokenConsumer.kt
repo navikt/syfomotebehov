@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 @Component
 class AzureAdV2TokenConsumer @Autowired constructor(
-    @Qualifier("restTemplateWithProxy") private val restTemplateWithProxy: RestTemplate,
+    @Qualifier("AzureAD") private val restTemplate: RestTemplate,
     @Value("\${azure.app.client.id}") private val azureAppClientId: String,
     @Value("\${azure.app.client.secret}") private val azureAppClientSecret: String,
     @Value("\${azure.openid.config.token.endpoint}") private val azureTokenEndpoint: String
@@ -22,7 +22,7 @@ class AzureAdV2TokenConsumer @Autowired constructor(
         token: String
     ): String {
         try {
-            val response = restTemplateWithProxy.exchange(
+            val response = restTemplate.exchange(
                 azureTokenEndpoint,
                 HttpMethod.POST,
                 requestEntity(scopeClientId, token),
@@ -49,7 +49,7 @@ class AzureAdV2TokenConsumer @Autowired constructor(
                 val requestEntity = systemTokenRequestEntity(
                     scopeClientId = scopeClientId
                 )
-                val response = restTemplateWithProxy.exchange(
+                val response = restTemplate.exchange(
                     azureTokenEndpoint,
                     HttpMethod.POST,
                     requestEntity,

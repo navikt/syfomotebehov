@@ -83,9 +83,8 @@ class MotebehovArbeidsgiverControllerV3Test {
     private lateinit var dialogmotekandidatDAO: DialogmotekandidatDAO
 
     @Autowired
-    @Qualifier("restTemplateWithProxy")
-    private lateinit var restTemplateWithProxy: RestTemplate
-    private lateinit var mockRestServiceWithProxyServer: MockRestServiceServer
+    @Qualifier("AzureAD")
+    private lateinit var restTemplateAzureAD: RestTemplate
 
     @Autowired
     private lateinit var restTemplate: RestTemplate
@@ -105,6 +104,7 @@ class MotebehovArbeidsgiverControllerV3Test {
     @MockkBean(relaxed = true)
     private lateinit var personoppgavehendelseProducer: PersonoppgavehendelseProducer
 
+    private lateinit var mockRestServiceServerAzureAD: MockRestServiceServer
     private lateinit var mockRestServiceServer: MockRestServiceServer
 
     private val motebehovGenerator = MotebehovGenerator()
@@ -119,7 +119,7 @@ class MotebehovArbeidsgiverControllerV3Test {
         every { pdlConsumer.isKode6(ARBEIDSTAKER_FNR) } returns false
 
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
-        mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
+        mockRestServiceServerAzureAD = MockRestServiceServer.bindTo(restTemplateAzureAD).build()
         tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
         cleanDB()
     }
@@ -513,7 +513,8 @@ class MotebehovArbeidsgiverControllerV3Test {
     private fun submitMotebehovAndSendOversikthendelse(motebehovSvar: MotebehovSvar) {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
-            mockRestServiceWithProxyServer,
+            mockRestServiceServerAzureAD,
+            mockRestServiceServer,
             behandlendeenhetUrl,
             ARBEIDSTAKER_FNR,
         )
@@ -533,7 +534,8 @@ class MotebehovArbeidsgiverControllerV3Test {
     private fun lagreMotebehov(innsendtMotebehov: NyttMotebehovArbeidsgiver) {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
-            mockRestServiceWithProxyServer,
+            mockRestServiceServerAzureAD,
+            mockRestServiceServer,
             behandlendeenhetUrl,
             innsendtMotebehov.arbeidstakerFnr,
         )
@@ -575,7 +577,7 @@ class MotebehovArbeidsgiverControllerV3Test {
 
     private fun resetMockRestServers() {
         mockRestServiceServer.reset()
-        mockRestServiceWithProxyServer.reset()
+        mockRestServiceServerAzureAD.reset()
     }
 
     private fun cleanDB() {
@@ -590,7 +592,7 @@ class MotebehovArbeidsgiverControllerV3Test {
     private fun mockBehandlendEnhetWithTilgangskontroll(fnr: String) {
         mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll(
             azureTokenEndpoint,
-            mockRestServiceWithProxyServer,
+            mockRestServiceServerAzureAD,
             mockRestServiceServer,
             behandlendeenhetUrl,
             tilgangskontrollUrl,

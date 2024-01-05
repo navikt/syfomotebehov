@@ -16,12 +16,12 @@ import org.springframework.web.util.UriComponentsBuilder
 fun mockSvarFraIstilgangskontrollTilgangTilBruker(
     azureTokenEndpoint: String,
     tilgangskontrollUrl: String,
-    mockRestServiceWithProxyServer: MockRestServiceServer,
+    mockRestServiceServerAzureAD: MockRestServiceServer,
     mockRestServiceServer: MockRestServiceServer,
     fnr: String,
     status: HttpStatus,
 ) {
-    mockAndExpectAzureADV2(mockRestServiceWithProxyServer, azureTokenEndpoint, generateAzureAdV2TokenResponse())
+    mockAndExpectAzureADV2(mockRestServiceServerAzureAD, azureTokenEndpoint, generateAzureAdV2TokenResponse())
 
     val oboToken = generateAzureAdV2TokenResponse().access_token
 

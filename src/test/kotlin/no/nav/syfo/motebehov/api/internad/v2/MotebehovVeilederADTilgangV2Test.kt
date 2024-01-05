@@ -33,28 +33,28 @@ class MotebehovVeilederADTilgangV2Test {
     private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV2
 
     @Inject
+    @Qualifier("AzureAD")
+    private lateinit var restTemplateAzureAD: RestTemplate
+
+    @Inject
     private lateinit var restTemplate: RestTemplate
 
     @Inject
     private lateinit var tokenValidationUtil: TokenValidationUtil
 
+    private lateinit var mockRestServiceServerAzureAD: MockRestServiceServer
     private lateinit var mockRestServiceServer: MockRestServiceServer
-
-    @Inject
-    @Qualifier("restTemplateWithProxy")
-    private lateinit var restTemplateWithProxy: RestTemplate
-    private lateinit var mockRestServiceWithProxyServer: MockRestServiceServer
 
     @BeforeEach
     fun setUp() {
+        mockRestServiceServerAzureAD = MockRestServiceServer.bindTo(restTemplateAzureAD).build()
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
-        mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
     }
 
     @AfterEach
     fun tearDown() {
         mockRestServiceServer.verify()
-        mockRestServiceWithProxyServer.verify()
+        mockRestServiceServerAzureAD.verify()
     }
 
     @Test
@@ -83,7 +83,7 @@ class MotebehovVeilederADTilgangV2Test {
             azureTokenEndpoint = azureTokenEndpoint,
             tilgangskontrollUrl = tilgangskontrollUrl,
             mockRestServiceServer = mockRestServiceServer,
-            mockRestServiceWithProxyServer = mockRestServiceWithProxyServer,
+            mockRestServiceServerAzureAD = mockRestServiceServerAzureAD,
             status = status,
             fnr = fnr,
         )
