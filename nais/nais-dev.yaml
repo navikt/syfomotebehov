@@ -58,7 +58,6 @@ spec:
       external:
         - host: "pdl-api.dev-fss-pub.nais.io"
       rules:
-        - application: esyfovarsel
         - application: syfobrukertilgang
         - application: istilgangskontroll
           namespace: teamsykefravr
@@ -110,13 +109,9 @@ spec:
     - name: ISTILGANGSKONTROLL_URL
       value: "http://istilgangskontroll.teamsykefravr"
     - name: SYFOBRUKERTILGANG_CLIENT_ID
-      value: "dev-gcp.team-esyfo.syfobrukertilgang"
+      value: "dev-gcp:team-esyfo:syfobrukertilgang"
     - name: SYFOBRUKERTILGANG_URL
       value: "http://syfobrukertilgang"
-    - name: ESYFOVARSEL_CLIENT_ID
-      value: "dev-gcp.team-esyfo.esyfovarsel"
-    - name: ESYFOVARSEL_URL
-      value: "http://esyfovarsel"
     - name: SYFOBEHANDLENDEENHET_CLIENT_ID
       value: "dev-gcp.teamsykefravr.syfobehandlendeenhet"
     - name: SYFOBEHANDLENDEENHET_URL
