@@ -43,10 +43,10 @@ Kjør `./gradlew --continue ktlintCheck` eller `./gradlew ktlintFormat`
 
 Pipeline er på Github Action.
 Commits til Master-branch deployes automatisk til dev-gcp og prod-gcp.
-Commits til ikke-master-branch bygges uten automatisk deploy.
+Commits til ikke-master-branch bygges automatisk deploy til dev-gcp.
 
 ## Database
-Appen kjører med en lokal H2 in-memory database. Den spinnes opp som en del av applikasjonen og er 
+Appen kjører med en lokal in-memory database. Den spinnes opp som en del av applikasjonen og er 
 også tilgjengelig i tester. 
 
 ## Alerterator
