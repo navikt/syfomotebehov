@@ -52,8 +52,6 @@ spec:
           namespace: teamsykefravr
         - application: ditt-sykefravaer
           namespace: flex
-        - application: tms-min-side-proxy
-          namespace: min-side
     outbound:
       external:
         - host: "pdl-api.dev-fss-pub.nais.io"
@@ -93,12 +91,8 @@ spec:
       value: "q1"
     - name: DIALOGMOTE_FRONTEND_CLIENT_ID
       value: "dev-gcp:team-esyfo:dialogmote-frontend"
-    - name: TMS_MIN_SIDE_PROXY_CLIENT_ID
-      value: "dev-gcp:min-side:tms-min-side-proxy"
     - name: ESYFO_PROXY_CLIENT_ID
       value: "dev-gcp:team-esyfo:esyfo-proxy"
-    - name: SYFOBRUKERTILGANG_CLIENT_ID
-      value: "dev-gcp:team-esyfo:syfobrukertilgang"
     - name: DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID
       value: "dev-gcp:flex:ditt-sykefravaer"
     - name: PDL_CLIENT_ID
