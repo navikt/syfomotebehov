@@ -21,7 +21,7 @@ class DialogmoteDAO @Inject constructor(
     fun get(fnr: String, virksomhetsnummer: String, dialogmoteExternUUID: String): List<Dialogmote> {
         val query = """
             SELECT *
-            FROM dialogmoter
+            FROM dialogmote
             WHERE person_ident = :person_ident AND virksomhetsnummer = :virksomhetsnummer AND dialogmote_extern_uuid = :dialogmoteExternUUID
         """.trimIndent()
         val mapSql = MapSqlParameterSource()
@@ -43,7 +43,7 @@ class DialogmoteDAO @Inject constructor(
         statusEndringTidspunkt: LocalDateTime,
     ) {
         val query = """
-            UPDATE dialogmoter
+            UPDATE dialogmote
             SET db_endring_tidspunkt = :db_endring_tidspunkt, status_endring_type = :statusEndringType, status_endring_tidspunkt = :statusEndringTidspunkt
             WHERE person_ident = :fnr AND virksomhetsnummer = :virksomhetsnummer AND dialogmote_extern_uuid = :dialogmoteExternUUID
         """.trimIndent()
@@ -67,7 +67,7 @@ class DialogmoteDAO @Inject constructor(
     ): UUID {
         val uuid = UUID.randomUUID()
         val query = """
-             INSERT INTO dialogmoter (uuid, dialogmote_extern_uuid, dialogmote_tidspunkt, status_endring_tidspunkt, db_endring_tidspunkt, status_endring_type, person_ident, virksomhetsnummer)
+             INSERT INTO dialogmote (uuid, dialogmote_extern_uuid, dialogmote_tidspunkt, status_endring_tidspunkt, db_endring_tidspunkt, status_endring_type, person_ident, virksomhetsnummer)
              VALUES (:uuid, :moteExternUUID, :dialogmoteTidspunkt, :statusEndringTidspunkt, :dbEndringTidspunkt, :statusEndringType, :fnr, :virksomhetsnummer)
         """.trimIndent()
         val mapSaveSql = MapSqlParameterSource()
@@ -90,7 +90,7 @@ class DialogmoteDAO @Inject constructor(
                 "${it.uuid}"
             }
             namedParameterJdbcTemplate.update(
-                "DELETE FROM dialogmoter WHERE uuid IN (:dialogmoteIder)",
+                "DELETE FROM dialogmote WHERE uuid IN (:dialogmoteIder)",
                 MapSqlParameterSource()
                     .addValue("dialogmoteIder", dialogmoteIder),
             )
@@ -106,7 +106,7 @@ class DialogmoteDAO @Inject constructor(
     ): List<Dialogmote> {
         val query = """
             SELECT *
-            FROM dialogmoter
+            FROM dialogmote
             WHERE person_ident = :person_ident AND virksomhetsnummer = :virksomhetsnummer AND (CAST (dialogmote_tidspunkt AS DATE) = :dialogmoteTidspunkt OR CAST (dialogmote_tidspunkt AS DATE) > :dialogmoteTidspunkt)
         """.trimIndent()
         val mapSql = MapSqlParameterSource()
@@ -126,7 +126,7 @@ class DialogmoteDAO @Inject constructor(
     ): List<Dialogmote> {
         val query = """
             SELECT *
-            FROM dialogmoter
+            FROM dialogmote
             WHERE person_ident = :person_ident AND (CAST (dialogmote_tidspunkt AS DATE) = :dialogmoteTidspunkt OR CAST (dialogmote_tidspunkt AS DATE) > :dialogmoteTidspunkt)
         """.trimIndent()
         val mapSql = MapSqlParameterSource()
@@ -141,7 +141,7 @@ class DialogmoteDAO @Inject constructor(
 
     fun nullstillDialogmoter(fnr: String) {
         namedParameterJdbcTemplate.update(
-            "DELETE FROM dialogmoter WHERE person_ident = :fnr",
+            "DELETE FROM dialogmote WHERE person_ident = :fnr",
             MapSqlParameterSource()
                 .addValue("fnr", fnr),
         )

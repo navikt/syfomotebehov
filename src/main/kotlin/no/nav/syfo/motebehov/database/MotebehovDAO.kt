@@ -25,7 +25,7 @@ import java.util.UUID
 @Repository
 class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate, private val jdbcTemplate: JdbcTemplate) {
     fun hentMotebehovListeForAktoer(aktoerId: String): List<PMotebehov> {
-        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ?", innsendingRowMapper, aktoerId)).orElse(emptyList())
+        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? ORDER BY opprettet_dato ASC", innsendingRowMapper, aktoerId)).orElse(emptyList())
     }
 
     fun hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktorId: String): List<PMotebehov> {
@@ -41,11 +41,11 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
     }
 
     fun hentUbehandledeMotebehov(aktoerId: String): List<PMotebehov> {
-        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND har_motebehov = 1 AND behandlet_veileder_ident IS NULL", innsendingRowMapper, aktoerId)).orElse(emptyList())
+        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND har_motebehov AND behandlet_veileder_ident IS NULL", innsendingRowMapper, aktoerId)).orElse(emptyList())
     }
 
     fun hentUbehandledeMotebehovEldreEnnDato(date: LocalDate): List<PMotebehov> {
-        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE opprettet_dato < ? AND har_motebehov = 1 AND behandlet_veileder_ident IS NULL", innsendingRowMapper, convert(date))).orElse(emptyList())
+        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE opprettet_dato < ? AND har_motebehov AND behandlet_veileder_ident IS NULL", innsendingRowMapper, convert(date))).orElse(emptyList())
     }
 
     fun hentMotebehov(motebehovId: String): List<PMotebehov> {
@@ -56,7 +56,7 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
         motebehovUUID: UUID,
         veilederIdent: String,
     ): Int {
-        val oppdaterSql = "UPDATE motebehov SET behandlet_tidspunkt = ?, behandlet_veileder_ident = ? WHERE motebehov_uuid = ? AND har_motebehov = 1 AND behandlet_veileder_ident IS NULL"
+        val oppdaterSql = "UPDATE motebehov SET behandlet_tidspunkt = ?, behandlet_veileder_ident = ? WHERE motebehov_uuid = ? AND har_motebehov AND behandlet_veileder_ident IS NULL"
         return jdbcTemplate.update(oppdaterSql, convert(LocalDateTime.now()), veilederIdent, motebehovUUID.toString())
     }
 

@@ -28,8 +28,6 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
     val dialogmoteClientId: String,
     @Value("\${ditt.sykefravaer.frontend.client.id}")
     val dittSykefravaerClientId: String,
-    @Value("\${tms-min-side-proxy.client.id}")
-    val minSideClientId: String,
     @Value("\${esyfo-proxy.client.id}")
     val esyfoProxyClientId: String,
 ) {
@@ -66,7 +64,6 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
             contextHolder,
             dialogmoteClientId,
-            minSideClientId,
             esyfoProxyClientId
         )
             .fnrFromIdportenTokenX()
@@ -85,7 +82,6 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
             contextHolder,
             dialogmoteClientId,
-            minSideClientId,
             esyfoProxyClientId
         )
             .fnrFromIdportenTokenX()

@@ -6,7 +6,6 @@ import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
@@ -24,7 +23,7 @@ class NarmesteLederClient(
     private val azureAdV2TokenConsumer: AzureAdV2TokenConsumer,
     @Value("\${isnarmesteleder.url}") private val baseUrl: String,
     @Value("\${isnarmesteleder.client.id}") private val targetApp: String,
-    @Qualifier("restTemplateWithProxy") private val restTemplateWithProxy: RestTemplate
+    private val restTemplate: RestTemplate
 ) {
     fun getNarmesteledere(fnr: String): List<NarmesteLederRelasjonDTO>? {
         try {
@@ -32,7 +31,7 @@ class NarmesteLederClient(
                 scopeClientId = targetApp
             )
 
-            val response: ResponseEntity<List<NarmesteLederRelasjonDTO>?> = restTemplateWithProxy.exchange(
+            val response: ResponseEntity<List<NarmesteLederRelasjonDTO>?> = restTemplate.exchange(
                 "$baseUrl/api/system/v1/narmestelederrelasjoner",
                 HttpMethod.GET,
                 entity(token, fnr),

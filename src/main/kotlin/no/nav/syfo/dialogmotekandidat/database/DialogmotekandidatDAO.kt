@@ -1,8 +1,6 @@
 package no.nav.syfo.dialogmotekandidat.database
 
 import no.nav.syfo.util.convert
-import no.nav.syfo.util.mapToBoolean
-import no.nav.syfo.util.mapToString
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -54,7 +52,7 @@ class DialogmotekandidatDAO @Inject constructor(
             .addValue("uuid", uuid.toString())
             .addValue("dialogmotekandidatExternalUUID", dialogmotekandidatExternalUUID)
             .addValue("fnr", fnr)
-            .addValue("kandidat", kandidat.mapToString())
+            .addValue("kandidat", kandidat)
             .addValue("arsak", arsak)
             .addValue("createdAt", convert(createdAt))
             .addValue("databaseUpdatedAt", convert(LocalDateTime.now()))
@@ -77,7 +75,7 @@ class DialogmotekandidatDAO @Inject constructor(
         val mapSaveSql = MapSqlParameterSource()
             .addValue("dialogmotekandidatExternalUUID", dialogmotekandidatExternalUUID)
             .addValue("fnr", fnr)
-            .addValue("kandidat", kandidat.mapToString())
+            .addValue("kandidat", kandidat)
             .addValue("arsak", arsak)
             .addValue("createdAt", convert(createdAt))
             .addValue("databaseUpdatedAt", convert(LocalDateTime.now()))
@@ -89,7 +87,7 @@ class DialogmotekandidatDAO @Inject constructor(
             uuid = UUID.fromString(resultSet.getString(COLUMN_UUID)),
             dialogmotekandidatExternUUID = UUID.fromString(resultSet.getString(COLUMN_EXTERNAL_UUID)),
             personIdentNumber = resultSet.getString(COLUMN_PERSON_IDENT),
-            kandidat = resultSet.getString(COLUMN_KANDIDAT).mapToBoolean(),
+            kandidat = resultSet.getBoolean(COLUMN_KANDIDAT),
             arsak = DialogmotekandidatEndringArsak.valueOf(resultSet.getString(COLUMN_ARSAK)),
             createdAt = resultSet.getTimestamp(COLUMN_CREATED_AT).toLocalDateTime(),
             databaseUpdatedAt = resultSet.getTimestamp(COLUMN_DATABASE_UPDATED_AT).toLocalDateTime(),

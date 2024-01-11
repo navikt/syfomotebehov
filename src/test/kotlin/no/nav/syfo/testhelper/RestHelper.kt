@@ -18,7 +18,8 @@ import org.springframework.web.util.UriComponentsBuilder
 
 fun mockAndExpectBehandlendeEnhetRequest(
     azureTokenEndpoint: String,
-    mockRestServiceWithProxyServer: MockRestServiceServer,
+    mockRestServiceServerAzureAD: MockRestServiceServer,
+    mockRestServiceServer: MockRestServiceServer,
     behandlendeenhetUrl: String,
     fnr: String,
 ) {
@@ -32,12 +33,12 @@ fun mockAndExpectBehandlendeEnhetRequest(
 
     val systemToken = generateAzureAdV2TokenResponse()
 
-    mockAndExpectAzureADV2(mockRestServiceWithProxyServer, azureTokenEndpoint, systemToken)
+    mockAndExpectAzureADV2(mockRestServiceServerAzureAD, azureTokenEndpoint, systemToken)
 
     try {
         val json = ObjectMapper().writeValueAsString(behandlendeEnhet)
 
-        mockRestServiceWithProxyServer.expect(ExpectedCount.once(), MockRestRequestMatchers.requestTo(uriString))
+        mockRestServiceServer.expect(ExpectedCount.once(), MockRestRequestMatchers.requestTo(uriString))
             .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
             .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, bearerCredentials(systemToken.access_token)))
             .andExpect(MockRestRequestMatchers.header(NAV_PERSONIDENT_HEADER, fnr))
@@ -49,7 +50,7 @@ fun mockAndExpectBehandlendeEnhetRequest(
 
 fun mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll(
     azureTokenEndpoint: String,
-    mockRestServiceWithProxyServer: MockRestServiceServer,
+    mockRestServiceServerAzureAD: MockRestServiceServer,
     mockRestServiceServer: MockRestServiceServer,
     behandlendeenhetUrl: String,
     tilgangskontrollUrl: String,
@@ -65,11 +66,11 @@ fun mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll(
 
     val systemToken = generateAzureAdV2TokenResponse()
 
-    mockAndExpectAzureADV2(mockRestServiceWithProxyServer, azureTokenEndpoint, systemToken)
+    mockAndExpectAzureADV2(mockRestServiceServerAzureAD, azureTokenEndpoint, systemToken)
     mockSvarFraIstilgangskontrollTilgangTilBruker(
         azureTokenEndpoint,
         tilgangskontrollUrl,
-        mockRestServiceWithProxyServer,
+        mockRestServiceServerAzureAD,
         mockRestServiceServer,
         fnr,
         HttpStatus.OK,

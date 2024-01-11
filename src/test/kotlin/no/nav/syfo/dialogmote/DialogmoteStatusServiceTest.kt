@@ -66,7 +66,7 @@ internal class DialogmoteStatusServiceTest {
 
     @BeforeEach
     fun cleanup() {
-        val sqlDeleteAll = "DELETE FROM DIALOGMOTER"
+        val sqlDeleteAll = "DELETE FROM DIALOGMOTE"
         jdbcTemplate.update(sqlDeleteAll)
     }
 

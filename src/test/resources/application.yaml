@@ -7,17 +7,13 @@ spring:
       max-poll-records: 1
       auto-offset-reset: earliest
       enable-auto-commit: false
-  h2.console:
+  flyway:
     enabled: true
-    path: '/h2'
   datasource:
-    url: 'jdbc:h2:mem:testdb'
-    driver-class-name: 'org.h2.Driver'
-    username: 'sa'
-    password:
-  jta.atomikos.datasource:
-    max-pool-size: 32
-    min-pool-size: 8
+    url: jdbc:postgresql://localhost:5432/syfomotebehov?user=postgres&password=postgres
+    hikari:
+      minimum-idle: 2
+      maximum-pool-size: 8
   cache:
     type: none
 server:
@@ -36,8 +32,9 @@ azure:
         endpoint: "https://login.microsoftonline.com/id/oauth2/v2.0/token"
 
 aktorregister.rest.url: "aktorregister.url"
+pdl.client.id: "dev-fss.pdl.pdl-api"
 pdl.url: "https://pdl"
-securitytokenservice.url: "sts.url"
+
 
 srvsyfomotebehov:
   username: "kek"
@@ -47,9 +44,6 @@ srv.username: "kek"
 srv.password: "bur"
 
 mock.token.server.port: 8081
-
-toggle.enable:
-  nullstill: true
 
 no.nav.security:
   jwt:
@@ -90,7 +84,6 @@ dialogmote.client.id: "dialogmote"
 dialogmotearbeidsgiver.client.id: "dialogmotearbeidsgiver"
 dialogmote.frontend.client.id: "dialogmote-frontend"
 ditt.sykefravaer.frontend.client.id: "ditt-sykefravaer-frontend"
-tms-min-side-proxy.client.id: "tms-min-side-proxy"
 esyfo-proxy.client.id: "esyfo-proxy"
 token.x.token.endpoint: "https://token-x-endpoint-url"
 token.x.client.id: "tokenx-client-id"
