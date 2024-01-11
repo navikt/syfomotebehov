@@ -36,6 +36,8 @@ spec:
   prometheus:
     enabled: true
     path: /syfomotebehov/internal/prometheus
+  ingresses:
+    - "https://syfomotebehov.intern.dev.nav.no"
   tokenx:
     enabled: true
   leaderElection: true
