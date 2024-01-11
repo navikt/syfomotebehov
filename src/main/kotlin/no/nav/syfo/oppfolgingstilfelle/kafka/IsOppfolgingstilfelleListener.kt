@@ -8,10 +8,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
-import org.springframework.stereotype.Component
 
 @Profile("remote")
-@Component
 class IsOppfolgingstilfelleListener(
     private val oppfolgingstilfelleService: OppfolgingstilfelleService
 ) {
