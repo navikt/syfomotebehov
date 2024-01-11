@@ -30,14 +30,12 @@ spec:
       cpu: 100m
       memory: 512Mi
   replicas:
-    min: 2
-    max: 4
+    min: 0
+    max: 0
     cpuThresholdPercentage: 80
   prometheus:
     enabled: true
     path: /syfomotebehov/internal/prometheus
-  ingresses:
-    - "https://syfomotebehov.intern.nav.no"
   tokenx:
     enabled: true
   leaderElection: true
