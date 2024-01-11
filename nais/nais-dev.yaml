@@ -71,10 +71,6 @@ spec:
       claims:
         extra:
           - "NAVident"
-  idporten:
-    enabled: true
-    sidecar:
-      enabled: true
   gcp:
     sqlInstances:
       - type: POSTGRES_14
