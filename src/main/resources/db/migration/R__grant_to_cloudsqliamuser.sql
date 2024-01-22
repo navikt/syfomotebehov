@@ -18,3 +18,5 @@ GRANT SELECT(
     sm_fnr,
     opprettet_av_fnr)
 ON motebehov to "disykefravar-x4wt@knada-gcp.iam.gserviceaccount.com";
+
+GRANT SELECT ON MOTEBEHOV_DVH TO "disykefravar-x4wt@knada-gcp.iam.gserviceaccount.com";
