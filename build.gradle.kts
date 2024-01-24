@@ -3,27 +3,25 @@ import com.github.jengelman.gradle.plugins.shadow.transformers.PropertiesFileTra
 
 group = "no.nav.syfo"
 
-object Versions {
-    const val apacheHttpClientVersion = "5.2.1"
-    const val junitJupiterVersion = "5.8.2"
-    const val kotlinJacksonVersion = "2.13.2"
-    const val flywayVersion = "9.22.3"
-    const val tokenSupportVersion = "3.2.0"
-    const val mockkVersion = "1.12.7"
-    const val springMockkVersion = "3.1.1"
-    const val confluent = "7.5.2"
-    const val isdialogmoteSchema = "1.0.5"
-    const val jsoupVersion = "1.16.1"
-    const val logstashVersion = "4.10"
-    const val logbackVersion = "1.4.11"
-    const val javaxInjectVersion = "1"
-    const val owaspSanitizerVersion = "20211018.2"
-    const val apacheCommonsVersion = "3.5"
-    const val jakartaRsApiVersion = "3.1.0"
-    const val hikari = "5.0.1"
-    const val postgres = "42.6.0"
-    const val postgresEmbedded = "0.13.4"
-}
+val apacheHttpClientVersion = "5.2.1"
+val junitJupiterVersion = "5.8.2"
+val kotlinJacksonVersion = "2.13.2"
+val flywayVersion = "9.22.3"
+val tokenSupportVersion = "3.2.0"
+val mockkVersion = "1.12.7"
+val springMockkVersion = "3.1.1"
+val confluent = "7.5.2"
+val isdialogmoteSchema = "1.0.5"
+val jsoupVersion = "1.16.1"
+val logstashVersion = "4.10"
+val logbackVersion = "1.4.11"
+val javaxInjectVersion = "1"
+val owaspSanitizerVersion = "20211018.2"
+val apacheCommonsVersion = "3.5"
+val jakartaRsApiVersion = "3.1.0"
+val hikari = "5.0.1"
+val postgres = "42.6.0"
+val postgresEmbedded = "0.13.4"
 
 plugins {
     id("java")
@@ -72,9 +70,9 @@ configurations.all {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.kotlinJacksonVersion}")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$kotlinJacksonVersion")
 
-    implementation("org.apache.httpcomponents.client5:httpclient5:${Versions.apacheHttpClientVersion}")
+    implementation("org.apache.httpcomponents.client5:httpclient5:$apacheHttpClientVersion")
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -84,37 +82,37 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
     implementation("io.micrometer:micrometer-registry-prometheus:1.10.5")
-    implementation("no.nav.security:token-validation-spring:${Versions.tokenSupportVersion}")
+    implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
     implementation("org.springframework.kafka:spring-kafka") {
         exclude(group = "log4j", module = "log4j")
     }
 
-    implementation("net.logstash.logback:logstash-logback-encoder:${Versions.logstashVersion}")
-    implementation("ch.qos.logback:logback-classic:${Versions.logbackVersion}")
+    implementation("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
-    implementation("io.confluent:kafka-avro-serializer:${Versions.confluent}")
-    implementation("io.confluent:kafka-schema-registry:${Versions.confluent}")
-    implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:${Versions.isdialogmoteSchema}")
-    implementation("javax.inject:javax.inject:${Versions.javaxInjectVersion}")
+    implementation("io.confluent:kafka-avro-serializer:$confluent")
+    implementation("io.confluent:kafka-schema-registry:$confluent")
+    implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:$isdialogmoteSchema")
+    implementation("javax.inject:javax.inject:$javaxInjectVersion")
 
-    implementation("org.apache.commons:commons-lang3:${Versions.apacheCommonsVersion}")
-    implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:${Versions.owaspSanitizerVersion}")
-    implementation("org.jsoup:jsoup:${Versions.jsoupVersion}")
-    implementation("jakarta.ws.rs:jakarta.ws.rs-api:${Versions.jakartaRsApiVersion}")
+    implementation("org.apache.commons:commons-lang3:$apacheCommonsVersion")
+    implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:$owaspSanitizerVersion")
+    implementation("org.jsoup:jsoup:$jsoupVersion")
+    implementation("jakarta.ws.rs:jakarta.ws.rs-api:$jakartaRsApiVersion")
 
-    implementation("org.flywaydb:flyway-core:${Versions.flywayVersion}")
-    implementation("com.zaxxer:HikariCP:${Versions.hikari}")
-    implementation("org.postgresql:postgresql:${Versions.postgres}")
-    testImplementation("com.opentable.components:otj-pg-embedded:${Versions.postgresEmbedded}")
+    implementation("org.flywaydb:flyway-core:$flywayVersion")
+    implementation("com.zaxxer:HikariCP:$hikari")
+    implementation("org.postgresql:postgresql:$postgres")
+    testImplementation("com.opentable.components:otj-pg-embedded:$postgresEmbedded")
 
-    testImplementation("org.junit.jupiter:junit-jupiter:${Versions.junitJupiterVersion}")
-    testImplementation("no.nav.security:token-validation-spring-test:${Versions.tokenSupportVersion}")
+    testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
+    testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
     testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "junit")
     }
-    testImplementation("io.mockk:mockk:${Versions.mockkVersion}")
-    testImplementation("com.ninja-squad:springmockk:${Versions.springMockkVersion}")
+    testImplementation("io.mockk:mockk:$mockkVersion")
+    testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
 
     constraints {
         implementation("org.apache.zookeeper:zookeeper") {
