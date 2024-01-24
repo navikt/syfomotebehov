@@ -20,7 +20,7 @@ val owaspSanitizerVersion = "20211018.2"
 val apacheCommonsVersion = "3.5"
 val jakartaRsApiVersion = "3.1.0"
 val hikari = "5.0.1"
-val postgres = "42.6.0"
+val postgres = "42.7.1"
 val postgresEmbedded = "0.13.4"
 
 plugins {
