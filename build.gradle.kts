@@ -19,7 +19,7 @@ val javaxInjectVersion = "1"
 val owaspSanitizerVersion = "20211018.2"
 val apacheCommonsVersion = "3.14.0"
 val jakartaRsApiVersion = "3.1.0"
-val hikari = "5.0.1"
+val hikari = "5.1.0"
 val postgres = "42.7.1"
 val postgresEmbedded = "0.13.4"
 
