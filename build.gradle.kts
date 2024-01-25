@@ -5,7 +5,7 @@ group = "no.nav.syfo"
 
 val apacheHttpClientVersion = "5.3"
 val junitJupiterVersion = "5.8.2"
-val kotlinJacksonVersion = "2.13.2"
+val kotlinJacksonVersion = "2.16.1"
 val flywayVersion = "9.22.3"
 val tokenSupportVersion = "3.2.0"
 val mockkVersion = "1.12.7"
