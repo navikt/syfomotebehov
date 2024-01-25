@@ -3,7 +3,7 @@ import com.github.jengelman.gradle.plugins.shadow.transformers.PropertiesFileTra
 
 group = "no.nav.syfo"
 
-val apacheHttpClientVersion = "5.2.1"
+val apacheHttpClientVersion = "5.3"
 val junitJupiterVersion = "5.8.2"
 val kotlinJacksonVersion = "2.13.2"
 val flywayVersion = "9.22.3"
