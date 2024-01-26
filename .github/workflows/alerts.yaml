@@ -9,6 +9,8 @@ on:
 jobs:
   apply-alerts:
     name: Apply alerts to cluster
+    permissions:
+      id-token: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -16,6 +18,5 @@ jobs:
       - name: deploy to prod-gcp
         uses: nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: nais/alerts-gcp.yaml
