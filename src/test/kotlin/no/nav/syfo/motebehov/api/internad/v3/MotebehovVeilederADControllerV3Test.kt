@@ -7,7 +7,6 @@ import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
-import no.nav.syfo.consumer.sts.StsConsumer
 import no.nav.syfo.motebehov.MotebehovSvar
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiver
 import no.nav.syfo.motebehov.api.MotebehovArbeidsgiverControllerV3
@@ -30,7 +29,6 @@ import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.clearCache
 import no.nav.syfo.testhelper.generator.generateOppfolgingstilfellePerson
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
-import no.nav.syfo.testhelper.generator.generateStsToken
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import no.nav.syfo.testhelper.mockSvarFraIstilgangskontrollTilgangTilBruker
 import no.nav.syfo.util.TokenValidationUtil
@@ -41,6 +39,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
@@ -86,6 +85,10 @@ class MotebehovVeilederADControllerV3Test {
     @Inject
     private lateinit var cacheManager: CacheManager
 
+    @Autowired
+    @Qualifier("AzureAD")
+    private lateinit var restTemplateAzureAD: RestTemplate
+
     @Inject
     private lateinit var restTemplate: RestTemplate
 
@@ -98,27 +101,18 @@ class MotebehovVeilederADControllerV3Test {
     @MockkBean(relaxed = true)
     private lateinit var pdlConsumer: PdlConsumer
 
-    @MockkBean
-    private lateinit var stsConsumer: StsConsumer
-
     @MockkBean(relaxed = true)
     private lateinit var personoppgavehendelseProducer: PersonoppgavehendelseProducer
 
+    private lateinit var mockRestServiceServerAzureAD: MockRestServiceServer
     private lateinit var mockRestServiceServer: MockRestServiceServer
-
-    @Inject
-    @Qualifier("restTemplateWithProxy")
-    private lateinit var restTemplateWithProxy: RestTemplate
-    private lateinit var mockRestServiceWithProxyServer: MockRestServiceServer
-
-    private val stsToken = generateStsToken().access_token
 
     @BeforeEach
     fun setUp() {
         cleanDB()
 
         mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
-        mockRestServiceWithProxyServer = MockRestServiceServer.bindTo(restTemplateWithProxy).build()
+        mockRestServiceServerAzureAD = MockRestServiceServer.bindTo(restTemplateAzureAD).build()
 
         every { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) } returns Unit
         every { brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR) } returns true
@@ -129,7 +123,6 @@ class MotebehovVeilederADControllerV3Test {
         every { pdlConsumer.fnr(LEDER_AKTORID) } returns LEDER_FNR
         every { pdlConsumer.person(ARBEIDSTAKER_FNR) } returns generatePdlHentPerson(null, null)
         every { pdlConsumer.person(LEDER_FNR) } returns generatePdlHentPerson(null, null)
-        every { stsConsumer.token() } returns stsToken
 
         createOppfolgingstilfelle()
     }
@@ -138,7 +131,7 @@ class MotebehovVeilederADControllerV3Test {
     fun tearDown() {
         // Verify all expectations met
         mockRestServiceServer.verify()
-        mockRestServiceWithProxyServer.verify()
+        mockRestServiceServerAzureAD.verify()
         resetMockRestServers()
         cacheManager.cacheNames
             .forEach(
@@ -348,7 +341,7 @@ class MotebehovVeilederADControllerV3Test {
             azureTokenEndpoint = azureTokenEndpoint,
             tilgangskontrollUrl = tilgangskontrollUrl,
             mockRestServiceServer = mockRestServiceServer,
-            mockRestServiceWithProxyServer = mockRestServiceWithProxyServer,
+            mockRestServiceServerAzureAD = mockRestServiceServerAzureAD,
             status = status,
             fnr = fnr,
         )
@@ -357,7 +350,8 @@ class MotebehovVeilederADControllerV3Test {
     private fun mockBehandlendEnhet(fnr: String) {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
-            mockRestServiceWithProxyServer,
+            mockRestServiceServerAzureAD,
+            mockRestServiceServer,
             behandlendeenhetUrl,
             fnr,
         )
@@ -374,7 +368,7 @@ class MotebehovVeilederADControllerV3Test {
 
     private fun resetMockRestServers() {
         mockRestServiceServer.reset()
-        mockRestServiceWithProxyServer.reset()
+        mockRestServiceServerAzureAD.reset()
     }
 
     private fun cleanDB() {
