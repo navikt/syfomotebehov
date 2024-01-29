@@ -17,6 +17,7 @@ import no.nav.syfo.motebehov.api.internad.dto.MotebehovVeilederDTO
 import no.nav.syfo.motebehov.historikk.Historikk
 import no.nav.syfo.motebehov.historikk.HistorikkService
 import no.nav.syfo.motebehov.toMotebehovVeilederDTOList
+import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.jsoup.Jsoup
 import org.jsoup.safety.Safelist
@@ -40,12 +41,12 @@ class MotebehovVeilederADControllerV3 @Inject constructor(
 ) {
     @GetMapping(value = ["/motebehov"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentMotebehovListe(
-        @RequestHeader(name = "sykmeldtFnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
+        @RequestHeader(name = NAV_PERSONIDENT_HEADER) personident: @Pattern(regexp = "^[0-9]{11}$") String
     ): List<MotebehovVeilederDTO> {
         metric.tellEndepunktKall("veileder_hent_motebehov")
 
-        kastExceptionHvisIkkeTilgang(sykmeldtFnr)
-        val motebehovVeilederDTOList = motebehovService.hentMotebehovListe(sykmeldtFnr)
+        kastExceptionHvisIkkeTilgang(personident)
+        val motebehovVeilederDTOList = motebehovService.hentMotebehovListe(personident)
             .toMotebehovVeilederDTOList()
             .map { motebehovVeilederDTO ->
                 val opprettetAvAktorId = motebehovVeilederDTO.opprettetAv
@@ -58,11 +59,11 @@ class MotebehovVeilederADControllerV3 @Inject constructor(
 
     @GetMapping(value = ["/historikk"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentMotebehovHistorikk(
-        @RequestParam(name = "sykmeldtFnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
+        @RequestParam(name = NAV_PERSONIDENT_HEADER) personident: @Pattern(regexp = "^[0-9]{11}$") String
     ): List<Historikk> {
         metric.tellEndepunktKall("veileder_hent_motebehov_historikk")
-        kastExceptionHvisIkkeTilgang(sykmeldtFnr)
-        return historikkService.hentHistorikkListe(sykmeldtFnr)
+        kastExceptionHvisIkkeTilgang(personident)
+        return historikkService.hentHistorikkListe(personident)
     }
 
     @PostMapping(
@@ -93,11 +94,11 @@ class MotebehovVeilederADControllerV3 @Inject constructor(
 
     @PostMapping(value = ["/motebehov/behandle"])
     fun behandleMotebehov(
-        @RequestHeader(name = "sykmeldtFnr") sykmeldtFnr: @Pattern(regexp = "^[0-9]{11}$") String
+        @RequestHeader(name = NAV_PERSONIDENT_HEADER) personident: @Pattern(regexp = "^[0-9]{11}$") String
     ) {
         metric.tellEndepunktKall("veileder_behandle_motebehov_call")
-        kastExceptionHvisIkkeTilgang(sykmeldtFnr)
-        motebehovService.behandleUbehandledeMotebehov(sykmeldtFnr, getSubjectInternADV2(contextHolder))
+        kastExceptionHvisIkkeTilgang(personident)
+        motebehovService.behandleUbehandledeMotebehov(personident, getSubjectInternADV2(contextHolder))
         metric.tellEndepunktKall("veileder_behandle_motebehov_success")
     }
 
