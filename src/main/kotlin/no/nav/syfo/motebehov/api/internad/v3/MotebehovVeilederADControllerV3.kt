@@ -59,7 +59,7 @@ class MotebehovVeilederADControllerV3 @Inject constructor(
 
     @GetMapping(value = ["/historikk"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentMotebehovHistorikk(
-        @RequestParam(name = NAV_PERSONIDENT_HEADER) personident: @Pattern(regexp = "^[0-9]{11}$") String
+        @RequestHeader(name = NAV_PERSONIDENT_HEADER) personident: @Pattern(regexp = "^[0-9]{11}$") String
     ): List<Historikk> {
         metric.tellEndepunktKall("veileder_hent_motebehov_historikk")
         kastExceptionHvisIkkeTilgang(personident)
