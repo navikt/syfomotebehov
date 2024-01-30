@@ -1,6 +1,6 @@
 package no.nav.syfo.motebehov
 
-import no.nav.syfo.motebehov.api.internad.v2.MotebehovVeilederDTO
+import no.nav.syfo.motebehov.api.internad.dto.MotebehovVeilederDTO
 import no.nav.syfo.motebehov.motebehovstatus.*
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import java.io.Serializable

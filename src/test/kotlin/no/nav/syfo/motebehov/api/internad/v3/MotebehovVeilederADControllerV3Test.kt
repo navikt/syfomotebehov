@@ -1,4 +1,4 @@
-package no.nav.syfo.motebehov.api.internad.v2
+package no.nav.syfo.motebehov.api.internad.v3
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -56,7 +56,7 @@ import javax.inject.Inject
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
-class MotebehovVeilederADControllerV2Test {
+class MotebehovVeilederADControllerV3Test {
 
     @Value("\${azure.openid.config.token.endpoint}")
     private lateinit var azureTokenEndpoint: String
@@ -77,7 +77,7 @@ class MotebehovVeilederADControllerV2Test {
     private lateinit var oppfolgingstilfelleDAO: OppfolgingstilfelleDAO
 
     @Inject
-    private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV2
+    private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV3
 
     @Inject
     private lateinit var motebehovDAO: MotebehovDAO
