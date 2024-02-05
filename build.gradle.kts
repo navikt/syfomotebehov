@@ -4,7 +4,7 @@ import com.github.jengelman.gradle.plugins.shadow.transformers.PropertiesFileTra
 group = "no.nav.syfo"
 
 val apacheHttpClientVersion = "5.3.1"
-val junitJupiterVersion = "5.10.1"
+val junitJupiterVersion = "5.10.2"
 val kotlinJacksonVersion = "2.16.1"
 val flywayVersion = "9.22.3"
 val tokenSupportVersion = "3.2.0"
