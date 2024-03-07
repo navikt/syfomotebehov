@@ -25,7 +25,7 @@ val postgresEmbedded = "0.13.4"
 
 plugins {
     id("java")
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version "1.9.23"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("org.jetbrains.kotlin.plugin.allopen") version "1.9.22"
     id("org.springframework.boot") version "3.2.3"
