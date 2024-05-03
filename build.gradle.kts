@@ -29,7 +29,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("org.jetbrains.kotlin.plugin.allopen") version "1.9.23"
     id("org.springframework.boot") version "3.2.5"
-    id("io.spring.dependency-management") version "1.1.4"
+    id("io.spring.dependency-management") version "1.1.5"
     id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
 }
 
