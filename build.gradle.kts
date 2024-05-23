@@ -27,7 +27,7 @@ plugins {
     id("java")
     kotlin("jvm") version "1.9.24"
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.9.24"
+    id("org.jetbrains.kotlin.plugin.allopen") version "2.0.0"
     id("org.springframework.boot") version "3.3.0"
     id("io.spring.dependency-management") version "1.1.5"
     id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
