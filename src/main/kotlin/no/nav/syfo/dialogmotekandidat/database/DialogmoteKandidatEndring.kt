@@ -16,6 +16,7 @@ data class DialogmoteKandidatEndring(
 enum class DialogmotekandidatEndringArsak {
     STOPPUNKT,
     DIALOGMOTE_FERDIGSTILT,
+    DIALOGMOTE_LUKKET,
     UNNTAK,
     LUKKET,
 }
