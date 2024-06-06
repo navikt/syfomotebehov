@@ -181,6 +181,32 @@ internal class DialogmotekandidatServiceTest {
     }
 
     @Test
+    fun skalIkkeSendeVarselDersomIkkeAktuellKandidat() {
+        val forsteGangKandidat = generateDialogmotekandidatEndring(
+            kandidat = false,
+            arsak = DialogmotekandidatEndringArsak.IKKE_AKTUELL.name,
+            OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
+        )
+
+        dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
+
+        verify(exactly = 0) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
+    }
+
+    @Test
+    fun skalIkkeSendeVarselDersomLukketKandidat() {
+        val forsteGangKandidat = generateDialogmotekandidatEndring(
+            kandidat = false,
+            arsak = DialogmotekandidatEndringArsak.LUKKET.name,
+            OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
+        )
+
+        dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
+
+        verify(exactly = 0) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
+    }
+
+    @Test
     fun skalFerdigsstilleVarselDersomIkkeKandidat() {
         val forsteGangKandidat = generateDialogmotekandidatEndring(
             kandidat = true,
