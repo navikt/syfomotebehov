@@ -18,5 +18,6 @@ enum class DialogmotekandidatEndringArsak {
     DIALOGMOTE_FERDIGSTILT,
     DIALOGMOTE_LUKKET,
     UNNTAK,
+    IKKE_AKTUELL,
     LUKKET,
 }
