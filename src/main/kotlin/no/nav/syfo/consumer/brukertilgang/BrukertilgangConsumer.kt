@@ -7,6 +7,7 @@ import no.nav.syfo.metric.Metric
 import no.nav.syfo.util.APP_CONSUMER_ID
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
+import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.util.bearerCredentials
 import no.nav.syfo.util.createCallId
 import org.slf4j.LoggerFactory
@@ -35,8 +36,9 @@ class BrukertilgangConsumer(
 
         val response = webClient
             .get()
-            .uri("$baseUrl/api/v2/tilgang/ansatt/$ansattFnr")
+            .uri("$baseUrl/api/v2/tilgang/ansatt")
             .header(HttpHeaders.AUTHORIZATION, bearerCredentials(exchangedToken))
+            .header(NAV_PERSONIDENT_HEADER, ansattFnr)
             .header(NAV_CALL_ID_HEADER, callId)
             .header(NAV_CONSUMER_ID_HEADER, APP_CONSUMER_ID)
             .accept(MediaType.APPLICATION_JSON)
