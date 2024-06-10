@@ -11,7 +11,7 @@ import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
 import no.nav.syfo.motebehov.MotebehovSvar
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiver
-import no.nav.syfo.motebehov.api.internad.v2.MotebehovVeilederADControllerV2
+import no.nav.syfo.motebehov.api.internad.v3.MotebehovVeilederADControllerV3
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_SVAR_BEHOV
@@ -28,14 +28,20 @@ import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER_2
 import no.nav.syfo.testhelper.assertion.assertMotebehovStatus
 import no.nav.syfo.testhelper.clearCache
-import no.nav.syfo.testhelper.generator.*
+import no.nav.syfo.testhelper.generator.MotebehovGenerator
+import no.nav.syfo.testhelper.generator.generateOppfolgingstilfellePerson
+import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll
 import no.nav.syfo.util.TokenValidationUtil
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
-import org.assertj.core.api.Assertions.*
-import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -68,7 +74,7 @@ class MotebehovArbeidsgiverControllerV3Test {
     private lateinit var motebehovArbeidsgiverController: MotebehovArbeidsgiverControllerV3
 
     @Autowired
-    private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV2
+    private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV3
 
     @Autowired
     private lateinit var motebehovDAO: MotebehovDAO
