@@ -9,7 +9,7 @@ import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
 import no.nav.syfo.motebehov.MotebehovSvar
-import no.nav.syfo.motebehov.api.internad.v2.MotebehovVeilederADControllerV2
+import no.nav.syfo.motebehov.api.internad.v3.MotebehovVeilederADControllerV3
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_SVAR_BEHOV
@@ -33,7 +33,9 @@ import no.nav.syfo.util.TokenValidationUtil
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -69,7 +71,7 @@ class MotebehovArbeidstakerControllerV3Test {
     private lateinit var motebehovArbeidstakerController: MotebehovArbeidstakerControllerV3
 
     @Inject
-    private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV2
+    private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV3
 
     @Autowired
     private lateinit var motebehovDAO: MotebehovDAO
