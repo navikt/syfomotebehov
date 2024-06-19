@@ -1,0 +1,388 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>AnnotationOnSeparateLine:MotebehovArbeidsgiverControllerV3.kt$MotebehovArbeidsgiverControllerV3$@Pattern(regexp = "^[0-9]{11}$")</ID>
+    <ID>AnnotationOnSeparateLine:MotebehovVeilederADControllerV3.kt$MotebehovVeilederADControllerV3$@Pattern(regexp = "^[0-9]{11}$")</ID>
+    <ID>ArgumentListWrapping:AzureAdV2TokenConsumer.kt$AzureAdV2TokenConsumer$("Call to get AzureADV2Token from AzureAD for scope: $scopeClientId with status: ${e.rawStatusCode} and message: ${e.responseBodyAsString}", e)</ID>
+    <ID>ArgumentListWrapping:BehandleUbehandleteMotebehovScheduler.kt$BehandleUbehandleteMotebehovScheduler$("Running BehandleUbehandleteMotebehovScheduler job. Behandler ubehandlede møtebehov opprettet tidligere enn $dato")</ID>
+    <ID>ArgumentListWrapping:BehandleUbehandleteMotebehovScheduler.kt$BehandleUbehandleteMotebehovScheduler$(dato, fakeVeilederIdent)</ID>
+    <ID>ArgumentListWrapping:BehandlendeEnhetConsumer.kt$BehandlendeEnhetConsumer$("Error requesting BehandlendeEnhet from syfobehandlendeenhet with callId ${httpEntity.headers[NAV_CALL_ID_HEADER]}: ", e)</ID>
+    <ID>ArgumentListWrapping:BrukertilgangConsumer.kt$BrukertilgangConsumer$("Unauthorized request to get access to Ansatt from Syfobrukertilgang")</ID>
+    <ID>ArgumentListWrapping:BrukertilgangConsumer.kt$BrukertilgangConsumer$(RequestUnauthorizedException("Unauthorized request to get access to Ansatt from Syfobrukertilgang"))</ID>
+    <ID>ArgumentListWrapping:BrukertilgangService.kt$BrukertilgangService$("Ikke tilgang til arbeidstaker: inlogget person har ikke tilgang til den ansatte eller den ansatte er gradert for informasjon")</ID>
+    <ID>ArgumentListWrapping:ControllerExceptionHandler.kt$ControllerExceptionHandler$("Fikk response med kode : {} : {} : {}", status.value(), ex.javaClass.toString(), ex.message, ex)</ID>
+    <ID>ArgumentListWrapping:ControllerExceptionHandler.kt$ControllerExceptionHandler$(Exception::class, IllegalArgumentException::class, ConstraintViolationException::class, ForbiddenException::class, JwtTokenUnauthorizedException::class)</ID>
+    <ID>ArgumentListWrapping:ControllerExceptionHandler.kt$ControllerExceptionHandler$(HttpStatus.BAD_REQUEST.value(), BAD_REQUEST_MSG)</ID>
+    <ID>ArgumentListWrapping:ControllerExceptionHandler.kt$ControllerExceptionHandler$(HttpStatus.FORBIDDEN.value(), FORBIDDEN_MSG)</ID>
+    <ID>ArgumentListWrapping:ControllerExceptionHandler.kt$ControllerExceptionHandler$(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_MSG)</ID>
+    <ID>ArgumentListWrapping:ControllerExceptionHandler.kt$ControllerExceptionHandler$(ex, ApiError(HttpStatus.BAD_REQUEST.value(), BAD_REQUEST_MSG), headers, HttpStatus.BAD_REQUEST, request)</ID>
+    <ID>ArgumentListWrapping:ControllerExceptionHandler.kt$ControllerExceptionHandler$(ex, ApiError(HttpStatus.FORBIDDEN.value(), FORBIDDEN_MSG), headers, HttpStatus.FORBIDDEN, request)</ID>
+    <ID>ArgumentListWrapping:ControllerExceptionHandler.kt$ControllerExceptionHandler$(ex, ApiError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_MSG), headers, HttpStatus.UNAUTHORIZED, request)</ID>
+    <ID>ArgumentListWrapping:DbUtil.kt$DbUtil$( """ Dette er ikke en feil, men burde vært stoppet av regexen i frontend. Finn ut hvorfor og evt. oppdater regex. Det ble strippet vekk innhold slik at denne teksten: {} ble til denne teksten: {} """.trimIndent(), userinput, sanitizedInput )</ID>
+    <ID>ArgumentListWrapping:DbUtil.kt$DbUtil$(StringEscapeUtils.unescapeHtml4(userinput))</ID>
+    <ID>ArgumentListWrapping:DbUtil.kt$DbUtil$(sanitizer.sanitize(StringEscapeUtils.unescapeHtml4(userinput)))</ID>
+    <ID>ArgumentListWrapping:DbUtil.kt$DbUtil$(userinput)</ID>
+    <ID>ArgumentListWrapping:DialogmoteStatusServiceTest.kt$DialogmoteStatusServiceTest$( UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID )</ID>
+    <ID>ArgumentListWrapping:DialogmoteStatusServiceTest.kt$DialogmoteStatusServiceTest$( externMoteUUID, DialogmoteStatusEndringType.AVLYST, null )</ID>
+    <ID>ArgumentListWrapping:DialogmoteStatusServiceTest.kt$DialogmoteStatusServiceTest$( externMoteUUID, DialogmoteStatusEndringType.INNKALT, null )</ID>
+    <ID>ArgumentListWrapping:DialogmoteStatusServiceTest.kt$DialogmoteStatusServiceTest$( externMoteUUID, DialogmoteStatusEndringType.NYTT_TID_STED, null )</ID>
+    <ID>ArgumentListWrapping:DialogmoteStatusendringListener.kt$DialogmoteStatusendringListener$("Got record from $DIALOGMOTE_STATUSENDRING_TOPIC topic for dialogmoteUuid: ${consumerRecord.value().getDialogmoteUuid()}")</ID>
+    <ID>ArgumentListWrapping:DialogmotekandidatService.kt$DialogmotekandidatService$("Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} og arsak ${dialogmotekandidatEndring.arsak}")</ID>
+    <ID>ArgumentListWrapping:DialogmotekandidatService.kt$DialogmotekandidatService$(dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime())</ID>
+    <ID>ArgumentListWrapping:EsyfovarselKafkaConfig.kt$EsyfovarselKafkaConfig$("EsyfovarselProducerFactory")</ID>
+    <ID>ArgumentListWrapping:Metric.kt$Metric$( "type", "info", "kode", kode.toString() )</ID>
+    <ID>ArgumentListWrapping:Metric.kt$Metric$( "type", "info", "motebehov", if (harMotebehov) "ja" else "nei", "dag", dayInOppfolgingstilfelleMotebehovCreated?.toString().orEmpty(), "skjematype", when (motebehovSkjemaType) { MotebehovSkjemaType.MELD_BEHOV -&gt; "meldbehov" MotebehovSkjemaType.SVAR_BEHOV -&gt; "svarbehov" else -&gt; "null" } )</ID>
+    <ID>ArgumentListWrapping:Metric.kt$Metric$( "type", "info", "status", statusCode.toString() )</ID>
+    <ID>ArgumentListWrapping:Metric.kt$Metric$(activeOppfolgingstilfelle.fom, LocalDate.now())</ID>
+    <ID>ArgumentListWrapping:MotebehovArbeidsgiverControllerV3.kt$MotebehovArbeidsgiverControllerV3$(issuer = TokenXIssuer.TOKENX, claimMap = ["acr=Level4", "acr=idporten-loa-high"], combineWithOr = true)</ID>
+    <ID>ArgumentListWrapping:MotebehovArbeidstakerControllerV3.kt$MotebehovArbeidstakerControllerV3$(issuer = TokenXIssuer.TOKENX, claimMap = ["acr=Level4", "acr=idporten-loa-high"], combineWithOr = true)</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$("SELECT * FROM motebehov WHERE aktoer_id = ? AND har_motebehov AND behandlet_veileder_ident IS NULL", innsendingRowMapper, aktoerId)</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av != ? AND virksomhetsnummer = ? AND opprettet_dato &gt;= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar())</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av = ? AND opprettet_dato &gt;= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, hentTidligsteDatoForGyldigMotebehovSvar())</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$("SELECT * FROM motebehov WHERE aktoer_id = ? AND virksomhetsnummer = ? AND opprettet_dato &gt;= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar())</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$("SELECT * FROM motebehov WHERE aktoer_id = ? ORDER BY opprettet_dato ASC", innsendingRowMapper, aktoerId)</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$("SELECT * FROM motebehov WHERE motebehov_uuid = ?", innsendingRowMapper, motebehovId)</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$("SELECT * FROM motebehov WHERE opprettet_dato &lt; ? AND har_motebehov AND behandlet_veileder_ident IS NULL", innsendingRowMapper, convert(date))</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(date)</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(emptyList())</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND har_motebehov AND behandlet_veileder_ident IS NULL", innsendingRowMapper, aktoerId))</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av != ? AND virksomhetsnummer = ? AND opprettet_dato &gt;= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar()))</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av = ? AND opprettet_dato &gt;= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, hentTidligsteDatoForGyldigMotebehovSvar()))</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND virksomhetsnummer = ? AND opprettet_dato &gt;= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar()))</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? ORDER BY opprettet_dato ASC", innsendingRowMapper, aktoerId))</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(jdbcTemplate.query("SELECT * FROM motebehov WHERE motebehov_uuid = ?", innsendingRowMapper, motebehovId))</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(jdbcTemplate.query("SELECT * FROM motebehov WHERE opprettet_dato &lt; ? AND har_motebehov AND behandlet_veileder_ident IS NULL", innsendingRowMapper, convert(date)))</ID>
+    <ID>ArgumentListWrapping:MotebehovOppfolgingstilfelleServiceV2.kt$MotebehovOppfolgingstilfelleServiceV2$("Failed to create Motebehov for Arbeidsgiver: Found no Virksomhetsnummer with active Oppfolgingstilfelle available for answer")</ID>
+    <ID>ArgumentListWrapping:MotebehovOppfolgingstilfelleServiceV2.kt$MotebehovOppfolgingstilfelleServiceV2$("Failed to create Motebehov for Arbeidsgiver: Found no active Oppfolgingstilfelle for ${nyttMotebehov.virksomhetsnummer}")</ID>
+    <ID>ArgumentListWrapping:MotebehovOppfolgingstilfelleServiceV2.kt$MotebehovOppfolgingstilfelleServiceV2$("Failed to create Motebehov for Arbeidstaker: Found no Virksomhetsnummer with active Oppfolgingstilfelle")</ID>
+    <ID>ArgumentListWrapping:MotebehovOppfolgingstilfelleServiceV2.kt$MotebehovOppfolgingstilfelleServiceV2$(arbeidstakerFnr)</ID>
+    <ID>ArgumentListWrapping:MotebehovOppfolgingstilfelleServiceV2.kt$MotebehovOppfolgingstilfelleServiceV2$(arbeidstakerFnr, innloggetFnr, nyttMotebehov.virksomhetsnummer)</ID>
+    <ID>ArgumentListWrapping:MotebehovOppfolgingstilfelleServiceV2.kt$MotebehovOppfolgingstilfelleServiceV2$(arbeidstakerFnr, isOwnLeader, nyttMotebehov.virksomhetsnummer)</ID>
+    <ID>ArgumentListWrapping:MotebehovOppfolgingstilfelleServiceV2.kt$MotebehovOppfolgingstilfelleServiceV2$(arbeidstakerFnr, nyttMotebehov.virksomhetsnummer)</ID>
+    <ID>ArgumentListWrapping:MotebehovServiceTest.kt$MotebehovServiceTest$(1)</ID>
+    <ID>ArgumentListWrapping:MotebehovServiceTest.kt$MotebehovServiceTest$(LocalDate.now().minusWeeks(1), veilederIdent)</ID>
+    <ID>ArgumentListWrapping:MotebehovServiceTest.kt$MotebehovServiceTest$(LocalDate.now().plusWeeks(1), veilederIdent)</ID>
+    <ID>ArgumentListWrapping:MotebehovStatusServiceV2.kt$MotebehovStatusServiceV2$(hasUpcomingDialogmote, oppfolgingstilfelle, isDialogmoteKandidat, motebehovList)</ID>
+    <ID>ArgumentListWrapping:NullstillMotebehovController.kt$NullstillMotebehovController$("Det ble gjort kall mot 'nullstill', men dette endepunktet er togglet av og skal aldri brukes i prod.")</ID>
+    <ID>ArgumentListWrapping:OppfolgingstilfelleService.kt$OppfolgingstilfelleService$(1)</ID>
+    <ID>ArgumentListWrapping:OppfolgingstilfelleService.kt$OppfolgingstilfelleService$(activeOppfolgingstilfelleList.minByOrNull { it.fom }!!.fom.minusDays(1))</ID>
+    <ID>ArgumentListWrapping:OppfolgingstilfelleService.kt$OppfolgingstilfelleService$(arbeidstakerFnr)</ID>
+    <ID>ArgumentListWrapping:OppfolgingstilfelleService.kt$OppfolgingstilfelleService$(arbeidstakerFnr, getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr))</ID>
+    <ID>ArgumentListWrapping:PersonoppgavehendelseKafkaConfig.kt$PersonoppgavehendelseKafkaConfig$("PersonoppgavehendelseProducerFactory")</ID>
+    <ID>ArgumentListWrapping:PersonoppgavehendelseProducer.kt$PersonoppgavehendelseProducer$("PersonoppgavehendelseTemplate")</ID>
+    <ID>ArgumentListWrapping:PersonoppgavehendelseProducer.kt$PersonoppgavehendelseProducer$("Sending personoppgavehendelse of type ${kPersonoppgavehendelse.hendelsetype}, personoppgaveId: $personoppgaveId")</ID>
+    <ID>ArgumentListWrapping:RestHelper.kt$(HttpHeaders.AUTHORIZATION, bearerCredentials(systemToken.access_token))</ID>
+    <ID>ArgumentListWrapping:RestHelper.kt$(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, bearerCredentials(systemToken.access_token)))</ID>
+    <ID>ArgumentListWrapping:RestHelper.kt$(systemToken.access_token)</ID>
+    <ID>ArgumentListWrapping:TestdataResetServiceTest.kt$TestdataResetServiceTest$(1)</ID>
+    <ID>ArgumentListWrapping:TestdataResetServiceTest.kt$TestdataResetServiceTest$(ARBEIDSTAKER_FNR, LocalDate.now().minusDays(1))</ID>
+    <ID>ArgumentListWrapping:TestdataResetServiceTest.kt$TestdataResetServiceTest$(PMotebehov(UUID.randomUUID(), LocalDateTime.now(), "meg", ARBEIDSTAKER_AKTORID, VIRKSOMHETSNUMMER, true))</ID>
+    <ID>ArgumentListWrapping:TestdataResetServiceTest.kt$TestdataResetServiceTest$(UUID.randomUUID(), LocalDateTime.now(), "meg", ARBEIDSTAKER_AKTORID, VIRKSOMHETSNUMMER, true)</ID>
+    <ID>ArgumentListWrapping:TestdataResetServiceTest.kt$TestdataResetServiceTest$(UUID.randomUUID().toString(), LocalDateTime.now(), ARBEIDSTAKER_FNR, true, DialogmotekandidatEndringArsak.STOPPUNKT.name)</ID>
+    <ID>ArgumentListWrapping:TestdataResetServiceTest.kt$TestdataResetServiceTest$(UUID.randomUUID().toString(), LocalDateTime.now(), LocalDateTime.now(), DialogmoteStatusEndringType.INNKALT.name, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)</ID>
+    <ID>ArgumentListWrapping:TestdataResetServiceTest.kt$TestdataResetServiceTest$(dialogmoteDAO.getAktiveDialogmoterEtterDato(ARBEIDSTAKER_FNR, LocalDate.now().minusDays(1)))</ID>
+    <ID>ArgumentListWrapping:VarselServiceV2.kt$VarselServiceV2$("Antall unike nærmeste ledere for kandidatUuid $kandidatUuid: ${narmesteLederRelations?.size ?: 0}, antall virksomheter: $amountOfVirksomheter")</ID>
+    <ID>ArgumentListWrapping:VarselServiceV2.kt$VarselServiceV2$("Not sending Varsel to Arbeidstaker because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")</ID>
+    <ID>ArgumentListWrapping:VarselServiceV2.kt$VarselServiceV2$("Not sending Varsel to Narmeste Leder because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")</ID>
+    <ID>ArgumentListWrapping:VarselServiceV2.kt$VarselServiceV2$(ansattFnr, ansattesOppfolgingstilfelle?.fom ?: LocalDate.now())</ID>
+    <ID>ArgumentListWrapping:VarselServiceV2.kt$VarselServiceV2$(ansattFnr, it.narmesteLederPersonIdentNumber, it.virksomhetsnummer)</ID>
+    <ID>ConstructorParameterNaming:AzureAdV2TokenResponse.kt$AzureAdV2TokenResponse$val access_token: String</ID>
+    <ID>ConstructorParameterNaming:AzureAdV2TokenResponse.kt$AzureAdV2TokenResponse$val expires_in: Long</ID>
+    <ID>ConstructorParameterNaming:TokenXResponse.kt$TokenXResponse$val access_token: String</ID>
+    <ID>ConstructorParameterNaming:TokenXResponse.kt$TokenXResponse$val expires_in: Long</ID>
+    <ID>ConstructorParameterNaming:TokenXResponse.kt$TokenXResponse$val issued_token_type: String</ID>
+    <ID>ConstructorParameterNaming:TokenXResponse.kt$TokenXResponse$val token_type: String</ID>
+    <ID>EmptyDefaultConstructor:TokenValidationUtil.kt$TokenValidationUtil$()</ID>
+    <ID>EmptyFunctionBlock:ApplicationConfigTest.kt$ApplicationConfigTest${ }</ID>
+    <ID>EmptyFunctionBlock:FunctionSerializer.kt$FunctionSerializer${}</ID>
+    <ID>EmptyFunctionBlock:IsOppfolgingstilfelleKafkaConfig.kt$KafkaIsOppfolgingstilfelleDeserializer${}</ID>
+    <ID>EmptyFunctionBlock:JacksonKafkaSerializer.kt$JacksonKafkaSerializer${}</ID>
+    <ID>EmptyFunctionBlock:KafkaDialogmotekandidatDeserializer.kt$KafkaDialogmotekandidatDeserializer${}</ID>
+    <ID>ExplicitItLambdaParameter:KafkaOppfolgingstilfellePerson.kt${ it -&gt; this.createdAt.toNorwegianLocalDateTime().isBefore(it) }</ID>
+    <ID>FunctionOnlyReturningConstant:PodController.kt$PodController$@Unprotected @RequestMapping(value = ["/isAlive"], produces = [MediaType.TEXT_PLAIN_VALUE]) fun isAlive(): String</ID>
+    <ID>FunctionOnlyReturningConstant:PodController.kt$PodController$@Unprotected @RequestMapping(value = ["/isReady"], produces = [MediaType.TEXT_PLAIN_VALUE]) fun isReady(): String</ID>
+    <ID>ImportOrdering:DialogmoteDAO.kt$import java.time.LocalDate import java.time.LocalDateTime import java.util.* import javax.inject.Inject import no.nav.syfo.util.convert import org.springframework.jdbc.core.RowMapper import org.springframework.jdbc.core.namedparam.MapSqlParameterSource import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate import org.springframework.stereotype.Repository import org.springframework.stereotype.Service import org.springframework.transaction.annotation.Transactional</ID>
+    <ID>ImportOrdering:DialogmoteStatusService.kt$import java.time.LocalDate import javax.inject.Inject import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring import no.nav.syfo.dialogmote.database.DialogmoteDAO import no.nav.syfo.dialogmote.database.Dialogmote import no.nav.syfo.dialogmote.database.DialogmoteStatusEndringType import no.nav.syfo.util.convertInstantToLocalDateTime import no.nav.syfo.varsel.VarselServiceV2 import org.slf4j.LoggerFactory import org.springframework.stereotype.Service</ID>
+    <ID>ImportOrdering:IsOppfolgingstilfelleKafkaConfig.kt$import no.nav.syfo.config.kafka.KafkaAivenConfig import no.nav.syfo.dialogmotekandidat.kafka.configuredJacksonMapper import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfellePerson import org.apache.kafka.clients.consumer.ConsumerConfig import org.apache.kafka.common.serialization.StringDeserializer import org.springframework.context.annotation.Bean import org.springframework.context.annotation.Configuration import org.springframework.kafka.annotation.EnableKafka import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory import org.springframework.kafka.core.ConsumerFactory import org.springframework.kafka.core.DefaultKafkaConsumerFactory import org.springframework.kafka.listener.ContainerProperties import org.apache.kafka.common.errors.SerializationException import org.apache.kafka.common.serialization.Deserializer import org.springframework.beans.factory.annotation.Value</ID>
+    <ID>ImportOrdering:KafkaTestdataResetConfig.kt$import no.nav.syfo.config.kafka.KafkaAivenConfig import org.apache.kafka.clients.consumer.ConsumerConfig import org.apache.kafka.common.serialization.StringDeserializer import org.springframework.context.annotation.Bean import org.springframework.context.annotation.Configuration import org.springframework.kafka.annotation.EnableKafka import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory import org.springframework.kafka.core.ConsumerFactory import org.springframework.kafka.core.DefaultKafkaConsumerFactory import org.springframework.kafka.listener.ContainerProperties import org.springframework.beans.factory.annotation.Value</ID>
+    <ID>ImportOrdering:PersonoppgavehendelseKafkaConfig.kt$import javax.inject.Inject import no.nav.syfo.config.kafka.KafkaAivenConfig import no.nav.syfo.personoppgavehendelse.domain.KPersonoppgavehendelse import org.springframework.beans.factory.annotation.Qualifier import org.springframework.context.annotation.Bean import org.springframework.context.annotation.Configuration import org.springframework.kafka.annotation.EnableKafka import org.springframework.kafka.core.*</ID>
+    <ID>ImportOrdering:PersonoppgavehendelseProducer.kt$import java.util.* import no.nav.syfo.personoppgavehendelse.domain.KPersonoppgavehendelse import org.apache.kafka.clients.producer.ProducerRecord import org.slf4j.Logger import org.slf4j.LoggerFactory import org.springframework.beans.factory.annotation.Autowired import org.springframework.beans.factory.annotation.Qualifier import org.springframework.kafka.core.KafkaTemplate import org.springframework.stereotype.Component</ID>
+    <ID>ImportOrdering:PersonoppgavehendelseService.kt$import java.util.* import javax.inject.Inject import no.nav.syfo.personoppgavehendelse.domain.KPersonoppgavehendelse import no.nav.syfo.personoppgavehendelse.domain.PersonoppgavehendelseType import org.springframework.stereotype.Service</ID>
+    <ID>InvalidPackageDeclaration:KafkaTestdataResetConfig.kt$package no.nav.syfo.oppfolgingstilfelle.kafka</ID>
+    <ID>InvalidPackageDeclaration:ObjectMapperConfig.kt$package no.nav.syfo.dialogmotekandidat.kafka</ID>
+    <ID>InvalidPackageDeclaration:TestdataResetListener.kt$package no.nav.syfo.oppfolgingstilfelle.kafka</ID>
+    <ID>LongParameterList:DialogmoteDAO.kt$DialogmoteDAO$( moteExternUUID: String, dialogmoteTidspunkt: LocalDateTime, statusEndringTidspunkt: LocalDateTime, statusEndringType: String, fnr: String, virksomhetsnummer: String, )</ID>
+    <ID>LongParameterList:KafkaDialogmoteStatusConfig.kt$KafkaDialogmoteStatusConfig$( @Value("\${kafka.brokers}") private val aivenBrokers: String, @Value("\${kafka.truststore.path}") private val aivenTruststoreLocation: String, @Value("\${kafka.keystore.path}") private val aivenKeystoreLocation: String, @Value("\${kafka.credstore.password}") private val aivenCredstorePassword: String, @Value("\${app.name}") private val appName: String, @Value("\${kafka.env.name}") private val kafkaEnv: String, @Value("\${kafka.schema.registry.user}") private val aivenRegistryUser: String, @Value("\${kafka.schema.registry.password}") private val aivenRegistryPassword: String, @Value("\${kafka.schema.registry}") private val aivenSchemaRegistryUrl: String, )</ID>
+    <ID>LongParameterList:MotebehovArbeidstakerControllerV3.kt$MotebehovArbeidstakerControllerV3$( private val contextHolder: TokenValidationContextHolder, private val metric: Metric, private val motebehovStatusServiceV2: MotebehovStatusServiceV2, private val motebehovOppfolgingstilfelleServiceV2: MotebehovOppfolgingstilfelleServiceV2, @Value("\${dialogmote.frontend.client.id}") val dialogmoteClientId: String, @Value("\${ditt.sykefravaer.frontend.client.id}") val dittSykefravaerClientId: String, @Value("\${esyfo-proxy.client.id}") val esyfoProxyClientId: String, )</ID>
+    <ID>LongParameterList:MotebehovService.kt$MotebehovService$( innloggetAktoerId: String, arbeidstakerAktoerId: String, innloggetFnr: String, arbeidstakerFnr: String, tildeltEnhet: String, virksomhetsnummer: String, skjemaType: MotebehovSkjemaType, motebehovSvar: MotebehovSvar, )</ID>
+    <ID>LongParameterList:MotebehovVeilederADControllerV3.kt$MotebehovVeilederADControllerV3$( private val contextHolder: TokenValidationContextHolder, private val metric: Metric, private val historikkService: HistorikkService, private val motebehovService: MotebehovService, private val pdlConsumer: PdlConsumer, private val veilederTilgangConsumer: VeilederTilgangConsumer, private val esyfovarselService: EsyfovarselService, )</ID>
+    <ID>LongParameterList:RestHelper.kt$( azureTokenEndpoint: String, mockRestServiceServerAzureAD: MockRestServiceServer, mockRestServiceServer: MockRestServiceServer, behandlendeenhetUrl: String, tilgangskontrollUrl: String, fnr: String, )</ID>
+    <ID>LongParameterList:SyfoTilgangskontrollMock.kt$( azureTokenEndpoint: String, tilgangskontrollUrl: String, mockRestServiceServerAzureAD: MockRestServiceServer, mockRestServiceServer: MockRestServiceServer, fnr: String, status: HttpStatus, )</ID>
+    <ID>LongParameterList:VarselServiceV2.kt$VarselServiceV2$( private val metric: Metric, private val motebehovService: MotebehovService, private val motebehovStatusHelper: MotebehovStatusHelper, private val oppfolgingstilfelleService: OppfolgingstilfelleService, private val esyfovarselService: EsyfovarselService, private val narmesteLederService: NarmesteLederService, private val dialogmoteDAO: DialogmoteDAO )</ID>
+    <ID>MaxLineLength:AzureAdV2TokenConsumer.kt$AzureAdV2TokenConsumer$"Call to get AzureADV2Token from AzureAD as system for scope: $scopeClientId with status: ${e.rawStatusCode} and message: ${e.responseBodyAsString}"</ID>
+    <ID>MaxLineLength:AzureAdV2TokenConsumer.kt$AzureAdV2TokenConsumer$log.error("Call to get AzureADV2Token from AzureAD for scope: $scopeClientId with status: ${e.rawStatusCode} and message: ${e.responseBodyAsString}", e)</ID>
+    <ID>MaxLineLength:BehandleUbehandleteMotebehovScheduler.kt$BehandleUbehandleteMotebehovScheduler$log.info("Running BehandleUbehandleteMotebehovScheduler job. Behandler ubehandlede møtebehov opprettet tidligere enn $dato")</ID>
+    <ID>MaxLineLength:BehandleUbehandleteMotebehovScheduler.kt$BehandleUbehandleteMotebehovScheduler$val updatedCount = motebehovService.behandleUbehandledeMotebehovOpprettetTidligereEnnDato(dato, fakeVeilederIdent)</ID>
+    <ID>MaxLineLength:BehandlendeEnhetConsumer.kt$BehandlendeEnhetConsumer$LOG.error("Error requesting BehandlendeEnhet from syfobehandlendeenhet with callId ${httpEntity.headers[NAV_CALL_ID_HEADER]}: ", e)</ID>
+    <ID>MaxLineLength:BrukertilgangConsumer.kt$BrukertilgangConsumer$Mono.error(RequestUnauthorizedException("Unauthorized request to get access to Ansatt from Syfobrukertilgang"))</ID>
+    <ID>MaxLineLength:BrukertilgangService.kt$BrukertilgangService$throw ForbiddenException("Ikke tilgang til arbeidstaker: inlogget person har ikke tilgang til den ansatte eller den ansatte er gradert for informasjon")</ID>
+    <ID>MaxLineLength:ControllerExceptionHandler.kt$ControllerExceptionHandler$@ExceptionHandler(Exception::class, IllegalArgumentException::class, ConstraintViolationException::class, ForbiddenException::class, JwtTokenUnauthorizedException::class)</ID>
+    <ID>MaxLineLength:ControllerExceptionHandler.kt$ControllerExceptionHandler$log.warn("Fikk response med kode : {} : {} : {}", status.value(), ex.javaClass.toString(), ex.message, ex)</ID>
+    <ID>MaxLineLength:ControllerExceptionHandler.kt$ControllerExceptionHandler$private</ID>
+    <ID>MaxLineLength:ControllerExceptionHandler.kt$ControllerExceptionHandler$return handleExceptionInternal(ex, ApiError(HttpStatus.BAD_REQUEST.value(), BAD_REQUEST_MSG), headers, HttpStatus.BAD_REQUEST, request)</ID>
+    <ID>MaxLineLength:ControllerExceptionHandler.kt$ControllerExceptionHandler$return handleExceptionInternal(ex, ApiError(HttpStatus.FORBIDDEN.value(), FORBIDDEN_MSG), headers, HttpStatus.FORBIDDEN, request)</ID>
+    <ID>MaxLineLength:ControllerExceptionHandler.kt$ControllerExceptionHandler$return handleExceptionInternal(ex, ApiError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_MSG), headers, HttpStatus.UNAUTHORIZED, request)</ID>
+    <ID>MaxLineLength:CredentialUtil.kt$return "Basic " + Base64.getEncoder().encodeToString(java.lang.String.format("%s:%s", credentialUsername, credentialPassword).toByteArray())</ID>
+    <ID>MaxLineLength:DbUtil.kt$DbUtil$val sanitizedInput = StringEscapeUtils.unescapeHtml4(sanitizer.sanitize(StringEscapeUtils.unescapeHtml4(userinput)))</ID>
+    <ID>MaxLineLength:DialogmoteStatusendringListener.kt$DialogmoteStatusendringListener$LOG.info("Got record from $DIALOGMOTE_STATUSENDRING_TOPIC topic for dialogmoteUuid: ${consumerRecord.value().getDialogmoteUuid()}")</ID>
+    <ID>MaxLineLength:DialogmotekandidatKafkaConfig.kt$DialogmotekandidatKafkaConfig$fun</ID>
+    <ID>MaxLineLength:DialogmotekandidatKafkaConfig.kt$DialogmotekandidatKafkaConfig$kafkaAivenConfig.commonKafkaAivenConfig() + kafkaAivenConfig.commonKafkaAivenConsumerConfig() + kafkaDialogmotekandidatConsumerConfig()</ID>
+    <ID>MaxLineLength:DialogmotekandidatService.kt$DialogmotekandidatService$existingKandidat.createdAt.isEqualOrAfter(dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime())</ID>
+    <ID>MaxLineLength:DialogmotekandidatService.kt$DialogmotekandidatService$log.info("Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} og arsak ${dialogmotekandidatEndring.arsak}")</ID>
+    <ID>MaxLineLength:EsyfovarselKafkaConfig.kt$EsyfovarselKafkaConfig$fun</ID>
+    <ID>MaxLineLength:HistorikkService.kt$HistorikkService$.</ID>
+    <ID>MaxLineLength:IsOppfolgingstilfelleKafkaConfig.kt$KafkaIsOppfolgingstilfelleConfig$fun</ID>
+    <ID>MaxLineLength:IsOppfolgingstilfelleKafkaConfig.kt$KafkaIsOppfolgingstilfelleConfig$kafkaAivenConfig.commonKafkaAivenConfig() + kafkaAivenConfig.commonKafkaAivenConsumerConfig() + kafkaIsOppfolgingtilfelleConsumerConfig()</ID>
+    <ID>MaxLineLength:KafkaTestdataResetConfig.kt$KafkaTestdataResetConfig$kafkaAivenConfig.commonKafkaAivenConfig() + kafkaAivenConfig.commonKafkaAivenConsumerConfig() + kafkaTestdataResetConsumerConfig()</ID>
+    <ID>MaxLineLength:Metric.kt$Metric$val dayInOppfolgingstilfelleMotebehovCreated = ChronoUnit.DAYS.between(activeOppfolgingstilfelle.fom, LocalDate.now())</ID>
+    <ID>MaxLineLength:Metric.kt$Metric$val navn = if (erInnloggetBrukerArbeidstaker) "syfomotebehov_motebehov_besvart_at" else "syfomotebehov_motebehov_besvart"</ID>
+    <ID>MaxLineLength:Metric.kt$Metric$val navn = if (erInnloggetBrukerArbeidstaker) "syfomotebehov_motebehov_besvart_ja_forklaring_at" else "syfomotebehov_motebehov_besvart_ja_forklaring_ag"</ID>
+    <ID>MaxLineLength:Metric.kt$Metric$val navn = if (erInnloggetBrukerArbeidstaker) "syfomotebehov_motebehov_besvart_ja_forklaring_lengde_at" else "syfomotebehov_motebehov_besvart_ja_forklaring_lengde_ag"</ID>
+    <ID>MaxLineLength:Metric.kt$Metric$val navn = if (erInnloggetBrukerArbeidstaker) "syfomotebehov_motebehov_besvart_nei_forklaring_lengde_at" else "syfomotebehov_motebehov_besvart_nei_forklaring_lengde"</ID>
+    <ID>MaxLineLength:Motebehov.kt$return createdDate.isAfter(firstDateSvarBehovAvailability.minusDays(1)) &amp;&amp; createdDate.isBefore(lastDateSvarBehovAvailability.plusDays(1))</ID>
+    <ID>MaxLineLength:Motebehov.kt$return createdDate.isAfter(oppfolgingstilfelle.fom.minusDays(1)) &amp;&amp; createdDate.isBefore(oppfolgingstilfelle.tom.plusDays(17))</ID>
+    <ID>MaxLineLength:MotebehovArbeidsgiverControllerV3.kt$MotebehovArbeidsgiverControllerV3$@ProtectedWithClaims(issuer = TokenXIssuer.TOKENX, claimMap = ["acr=Level4", "acr=idporten-loa-high"], combineWithOr = true)</ID>
+    <ID>MaxLineLength:MotebehovArbeidsgiverControllerV3Test.kt$MotebehovArbeidsgiverControllerV3Test$fun</ID>
+    <ID>MaxLineLength:MotebehovArbeidstakerControllerV3.kt$MotebehovArbeidstakerControllerV3$// This endpoint is only used by Ditt sykefravær. Should be removed when they stop calling it. Until then, return empty result</ID>
+    <ID>MaxLineLength:MotebehovArbeidstakerControllerV3.kt$MotebehovArbeidstakerControllerV3$@ProtectedWithClaims(issuer = TokenXIssuer.TOKENX, claimMap = ["acr=Level4", "acr=idporten-loa-high"], combineWithOr = true)</ID>
+    <ID>MaxLineLength:MotebehovArbeidstakerControllerV3Test.kt$MotebehovArbeidstakerControllerV3Test$fun</ID>
+    <ID>MaxLineLength:MotebehovArbeidstakerControllerV3Test.kt$MotebehovArbeidstakerControllerV3Test$val motebehovStatus: MotebehovStatus = motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()</ID>
+    <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$class</ID>
+    <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$fun</ID>
+    <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND har_motebehov AND behandlet_veileder_ident IS NULL", innsendingRowMapper, aktoerId)).orElse(emptyList())</ID>
+    <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av != ? AND virksomhetsnummer = ? AND opprettet_dato &gt;= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar())).orElse(emptyList())</ID>
+    <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av = ? AND opprettet_dato &gt;= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, hentTidligsteDatoForGyldigMotebehovSvar())).orElse(emptyList())</ID>
+    <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND virksomhetsnummer = ? AND opprettet_dato &gt;= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar())).orElse(emptyList())</ID>
+    <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? ORDER BY opprettet_dato ASC", innsendingRowMapper, aktoerId)).orElse(emptyList())</ID>
+    <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE motebehov_uuid = ?", innsendingRowMapper, motebehovId)).orElse(emptyList())</ID>
+    <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE opprettet_dato &lt; ? AND har_motebehov AND behandlet_veileder_ident IS NULL", innsendingRowMapper, convert(date))).orElse(emptyList())</ID>
+    <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$val oppdaterSql = "UPDATE motebehov SET behandlet_tidspunkt = ?, behandlet_veileder_ident = ? WHERE motebehov_uuid = ? AND har_motebehov AND behandlet_veileder_ident IS NULL"</ID>
+    <ID>MaxLineLength:MotebehovDAOTest.kt$MotebehovDAOTest$"INSERT INTO MOTEBEHOV VALUES(DEFAULT, 'bae778f2-a085-11e8-98d0-529269fb1459', '" + motebehov.opprettetDato + "', '" + motebehov.opprettetAv + "', '" + motebehov.aktoerId + "', '" + motebehov.virksomhetsnummer + "', '" + '1' + "', '" + motebehov.forklaring + "', '" + motebehov.tildeltEnhet + "', null, null, null, null, null)"</ID>
+    <ID>MaxLineLength:MotebehovOppfolgingstilfelleServiceV2.kt$MotebehovOppfolgingstilfelleServiceV2$throwCreateMotebehovConflict("Failed to create Motebehov for Arbeidsgiver: Found no Virksomhetsnummer with active Oppfolgingstilfelle available for answer")</ID>
+    <ID>MaxLineLength:MotebehovOppfolgingstilfelleServiceV2.kt$MotebehovOppfolgingstilfelleServiceV2$throwCreateMotebehovConflict("Failed to create Motebehov for Arbeidstaker: Found no Virksomhetsnummer with active Oppfolgingstilfelle")</ID>
+    <ID>MaxLineLength:MotebehovOppfolgingstilfelleServiceV2.kt$MotebehovOppfolgingstilfelleServiceV2$throwCreateMotebehovFailed("Failed to create Motebehov for Arbeidsgiver: Found no active Oppfolgingstilfelle for ${nyttMotebehov.virksomhetsnummer}")</ID>
+    <ID>MaxLineLength:MotebehovOppfolgingstilfelleServiceV2.kt$MotebehovOppfolgingstilfelleServiceV2$throwCreateMotebehovFailed("Failed to create Motebehov for Arbeidstaker: Found no Virksomhetsnummer with active Oppfolgingstilfelle")</ID>
+    <ID>MaxLineLength:MotebehovOppfolgingstilfelleServiceV2.kt$MotebehovOppfolgingstilfelleServiceV2$val activeOppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, nyttMotebehov.virksomhetsnummer)</ID>
+    <ID>MaxLineLength:MotebehovOppfolgingstilfelleServiceV2.kt$MotebehovOppfolgingstilfelleServiceV2$val activeOppolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)</ID>
+    <ID>MaxLineLength:MotebehovOppfolgingstilfelleServiceV2.kt$MotebehovOppfolgingstilfelleServiceV2$val motebehovStatus = motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(arbeidstakerFnr, isOwnLeader, nyttMotebehov.virksomhetsnummer)</ID>
+    <ID>MaxLineLength:MotebehovOppfolgingstilfelleServiceV2.kt$MotebehovOppfolgingstilfelleServiceV2$varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLeder(arbeidstakerFnr, innloggetFnr, nyttMotebehov.virksomhetsnummer)</ID>
+    <ID>MaxLineLength:MotebehovServiceTest.kt$MotebehovServiceTest$val count = motebehovService.behandleUbehandledeMotebehovOpprettetTidligereEnnDato(LocalDate.now().minusWeeks(1), veilederIdent)</ID>
+    <ID>MaxLineLength:MotebehovServiceTest.kt$MotebehovServiceTest$val count = motebehovService.behandleUbehandledeMotebehovOpprettetTidligereEnnDato(LocalDate.now().plusWeeks(1), veilederIdent)</ID>
+    <ID>MaxLineLength:MotebehovStatusServiceTest.kt$MotebehovStatusServiceTest$every { dialogmotekandidatService.getDialogmotekandidatStatus(userFnr) } returns createDialogmoteKandidatEndring()</ID>
+    <ID>MaxLineLength:MotebehovStatusServiceTest.kt$MotebehovStatusServiceTest$every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(userFnr) } returns createOppfolgingstilfelle()</ID>
+    <ID>MaxLineLength:MotebehovStatusServiceV2.kt$MotebehovStatusServiceV2$return motebehovStatusHelper.motebehovStatus(hasUpcomingDialogmote, oppfolgingstilfelle, isDialogmoteKandidat, motebehovList)</ID>
+    <ID>MaxLineLength:NarmesteLederService.kt$NarmesteLederService$// isnarmesteleder returnerer alle relasjoner, også der sykmeldte er leder for noen andre. Må derfor filtrere for å kun få lederne til den sykmeldte.</ID>
+    <ID>MaxLineLength:NullstillMotebehovController.kt$NullstillMotebehovController$log.info("Det ble gjort kall mot 'nullstill', men dette endepunktet er togglet av og skal aldri brukes i prod.")</ID>
+    <ID>MaxLineLength:NullstillMotebehovController.kt$NullstillMotebehovController$return</ID>
+    <ID>MaxLineLength:OppfolgingstilfelleService.kt$OppfolgingstilfelleService$expiredOppfolgingstilfelle.tom.isAfter(activeOppfolgingstilfelleList.minByOrNull { it.fom }!!.fom.minusDays(1))</ID>
+    <ID>MaxLineLength:OppfolgingstilfelleService.kt$OppfolgingstilfelleService$return getActiveOppfolgingstilfelle(arbeidstakerFnr, getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr))</ID>
+    <ID>MaxLineLength:OppfolgingstilfelleService.kt$OppfolgingstilfelleService$val</ID>
+    <ID>MaxLineLength:OppfolgingstilfelleService.kt$OppfolgingstilfelleService.Companion$private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_CREATE = "${METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE}_create"</ID>
+    <ID>MaxLineLength:OppfolgingstilfelleService.kt$OppfolgingstilfelleService.Companion$private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE = "${METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE}_update"</ID>
+    <ID>MaxLineLength:OppfolgingstilfelleService.kt$OppfolgingstilfelleService.Companion$private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE_SKIP_DUPLICATE = "${METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE}_update_skip_duplicate"</ID>
+    <ID>MaxLineLength:PersonoppgavehendelseKafkaConfig.kt$PersonoppgavehendelseKafkaConfig$fun</ID>
+    <ID>MaxLineLength:PersonoppgavehendelseProducer.kt$PersonoppgavehendelseProducer$@Qualifier("PersonoppgavehendelseTemplate") private val kafkaTemplate: KafkaTemplate&lt;String, KPersonoppgavehendelse&gt;</ID>
+    <ID>MaxLineLength:PersonoppgavehendelseProducer.kt$PersonoppgavehendelseProducer$log.info("Sending personoppgavehendelse of type ${kPersonoppgavehendelse.hendelsetype}, personoppgaveId: $personoppgaveId")</ID>
+    <ID>MaxLineLength:RestHelper.kt$.</ID>
+    <ID>MaxLineLength:TestdataResetServiceTest.kt$TestdataResetServiceTest$assertThat(dialogmoteDAO.getAktiveDialogmoterEtterDato(ARBEIDSTAKER_FNR, LocalDate.now().minusDays(1))).isEmpty()</ID>
+    <ID>MaxLineLength:TestdataResetServiceTest.kt$TestdataResetServiceTest$assertThat(dialogmoteDAO.getAktiveDialogmoterEtterDato(ARBEIDSTAKER_FNR, LocalDate.now().minusDays(1))).isNotEmpty()</ID>
+    <ID>MaxLineLength:TestdataResetServiceTest.kt$TestdataResetServiceTest$dialogmoteDAO.create(UUID.randomUUID().toString(), LocalDateTime.now(), LocalDateTime.now(), DialogmoteStatusEndringType.INNKALT.name, ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)</ID>
+    <ID>MaxLineLength:TestdataResetServiceTest.kt$TestdataResetServiceTest$dialogmotekandidatDAO.create(UUID.randomUUID().toString(), LocalDateTime.now(), ARBEIDSTAKER_FNR, true, DialogmotekandidatEndringArsak.STOPPUNKT.name)</ID>
+    <ID>MaxLineLength:TestdataResetServiceTest.kt$TestdataResetServiceTest$motebehovDAO.create(PMotebehov(UUID.randomUUID(), LocalDateTime.now(), "meg", ARBEIDSTAKER_AKTORID, VIRKSOMHETSNUMMER, true))</ID>
+    <ID>MaxLineLength:VarselServiceTest.kt$VarselServiceTest$every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(userFnr, virksomhetsnummer2) }</ID>
+    <ID>MaxLineLength:VarselServiceTest.kt$VarselServiceTest$every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(userFnr, virksomhetsnummer2) } returns null</ID>
+    <ID>MaxLineLength:VarselServiceTest.kt$VarselServiceTest$every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(any()) } returns createOppfolgingstilfelle()</ID>
+    <ID>MaxLineLength:VarselServiceV2.kt$VarselServiceV2$dialogmoteDAO.getAktiveDialogmoterEtterDato(ansattFnr, ansattesOppfolgingstilfelle?.fom ?: LocalDate.now()).isNotEmpty()</ID>
+    <ID>MaxLineLength:VarselServiceV2.kt$VarselServiceV2$ferdigstillSvarMotebehovVarselForNarmesteLeder(ansattFnr, it.narmesteLederPersonIdentNumber, it.virksomhetsnummer)</ID>
+    <ID>MaxLineLength:VarselServiceV2.kt$VarselServiceV2$log.info("Antall unike nærmeste ledere for kandidatUuid $kandidatUuid: ${narmesteLederRelations?.size ?: 0}, antall virksomheter: $amountOfVirksomheter")</ID>
+    <ID>MaxLineLength:VarselServiceV2.kt$VarselServiceV2$log.info("Not sending Varsel to Arbeidstaker because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")</ID>
+    <ID>MaxLineLength:VarselServiceV2.kt$VarselServiceV2$log.info("Not sending Varsel to Narmeste Leder because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet")</ID>
+    <ID>MaximumLineLength:AzureAdV2TokenConsumer.kt$AzureAdV2TokenConsumer$ </ID>
+    <ID>MaximumLineLength:BehandleUbehandleteMotebehovScheduler.kt$BehandleUbehandleteMotebehovScheduler$ </ID>
+    <ID>MaximumLineLength:BehandlendeEnhetConsumer.kt$BehandlendeEnhetConsumer$ </ID>
+    <ID>MaximumLineLength:BrukertilgangConsumer.kt$BrukertilgangConsumer$ </ID>
+    <ID>MaximumLineLength:BrukertilgangService.kt$BrukertilgangService$ </ID>
+    <ID>MaximumLineLength:ControllerExceptionHandler.kt$ControllerExceptionHandler$ </ID>
+    <ID>MaximumLineLength:CredentialUtil.kt$ </ID>
+    <ID>MaximumLineLength:DbUtil.kt$DbUtil$ </ID>
+    <ID>MaximumLineLength:DialogmoteStatusendringListener.kt$DialogmoteStatusendringListener$ </ID>
+    <ID>MaximumLineLength:DialogmotekandidatKafkaConfig.kt$DialogmotekandidatKafkaConfig$ </ID>
+    <ID>MaximumLineLength:DialogmotekandidatService.kt$DialogmotekandidatService$ </ID>
+    <ID>MaximumLineLength:EsyfovarselKafkaConfig.kt$EsyfovarselKafkaConfig$ </ID>
+    <ID>MaximumLineLength:HistorikkService.kt$HistorikkService$ </ID>
+    <ID>MaximumLineLength:IsOppfolgingstilfelleKafkaConfig.kt$KafkaIsOppfolgingstilfelleConfig$ </ID>
+    <ID>MaximumLineLength:KafkaTestdataResetConfig.kt$KafkaTestdataResetConfig$ </ID>
+    <ID>MaximumLineLength:Metric.kt$Metric$ </ID>
+    <ID>MaximumLineLength:Motebehov.kt$ </ID>
+    <ID>MaximumLineLength:MotebehovArbeidsgiverControllerV3.kt$MotebehovArbeidsgiverControllerV3$@</ID>
+    <ID>MaximumLineLength:MotebehovArbeidsgiverControllerV3Test.kt$MotebehovArbeidsgiverControllerV3Test$ </ID>
+    <ID>MaximumLineLength:MotebehovArbeidstakerControllerV3.kt$MotebehovArbeidstakerControllerV3$@</ID>
+    <ID>MaximumLineLength:MotebehovArbeidstakerControllerV3Test.kt$MotebehovArbeidstakerControllerV3Test$ </ID>
+    <ID>MaximumLineLength:MotebehovDAO.kt$MotebehovDAO$ </ID>
+    <ID>MaximumLineLength:MotebehovDAO.kt$MotebehovDAO$class</ID>
+    <ID>MaximumLineLength:MotebehovDAOTest.kt$MotebehovDAOTest$ </ID>
+    <ID>MaximumLineLength:MotebehovOppfolgingstilfelleServiceV2.kt$MotebehovOppfolgingstilfelleServiceV2$ </ID>
+    <ID>MaximumLineLength:MotebehovServiceTest.kt$MotebehovServiceTest$ </ID>
+    <ID>MaximumLineLength:MotebehovStatusServiceTest.kt$MotebehovStatusServiceTest$ </ID>
+    <ID>MaximumLineLength:MotebehovStatusServiceV2.kt$MotebehovStatusServiceV2$ </ID>
+    <ID>MaximumLineLength:NullstillMotebehovController.kt$NullstillMotebehovController$ </ID>
+    <ID>MaximumLineLength:OppfolgingstilfelleService.kt$OppfolgingstilfelleService$ </ID>
+    <ID>MaximumLineLength:OppfolgingstilfelleService.kt$OppfolgingstilfelleService.Companion$ </ID>
+    <ID>MaximumLineLength:PersonoppgavehendelseKafkaConfig.kt$PersonoppgavehendelseKafkaConfig$ </ID>
+    <ID>MaximumLineLength:PersonoppgavehendelseProducer.kt$PersonoppgavehendelseProducer$ </ID>
+    <ID>MaximumLineLength:RestHelper.kt$ </ID>
+    <ID>MaximumLineLength:TestdataResetServiceTest.kt$TestdataResetServiceTest$ </ID>
+    <ID>MaximumLineLength:VarselServiceTest.kt$VarselServiceTest$ </ID>
+    <ID>MaximumLineLength:VarselServiceV2.kt$VarselServiceV2$ </ID>
+    <ID>MayBeConst:DateUtil.kt$val ZONE_ID = "Europe/Oslo"</ID>
+    <ID>MemberNameEqualsClassName:DialogmoteStatusendringListener.kt$DialogmoteStatusendringListener$@KafkaListener(topics = [DIALOGMOTE_STATUSENDRING_TOPIC], containerFactory = "DialogmoteListenerContainerFactory") fun dialogmoteStatusEndringListener( consumerRecord: ConsumerRecord&lt;String, KDialogmoteStatusEndring&gt;, acknowledgment: Acknowledgment )</ID>
+    <ID>MemberNameEqualsClassName:TestdataResetListener.kt$TestdataResetListener$@KafkaListener( topics = [TESTDATA_RESET_TOPIC], containerFactory = "TestdataResetListenerContainerFactory", ) fun testdataResetListener( consumerRecord: ConsumerRecord&lt;String, String&gt;, acknowledgment: Acknowledgment, )</ID>
+    <ID>MultiLineIfElse:Metric.kt$Metric$"syfomotebehov_motebehov_besvart_oppfolgingstilfelle_dag_ag"</ID>
+    <ID>MultiLineIfElse:Metric.kt$Metric$null</ID>
+    <ID>MultiLineIfElse:MotebehovStatusServiceV2.kt$MotebehovStatusServiceV2$false</ID>
+    <ID>NestedBlockDepth:MotebehovOppfolgingstilfelleServiceV2.kt$MotebehovOppfolgingstilfelleServiceV2$fun createMotebehovForArbeidgiver( innloggetFnr: String, arbeidstakerFnr: String, isOwnLeader: Boolean, nyttMotebehov: NyttMotebehovArbeidsgiver, )</ID>
+    <ID>NestedBlockDepth:OppfolgingstilfelleService.kt$OppfolgingstilfelleService$fun receiveKOppfolgingstilfelle( kafkaOppfolgingstilfellePerson: KafkaOppfolgingstilfellePerson, )</ID>
+    <ID>NoEmptyFirstLineInMethodBlock:DialogmotekandidatKafkaConfig.kt$DialogmotekandidatKafkaConfig$ </ID>
+    <ID>NoEmptyFirstLineInMethodBlock:EsyfovarselKafkaConfig.kt$EsyfovarselKafkaConfig$ </ID>
+    <ID>NoEmptyFirstLineInMethodBlock:IsOppfolgingstilfelleKafkaConfig.kt$KafkaIsOppfolgingstilfelleConfig$ </ID>
+    <ID>NoWildcardImports:ApplicationConfig.kt$import org.springframework.context.annotation.*</ID>
+    <ID>NoWildcardImports:AzureAdV2TokenConsumer.kt$import org.springframework.beans.factory.annotation.*</ID>
+    <ID>NoWildcardImports:AzureAdV2TokenConsumer.kt$import org.springframework.http.*</ID>
+    <ID>NoWildcardImports:BehandlendeEnhetConsumer.kt$import no.nav.syfo.util.*</ID>
+    <ID>NoWildcardImports:BehandlendeEnhetConsumer.kt$import org.springframework.http.*</ID>
+    <ID>NoWildcardImports:DateUtil.kt$import java.time.*</ID>
+    <ID>NoWildcardImports:DbUtil.kt$import java.time.*</ID>
+    <ID>NoWildcardImports:EsyfovarselService.kt$import no.nav.syfo.varsel.esyfovarsel.domain.*</ID>
+    <ID>NoWildcardImports:Motebehov.kt$import no.nav.syfo.motebehov.motebehovstatus.*</ID>
+    <ID>NoWildcardImports:MotebehovArbeidsgiverControllerV3.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>NoWildcardImports:MotebehovArbeidstakerControllerV3.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>NoWildcardImports:MotebehovGenerator.kt$import no.nav.syfo.motebehov.*</ID>
+    <ID>NoWildcardImports:MotebehovServiceTest.kt$import org.junit.jupiter.api.Assertions.*</ID>
+    <ID>NoWildcardImports:MotebehovStatusServiceV2.kt$import no.nav.syfo.motebehov.*</ID>
+    <ID>NoWildcardImports:MotebehovVeilederADControllerV3.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>NoWildcardImports:MotebehovVeilederADControllerV3Test.kt$import org.assertj.core.api.Assertions.*</ID>
+    <ID>NoWildcardImports:MotebehovVeilederADControllerV3Test.kt$import org.junit.jupiter.api.Assertions.*</ID>
+    <ID>NoWildcardImports:MotebehovVeilederADTilgangV3Test.kt$import org.junit.jupiter.api.*</ID>
+    <ID>NoWildcardImports:MotebehovVeilederADTilgangV3Test.kt$import org.springframework.web.client.*</ID>
+    <ID>NoWildcardImports:MotebehovVeilederDTO.kt$import no.nav.syfo.motebehov.motebehovstatus.*</ID>
+    <ID>NoWildcardImports:NullstillMotebehovController.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>NoWildcardImports:ObjectMapperConfig.kt$import com.fasterxml.jackson.databind.*</ID>
+    <ID>NoWildcardImports:OppfolgingstilfelleService.kt$import no.nav.syfo.oppfolgingstilfelle.database.*</ID>
+    <ID>NoWildcardImports:PdlConsumer.kt$import no.nav.syfo.util.*</ID>
+    <ID>NoWildcardImports:PdlConsumer.kt$import org.springframework.http.*</ID>
+    <ID>NoWildcardImports:PdlPersonResponseGenerator.kt$import no.nav.syfo.consumer.pdl.*</ID>
+    <ID>NoWildcardImports:PersonoppgavehendelseKafkaConfig.kt$import org.springframework.kafka.core.*</ID>
+    <ID>NoWildcardImports:SyfoTilgangskontrollMock.kt$import org.springframework.http.*</ID>
+    <ID>NoWildcardImports:VeilederTilgangConsumer.kt$import no.nav.syfo.util.*</ID>
+    <ID>NoWildcardImports:VeilederTilgangConsumer.kt$import org.springframework.http.*</ID>
+    <ID>NoWildcardImports:VeilederTilgangConsumer.kt$import org.springframework.web.client.*</ID>
+    <ID>ParameterListWrapping:EsyfovarselKafkaConfig.kt$EsyfovarselKafkaConfig$(@Qualifier("EsyfovarselProducerFactory") producerFactory: ProducerFactory&lt;String, EsyfovarselHendelse&gt;)</ID>
+    <ID>ParameterListWrapping:MotebehovDAO.kt$MotebehovDAO$(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate, private val jdbcTemplate: JdbcTemplate)</ID>
+    <ID>ParameterListWrapping:PersonoppgavehendelseKafkaConfig.kt$PersonoppgavehendelseKafkaConfig$(@Qualifier("PersonoppgavehendelseProducerFactory") producerFactory: ProducerFactory&lt;String, KPersonoppgavehendelse&gt;)</ID>
+    <ID>ParameterWrapping:PersonoppgavehendelseProducer.kt$PersonoppgavehendelseProducer$@Qualifier("PersonoppgavehendelseTemplate") private val kafkaTemplate: KafkaTemplate&lt;String, KPersonoppgavehendelse&gt;</ID>
+    <ID>PrintStackTrace:RestHelper.kt$e</ID>
+    <ID>ReturnCount:ControllerExceptionHandler.kt$ControllerExceptionHandler$@ExceptionHandler(Exception::class, IllegalArgumentException::class, ConstraintViolationException::class, ForbiddenException::class, JwtTokenUnauthorizedException::class) fun handleException(ex: Exception, request: WebRequest): ResponseEntity&lt;ApiError&gt;</ID>
+    <ID>ReturnCount:MotebehovStatusHelper.kt$MotebehovStatusHelper$fun isSvarBehovVarselAvailable( motebehovList: List&lt;Motebehov&gt;, oppfolgingstilfelle: PersonOppfolgingstilfelle?, ): Boolean</ID>
+    <ID>ReturnCount:MotebehovStatusHelper.kt$MotebehovStatusHelper$fun motebehovStatus( hasUpcomingDialogmote: Boolean, oppfolgingstilfelle: PersonOppfolgingstilfelle?, isDialogmoteKandidat: Boolean, motebehovList: List&lt;Motebehov&gt;, ): MotebehovStatus</ID>
+    <ID>SerialVersionUIDInSerializableClass:AzureAdV2Token.kt$AzureAdV2Token : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:AzureAdV2TokenResponse.kt$AzureAdV2TokenResponse : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:Motebehov.kt$Motebehov : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:MotebehovSkjemaType.kt$MotebehovSkjemaType : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:MotebehovStatus.kt$MotebehovStatus : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:MotebehovSvar.kt$MotebehovSvar : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:MotebehovSvarVeilederDTO.kt$MotebehovSvarVeilederDTO : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:MotebehovTilbakemelding.kt$MotebehovTilbakemelding : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:MotebehovVeilederDTO.kt$MotebehovVeilederDTO : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:NyttMotebehov.kt$NyttMotebehov : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:NyttMotebehovArbeidsgiver.kt$NyttMotebehovArbeidsgiver : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:PMotebehov.kt$PMotebehov : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:PdlPersonResponse.kt$Adressebeskyttelse : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:PdlPersonResponse.kt$Gradering : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:PdlPersonResponse.kt$PdlHentPerson : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:PdlPersonResponse.kt$PdlPerson : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:PdlPersonResponse.kt$PdlPersonNavn : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:TokenXResponse.kt$TokenXResponse : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:TokenXToken.kt$TokenXToken : Serializable</ID>
+    <ID>SpreadOperator:Application.kt$(*args)</ID>
+    <ID>SwallowedException:BrukertilgangService.kt$BrukertilgangService$e: ForbiddenException</ID>
+    <ID>SwallowedException:DialogmotekandidatDAO.kt$DialogmotekandidatDAO$emptyException: EmptyResultDataAccessException</ID>
+    <ID>SwallowedException:IsOppfolgingstilfelleKafkaConfig.kt$KafkaIsOppfolgingstilfelleDeserializer$e: Exception</ID>
+    <ID>SwallowedException:KafkaDialogmotekandidatDeserializer.kt$KafkaDialogmotekandidatDeserializer$e: Exception</ID>
+    <ID>SwallowedException:OppfolgingstilfelleDAO.kt$OppfolgingstilfelleDAO$emptyException: EmptyResultDataAccessException</ID>
+    <ID>SwallowedException:PdlConsumer.kt$PdlConsumer$e: NoSuchElementException</ID>
+    <ID>ThrowsCount:LeaderElectionClient.kt$LeaderElectionClient$fun isLeader(): Boolean</ID>
+    <ID>ThrowsCount:PdlConsumer.kt$PdlConsumer$fun aktorid(fnr: String): String</ID>
+    <ID>ThrowsCount:PdlConsumer.kt$PdlConsumer$fun fnr(aktorid: String): String</ID>
+    <ID>TooGenericExceptionCaught:DialogmoteStatusendringListener.kt$DialogmoteStatusendringListener$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:DialogmotekandidatListener.kt$DialogmotekandidatListener$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:EsyfovarselProducer.kt$EsyfovarselProducer$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:IsOppfolgingstilfelleKafkaConfig.kt$KafkaIsOppfolgingstilfelleDeserializer$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:IsOppfolgingstilfelleListener.kt$IsOppfolgingstilfelleListener$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:KafkaDialogmotekandidatDeserializer.kt$KafkaDialogmotekandidatDeserializer$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:LeaderElectionClient.kt$LeaderElectionClient$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:NarmesteLederClient.kt$NarmesteLederClient$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PersonoppgavehendelseProducer.kt$PersonoppgavehendelseProducer$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:TestdataResetListener.kt$TestdataResetListener$e: Exception</ID>
+    <ID>TooGenericExceptionThrown:LeaderElectionClient.kt$LeaderElectionClient$throw RuntimeException("Call to elector returned null")</ID>
+    <ID>TooGenericExceptionThrown:LeaderElectionClient.kt$LeaderElectionClient$throw RuntimeException("Couldn't map response from electorpath to LeaderPod object", e)</ID>
+    <ID>TooGenericExceptionThrown:LeaderElectionClient.kt$LeaderElectionClient$throw RuntimeException("Got exception when trying to find leader", e)</ID>
+    <ID>TooGenericExceptionThrown:LocalApplicationConfig.kt$LocalApplicationConfig$throw RuntimeException(jsonProcessingException)</ID>
+    <ID>TooGenericExceptionThrown:MotebehovOppfolgingstilfelleServiceV2.kt$MotebehovOppfolgingstilfelleServiceV2$throw RuntimeException(errorMessage)</ID>
+    <ID>TooGenericExceptionThrown:PdlConsumer.kt$PdlConsumer$throw RuntimeException("Error while requesting AKTORID from PDL")</ID>
+    <ID>TooGenericExceptionThrown:PdlConsumer.kt$PdlConsumer$throw RuntimeException("Error while requesting FNR from PDL")</ID>
+    <ID>TooGenericExceptionThrown:SyfoTilgangskontrollMock.kt$throw RuntimeException(e)</ID>
+    <ID>TooManyFunctions:Metric.kt$Metric</ID>
+    <ID>UnusedPrivateProperty:MotebehovGenerator.kt$MotebehovGenerator$private val nyttMotebehovArbeidstaker = NyttMotebehov( arbeidstakerFnr = ARBEIDSTAKER_FNR, virksomhetsnummer = VIRKSOMHETSNUMMER, motebehovSvar = motebehovSvar, tildeltEnhet = NAV_ENHET, )</ID>
+    <ID>UnusedPrivateProperty:MotebehovServiceTest.kt$MotebehovServiceTest$@MockkBean(relaxed = true) private lateinit var personoppgavehendelseService: PersonoppgavehendelseService</ID>
+    <ID>VariableNaming:ControllerExceptionHandler.kt$ControllerExceptionHandler$private val BAD_REQUEST_MSG = "Vi kunne ikke tolke inndataene"</ID>
+    <ID>VariableNaming:ControllerExceptionHandler.kt$ControllerExceptionHandler$private val CONFLICT_MSG = "Dette oppsto en konflikt i tilstand"</ID>
+    <ID>VariableNaming:ControllerExceptionHandler.kt$ControllerExceptionHandler$private val FORBIDDEN_MSG = "Handling er forbudt"</ID>
+    <ID>VariableNaming:ControllerExceptionHandler.kt$ControllerExceptionHandler$private val INTERNAL_MSG = "Det skjedde en uventet feil"</ID>
+    <ID>VariableNaming:ControllerExceptionHandler.kt$ControllerExceptionHandler$private val UNAUTHORIZED_MSG = "Autorisasjonsfeil"</ID>
+    <ID>WildcardImport:ApplicationConfig.kt$import org.springframework.context.annotation.*</ID>
+    <ID>WildcardImport:AzureAdV2TokenConsumer.kt$import org.springframework.beans.factory.annotation.*</ID>
+    <ID>WildcardImport:AzureAdV2TokenConsumer.kt$import org.springframework.http.*</ID>
+    <ID>WildcardImport:BehandlendeEnhetConsumer.kt$import no.nav.syfo.util.*</ID>
+    <ID>WildcardImport:BehandlendeEnhetConsumer.kt$import org.springframework.http.*</ID>
+    <ID>WildcardImport:DateUtil.kt$import java.time.*</ID>
+    <ID>WildcardImport:DbUtil.kt$import java.time.*</ID>
+    <ID>WildcardImport:EsyfovarselService.kt$import no.nav.syfo.varsel.esyfovarsel.domain.*</ID>
+    <ID>WildcardImport:Motebehov.kt$import no.nav.syfo.motebehov.motebehovstatus.*</ID>
+    <ID>WildcardImport:MotebehovArbeidsgiverControllerV3.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:MotebehovArbeidstakerControllerV3.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:MotebehovGenerator.kt$import no.nav.syfo.motebehov.*</ID>
+    <ID>WildcardImport:MotebehovServiceTest.kt$import org.junit.jupiter.api.Assertions.*</ID>
+    <ID>WildcardImport:MotebehovStatusServiceV2.kt$import no.nav.syfo.motebehov.*</ID>
+    <ID>WildcardImport:MotebehovVeilederADControllerV3.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:MotebehovVeilederADControllerV3Test.kt$import org.assertj.core.api.Assertions.*</ID>
+    <ID>WildcardImport:MotebehovVeilederADControllerV3Test.kt$import org.junit.jupiter.api.Assertions.*</ID>
+    <ID>WildcardImport:MotebehovVeilederADTilgangV3Test.kt$import org.junit.jupiter.api.*</ID>
+    <ID>WildcardImport:MotebehovVeilederADTilgangV3Test.kt$import org.springframework.web.client.*</ID>
+    <ID>WildcardImport:MotebehovVeilederDTO.kt$import no.nav.syfo.motebehov.motebehovstatus.*</ID>
+    <ID>WildcardImport:NullstillMotebehovController.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:ObjectMapperConfig.kt$import com.fasterxml.jackson.databind.*</ID>
+    <ID>WildcardImport:OppfolgingstilfelleService.kt$import no.nav.syfo.oppfolgingstilfelle.database.*</ID>
+    <ID>WildcardImport:PdlConsumer.kt$import no.nav.syfo.util.*</ID>
+    <ID>WildcardImport:PdlConsumer.kt$import org.springframework.http.*</ID>
+    <ID>WildcardImport:PdlPersonResponseGenerator.kt$import no.nav.syfo.consumer.pdl.*</ID>
+    <ID>WildcardImport:PersonoppgavehendelseKafkaConfig.kt$import org.springframework.kafka.core.*</ID>
+    <ID>WildcardImport:SyfoTilgangskontrollMock.kt$import org.springframework.http.*</ID>
+    <ID>WildcardImport:VeilederTilgangConsumer.kt$import no.nav.syfo.util.*</ID>
+    <ID>WildcardImport:VeilederTilgangConsumer.kt$import org.springframework.http.*</ID>
+    <ID>WildcardImport:VeilederTilgangConsumer.kt$import org.springframework.web.client.*</ID>
+    <ID>Wrapping:MotebehovStatusServiceTest.kt$MotebehovStatusServiceTest$oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(userFnr)</ID>
+    <ID>Wrapping:VarselServiceTest.kt$VarselServiceTest$oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(userFnr, virksomhetsnummer2)</ID>
+    <ID>Wrapping:VarselServiceTest.kt$VarselServiceTest$oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(any())</ID>
+  </CurrentIssues>
+</SmellBaseline>
