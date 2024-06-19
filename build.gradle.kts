@@ -21,7 +21,7 @@ val apacheCommonsVersion = "3.14.0"
 val jakartaRsApiVersion = "3.1.0"
 val hikari = "5.1.0"
 val postgres = "42.7.3"
-val postgresEmbedded = "0.13.4"
+val postgresEmbedded = "1.0.0"
 
 plugins {
     id("java")
@@ -125,7 +125,7 @@ dependencies {
 }
 
 java.toolchain {
-    languageVersion.set(JavaLanguageVersion.of(17))
+    languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 tasks {
