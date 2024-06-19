@@ -5,7 +5,7 @@ on:
 
 jobs:
   jar-app:
-    uses: navikt/teamesyfo-github-actions-workflows/.github/workflows/boot-jar-app-21.yaml@main
+    uses: navikt/teamesyfo-github-actions-workflows/.github/workflows/boot-jar-app-21.yaml@detektgithubuser
     permissions:
       actions: read
       contents: write
