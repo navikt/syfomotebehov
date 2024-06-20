@@ -68,7 +68,7 @@ class AzureAdV2TokenConsumer @Autowired constructor(
             } catch (e: RestClientResponseException) {
                 log.error(
                     "Call to get AzureADV2Token from AzureAD as system for scope: $scopeClientId " +
-                        "with status: ${e.statusCode.value()} and message: ${e.responseBodyAsString}",
+                        "with status: ${e.statusCode} and message: ${e.responseBodyAsString}",
                     e
                 )
                 throw e
