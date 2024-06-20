@@ -5,7 +5,6 @@ import io.micrometer.core.instrument.Tags
 import no.nav.syfo.motebehov.MotebehovSvar
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
-import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Controller
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -48,7 +47,12 @@ class Metric @Inject constructor(
         val dayInOppfolgingstilfelleMotebehovCreated = if (activeOppfolgingstilfelle != null) {
             ChronoUnit.DAYS.between(activeOppfolgingstilfelle.fom, LocalDate.now())
         } else null
-        val navn = if (erInnloggetBrukerArbeidstaker) "syfomotebehov_motebehov_besvart_at" else "syfomotebehov_motebehov_besvart"
+        val navn =
+            if (erInnloggetBrukerArbeidstaker) {
+                "syfomotebehov_motebehov_besvart_at"
+            } else {
+                "syfomotebehov_motebehov_besvart"
+            }
         registry.counter(
             navn,
             Tags.of(
@@ -72,7 +76,8 @@ class Metric @Inject constructor(
         harForklaring: Boolean,
         erInnloggetBrukerArbeidstaker: Boolean
     ) {
-        val dayInOppfolgingstilfelleMotebehovCreated = ChronoUnit.DAYS.between(activeOppfolgingstilfelle.fom, LocalDate.now())
+        val dayInOppfolgingstilfelleMotebehovCreated =
+            ChronoUnit.DAYS.between(activeOppfolgingstilfelle.fom, LocalDate.now())
         val navn = if (erInnloggetBrukerArbeidstaker) {
             "syfomotebehov_motebehov_besvart_oppfolgingstilfelle_dag_at"
         } else "syfomotebehov_motebehov_besvart_oppfolgingstilfelle_dag_ag"
@@ -94,7 +99,12 @@ class Metric @Inject constructor(
     }
 
     fun tellMotebehovBesvartNeiAntallTegn(antallTegnIForklaring: Int, erInnloggetBrukerArbeidstaker: Boolean) {
-        val navn = if (erInnloggetBrukerArbeidstaker) "syfomotebehov_motebehov_besvart_nei_forklaring_lengde_at" else "syfomotebehov_motebehov_besvart_nei_forklaring_lengde"
+        val navn =
+            if (erInnloggetBrukerArbeidstaker) {
+                "syfomotebehov_motebehov_besvart_nei_forklaring_lengde_at"
+            } else {
+                "syfomotebehov_motebehov_besvart_nei_forklaring_lengde"
+            }
         registry.counter(
             navn,
             Tags.of("type", "info")
@@ -102,7 +112,12 @@ class Metric @Inject constructor(
     }
 
     fun tellMotebehovBesvartJaMedForklaringTegn(antallTegnIForklaring: Int, erInnloggetBrukerArbeidstaker: Boolean) {
-        val navn = if (erInnloggetBrukerArbeidstaker) "syfomotebehov_motebehov_besvart_ja_forklaring_lengde_at" else "syfomotebehov_motebehov_besvart_ja_forklaring_lengde_ag"
+        val navn =
+            if (erInnloggetBrukerArbeidstaker) {
+                "syfomotebehov_motebehov_besvart_ja_forklaring_lengde_at"
+            } else {
+                "syfomotebehov_motebehov_besvart_ja_forklaring_lengde_ag"
+            }
         registry.counter(
             navn,
             Tags.of("type", "info")
@@ -110,7 +125,12 @@ class Metric @Inject constructor(
     }
 
     fun tellMotebehovBesvartJaMedForklaringAntall(erInnloggetBrukerArbeidstaker: Boolean) {
-        val navn = if (erInnloggetBrukerArbeidstaker) "syfomotebehov_motebehov_besvart_ja_forklaring_at" else "syfomotebehov_motebehov_besvart_ja_forklaring_ag"
+        val navn =
+            if (erInnloggetBrukerArbeidstaker) {
+                "syfomotebehov_motebehov_besvart_ja_forklaring_at"
+            } else {
+                "syfomotebehov_motebehov_besvart_ja_forklaring_ag"
+            }
         registry.counter(
             navn,
             Tags.of("type", "info")
@@ -133,6 +153,8 @@ class Metric @Inject constructor(
         motebehovSvar: MotebehovSvar,
         erInnloggetBrukerArbeidstaker: Boolean
     ) {
+        val harForklaring = motebehovSvar.forklaring?.isNotBlank() ?: false
+
         tellMotebehovBesvart(
             activeOppfolgingstilfelle,
             motebehovSkjemaType,
@@ -143,12 +165,12 @@ class Metric @Inject constructor(
             activeOppfolgingstilfelle,
             motebehovSkjemaType,
             motebehovSvar.harMotebehov,
-            !StringUtils.isEmpty(motebehovSvar.forklaring),
+            harForklaring,
             erInnloggetBrukerArbeidstaker
         )
         if (!motebehovSvar.harMotebehov) {
             tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring!!.length, erInnloggetBrukerArbeidstaker)
-        } else if (!StringUtils.isEmpty(motebehovSvar.forklaring)) {
+        } else if (harForklaring) {
             tellMotebehovBesvartJaMedForklaringTegn(motebehovSvar.forklaring!!.length, erInnloggetBrukerArbeidstaker)
             tellMotebehovBesvartJaMedForklaringAntall(erInnloggetBrukerArbeidstaker)
         }

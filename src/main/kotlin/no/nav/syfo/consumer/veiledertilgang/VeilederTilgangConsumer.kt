@@ -21,11 +21,7 @@ class VeilederTilgangConsumer(
     private val template: RestTemplate,
     private val oidcContextHolder: TokenValidationContextHolder,
 ) {
-    private val tilgangskontrollPersonUrl: String
-
-    init {
-        tilgangskontrollPersonUrl = "$istilgangskontrollUrl$TILGANGSKONTROLL_PERSON_PATH"
-    }
+    private val tilgangskontrollPersonUrl: String = "$istilgangskontrollUrl$TILGANGSKONTROLL_PERSON_PATH"
 
     fun sjekkVeiledersTilgangTilPersonMedOBO(fnr: String): Boolean {
         val token = OIDCUtil.tokenFraOIDC(oidcContextHolder, OIDCIssuer.INTERN_AZUREAD_V2)
@@ -49,12 +45,12 @@ class VeilederTilgangConsumer(
             if (e.statusCode.value() == 403) {
                 false
             } else {
-                LOG.error("HttpClientErrorException mot istilgangskontroll med status ${e.rawStatusCode}", e)
+                LOG.error("HttpClientErrorException mot istilgangskontroll med status ${e.statusCode}", e)
                 metric.tellHendelse(METRIC_CALL_VEILEDERTILGANG_USER_FAIL)
                 throw e
             }
         } catch (e: HttpServerErrorException) {
-            LOG.error("HttpServerErrorException mot istilgangskontroll med status ${e.rawStatusCode}", e)
+            LOG.error("HttpServerErrorException mot istilgangskontroll med status ${e.statusCode}", e)
             metric.tellHendelse(METRIC_CALL_VEILEDERTILGANG_USER_FAIL)
             throw e
         }

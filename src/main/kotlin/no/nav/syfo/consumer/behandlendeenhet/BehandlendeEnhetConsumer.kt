@@ -36,11 +36,11 @@ class BehandlendeEnhetConsumer(
                 BehandlendeEnhet::class.java
             )
             val responseBody = response.body!!
-            metric.countOutgoingReponses(METRIC_CALL_BEHANDLENDEENHET, response.statusCodeValue)
+            metric.countOutgoingReponses(METRIC_CALL_BEHANDLENDEENHET, response.statusCode.value())
             return responseBody
         } catch (e: RestClientResponseException) {
             LOG.error("Error requesting BehandlendeEnhet from syfobehandlendeenhet with callId ${httpEntity.headers[NAV_CALL_ID_HEADER]}: ", e)
-            metric.countOutgoingReponses(METRIC_CALL_BEHANDLENDEENHET, e.rawStatusCode)
+            metric.countOutgoingReponses(METRIC_CALL_BEHANDLENDEENHET, e.statusCode.value())
             throw e
         }
     }

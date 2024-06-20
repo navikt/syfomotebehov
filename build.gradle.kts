@@ -14,7 +14,7 @@ val logstashVersion = "4.10"
 val logbackVersion = "1.4.11"
 val javaxInjectVersion = "1"
 val owaspSanitizerVersion = "20211018.2"
-val apacheCommonsVersion = "3.14.0"
+val apacheCommonsTextVersion = "1.12.0"
 val jakartaRsApiVersion = "3.1.0"
 val hikari = "5.1.0"
 val postgres = "42.7.3"
@@ -93,7 +93,7 @@ dependencies {
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:$isdialogmoteSchema")
     implementation("javax.inject:javax.inject:$javaxInjectVersion")
 
-    implementation("org.apache.commons:commons-lang3:$apacheCommonsVersion")
+    implementation("org.apache.commons:commons-text:$apacheCommonsTextVersion")
     implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:$owaspSanitizerVersion")
     implementation("org.jsoup:jsoup:$jsoupVersion")
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:$jakartaRsApiVersion")

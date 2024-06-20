@@ -32,7 +32,11 @@ class AzureAdV2TokenConsumer @Autowired constructor(
 
             return tokenResponse.toAzureAdV2Token().accessToken
         } catch (e: RestClientResponseException) {
-            log.error("Call to get AzureADV2Token from AzureAD for scope: $scopeClientId with status: ${e.rawStatusCode} and message: ${e.responseBodyAsString}", e)
+            log.error(
+                "Call to get AzureADV2Token from AzureAD for scope: $scopeClientId " +
+                    "with status: ${e.statusCode} and message: ${e.responseBodyAsString}",
+                e
+            )
             throw e
         }
     }
@@ -63,7 +67,8 @@ class AzureAdV2TokenConsumer @Autowired constructor(
                 azureAdToken.accessToken
             } catch (e: RestClientResponseException) {
                 log.error(
-                    "Call to get AzureADV2Token from AzureAD as system for scope: $scopeClientId with status: ${e.rawStatusCode} and message: ${e.responseBodyAsString}",
+                    "Call to get AzureADV2Token from AzureAD as system for scope: $scopeClientId " +
+                        "with status: ${e.statusCode.value()} and message: ${e.responseBodyAsString}",
                     e
                 )
                 throw e

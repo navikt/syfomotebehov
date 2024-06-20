@@ -1,6 +1,6 @@
 package no.nav.syfo.util
 
-import org.apache.commons.lang3.StringEscapeUtils
+import org.apache.commons.text.StringEscapeUtils
 import org.owasp.html.HtmlPolicyBuilder
 import org.slf4j.LoggerFactory
 import java.sql.Timestamp
@@ -8,7 +8,7 @@ import java.time.*
 
 const val MOTEBEHOVSVAR_GYLDIGHET_DAGER = 78 * 7
 
-fun hentTidligsteDatoForGyldigMotebehovSvar(): Timestamp? {
+fun hentTidligsteDatoForGyldigMotebehovSvar(): Timestamp {
     return convert(LocalDateTime.of(LocalDate.now().minusDays(MOTEBEHOVSVAR_GYLDIGHET_DAGER.toLong()), LocalTime.MIN))
 }
 
