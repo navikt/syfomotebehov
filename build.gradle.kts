@@ -23,18 +23,11 @@ val detektVersion = "1.23.6"
 
 plugins {
     id("java")
-    kotlin("jvm") version "1.9.23"
-    id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.9.23"
     id("org.springframework.boot") version "3.3.0"
     id("io.spring.dependency-management") version "1.1.5"
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
-}
-
-allOpen {
-    annotation("org.springframework.context.annotation.Configuration")
-    annotation("org.springframework.stereotype.Service")
-    annotation("org.springframework.stereotype.Component")
+    kotlin("jvm") version "1.9.23"
+    kotlin("plugin.spring") version "1.9.23"
 }
 
 val githubUser: String by project
