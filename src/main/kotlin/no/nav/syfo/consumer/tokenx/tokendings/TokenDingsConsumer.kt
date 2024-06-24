@@ -49,7 +49,7 @@ class TokenDingsConsumer @Inject constructor(
             return tokenX.accessToken
         } catch (e: RestClientResponseException) {
             log.error(
-                "Call to get TokenX failed with status: ${e.rawStatusCode} and message: ${e.responseBodyAsString}",
+                "Call to get TokenX failed with status: ${e.statusCode} and message: ${e.responseBodyAsString}",
                 e,
             )
             throw e

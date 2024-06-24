@@ -1,6 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import com.github.jengelman.gradle.plugins.shadow.transformers.PropertiesFileTransformer
-
 group = "no.nav.syfo"
 
 val apacheHttpClientVersion = "5.3.1"
@@ -17,26 +14,20 @@ val logstashVersion = "4.10"
 val logbackVersion = "1.4.11"
 val javaxInjectVersion = "1"
 val owaspSanitizerVersion = "20211018.2"
-val apacheCommonsVersion = "3.14.0"
+val apacheCommonsTextVersion = "1.12.0"
 val jakartaRsApiVersion = "3.1.0"
 val hikari = "5.1.0"
 val postgres = "42.7.3"
 val postgresEmbedded = "0.13.4"
+val detektVersion = "1.23.6"
 
 plugins {
     id("java")
-    kotlin("jvm") version "1.9.24"
-    id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.9.24"
     id("org.springframework.boot") version "3.3.0"
     id("io.spring.dependency-management") version "1.1.5"
-    id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
-}
-
-allOpen {
-    annotation("org.springframework.context.annotation.Configuration")
-    annotation("org.springframework.stereotype.Service")
-    annotation("org.springframework.stereotype.Component")
+    id("io.gitlab.arturbosch.detekt") version "1.23.6"
+    kotlin("jvm") version "1.9.23"
+    kotlin("plugin.spring") version "1.9.23"
 }
 
 val githubUser: String by project
@@ -95,7 +86,7 @@ dependencies {
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:$isdialogmoteSchema")
     implementation("javax.inject:javax.inject:$javaxInjectVersion")
 
-    implementation("org.apache.commons:commons-lang3:$apacheCommonsVersion")
+    implementation("org.apache.commons:commons-text:$apacheCommonsTextVersion")
     implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:$owaspSanitizerVersion")
     implementation("org.jsoup:jsoup:$jsoupVersion")
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:$jakartaRsApiVersion")
@@ -122,33 +113,29 @@ dependencies {
             }
         }
     }
+
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
 }
 
 java.toolchain {
-    languageVersion.set(JavaLanguageVersion.of(17))
+    languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 tasks {
     extra["log4j2.version"] = "2.16.0"
 
-    withType<ShadowJar> {
-        manifest.attributes["Main-Class"] = "no.nav.syfo.ApplicationKt"
-        transform(PropertiesFileTransformer::class.java) {
-            paths = listOf("META-INF/spring.factories")
-            mergeStrategy = "append"
-            isZip64 = true
-        }
-        configureEach {
-            append("META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports")
-            append("META-INF/spring/org.springframework.boot.actuate.autoconfigure.web.ManagementContextConfiguration.imports")
-        }
-        mergeServiceFiles()
-        archiveBaseName.set("app")
-        archiveClassifier.set("")
-        archiveVersion.set("")
+    named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+        this.archiveFileName.set("app.jar")
     }
 
     withType<Test> {
         useJUnitPlatform()
     }
 }
+
+detekt {
+    config.from("detekt-config.yml")
+    buildUponDefaultConfig = true
+    baseline = file("detekt-baseline.xml")
+}
+
