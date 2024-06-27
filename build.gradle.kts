@@ -1,7 +1,7 @@
 group = "no.nav.syfo"
 
 val apacheHttpClientVersion = "5.3.1"
-val junitJupiterVersion = "5.10.2"
+val junitJupiterVersion = "5.10.3"
 val kotlinJacksonVersion = "2.17.1"
 val flywayVersion = "9.22.3"
 val tokenSupportVersion = "3.2.0"
