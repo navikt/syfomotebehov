@@ -18,7 +18,7 @@ val apacheCommonsTextVersion = "1.12.0"
 val jakartaRsApiVersion = "3.1.0"
 val hikari = "5.1.0"
 val postgres = "42.7.3"
-val postgresEmbedded = "0.13.4"
+val postgresEmbedded = "1.1.0"
 val detektVersion = "1.23.6"
 
 plugins {
