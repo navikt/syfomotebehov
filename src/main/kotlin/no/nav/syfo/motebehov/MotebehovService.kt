@@ -152,6 +152,7 @@ class MotebehovService @Inject constructor(
             virksomhetsnummer = virksomhetsnummer,
             harMotebehov = motebehovSvar.harMotebehov,
             forklaring = motebehovSvar.forklaring,
+            dynamicFormSubmission = motebehovSvar.dynamicFormSubmission,
             tildeltEnhet = tildeltEnhet,
             behandletVeilederIdent = null,
             behandletTidspunkt = null,
@@ -173,6 +174,7 @@ class MotebehovService @Inject constructor(
             motebehovSvar = MotebehovSvar(
                 harMotebehov = pMotebehov.harMotebehov,
                 forklaring = pMotebehov.forklaring,
+                dynamicFormSubmission = pMotebehov.dynamicFormSubmission,
             ),
             tildeltEnhet = pMotebehov.tildeltEnhet,
             behandletTidspunkt = pMotebehov.behandletTidspunkt,
@@ -193,6 +195,7 @@ class MotebehovService @Inject constructor(
             motebehovSvar = MotebehovSvar(
                 harMotebehov = pMotebehov.harMotebehov,
                 forklaring = pMotebehov.forklaring,
+                dynamicFormSubmission = pMotebehov.dynamicFormSubmission,
             ),
             tildeltEnhet = pMotebehov.tildeltEnhet,
             behandletTidspunkt = pMotebehov.behandletTidspunkt,

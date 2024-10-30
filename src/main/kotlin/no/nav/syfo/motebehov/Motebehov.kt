@@ -34,7 +34,7 @@ fun Motebehov.toMotebehovVeilederDTO(): MotebehovVeilederDTO {
         opprettetAvNavn = null,
         arbeidstakerFnr = this.arbeidstakerFnr,
         virksomhetsnummer = this.virksomhetsnummer,
-        motebehovSvar = this.motebehovSvar.toMotebehovVeilederDTO(),
+        motebehovSvar = this.motebehovSvar,
         tildeltEnhet = this.tildeltEnhet,
         behandletTidspunkt = this.behandletTidspunkt,
         behandletVeilederIdent = this.behandletVeilederIdent,

@@ -1,5 +1,6 @@
 package no.nav.syfo.motebehov.database
 
+import no.nav.syfo.motebehov.MotebehovFormSubmissionField
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import java.io.Serializable
 import java.time.LocalDateTime
@@ -13,6 +14,7 @@ data class PMotebehov(
     val virksomhetsnummer: String,
     val harMotebehov: Boolean,
     val forklaring: String? = null,
+    val dynamicFormSubmission: List<MotebehovFormSubmissionField>,
     val tildeltEnhet: String? = null,
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,

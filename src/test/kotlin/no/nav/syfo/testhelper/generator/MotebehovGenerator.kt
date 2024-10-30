@@ -17,6 +17,7 @@ class MotebehovGenerator {
     private val motebehovSvar = MotebehovSvar(
         harMotebehov = true,
         forklaring = "",
+        dynamicFormSubmission = emptyList(),
     )
     private val motebehov = Motebehov(
         id = UUID.randomUUID(),
@@ -51,8 +52,36 @@ class MotebehovGenerator {
         )
     }
 
+    fun lagMotebehovSvarOldSubmissionDTO(harBehov: Boolean): MotebehovSvarSubmissionOldDTO {
+        return MotebehovSvarSubmissionOldDTO(
+            harMotebehov = harBehov,
+            forklaring = "",
+        )
+    }
+
+    fun lagMotebehovSvarFromOldSubmissionDTO(motebehovSvarSubmissionOldDTO: MotebehovSvarSubmissionOldDTO): MotebehovSvar {
+        return MotebehovSvar(
+            harMotebehov = motebehovSvarSubmissionOldDTO.harMotebehov,
+            forklaring = motebehovSvarSubmissionOldDTO.forklaring,
+            dynamicFormSubmission = emptyList(),
+        )
+    }
+
     fun lagNyttMotebehovArbeidsgiver(): NyttMotebehovArbeidsgiver {
         return nyttMotebehovArbeidsgiver.copy()
+    }
+
+    fun lagNyttMotebehovArbeidsgiverOldSvarSubmissionDTO(motebehovSvar: MotebehovSvar? = null): NyttMotebehovArbeidsgiverWithOldSvarSubmissionDTO {
+        val nyttMotebehovAG = lagNyttMotebehovArbeidsgiver()
+
+        return NyttMotebehovArbeidsgiverWithOldSvarSubmissionDTO(
+            arbeidstakerFnr = nyttMotebehovAG.arbeidstakerFnr,
+            virksomhetsnummer = nyttMotebehovAG.virksomhetsnummer,
+            motebehovSvar = MotebehovSvarSubmissionOldDTO(
+                harMotebehov = motebehovSvar?.harMotebehov ?: nyttMotebehovAG.motebehovSvar.harMotebehov,
+                forklaring = motebehovSvar?.forklaring ?: nyttMotebehovAG.motebehovSvar.forklaring,
+            ),
+        )
     }
 
     private val nyttPMotebehovArbeidstaker = PMotebehov(
@@ -63,6 +92,7 @@ class MotebehovGenerator {
         virksomhetsnummer = VIRKSOMHETSNUMMER,
         forklaring = "Megling",
         harMotebehov = true,
+        dynamicFormSubmission = emptyList(),
         tildeltEnhet = NAV_ENHET,
         sykmeldtFnr = ARBEIDSTAKER_FNR,
     )

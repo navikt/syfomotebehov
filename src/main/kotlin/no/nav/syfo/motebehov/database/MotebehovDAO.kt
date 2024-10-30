@@ -24,6 +24,8 @@ import java.util.UUID
 @Transactional
 @Repository
 class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate, private val jdbcTemplate: JdbcTemplate) {
+    // TODO: In read methods, read out dynamicFormSubmissions value from new submissions table as well and include in returned PMotebehov.
+
     fun hentMotebehovListeForAktoer(aktoerId: String): List<PMotebehov> {
         return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? ORDER BY opprettet_dato ASC", innsendingRowMapper, aktoerId)).orElse(emptyList())
     }
@@ -82,6 +84,13 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
             .addValue("sm_fnr", motebehov.sykmeldtFnr)
             .addValue("opprettet_av_fnr", motebehov.opprettetAvFnr)
         namedParameterJdbcTemplate.update(lagreSql, mapLagreSql)
+
+        // TODO: Also, if in input, add motebehov.dynamicFormSubmission values to new table.
+        //  Otherwise, if motebehov.forklaring, add forklaring as begrunnelse value in new submissions table. (To store
+        //  current post format in new format, so we only need to copy data to new format/table up until this is deployed.)
+        //  Or instead of adding forklaring to submissions table and copying old data, just make read operations on old
+        //  data put forklaring string as a single field in dynamicFormSubmission (to make compatible with new get endpoints).
+
         return uuid
     }
 
@@ -95,6 +104,8 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
                 MapSqlParameterSource()
                     .addValue("motebehovIder", motebehovIder),
             )
+
+            // TODO: Find out how this is used, and probably delete related records in new submissions table.
         } else {
             0
         }
@@ -111,6 +122,7 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
                     virksomhetsnummer = rs.getString("virksomhetsnummer"),
                     harMotebehov = rs.getBoolean("har_motebehov"),
                     forklaring = rs.getString("forklaring"),
+                    dynamicFormSubmission = emptyList(),
                     tildeltEnhet = rs.getString("tildelt_enhet"),
                     behandletTidspunkt = convertNullable(rs.getTimestamp("behandlet_tidspunkt")),
                     behandletVeilederIdent = rs.getString("behandlet_veileder_ident"),
