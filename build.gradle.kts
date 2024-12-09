@@ -23,7 +23,7 @@ val detektVersion = "1.23.6"
 
 plugins {
     id("java")
-    id("org.springframework.boot") version "3.3.2"
+    id("org.springframework.boot") version "3.3.6"
     id("io.spring.dependency-management") version "1.1.6"
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
     kotlin("jvm") version "1.9.23"
@@ -104,15 +104,6 @@ dependencies {
     }
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
-
-    constraints {
-        implementation("org.apache.zookeeper:zookeeper") {
-            because("CVE-2023-44981")
-            version {
-                require("3.9.1")
-            }
-        }
-    }
 
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
 }
