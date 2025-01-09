@@ -10,7 +10,7 @@ import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.MotebehovSvar
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiver
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverWithOldSvarSubmissionDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverWithDynamicFormSubmissionDTO
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
 import org.springframework.beans.factory.annotation.Value
@@ -21,9 +21,13 @@ import javax.validation.Valid
 import javax.validation.constraints.Pattern
 
 @RestController
-@ProtectedWithClaims(issuer = TokenXIssuer.TOKENX, claimMap = ["acr=Level4", "acr=idporten-loa-high"], combineWithOr = true)
-@RequestMapping(value = ["/api/v3"])
-class MotebehovArbeidsgiverControllerV3 @Inject constructor(
+@ProtectedWithClaims(
+    issuer = TokenXIssuer.TOKENX,
+    claimMap = ["acr=Level4", "acr=idporten-loa-high"],
+    combineWithOr = true
+)
+@RequestMapping(value = ["/api/v4"])
+class MotebehovArbeidsgiverControllerV4 @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
     private val metric: Metric,
     private val motebehovOppfolgingstilfelleServiceV2: MotebehovOppfolgingstilfelleServiceV2,
@@ -56,7 +60,7 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun lagreMotebehovArbeidsgiver(
-        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverWithOldSvarSubmissionDTO,
+        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverWithDynamicFormSubmissionDTO,
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
         val innloggetFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)
@@ -72,8 +76,8 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
             virksomhetsnummer = nyttMotebehovDTO.virksomhetsnummer,
             motebehovSvar = MotebehovSvar(
                 harMotebehov = nyttMotebehovDTO.motebehovSvar.harMotebehov,
-                forklaring = nyttMotebehovDTO.motebehovSvar.forklaring,
-                dynamicFormSubmission = emptyList(),
+                forklaring = null,
+                dynamicFormSubmission = nyttMotebehovDTO.motebehovSvar.dynamicFormSubmission,
             ),
         )
 
