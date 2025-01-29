@@ -30,19 +30,11 @@ plugins {
     kotlin("plugin.spring") version "1.9.23"
 }
 
-val githubUser: String by project
-val githubPassword: String by project
-
 repositories {
     mavenCentral()
     maven(url = "https://packages.confluent.io/maven/")
-    maven(url = "https://jitpack.io")
     maven {
-        url = uri("https://maven.pkg.github.com/navikt/isdialogmote-schema")
-        credentials {
-            username = githubUser
-            password = githubPassword
-        }
+        url = uri("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
     }
 }
 
