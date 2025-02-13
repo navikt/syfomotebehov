@@ -1,27 +1,30 @@
 package no.nav.syfo.motebehov.api.internad.v3
 
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.extensions.spring.SpringExtension
 import jakarta.ws.rs.ForbiddenException
+import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.mockSvarFraIstilgangskontrollTilgangTilBruker
 import no.nav.syfo.util.TokenValidationUtil
-import org.junit.jupiter.api.*
-import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.http.HttpStatus
-import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.client.MockRestServiceServer
-import org.springframework.web.client.*
-import javax.inject.Inject
+import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.HttpServerErrorException
+import org.springframework.web.client.RestTemplate
 
-@ExtendWith(SpringExtension::class)
+//@ExtendWith(SpringExtension::class)
+@TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
-@DirtiesContext
-class MotebehovVeilederADTilgangV3Test {
+//@DirtiesContext
+class MotebehovVeilederADTilgangV3Test : IntegrationTest() {
 
     @Value("\${azure.openid.config.token.endpoint}")
     private lateinit var azureTokenEndpoint: String
@@ -29,50 +32,53 @@ class MotebehovVeilederADTilgangV3Test {
     @Value("\${istilgangskontroll.url}")
     private lateinit var tilgangskontrollUrl: String
 
-    @Inject
+    @Autowired
     private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV3
 
-    @Inject
+    @Autowired
     @Qualifier("AzureAD")
     private lateinit var restTemplateAzureAD: RestTemplate
 
-    @Inject
+    @Autowired
     private lateinit var restTemplate: RestTemplate
 
-    @Inject
+    @Autowired
     private lateinit var tokenValidationUtil: TokenValidationUtil
 
     private lateinit var mockRestServiceServerAzureAD: MockRestServiceServer
     private lateinit var mockRestServiceServer: MockRestServiceServer
 
-    @BeforeEach
-    fun setUp() {
-        mockRestServiceServerAzureAD = MockRestServiceServer.bindTo(restTemplateAzureAD).build()
-        mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
-    }
+    init {
+        extensions(SpringExtension)
+        beforeTest {
+            mockRestServiceServerAzureAD = MockRestServiceServer.bindTo(restTemplateAzureAD).build()
+            mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
+        }
 
-    @AfterEach
-    fun tearDown() {
-        mockRestServiceServer.verify()
-        mockRestServiceServerAzureAD.verify()
-    }
+        afterTest {
+            mockRestServiceServer.verify()
+            mockRestServiceServerAzureAD.verify()
+        }
 
-    @Test
-    fun `veileder nektes tilgang`() {
-        mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.FORBIDDEN)
-        assertThrows<ForbiddenException> { loggInnOgKallHentMotebehovListe() }
-    }
 
-    @Test
-    fun `klientfeil mot istilgangskontroll`() {
-        mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.BAD_REQUEST)
-        assertThrows<HttpClientErrorException> { loggInnOgKallHentMotebehovListe() }
-    }
 
-    @Test
-    fun `teknisk feil i istilgangskontroll`() {
-        mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.INTERNAL_SERVER_ERROR)
-        assertThrows<HttpServerErrorException> { loggInnOgKallHentMotebehovListe() }
+        describe("MotebehovVeilederADTilgangV3")
+        {
+            it("veileder nektes tilgang") {
+                mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.FORBIDDEN)
+                shouldThrow<ForbiddenException> { loggInnOgKallHentMotebehovListe() }
+            }
+
+            it("klientfeil mot istilgangskontroll") {
+                mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.BAD_REQUEST)
+                shouldThrow<HttpClientErrorException> { loggInnOgKallHentMotebehovListe() }
+            }
+
+            it("teknisk feil i istilgangskontroll") {
+                mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.INTERNAL_SERVER_ERROR)
+                shouldThrow<HttpServerErrorException> { loggInnOgKallHentMotebehovListe() }
+            }
+        }
     }
 
     private fun mockSvarFraIstilgangskontroll(

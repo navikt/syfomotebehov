@@ -1,13 +1,11 @@
 package no.nav.syfo
 
-import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
-import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.runApplication
+import org.springframework.boot.fromApplication
+import org.springframework.boot.test.context.TestConfiguration
 
-@EnableJwtTokenValidation
-@SpringBootApplication
+@TestConfiguration(proxyBeanMethods = false)
 class LocalApplication
 
 fun main(args: Array<String>) {
-    runApplication<LocalApplication>(*args)
+    fromApplication<Application>().with(LocalApplication::class.java).run(*args)
 }

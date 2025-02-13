@@ -1,8 +1,9 @@
 package no.nav.syfo.motebehov.historikk
 
-import com.ninjasquad.springmockk.MockkBean
+import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.every
-import no.nav.syfo.LocalApplication
+import io.mockk.mockk
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.pdl.PdlPersonNavn
 import no.nav.syfo.consumer.pdl.fullName
@@ -11,33 +12,20 @@ import no.nav.syfo.testhelper.UserConstants
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDateTime
 
-@ExtendWith(SpringExtension::class)
-@SpringBootTest(classes = [LocalApplication::class])
-@DirtiesContext
-class HistorikkServiceTest {
+class HistorikkServiceTest : DescribeSpec({
 
-    @MockkBean
-    private lateinit var motebehovService: MotebehovService
+    val pdlConsumer: PdlConsumer = mockk<PdlConsumer>()
+    val motebehovService: MotebehovService = mockk<MotebehovService>()
+    val historikkService = HistorikkService(
+        motebehovService,
+        pdlConsumer
+    )
 
-    @MockkBean
-    private lateinit var pdlConsumer: PdlConsumer
+    val motebehovGenerator = MotebehovGenerator()
 
-    @Autowired
-    private lateinit var historikkService: HistorikkService
-
-    private val motebehovGenerator = MotebehovGenerator()
-
-    private val pdlPersonResponseNL1 = generatePdlHentPerson(
+    val pdlPersonResponseNL1 = generatePdlHentPerson(
         PdlPersonNavn(
             UserConstants.PERSON_NAME_FIRST,
             UserConstants.PERSON_NAME_MIDDLE,
@@ -45,7 +33,7 @@ class HistorikkServiceTest {
         ),
         null
     )
-    private val pdlPersonResponseNL3 = generatePdlHentPerson(
+    val pdlPersonResponseNL3 = generatePdlHentPerson(
         PdlPersonNavn(
             UserConstants.PERSON_NAME_FIRST,
             UserConstants.PERSON_NAME_MIDDLE,
@@ -54,8 +42,8 @@ class HistorikkServiceTest {
         null
     )
 
-    @BeforeEach
-    fun setup() {
+
+    beforeTest {
         every { pdlConsumer.aktorid(NL1_FNR) } returns NL1_AKTORID
         every { pdlConsumer.fnr(NL1_AKTORID) } returns NL1_FNR
         every { pdlConsumer.fnr(NL3_AKTORID) } returns NL3_FNR
@@ -63,42 +51,43 @@ class HistorikkServiceTest {
         every { pdlConsumer.person(NL3_FNR) } returns pdlPersonResponseNL3
     }
 
-    @Test
-    fun hentHistorikkServiceSkalReturnereHistorikkAvForskjelligeTyper() {
-        val motebehov1 = motebehovGenerator.generateMotebehov().copy(
-            opprettetAv = NL3_AKTORID,
-            opprettetDato = LocalDateTime.now(),
-            behandletVeilederIdent = VEILEDER_ID,
-            behandletTidspunkt = LocalDateTime.now()
-        )
-        val motebehov2 = motebehovGenerator.generateMotebehov().copy(
-            opprettetAv = NL1_AKTORID,
-            opprettetDato = LocalDateTime.now().minusMinutes(2L),
-            behandletVeilederIdent = VEILEDER_ID,
-            behandletTidspunkt = LocalDateTime.now()
-        )
+    describe("HistorikkService") {
+        it("should return history of different types") {
+            val motebehov1 = motebehovGenerator.generateMotebehov().copy(
+                opprettetAv = NL3_AKTORID,
+                opprettetDato = LocalDateTime.now(),
+                behandletVeilederIdent = VEILEDER_ID,
+                behandletTidspunkt = LocalDateTime.now()
+            )
+            val motebehov2 = motebehovGenerator.generateMotebehov().copy(
+                opprettetAv = NL1_AKTORID,
+                opprettetDato = LocalDateTime.now().minusMinutes(2L),
+                behandletVeilederIdent = VEILEDER_ID,
+                behandletTidspunkt = LocalDateTime.now()
+            )
 
-        every { motebehovService.hentMotebehovListe(SM_FNR) } returns listOf(
-            motebehov1,
-            motebehov2
-        )
+            every { motebehovService.hentMotebehovListe(SM_FNR) } returns listOf(
+                motebehov1,
+                motebehov2
+            )
 
-        val historikkForSykmeldt = historikkService.hentHistorikkListe(SM_FNR)
-        assertThat(historikkForSykmeldt.size).isEqualTo(4)
-        val historikkOpprettetMotebehovTekst1 = historikkForSykmeldt[0].tekst
-        val historikkOpprettetMotebehovTekst2 = historikkForSykmeldt[1].tekst
-        val historikkLesteMotebehovTekst1 = historikkForSykmeldt[2].tekst
-        val historikkLesteMotebehovTekst2 = historikkForSykmeldt[3].tekst
-        assertThat(historikkOpprettetMotebehovTekst1)
-            .isEqualTo(pdlPersonResponseNL1.fullName() + HistorikkService.HAR_SVART_PAA_MOTEBEHOV)
-        assertThat(historikkOpprettetMotebehovTekst2)
-            .isEqualTo(pdlPersonResponseNL3.fullName() + HistorikkService.HAR_SVART_PAA_MOTEBEHOV)
-        assertThat(historikkLesteMotebehovTekst1)
-            .isEqualTo(HistorikkService.MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID)
-        assertThat(historikkLesteMotebehovTekst2)
-            .isEqualTo(HistorikkService.MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID)
+            val historikkForSykmeldt = historikkService.hentHistorikkListe(SM_FNR)
+            historikkForSykmeldt.size shouldBe 4
+            val historikkOpprettetMotebehovTekst1 = historikkForSykmeldt[0].tekst
+            val historikkOpprettetMotebehovTekst2 = historikkForSykmeldt[1].tekst
+            val historikkLesteMotebehovTekst1 = historikkForSykmeldt[2].tekst
+            val historikkLesteMotebehovTekst2 = historikkForSykmeldt[3].tekst
+            historikkOpprettetMotebehovTekst1 shouldBe
+                    pdlPersonResponseNL1.fullName() + HistorikkService.HAR_SVART_PAA_MOTEBEHOV
+            historikkOpprettetMotebehovTekst2 shouldBe
+                    pdlPersonResponseNL3.fullName() + HistorikkService.HAR_SVART_PAA_MOTEBEHOV
+            historikkLesteMotebehovTekst1 shouldBe HistorikkService.MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID
+            historikkLesteMotebehovTekst2 shouldBe HistorikkService.MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID
+            1 shouldBe 1
+        }
     }
 
+}) {
     companion object {
         private const val SM_FNR = "10000000001"
         private const val NL1_FNR = "20000000001"
