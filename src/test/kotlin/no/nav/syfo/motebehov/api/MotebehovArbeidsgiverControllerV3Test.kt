@@ -10,8 +10,8 @@ import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
 import no.nav.syfo.motebehov.MotebehovSvar
-import no.nav.syfo.motebehov.MotebehovSvarSubmissionOldDTO
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverWithOldSvarSubmissionDTO
+import no.nav.syfo.motebehov.NyttMotebehovSvarInputDTO
+import no.nav.syfo.motebehov.MotebehovSvarArbeidsgiverInputDTO
 import no.nav.syfo.motebehov.api.internad.v3.MotebehovVeilederADControllerV3
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
@@ -470,7 +470,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(),
         )
 
-        val motebehovSvar = MotebehovSvar(harMotebehov = true, forklaring = "", dynamicFormSubmission = emptyList())
+        val motebehovSvar = MotebehovSvar(harMotebehov = true, forklaring = "", formFillout = emptyList())
         val motebehovOldSubmissionDTO = motebehovGenerator.lagNyttMotebehovArbeidsgiverOldSvarSubmissionDTO(
             motebehovSvar
         )
@@ -486,7 +486,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(),
         )
 
-        val motebehovSvar = MotebehovSvar(harMotebehov = true, forklaring = "", dynamicFormSubmission = emptyList())
+        val motebehovSvar = MotebehovSvar(harMotebehov = true, forklaring = "", formFillout = emptyList())
         val motebehovOldSubmissionDTO = motebehovGenerator.lagNyttMotebehovArbeidsgiverOldSvarSubmissionDTO(
             motebehovSvar
         )
@@ -504,7 +504,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             ),
         )
 
-        val motebehovSvar = MotebehovSvar(harMotebehov = true, forklaring = "", dynamicFormSubmission = emptyList())
+        val motebehovSvar = MotebehovSvar(harMotebehov = true, forklaring = "", formFillout = emptyList())
         val motebehovOldSubmissionDTO = motebehovGenerator.lagNyttMotebehovArbeidsgiverOldSvarSubmissionDTO(
             motebehovSvar
         ).copy(
@@ -544,7 +544,7 @@ class MotebehovArbeidsgiverControllerV3Test {
     }
 
     // TODO: Rewrite this to use new V4 controller
-    private fun lagreMotebehovUsingOldV3Controller(innsendtMotebehov: NyttMotebehovArbeidsgiverWithOldSvarSubmissionDTO) {
+    private fun lagreMotebehovUsingOldV3Controller(innsendtMotebehov: MotebehovSvarArbeidsgiverInputDTO) {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceServerAzureAD,
@@ -564,7 +564,7 @@ class MotebehovArbeidsgiverControllerV3Test {
         }
     }
 
-    private fun verifyMotebehovStatus(innsendtMotebehovSvar: MotebehovSvarSubmissionOldDTO) {
+    private fun verifyMotebehovStatus(innsendtMotebehovSvar: NyttMotebehovSvarInputDTO) {
         val motebehovStatus: MotebehovStatus = motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(
             ARBEIDSTAKER_FNR,
             VIRKSOMHETSNUMMER,

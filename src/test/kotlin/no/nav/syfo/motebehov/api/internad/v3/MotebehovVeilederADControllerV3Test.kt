@@ -7,8 +7,8 @@ import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
-import no.nav.syfo.motebehov.MotebehovSvarSubmissionOldDTO
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverWithOldSvarSubmissionDTO
+import no.nav.syfo.motebehov.NyttMotebehovSvarInputDTO
+import no.nav.syfo.motebehov.MotebehovSvarArbeidsgiverInputDTO
 import no.nav.syfo.motebehov.api.MotebehovArbeidsgiverControllerV3
 import no.nav.syfo.motebehov.api.MotebehovArbeidstakerControllerV3
 import no.nav.syfo.motebehov.api.dbCreateOppfolgingstilfelle
@@ -284,12 +284,12 @@ class MotebehovVeilederADControllerV3Test {
         assertThrows<RuntimeException> { loggInnOgKallBehandleMotebehov(ARBEIDSTAKER_FNR, VEILEDER_2_ID) }
     }
 
-    private fun arbeidsgiverLoggerInnOgLagrerMotebehov(): NyttMotebehovArbeidsgiverWithOldSvarSubmissionDTO {
-        val motebehovSvar = MotebehovSvarSubmissionOldDTO(
+    private fun arbeidsgiverLoggerInnOgLagrerMotebehov(): MotebehovSvarArbeidsgiverInputDTO {
+        val motebehovSvar = NyttMotebehovSvarInputDTO(
             harMotebehov = true,
             forklaring = "",
         )
-        val nyttMotebehov = NyttMotebehovArbeidsgiverWithOldSvarSubmissionDTO(
+        val nyttMotebehov = MotebehovSvarArbeidsgiverInputDTO(
             arbeidstakerFnr = ARBEIDSTAKER_FNR,
             virksomhetsnummer = VIRKSOMHETSNUMMER,
             motebehovSvar = motebehovSvar,
@@ -301,8 +301,8 @@ class MotebehovVeilederADControllerV3Test {
 
     private fun sykmeldtLoggerInnOgLagrerMotebehov(
         harBehov: Boolean,
-    ): MotebehovSvarSubmissionOldDTO {
-        val motebehovSvar = MotebehovSvarSubmissionOldDTO(
+    ): NyttMotebehovSvarInputDTO {
+        val motebehovSvar = NyttMotebehovSvarInputDTO(
             harMotebehov = harBehov,
             forklaring = "",
         )

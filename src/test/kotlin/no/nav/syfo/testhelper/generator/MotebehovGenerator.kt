@@ -2,6 +2,7 @@ package no.nav.syfo.testhelper.generator
 
 import no.nav.syfo.motebehov.*
 import no.nav.syfo.motebehov.database.PMotebehov
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
@@ -17,8 +18,16 @@ class MotebehovGenerator {
     private val motebehovSvar = MotebehovSvar(
         harMotebehov = true,
         forklaring = "",
-        dynamicFormSubmission = emptyList(),
+        formFillout = emptyList(),
+        skjemaType = MotebehovSkjemaType.SVAR_BEHOV
     )
+
+    private val nyttMotebehovSvar = TemporaryCombinedNyttMotebehovSvar(
+        harMotebehov = true,
+        forklaring = "",
+        formFillout = emptyList(),
+    )
+
     private val motebehov = Motebehov(
         id = UUID.randomUUID(),
         arbeidstakerFnr = ARBEIDSTAKER_FNR,
@@ -39,10 +48,10 @@ class MotebehovGenerator {
         tildeltEnhet = NAV_ENHET,
     )
 
-    private val nyttMotebehovArbeidsgiver = NyttMotebehovArbeidsgiver(
+    private val nyttMotebehovArbeidsgiverDTO = MotebehovSvarArbeidsgiverDTO(
         arbeidstakerFnr = ARBEIDSTAKER_FNR,
         virksomhetsnummer = VIRKSOMHETSNUMMER,
-        motebehovSvar = motebehovSvar,
+        motebehovSvar = nyttMotebehovSvar,
         tildeltEnhet = NAV_ENHET,
     )
 
@@ -52,32 +61,32 @@ class MotebehovGenerator {
         )
     }
 
-    fun lagMotebehovSvarOldSubmissionDTO(harBehov: Boolean): MotebehovSvarSubmissionOldDTO {
-        return MotebehovSvarSubmissionOldDTO(
+    fun lagMotebehovSvarOldSubmissionDTO(harBehov: Boolean): NyttMotebehovSvarInputDTO {
+        return NyttMotebehovSvarInputDTO(
             harMotebehov = harBehov,
             forklaring = "",
         )
     }
 
-    fun lagMotebehovSvarFromOldSubmissionDTO(motebehovSvarSubmissionOldDTO: MotebehovSvarSubmissionOldDTO): MotebehovSvar {
+    fun lagMotebehovSvarFromOldSubmissionDTO(nyttMotebehovSvarInputDTO: NyttMotebehovSvarInputDTO): MotebehovSvar {
         return MotebehovSvar(
-            harMotebehov = motebehovSvarSubmissionOldDTO.harMotebehov,
-            forklaring = motebehovSvarSubmissionOldDTO.forklaring,
-            dynamicFormSubmission = emptyList(),
+            harMotebehov = nyttMotebehovSvarInputDTO.harMotebehov,
+            forklaring = nyttMotebehovSvarInputDTO.forklaring,
+            formFillout = emptyList(),
         )
     }
 
-    fun lagNyttMotebehovArbeidsgiver(): NyttMotebehovArbeidsgiver {
-        return nyttMotebehovArbeidsgiver.copy()
+    fun lagNyttMotebehovArbeidsgiver(): MotebehovSvarArbeidsgiverDTO {
+        return nyttMotebehovArbeidsgiverDTO.copy()
     }
 
-    fun lagNyttMotebehovArbeidsgiverOldSvarSubmissionDTO(motebehovSvar: MotebehovSvar? = null): NyttMotebehovArbeidsgiverWithOldSvarSubmissionDTO {
+    fun lagNyttMotebehovArbeidsgiverOldSvarSubmissionDTO(motebehovSvar: MotebehovSvar? = null): MotebehovSvarArbeidsgiverInputDTO {
         val nyttMotebehovAG = lagNyttMotebehovArbeidsgiver()
 
-        return NyttMotebehovArbeidsgiverWithOldSvarSubmissionDTO(
+        return MotebehovSvarArbeidsgiverInputDTO(
             arbeidstakerFnr = nyttMotebehovAG.arbeidstakerFnr,
             virksomhetsnummer = nyttMotebehovAG.virksomhetsnummer,
-            motebehovSvar = MotebehovSvarSubmissionOldDTO(
+            motebehovSvar = NyttMotebehovSvarInputDTO(
                 harMotebehov = motebehovSvar?.harMotebehov ?: nyttMotebehovAG.motebehovSvar.harMotebehov,
                 forklaring = motebehovSvar?.forklaring ?: nyttMotebehovAG.motebehovSvar.forklaring,
             ),
@@ -92,7 +101,7 @@ class MotebehovGenerator {
         virksomhetsnummer = VIRKSOMHETSNUMMER,
         forklaring = "Megling",
         harMotebehov = true,
-        dynamicFormSubmission = emptyList(),
+        formFillout = emptyList(),
         tildeltEnhet = NAV_ENHET,
         sykmeldtFnr = ARBEIDSTAKER_FNR,
     )

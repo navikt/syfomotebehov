@@ -1,31 +1,29 @@
 package no.nav.syfo.motebehov
 
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import java.io.Serializable
 
 data class MotebehovSvar(
     val harMotebehov: Boolean,
-    // TODO: Delete forklaring here after other apps are updated to use new endpoints.
+    // This forklaring field is to be phased in favor of formFillout, and eventually removed. Details in plan.
     val forklaring: String? = null,
-    /** Each field in the submitted form is represented here with a unique fieldID. The order, number of
-     * fields, field types, and  so on, should be easy to change in frontend app, so this app shouldn't put any
-     * constraints on the contents. The fieldIDs should probably only be used for data collection purposes. */
-    val dynamicFormSubmission: List<MotebehovFormSubmissionField>,
+    val formFillout: List<FilloutField>,
+    val skjemaType: MotebehovSkjemaType?,
 ) : Serializable
 
-data class MotebehovSvarSubmissionOldDTO(
+// Existing input DTO to phase out. MotebehovSvarFormFilloutInputDTO will take over.
+data class NyttMotebehovSvarInputDTO(
     val harMotebehov: Boolean,
     val forklaring: String? = null,
-)
+) : Serializable
 
-data class MotebehovDynamicFormSubmissionDTO(
+data class NyttMotebehovSvarFormFilloutInputDTO(
     val harMotebehov: Boolean,
-    val dynamicFormSubmission: List<MotebehovFormSubmissionField>,
-)
+    val formFillout: List<FilloutField>,
+) : Serializable
 
-data class MotebehovFormSubmissionField(
-    val fieldID: String,
-    // TODOs
-    val fieldValue: String,
-    val fieldLabel: String,
-    val fieldType: String,
+data class TemporaryCombinedNyttMotebehovSvar(
+    val harMotebehov: Boolean,
+    val forklaring: String? = null,
+    val formFillout: List<FilloutField>,
 )

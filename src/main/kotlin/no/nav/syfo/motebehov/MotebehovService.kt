@@ -17,6 +17,7 @@ import java.util.*
 import java.util.stream.Collectors
 import javax.inject.Inject
 
+
 @Service
 class MotebehovService @Inject constructor(
     private val metric: Metric,
@@ -152,7 +153,7 @@ class MotebehovService @Inject constructor(
             virksomhetsnummer = virksomhetsnummer,
             harMotebehov = motebehovSvar.harMotebehov,
             forklaring = motebehovSvar.forklaring,
-            dynamicFormSubmission = motebehovSvar.dynamicFormSubmission,
+            formFillout = motebehovSvar.formFillout,
             tildeltEnhet = tildeltEnhet,
             behandletVeilederIdent = null,
             behandletTidspunkt = null,
@@ -171,11 +172,7 @@ class MotebehovService @Inject constructor(
             opprettetAvFnr = pMotebehov.opprettetAvFnr!!,
             arbeidstakerFnr = arbeidstakerFnr,
             virksomhetsnummer = pMotebehov.virksomhetsnummer,
-            motebehovSvar = MotebehovSvar(
-                harMotebehov = pMotebehov.harMotebehov,
-                forklaring = pMotebehov.forklaring,
-                dynamicFormSubmission = pMotebehov.dynamicFormSubmission,
-            ),
+            motebehovSvar = createMotebehovSvarFromPMotebehov(pMotebehov),
             tildeltEnhet = pMotebehov.tildeltEnhet,
             behandletTidspunkt = pMotebehov.behandletTidspunkt,
             behandletVeilederIdent = pMotebehov.behandletVeilederIdent,
@@ -192,17 +189,28 @@ class MotebehovService @Inject constructor(
             opprettetAvFnr = pMotebehov.opprettetAvFnr!!,
             arbeidstakerFnr = pMotebehov.sykmeldtFnr!!,
             virksomhetsnummer = pMotebehov.virksomhetsnummer,
-            motebehovSvar = MotebehovSvar(
-                harMotebehov = pMotebehov.harMotebehov,
-                forklaring = pMotebehov.forklaring,
-                dynamicFormSubmission = pMotebehov.dynamicFormSubmission,
-            ),
+            motebehovSvar = createMotebehovSvarFromPMotebehov(pMotebehov),
             tildeltEnhet = pMotebehov.tildeltEnhet,
             behandletTidspunkt = pMotebehov.behandletTidspunkt,
             behandletVeilederIdent = pMotebehov.behandletVeilederIdent,
             skjemaType = pMotebehov.skjemaType,
         )
     }
+
+    /**
+     * Old entities will not have dynamic form submission. In that case we create it from harMotebehov and forklaring.
+     */
+    private fun createMotebehovSvarFromPMotebehov(pMotebehov: PMotebehov) = MotebehovSvar(
+        harMotebehov = pMotebehov.harMotebehov,
+        forklaring = pMotebehov.forklaring,
+        formFillout = pMotebehov.formFillout ?: convertLegacyDbFieldsToFormFilloutMatchingLegacyForm(
+            pMotebehov.harMotebehov,
+            pMotebehov.forklaring,
+            pMotebehov.skjemaType,
+        ),
+        skjemaType = pMotebehov.skjemaType,
+    )
+
 
     companion object {
         private val log = LoggerFactory.getLogger(MotebehovService::class.java)

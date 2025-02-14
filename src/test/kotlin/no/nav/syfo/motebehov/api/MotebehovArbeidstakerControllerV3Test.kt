@@ -8,7 +8,7 @@ import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
-import no.nav.syfo.motebehov.MotebehovSvarSubmissionOldDTO
+import no.nav.syfo.motebehov.NyttMotebehovSvarInputDTO
 import no.nav.syfo.motebehov.api.internad.v3.MotebehovVeilederADControllerV3
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
@@ -507,8 +507,7 @@ class MotebehovArbeidstakerControllerV3Test {
         verify(exactly = 2) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
     }
 
-    // TODO: Rewrite this to use new V4 controller
-    private fun submitMotebehovUsingOldV3ControllerAndSendOversikthendelse(motebehovSvar: MotebehovSvarSubmissionOldDTO) {
+    private fun submitMotebehovUsingOldV3ControllerAndSendOversikthendelse(motebehovSvar: NyttMotebehovSvarInputDTO) {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceServerAzureAD,

@@ -24,11 +24,18 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
         innloggetFnr: String,
         arbeidstakerFnr: String,
         isOwnLeader: Boolean,
-        nyttMotebehov: NyttMotebehovArbeidsgiver,
+        nyttMotebehov: MotebehovSvarArbeidsgiverDTO,
     ) {
         val activeOppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, nyttMotebehov.virksomhetsnummer)
         if (activeOppfolgingstilfelle != null) {
             val motebehovStatus = motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(arbeidstakerFnr, isOwnLeader, nyttMotebehov.virksomhetsnummer)
+
+            var motebehovSvar = MotebehovSvar(
+                harMotebehov = nyttMotebehov.motebehovSvar.harMotebehov,
+                forklaring = nyttMotebehov.motebehovSvar.forklaring,
+                formFillout = nyttMotebehov.motebehovSvar.formFillout,
+                skjemaType = motebehovStatus.skjemaType,
+            )
 
             if (motebehovStatus.isMotebehovAvailableForAnswer()) {
                 motebehovService.lagreMotebehov(
@@ -36,12 +43,12 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                     arbeidstakerFnr,
                     nyttMotebehov.virksomhetsnummer,
                     motebehovStatus.skjemaType!!,
-                    nyttMotebehov.motebehovSvar,
+                    motebehovSvar,
                 )
                 metric.tellBesvarMotebehov(
                     activeOppfolgingstilfelle,
                     motebehovStatus.skjemaType,
-                    nyttMotebehov.motebehovSvar,
+                    motebehovSvar,
                     false,
                 )
                 if (motebehovStatus.skjemaType == MotebehovSkjemaType.SVAR_BEHOV) {
@@ -61,7 +68,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
     }
 
     @Transactional
-    fun createMotebehovForArbeidstaker(arbeidstakerFnr: String, motebehovSvar: MotebehovSvar) {
+    fun createMotebehovForArbeidstaker(arbeidstakerFnr: String, nyttMotebehovSvar: TemporaryCombinedNyttMotebehovSvar) {
         val activeOppolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
         if (activeOppolgingstilfelle != null) {
             val motebehovStatus = motebehovStatusServiceV2.motebehovStatusForArbeidstaker(arbeidstakerFnr)
@@ -73,6 +80,13 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
             } else {
                 emptyList()
             }
+
+            val motebehovSvar = MotebehovSvar(
+                harMotebehov = nyttMotebehovSvar.harMotebehov,
+                forklaring = nyttMotebehovSvar.forklaring,
+                formFillout = nyttMotebehovSvar.formFillout,
+                skjemaType = motebehovStatus.skjemaType,
+            )
 
             if (virksomhetsnummerList.isNotEmpty()) {
                 for (virksomhetsnummer in virksomhetsnummerList) {
