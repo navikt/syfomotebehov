@@ -53,5 +53,9 @@ class TokenValidationUtil() {
         contextHolder.tokenValidationContext = TokenValidationContext(
             mutableMapOf(issuer to JwtToken(signedJwtToken.serialize()))
         )
+        mockOAuthServer.shutdown()
+    }
+    fun resetAll() {
+        mockOAuthServer.shutdown()
     }
 }

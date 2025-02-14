@@ -1,9 +1,12 @@
 package no.nav.syfo.motebehov.database
 
 import io.kotest.extensions.spring.SpringExtension
+import io.kotest.matchers.shouldBe
 import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
+import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
+import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.springframework.beans.factory.annotation.Autowired
@@ -11,11 +14,9 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.jdbc.core.JdbcTemplate
 import java.time.temporal.ChronoUnit
-import io.kotest.matchers.shouldBe
-import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
-import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 
 //@Testcontainers
+//@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
 class MotebehovDAOTest : IntegrationTest() {
@@ -27,23 +28,6 @@ class MotebehovDAOTest : IntegrationTest() {
     private lateinit var motebehovDAO: MotebehovDAO
 
     private val motebehovGenerator = MotebehovGenerator()
-
-    /*companion object {
-        @Container
-        val postgresContainer = PostgreSQLContainer<Nothing>("postgres:latest").apply {
-            withDatabaseName("testdb")
-            withUsername("test")
-            withPassword("test")
-        }
-
-        @BeforeAll
-        @JvmStatic
-        fun setup() {
-            System.setProperty("spring.datasource.url", postgresContainer.jdbcUrl)
-            System.setProperty("spring.datasource.username", postgresContainer.username)
-            System.setProperty("spring.datasource.password", postgresContainer.password)
-        }
-    }*/
 
 
     init {

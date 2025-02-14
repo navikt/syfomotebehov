@@ -18,6 +18,7 @@ import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
@@ -27,6 +28,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 //@ExtendWith(SpringExtension::class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext

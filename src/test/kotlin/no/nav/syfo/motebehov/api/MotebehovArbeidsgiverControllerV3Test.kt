@@ -41,6 +41,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -55,6 +56,7 @@ import java.util.*
 import java.util.function.Consumer
 
 //@ExtendWith(SpringExtension::class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
 //@DirtiesContext

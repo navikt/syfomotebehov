@@ -39,6 +39,7 @@ import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import no.nav.syfo.testhelper.mockSvarFraIstilgangskontrollTilgangTilBruker
 import no.nav.syfo.util.TokenValidationUtil
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -52,6 +53,7 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.util.function.Consumer
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
 //@DirtiesContext
