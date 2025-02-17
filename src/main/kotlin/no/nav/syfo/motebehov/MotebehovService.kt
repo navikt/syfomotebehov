@@ -17,13 +17,13 @@ import java.util.*
 import java.util.stream.Collectors
 import javax.inject.Inject
 
-
 @Service
 class MotebehovService @Inject constructor(
     private val metric: Metric,
     private val behandlendeEnhetConsumer: BehandlendeEnhetConsumer,
     private val personoppgavehendelseService: PersonoppgavehendelseService,
     private val motebehovDAO: MotebehovDAO,
+    private val convertLegacyMotebehovSvarFieldsHelper: ConvertLegacyMotebehovSvarFieldsHelper,
     private val pdlConsumer: PdlConsumer,
 ) {
     @Transactional
@@ -69,7 +69,7 @@ class MotebehovService @Inject constructor(
         val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
         return motebehovDAO.hentMotebehovListeForAktoer(arbeidstakerAktoerId)
             .stream()
-            .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
+            .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov, null) }
             .collect(Collectors.toList())
     }
 
@@ -86,7 +86,13 @@ class MotebehovService @Inject constructor(
         val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
         return motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktoerId)
             .stream()
-            .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
+            .map { dbMotebehov: PMotebehov ->
+                mapPMotebehovToMotebehov(
+                    arbeidstakerFnr,
+                    dbMotebehov,
+                    MotebehovCreatorRole.ARBEIDSTAKER
+                )
+            }
             .collect(Collectors.toList())
     }
 
@@ -102,7 +108,13 @@ class MotebehovService @Inject constructor(
             virksomhetsnummer,
         )
             .stream()
-            .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
+            .map { dbMotebehov: PMotebehov ->
+                mapPMotebehovToMotebehov(
+                    arbeidstakerFnr,
+                    dbMotebehov,
+                    MotebehovCreatorRole.ARBEIDSGIVER
+                )
+            }
             .collect(Collectors.toList())
     }
 
@@ -153,7 +165,6 @@ class MotebehovService @Inject constructor(
             virksomhetsnummer = virksomhetsnummer,
             harMotebehov = motebehovSvar.harMotebehov,
             forklaring = motebehovSvar.forklaring,
-            formFillout = motebehovSvar.formFillout,
             tildeltEnhet = tildeltEnhet,
             behandletVeilederIdent = null,
             behandletTidspunkt = null,
@@ -163,7 +174,12 @@ class MotebehovService @Inject constructor(
         )
     }
 
-    private fun mapPMotebehovToMotebehov(arbeidstakerFnr: String, pMotebehov: PMotebehov): Motebehov {
+    private fun mapPMotebehovToMotebehov(
+        arbeidstakerFnr: String,
+        pMotebehov: PMotebehov,
+        knownMotebehovCreatorRole: MotebehovCreatorRole?
+    ): Motebehov {
+
         return Motebehov(
             id = pMotebehov.uuid,
             opprettetDato = pMotebehov.opprettetDato,
@@ -172,7 +188,7 @@ class MotebehovService @Inject constructor(
             opprettetAvFnr = pMotebehov.opprettetAvFnr!!,
             arbeidstakerFnr = arbeidstakerFnr,
             virksomhetsnummer = pMotebehov.virksomhetsnummer,
-            motebehovSvar = createMotebehovSvarFromPMotebehov(pMotebehov),
+            motebehovSvar = createMotebehovSvarFromPMotebehov(pMotebehov, knownMotebehovCreatorRole),
             tildeltEnhet = pMotebehov.tildeltEnhet,
             behandletTidspunkt = pMotebehov.behandletTidspunkt,
             behandletVeilederIdent = pMotebehov.behandletVeilederIdent,
@@ -180,6 +196,7 @@ class MotebehovService @Inject constructor(
         )
     }
 
+    // Not used
     private fun mapPMotebehovToMotebehov(pMotebehov: PMotebehov): Motebehov {
         return Motebehov(
             id = pMotebehov.uuid,
@@ -189,7 +206,7 @@ class MotebehovService @Inject constructor(
             opprettetAvFnr = pMotebehov.opprettetAvFnr!!,
             arbeidstakerFnr = pMotebehov.sykmeldtFnr!!,
             virksomhetsnummer = pMotebehov.virksomhetsnummer,
-            motebehovSvar = createMotebehovSvarFromPMotebehov(pMotebehov),
+            motebehovSvar = createMotebehovSvarFromPMotebehov(pMotebehov, null),
             tildeltEnhet = pMotebehov.tildeltEnhet,
             behandletTidspunkt = pMotebehov.behandletTidspunkt,
             behandletVeilederIdent = pMotebehov.behandletVeilederIdent,
@@ -198,18 +215,29 @@ class MotebehovService @Inject constructor(
     }
 
     /**
-     * Old entities will not have dynamic form submission. In that case we create it from harMotebehov and forklaring.
+     * Legacy db entities will not have formFillout. In that case we create it from harMotebehov and forklaring.
      */
-    private fun createMotebehovSvarFromPMotebehov(pMotebehov: PMotebehov) = MotebehovSvar(
-        harMotebehov = pMotebehov.harMotebehov,
-        forklaring = pMotebehov.forklaring,
-        formFillout = pMotebehov.formFillout ?: convertLegacyDbFieldsToFormFilloutMatchingLegacyForm(
-            pMotebehov.harMotebehov,
-            pMotebehov.forklaring,
-            pMotebehov.skjemaType,
-        ),
-        skjemaType = pMotebehov.skjemaType,
-    )
+    private fun createMotebehovSvarFromPMotebehov(
+        pMotebehov: PMotebehov,
+        knownCreatorRole: MotebehovCreatorRole?
+    ): MotebehovSvar {
+        val motebehovCreatorRole = knownCreatorRole
+            ?: if (pMotebehov.opprettetAv == pMotebehov.aktoerId || pMotebehov.opprettetAvFnr == pMotebehov.sykmeldtFnr)
+                MotebehovCreatorRole.ARBEIDSTAKER
+            else MotebehovCreatorRole.ARBEIDSGIVER
+
+        return MotebehovSvar(
+            harMotebehov = pMotebehov.harMotebehov,
+            forklaring = pMotebehov.forklaring,
+            formFillout = convertLegacyMotebehovSvarFieldsHelper.convertLegacyMotebehovSvarToFormFillout(
+                pMotebehov.harMotebehov,
+                pMotebehov.forklaring,
+                pMotebehov.skjemaType,
+                motebehovCreatorRole,
+            ),
+            skjemaType = pMotebehov.skjemaType,
+        )
+    }
 
 
     companion object {

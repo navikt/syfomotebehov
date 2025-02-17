@@ -1,5 +1,6 @@
 package no.nav.syfo.motebehov
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
@@ -37,23 +38,35 @@ import javax.validation.constraints.NotNull
  * - RADIO_OPTIONS: A radio buttons field where the user could select one of multiple options.
  */
 data class FormFillout(
-    /** An id identifying which form this is fillout is for. */
+    /** An identifier or name identifying which form this is fillout is for. */
     val formIdentifier: String,
-    /** This version tag can be used to signify which version of a form a form fillout is for.
-     * If the form is changed in a significant way that the consumer of this formFillout should know about,
-     * the formVersionTag might be updated. */
-    val formVersionTag: String,
+    /** This version tag can be used to signify which version of a form a form fillout is for, and how much is
+     *  changed between two versions. If a label text is changed, it might be denoted with a patch version bump. If the
+     *  ordering of the fields are changed, or the set of options for a radioGroup field is changed, it might count as a
+     *  minor version bump. If the set of fieldIds for a form is changed, which can happen if new fields are added or
+     *  existing fields are removed, or if an existing fieldId is changed, it might count as a major version bump. */
+    val semanticVersion: String,
     @field:NotEmpty
-    val filloutFields: List<FilloutField>,
-) : Serializable
+    val filloutFieldsList: List<FilloutField>,
+) : Serializable {
+    @get:JsonProperty
+    val fieldValues: Map<String, Any>
+        get() = filloutFieldsList.associate { filloutField ->
+            filloutField.fieldID to when (filloutField) {
+                is FilloutTextField -> filloutField.textValue
+                is FilloutCheckboxField -> filloutField.isChecked
+                is FilloutRadioGroupField -> filloutField.selectedOptionId
+                else -> throw IllegalArgumentException("Unknown field type: ${filloutField.fieldType}")
+            }
+        }
+}
 
 abstract class FilloutField(
     @field:NotEmpty
     open val fieldID: String,
     @field:NotEmpty
     open val fieldLabel: String,
-    open val fieldType: FormFilloutFieldType,
-    // val conditionalOptionalExplanation: String? = null
+    open val fieldType: FormFilloutFieldType
 ) : Serializable
 
 data class FilloutTextField(
@@ -83,18 +96,6 @@ data class FilloutRadioGroupField(
     val isOptional: Boolean? = false,
 ) : FilloutField(fieldID, fieldLabel, FormFilloutFieldType.RADIO_OPTIONS)
 
-data class FilloutSelectField(
-    override val fieldID: String,
-    override val fieldLabel: String,
-    @field:NotEmpty
-    val selectedOptionId: String,
-    @field:NotEmpty
-    val selectedOptionLabel: String,
-    @field:NotEmpty
-    val options: List<FormFilloutFieldOption>,
-    val isOptional: Boolean? = false,
-) : FilloutField(fieldID, fieldLabel, FormFilloutFieldType.SELECT_OPTIONS)
-
 data class FormFilloutFieldOption(
     @field:NotEmpty
     val optionId: String,
@@ -106,6 +107,5 @@ data class FormFilloutFieldOption(
 enum class FormFilloutFieldType(val type: String) {
     TEXT("text"),
     CHECKBOX("checkbox"),
-    RADIO_OPTIONS("radioOptions"),
-    SELECT_OPTIONS("selectOptions")
+    RADIO_OPTIONS("radioOptions")
 }

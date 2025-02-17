@@ -58,7 +58,7 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun lagreMotebehovArbeidsgiver(
-        @RequestBody nyttMotebehovDTO: @Valid MotebehovSvarArbeidsgiverInputDTO,
+        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverInputDTO,
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
         val innloggetFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)
@@ -69,13 +69,13 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
         val isOwnLeader = arbeidsgiverFnr == ansattFnr
 
-        val nyttMotebehovArbeidsgiverDTO = MotebehovSvarArbeidsgiverDTO(
+        val nyttMotebehovArbeidsgiverDTO = NyttMotebehovArbeidsgiverDTO(
             arbeidstakerFnr = nyttMotebehovDTO.arbeidstakerFnr,
             virksomhetsnummer = nyttMotebehovDTO.virksomhetsnummer,
-            motebehovSvar = TemporaryCombinedNyttMotebehovSvar(
-                harMotebehov = nyttMotebehovDTO.motebehovSvar.harMotebehov,
-                forklaring = nyttMotebehovDTO.motebehovSvar.forklaring,
-                formFillout = emptyList(),
+            motebehovSvarInputDTO = TemporaryCombinedNyttMotebehovSvar(
+                harMotebehov = nyttMotebehovDTO.motebehovSvarInput.harMotebehov,
+                forklaring = nyttMotebehovDTO.motebehovSvarInput.forklaring,
+                formFillout = null,
             ),
         )
 
@@ -93,7 +93,7 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun lagreMotebehovArbeidsgiver(
-        @RequestBody nyttMotebehovDTO: @Valid MotebehovSvarArbeidsgiverFormFilloutInputDTO,
+        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverFormFilloutInputDTO,
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
         val innloggetFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)
@@ -104,13 +104,13 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
         val isOwnLeader = arbeidsgiverFnr == ansattFnr
 
-        val nyttMotebehovArbeidsgiverDTO = MotebehovSvarArbeidsgiverDTO(
+        val nyttMotebehovArbeidsgiverDTO = NyttMotebehovArbeidsgiverDTO(
             arbeidstakerFnr = nyttMotebehovDTO.arbeidstakerFnr,
             virksomhetsnummer = nyttMotebehovDTO.virksomhetsnummer,
-            motebehovSvar = TemporaryCombinedNyttMotebehovSvar(
-                harMotebehov = nyttMotebehovDTO.motebehovSvar.harMotebehov,
+            motebehovSvarInputDTO = TemporaryCombinedNyttMotebehovSvar(
+                harMotebehov = nyttMotebehovDTO.motebehovSvarInputDTO.harMotebehov,
                 forklaring = null,
-                formFillout = nyttMotebehovDTO.motebehovSvar.formFillout,
+                formFillout = nyttMotebehovDTO.motebehovSvarInputDTO.formFillout,
             ),
         )
 

@@ -7,8 +7,8 @@ import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
-import no.nav.syfo.motebehov.NyttMotebehovSvarInputDTO
-import no.nav.syfo.motebehov.MotebehovSvarArbeidsgiverInputDTO
+import no.nav.syfo.motebehov.MotebehovSvarInputDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverInputDTO
 import no.nav.syfo.motebehov.api.MotebehovArbeidsgiverControllerV3
 import no.nav.syfo.motebehov.api.MotebehovArbeidstakerControllerV3
 import no.nav.syfo.motebehov.api.dbCreateOppfolgingstilfelle
@@ -148,7 +148,7 @@ class MotebehovVeilederADControllerV3Test {
     fun `arbeidsgiver lagrer Motebehov og Veileder henter Motebehov`() {
         // Arbeidsgiver lagrer nytt motebehov
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
-        val nyttMotebehov = arbeidsgiverLoggerInnOgLagrerMotebehov()
+        val prosessedInputDTO = arbeidsgiverLoggerInnOgLagrerMotebehov()
 
         // Veileder henter møtebehov
         resetMockRestServers()
@@ -159,14 +159,16 @@ class MotebehovVeilederADControllerV3Test {
         assertThat(motebehov.opprettetAv).isEqualTo(LEDER_AKTORID)
         assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
         assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
-        assertThat(motebehov.motebehovSvar).usingRecursiveComparison().isEqualTo(nyttMotebehov.motebehovSvar)
+
+        assertThat(motebehov.motebehovSvar.harMotebehov).isEqualTo(prosessedInputDTO.motebehovSvarInput.harMotebehov)
+        assertThat(motebehov.motebehovSvar.forklaring).isEqualTo(prosessedInputDTO.motebehovSvarInput.forklaring)
     }
 
     @Test
     fun `arbeidstaker lagrer Motebehov og Veileder henter Motebehov`() {
         // Arbeidstaker lagrer nytt motebehov
         mockBehandlendEnhet(ARBEIDSTAKER_FNR)
-        val motebehovSvar = sykmeldtLoggerInnOgLagrerMotebehov(true)
+        val prosessedMotebehovSvarInput = sykmeldtLoggerInnOgLagrerMotebehov(true)
 
         // Veileder henter møtebehov
         resetMockRestServers()
@@ -177,7 +179,8 @@ class MotebehovVeilederADControllerV3Test {
         assertThat(motebehov.opprettetAv).isEqualTo(ARBEIDSTAKER_AKTORID)
         assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
         assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
-        assertThat(motebehov.motebehovSvar).usingRecursiveComparison().isEqualTo(motebehovSvar)
+        assertThat(motebehov.motebehovSvar.harMotebehov).isEqualTo(prosessedMotebehovSvarInput.harMotebehov)
+        assertThat(motebehov.motebehovSvar.forklaring).isEqualTo(prosessedMotebehovSvarInput.forklaring)
     }
 
     @Test
@@ -284,30 +287,32 @@ class MotebehovVeilederADControllerV3Test {
         assertThrows<RuntimeException> { loggInnOgKallBehandleMotebehov(ARBEIDSTAKER_FNR, VEILEDER_2_ID) }
     }
 
-    private fun arbeidsgiverLoggerInnOgLagrerMotebehov(): MotebehovSvarArbeidsgiverInputDTO {
-        val motebehovSvar = NyttMotebehovSvarInputDTO(
+    private fun arbeidsgiverLoggerInnOgLagrerMotebehov(): NyttMotebehovArbeidsgiverInputDTO {
+        val motebehovSvarInputDTO = MotebehovSvarInputDTO(
             harMotebehov = true,
             forklaring = "",
         )
-        val nyttMotebehov = MotebehovSvarArbeidsgiverInputDTO(
+        val nyttMotebehovInputDTO = NyttMotebehovArbeidsgiverInputDTO(
             arbeidstakerFnr = ARBEIDSTAKER_FNR,
             virksomhetsnummer = VIRKSOMHETSNUMMER,
-            motebehovSvar = motebehovSvar,
+            motebehovSvarInputDTO,
         )
         tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
-        motebehovArbeidsgiverControllerV3.lagreMotebehovArbeidsgiver(nyttMotebehov)
-        return nyttMotebehov
+        motebehovArbeidsgiverControllerV3.lagreMotebehovArbeidsgiver(nyttMotebehovInputDTO)
+
+        return nyttMotebehovInputDTO
     }
 
     private fun sykmeldtLoggerInnOgLagrerMotebehov(
         harBehov: Boolean,
-    ): NyttMotebehovSvarInputDTO {
-        val motebehovSvar = NyttMotebehovSvarInputDTO(
+    ): MotebehovSvarInputDTO {
+        val motebehovSvar = MotebehovSvarInputDTO(
             harMotebehov = harBehov,
             forklaring = "",
         )
         tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
         motebehovArbeidstakerControllerV3.submitMotebehovArbeidstaker(motebehovSvar)
+
         return motebehovSvar
     }
 

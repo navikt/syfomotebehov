@@ -8,14 +8,23 @@ enum class MotebehovCreatorRole {
     ARBEIDSTAKER,
 }
 
-private val formFilloutFieldIds = mapOf(
+private val formIdentifierArbeidsgiverSvarBehov = "motebehov-arbeidsgiver-svar"
+private val formIdentifierArbeidsgiverMeldBehov = "motebehov-arbeidsgiver-meld"
+private val formIdentifierArbeidsgiverUnknownSvarMeldBehov = "motebehov-arbeidsgiver-unknown"
+private val formIdentifierArbeidstakerSvarBehov = "motebehov-arbeidstaker-svar"
+private val formIdentifierArbeidstakerMeldBehov = "motebehov-arbeidstaker-meld"
+private val formIdentifierArbeidstakerUnknownSvarMeldBehov = "motebehov-arbeidstaker-unknown"
+
+private val legacyFormsSemanticVersion = "0.1.0"
+
+private val motebehovFieldIds = mapOf(
     "svarHarBehovRadioGroupField" to "harBehovRadioGroupField",
     "meldOnskerMoteLegacyCheckboxField" to "onskerMoteCheckboxField",
     "onskerSykmelderDeltarCheckboxField" to "onskerSykmelderDeltarCheckboxField",
     "begrunnelseTextField" to "begrunnelseTextField",
 )
 
-private val legacyFormLabels = mapOf(
+private val motebehovLegacyLabels = mapOf(
     "svarArbeidsgiverHarBehovField" to "Har dere behov for et møte med NAV?",
     "svarArbeidstakerHarBehovField" to "Har du behov for et møte med NAV og arbeidsgiveren din?",
     "svarHarBehovRadioOptionYes" to "Ja, jeg mener det er behov for et møte",
@@ -35,14 +44,19 @@ private val formFilloutOptionIds = mapOf(
 )
 
 @Component
-class ConvertingLegacyMotebehovSvarToFormFilloutHelper {
+class ConvertLegacyMotebehovSvarFieldsHelper {
+    data class ExtractedFromLegacyForklaring(
+        val actualBegrunnelse: String,
+        val onskerSykmelderDeltar: Boolean
+    )
+
     fun createLegacyBegrunnelseTextField(
         begrunnelseTextValue: String,
         harMotebehov: Boolean
     ): FilloutTextField {
         return FilloutTextField(
-            fieldID = formFilloutFieldIds["begrunnelseTextField"] ?: "",
-            fieldLabel = legacyFormLabels["begrunnelseTextField"] ?: "",
+            fieldID = motebehovFieldIds["begrunnelseTextField"] ?: "",
+            fieldLabel = motebehovLegacyLabels["begrunnelseTextField"] ?: "",
             textValue = begrunnelseTextValue,
             isOptional = harMotebehov
         )
@@ -52,33 +66,36 @@ class ConvertingLegacyMotebehovSvarToFormFilloutHelper {
         harMotebehov: Boolean,
         motebehovCreatorRole: MotebehovCreatorRole
     ): FilloutRadioGroupField {
+        val optionIdYes = formFilloutOptionIds["svarHarBehovRadioOptionYes"]!!
+        val optionIdNo = formFilloutOptionIds["svarHarBehovRadioOptionNo"]!!
+
+        val optionLabelYes = motebehovLegacyLabels["svarHarBehovRadioOptionYes"]!!
+        val optionLabelNo = motebehovLegacyLabels["svarHarBehovRadioOptionNo"]!!
+
+        val selectedOptionId = if (harMotebehov) optionIdYes else optionIdNo
+        val selectedOptionLabel = if (harMotebehov) optionLabelYes else optionLabelNo
+
         return FilloutRadioGroupField(
-            fieldID = formFilloutFieldIds["svarHarBehovRadioGroupField"] ?: "",
+            fieldID = motebehovFieldIds["svarHarBehovRadioGroupField"]!!,
             fieldLabel = motebehovCreatorRole.let {
                 when (it) {
                     MotebehovCreatorRole.ARBEIDSGIVER ->
-                        legacyFormLabels["svarArbeidsgiverHarBehovField"] ?: ""
+                        motebehovLegacyLabels["svarArbeidsgiverHarBehovField"]!!
 
                     MotebehovCreatorRole.ARBEIDSTAKER ->
-                        legacyFormLabels["svarArbeidstakerHarBehovField"] ?: ""
+                        motebehovLegacyLabels["svarArbeidstakerHarBehovField"]!!
                 }
             },
-            selectedOptionId = if (harMotebehov)
-                formFilloutOptionIds["svarHarBehovRadioOptionYes"] ?: ""
-            else
-                formFilloutOptionIds["svarHarBehovRadioOptionNo"] ?: "",
-            selectedOptionLabel = if (harMotebehov)
-                legacyFormLabels["svarHarBehovOptionYes"] ?: ""
-            else
-                legacyFormLabels["svarHarBehovOptionNo"] ?: "",
+            selectedOptionId,
+            selectedOptionLabel,
             options = listOf(
                 FormFilloutFieldOption(
-                    optionId = formFilloutOptionIds["svarHarBehovRadioOptionYes"] ?: "",
-                    optionLabel = legacyFormLabels["svarHarBehovOptionYes"] ?: "",
+                    optionId = optionIdYes,
+                    optionLabel = optionLabelYes,
                     isSelected = harMotebehov
                 ), FormFilloutFieldOption(
-                    optionId = formFilloutOptionIds["svarHarBehovRadioOptionNo"] ?: "",
-                    optionLabel = legacyFormLabels["svarHarBehovOptionNo"] ?: "",
+                    optionId = optionIdNo,
+                    optionLabel = optionLabelNo,
                     isSelected = !harMotebehov
                 )
             )
@@ -89,14 +106,14 @@ class ConvertingLegacyMotebehovSvarToFormFilloutHelper {
         motebehovCreatorRole: MotebehovCreatorRole
     ): FilloutCheckboxField {
         return FilloutCheckboxField(
-            fieldID = formFilloutFieldIds["meldOnskerMoteLegacyCheckboxField"] ?: "",
+            fieldID = motebehovFieldIds["meldOnskerMoteLegacyCheckboxField"] ?: "",
             fieldLabel = motebehovCreatorRole.let {
                 when (it) {
                     MotebehovCreatorRole.ARBEIDSGIVER ->
-                        legacyFormLabels["meldArbeidsgiverOnskerMoteCheckbox"] ?: ""
+                        motebehovLegacyLabels["meldArbeidsgiverOnskerMoteCheckbox"] ?: ""
 
                     MotebehovCreatorRole.ARBEIDSTAKER ->
-                        legacyFormLabels["meldArbeidstakerOnskerMoteCheckbox"] ?: ""
+                        motebehovLegacyLabels["meldArbeidstakerOnskerMoteCheckbox"] ?: ""
                 }
             },
             isChecked = true,
@@ -108,25 +125,23 @@ class ConvertingLegacyMotebehovSvarToFormFilloutHelper {
         motebehovCreatorRole: MotebehovCreatorRole,
     ): FilloutCheckboxField {
         return FilloutCheckboxField(
-            fieldID = formFilloutFieldIds["onskerSykmelderDeltarCheckboxField"] ?: "",
+            fieldID = motebehovFieldIds["onskerSykmelderDeltarCheckboxField"] ?: "",
             fieldLabel = motebehovCreatorRole.let {
                 when (it) {
                     MotebehovCreatorRole.ARBEIDSGIVER ->
-                        legacyFormLabels["meldArbeidsgiverOnskerSykmelderDeltarCheckbox"] ?: ""
+                        motebehovLegacyLabels["meldArbeidsgiverOnskerSykmelderDeltarCheckbox"] ?: ""
 
                     MotebehovCreatorRole.ARBEIDSTAKER ->
-                        legacyFormLabels["meldArbeidstakerOnskerSykmelderDeltarCheckbox"] ?: ""
+                        motebehovLegacyLabels["meldArbeidstakerOnskerSykmelderDeltarCheckbox"] ?: ""
                 }
             },
             isChecked = onskerSykmelderDeltar,
         )
     }
 
-    data class ExtractedFromLegacyForklaring(
-        val actualBegrunnelse: String,
-        val onskerSykmelderDeltar: Boolean
-    )
-
+    // When a user checked the checkbox for onskerSykmelderDeltar in the legacy form, the text in the forklaring field
+    // submitted from the frontend would contain the label text for that checkbox concatenated with the text value of
+    // the begrunnelse text field.
     fun extractActualUserBegrunnelseAndOnskerSykmelderDeltarFromLegacyForklaring(
         legacyForklaring: String?
     ): ExtractedFromLegacyForklaring {
@@ -149,6 +164,9 @@ class ConvertingLegacyMotebehovSvarToFormFilloutHelper {
         actualBegrunnelse = actualBegrunnelse.replace(
             "Jeg ønsker at den som sykmelder meg, også skal delta i møtet (valgfri).", ""
         )
+
+        // When the user didn't write anything in the begrunnelse text field, "undefined" would be appended to the
+        // forklaring value, at least in some cases. We remove it here.
         actualBegrunnelse = actualBegrunnelse.replace("undefined", "")
 
         actualBegrunnelse = actualBegrunnelse.trim()
@@ -158,49 +176,37 @@ class ConvertingLegacyMotebehovSvarToFormFilloutHelper {
 
     /**
      * Converts a "legacy motebehovSvar" with fields harMotebehov and forklaring to a FormFillout.
-     * The returned FormFillout matches what the forms looks like in production at the time of writing, which is before
+     * The returned FormFillout matches what the forms look like in production at the time of writing, which is before
      * an update to the frontend that will make the forms contain more fields, and that will make the frontend submit
      * a FormFillout instead of individual hard-coded field values.
      */
     fun convertLegacyMotebehovSvarToFormFillout(
         harMotebehov: Boolean,
-        begrunnelse: String?,
+        forklaring: String?,
         skjemaType: MotebehovSkjemaType?,
         motebehovCreatorRole: MotebehovCreatorRole
     ): FormFillout {
         val formFilloutFields = mutableListOf<FilloutField>()
 
-        skjemaType.let {
-            when (it) {
-                MotebehovSkjemaType.SVAR_BEHOV -> {
-                    formFilloutFields.add(
-                        createLegacySvarBehovRadioGroupField(
-                            harMotebehov,
-                            motebehovCreatorRole
-                        )
-                    )
-                }
-
-                MotebehovSkjemaType.MELD_BEHOV -> {
-                    formFilloutFields.add(
-                        createLegacyMeldOnskerMoteCheckboxField(
-                            motebehovCreatorRole
-                        )
-                    )
-                }
-
-                else -> {
-                    // Don't add anything. Should not happen. If it does, it's not a big deal, as this part is only
-                    // to make the formFillout replicate the "top" of the legacy forms.
-                }
-            }
-
-
+        if (skjemaType == MotebehovSkjemaType.SVAR_BEHOV) {
+            formFilloutFields.add(
+                createLegacySvarBehovRadioGroupField(
+                    harMotebehov,
+                    motebehovCreatorRole
+                )
+            )
+        } else if (skjemaType == MotebehovSkjemaType.MELD_BEHOV) {
+            formFilloutFields.add(
+                createLegacyMeldOnskerMoteCheckboxField(
+                    motebehovCreatorRole
+                )
+            )
         }
 
         val (actualBegrunnelse, onskerAtSykmelderDeltar) =
-            extractActualUserBegrunnelseAndOnskerSykmelderDeltarFromLegacyForklaring(begrunnelse)
+            extractActualUserBegrunnelseAndOnskerSykmelderDeltarFromLegacyForklaring(forklaring)
 
+        // It was only the MELD_BEHOV form that had the "onskerSykmelderDeltar" checkbox.
         if (skjemaType == MotebehovSkjemaType.MELD_BEHOV || onskerAtSykmelderDeltar) {
             formFilloutFields.add(
                 createLegacyOnskerSykmelderDeltarCheckboxField(
@@ -215,20 +221,19 @@ class ConvertingLegacyMotebehovSvarToFormFilloutHelper {
         val formIdentifier = when (motebehovCreatorRole) {
             MotebehovCreatorRole.ARBEIDSGIVER ->
                 when (skjemaType) {
-                    MotebehovSkjemaType.SVAR_BEHOV -> "motebehov-arbeidsgiver-svar"
-                    MotebehovSkjemaType.MELD_BEHOV -> "motebehov-arbeidsgiver-meld"
-                    else -> "motebehov-arbeidsgiver-unknown"
+                    MotebehovSkjemaType.SVAR_BEHOV -> formIdentifierArbeidsgiverSvarBehov
+                    MotebehovSkjemaType.MELD_BEHOV -> formIdentifierArbeidsgiverMeldBehov
+                    else -> formIdentifierArbeidsgiverUnknownSvarMeldBehov
                 }
 
             MotebehovCreatorRole.ARBEIDSTAKER ->
                 when (skjemaType) {
-                    MotebehovSkjemaType.SVAR_BEHOV -> "motebehov-arbeidstaker-svar"
-                    MotebehovSkjemaType.MELD_BEHOV -> "motebehov-arbeidstaker-meld"
-                    else -> "motebehov-arbeidstaker-unknown"
+                    MotebehovSkjemaType.SVAR_BEHOV -> formIdentifierArbeidstakerSvarBehov
+                    MotebehovSkjemaType.MELD_BEHOV -> formIdentifierArbeidstakerMeldBehov
+                    else -> formIdentifierArbeidstakerUnknownSvarMeldBehov
                 }
         }
 
-        return FormFillout(formIdentifier,"legacy", formFilloutFields)
+        return FormFillout(formIdentifier, legacyFormsSemanticVersion, formFilloutFields)
     }
-
 }

@@ -57,7 +57,7 @@ class TestdataResetServiceTest {
 
     @Test
     fun skalNullstilleData() {
-        motebehovDAO.create(PMotebehov(UUID.randomUUID(), LocalDateTime.now(), "meg", ARBEIDSTAKER_AKTORID, VIRKSOMHETSNUMMER, true, formFillout = emptyList()))
+        motebehovDAO.create(PMotebehov(UUID.randomUUID(), LocalDateTime.now(), "meg", ARBEIDSTAKER_AKTORID, VIRKSOMHETSNUMMER, true))
         assertThat(motebehovDAO.hentMotebehovListeForAktoer(ARBEIDSTAKER_AKTORID).size).isEqualTo(1)
         dialogmotekandidatDAO.create(UUID.randomUUID().toString(), LocalDateTime.now(), ARBEIDSTAKER_FNR, true, DialogmotekandidatEndringArsak.STOPPUNKT.name)
         assertThat(dialogmotekandidatDAO.get(ARBEIDSTAKER_FNR)).isNotNull()

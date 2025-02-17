@@ -32,9 +32,7 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
 
     fun hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktorId: String): List<PMotebehov> {
         return Optional.ofNullable(jdbcTemplate.query(
-            "SELECT * FROM motebehov" +
-                    "WHERE aktoer_id = ? AND opprettet_av = ? AND opprettet_dato >= ?" +
-                    "ORDER BY opprettet_dato DESC",
+            "SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av = ? AND opprettet_dato >= ? ORDER BY opprettet_dato DESC",
             innsendingRowMapper,
             arbeidstakerAktorId,
             arbeidstakerAktorId,
@@ -129,7 +127,6 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
                     virksomhetsnummer = rs.getString("virksomhetsnummer"),
                     harMotebehov = rs.getBoolean("har_motebehov"),
                     forklaring = rs.getString("forklaring"),
-                    formFillout = emptyList(),
                     tildeltEnhet = rs.getString("tildelt_enhet"),
                     behandletTidspunkt = convertNullable(rs.getTimestamp("behandlet_tidspunkt")),
                     behandletVeilederIdent = rs.getString("behandlet_veileder_ident"),

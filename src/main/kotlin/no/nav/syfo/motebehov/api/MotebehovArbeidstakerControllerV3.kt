@@ -80,7 +80,7 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun submitMotebehovArbeidstaker(
-        @RequestBody nyttMotebehovSvar: @Valid NyttMotebehovSvarInputDTO,
+        @RequestBody nyttMotebehovSvar: @Valid MotebehovSvarInputDTO,
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker")
         val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
@@ -93,7 +93,7 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         val motebehovSvar = TemporaryCombinedNyttMotebehovSvar(
             harMotebehov = nyttMotebehovSvar.harMotebehov,
             forklaring = nyttMotebehovSvar.forklaring,
-            formFillout = emptyList(),
+            formFillout = null,
         )
 
         motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidstaker(
@@ -108,7 +108,7 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun submitMotebehovArbeidstaker(
-        @RequestBody nyttMotebehovSvar: @Valid NyttMotebehovSvarFormFilloutInputDTO,
+        @RequestBody nyttMotebehovSvar: @Valid MotebehovSvarFormFilloutInputDTO,
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker")
         val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(

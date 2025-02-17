@@ -3,23 +3,23 @@ package no.nav.syfo.motebehov
 import java.io.Serializable
 import javax.validation.constraints.NotEmpty
 
-data class MotebehovSvarArbeidsgiverDTO(
+data class NyttMotebehovArbeidsgiverInputDTO(
     val arbeidstakerFnr: String,
     val virksomhetsnummer: @NotEmpty String,
-    val motebehovSvar: TemporaryCombinedNyttMotebehovSvar,
+    val motebehovSvarInput: MotebehovSvarInputDTO,
     val tildeltEnhet: String? = null
 ) : Serializable
 
-data class MotebehovSvarArbeidsgiverInputDTO(
+data class NyttMotebehovArbeidsgiverFormFilloutInputDTO(
     val arbeidstakerFnr: String,
     val virksomhetsnummer: @NotEmpty String,
-    val motebehovSvar: NyttMotebehovSvarInputDTO,
+    val motebehovSvarInputDTO: MotebehovSvarFormFilloutInputDTO,
     val tildeltEnhet: String? = null
 ) : Serializable
 
-data class MotebehovSvarArbeidsgiverFormFilloutInputDTO(
+data class NyttMotebehovArbeidsgiverDTO(
     val arbeidstakerFnr: String,
     val virksomhetsnummer: @NotEmpty String,
-    val motebehovSvar: NyttMotebehovSvarFormFilloutInputDTO,
+    val motebehovSvarInputDTO: TemporaryCombinedNyttMotebehovSvar,
     val tildeltEnhet: String? = null
 ) : Serializable

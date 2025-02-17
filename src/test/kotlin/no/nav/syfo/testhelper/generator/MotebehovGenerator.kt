@@ -15,17 +15,9 @@ import java.time.LocalDateTime
 import java.util.*
 
 class MotebehovGenerator {
-    private val motebehovSvar = MotebehovSvar(
+    private val motebehovSvarInputDTO = MotebehovSvarInputDTO(
         harMotebehov = true,
         forklaring = "",
-        formFillout = emptyList(),
-        skjemaType = MotebehovSkjemaType.SVAR_BEHOV
-    )
-
-    private val nyttMotebehovSvar = TemporaryCombinedNyttMotebehovSvar(
-        harMotebehov = true,
-        forklaring = "",
-        formFillout = emptyList(),
     )
 
     private val motebehov = Motebehov(
@@ -35,7 +27,8 @@ class MotebehovGenerator {
         virksomhetsnummer = VIRKSOMHETSNUMMER,
         opprettetAv = LEDER_AKTORID,
         opprettetDato = LocalDateTime.now().minusMinutes(2L),
-        motebehovSvar = motebehovSvar.copy(harMotebehov = true),
+        motebehovSvar = lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
+            motebehovSvarInputDTO, MotebehovSkjemaType.SVAR_BEHOV, MotebehovCreatorRole.ARBEIDSGIVER),
         tildeltEnhet = NAV_ENHET,
         behandletVeilederIdent = VEILEDER_ID,
         behandletTidspunkt = LocalDateTime.now(),
@@ -44,52 +37,44 @@ class MotebehovGenerator {
     private val nyttMotebehovArbeidstaker = NyttMotebehov(
         arbeidstakerFnr = ARBEIDSTAKER_FNR,
         virksomhetsnummer = VIRKSOMHETSNUMMER,
-        motebehovSvar = motebehovSvar,
+        motebehovSvar = motebehovSvarInputDTO,
         tildeltEnhet = NAV_ENHET,
     )
 
-    private val nyttMotebehovArbeidsgiverDTO = MotebehovSvarArbeidsgiverDTO(
+    private val nyttMotebehovArbeidsgiverInput = NyttMotebehovArbeidsgiverInputDTO(
         arbeidstakerFnr = ARBEIDSTAKER_FNR,
         virksomhetsnummer = VIRKSOMHETSNUMMER,
-        motebehovSvar = nyttMotebehovSvar,
+        motebehovSvarInput = motebehovSvarInputDTO,
         tildeltEnhet = NAV_ENHET,
     )
 
-    fun lagMotebehovSvar(harBehov: Boolean): MotebehovSvar {
-        return motebehovSvar.copy(
+    fun lagMotebehovSvarInputDTO(harBehov: Boolean): MotebehovSvarInputDTO {
+        return motebehovSvarInputDTO.copy(
             harMotebehov = harBehov,
         )
     }
 
-    fun lagMotebehovSvarOldSubmissionDTO(harBehov: Boolean): NyttMotebehovSvarInputDTO {
-        return NyttMotebehovSvarInputDTO(
-            harMotebehov = harBehov,
-            forklaring = "",
-        )
+    fun lagNyttMotebehovArbeidsgiverInput(): NyttMotebehovArbeidsgiverInputDTO {
+        return nyttMotebehovArbeidsgiverInput.copy()
     }
 
-    fun lagMotebehovSvarFromOldSubmissionDTO(nyttMotebehovSvarInputDTO: NyttMotebehovSvarInputDTO): MotebehovSvar {
+    fun lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
+        inputDTO: MotebehovSvarInputDTO,
+        skjemaType: MotebehovSkjemaType,
+        creatorRole: MotebehovCreatorRole
+    ): MotebehovSvar {
+        val legacyFieldsToFormFilloutHelper = ConvertLegacyMotebehovSvarFieldsHelper()
+
         return MotebehovSvar(
-            harMotebehov = nyttMotebehovSvarInputDTO.harMotebehov,
-            forklaring = nyttMotebehovSvarInputDTO.forklaring,
-            formFillout = emptyList(),
-        )
-    }
-
-    fun lagNyttMotebehovArbeidsgiver(): MotebehovSvarArbeidsgiverDTO {
-        return nyttMotebehovArbeidsgiverDTO.copy()
-    }
-
-    fun lagNyttMotebehovArbeidsgiverOldSvarSubmissionDTO(motebehovSvar: MotebehovSvar? = null): MotebehovSvarArbeidsgiverInputDTO {
-        val nyttMotebehovAG = lagNyttMotebehovArbeidsgiver()
-
-        return MotebehovSvarArbeidsgiverInputDTO(
-            arbeidstakerFnr = nyttMotebehovAG.arbeidstakerFnr,
-            virksomhetsnummer = nyttMotebehovAG.virksomhetsnummer,
-            motebehovSvar = NyttMotebehovSvarInputDTO(
-                harMotebehov = motebehovSvar?.harMotebehov ?: nyttMotebehovAG.motebehovSvar.harMotebehov,
-                forklaring = motebehovSvar?.forklaring ?: nyttMotebehovAG.motebehovSvar.forklaring,
+            harMotebehov = inputDTO.harMotebehov,
+            forklaring = inputDTO.forklaring,
+            formFillout = legacyFieldsToFormFilloutHelper.convertLegacyMotebehovSvarToFormFillout(
+                inputDTO.harMotebehov,
+                inputDTO.forklaring,
+                skjemaType,
+                creatorRole
             ),
+            skjemaType,
         )
     }
 
@@ -101,7 +86,6 @@ class MotebehovGenerator {
         virksomhetsnummer = VIRKSOMHETSNUMMER,
         forklaring = "Megling",
         harMotebehov = true,
-        formFillout = emptyList(),
         tildeltEnhet = NAV_ENHET,
         sykmeldtFnr = ARBEIDSTAKER_FNR,
     )

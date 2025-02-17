@@ -14,7 +14,6 @@ data class PMotebehov(
     val virksomhetsnummer: String,
     val harMotebehov: Boolean,
     val forklaring: String? = null,
-    val formFillout: List<FilloutField>?,
     val tildeltEnhet: String? = null,
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,

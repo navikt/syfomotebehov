@@ -9,9 +9,9 @@ import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
-import no.nav.syfo.motebehov.MotebehovSvar
-import no.nav.syfo.motebehov.NyttMotebehovSvarInputDTO
-import no.nav.syfo.motebehov.MotebehovSvarArbeidsgiverInputDTO
+import no.nav.syfo.motebehov.MotebehovCreatorRole
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverInputDTO
+import no.nav.syfo.motebehov.MotebehovSvarInputDTO
 import no.nav.syfo.motebehov.api.internad.v3.MotebehovVeilederADControllerV3
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
@@ -72,7 +72,7 @@ class MotebehovArbeidsgiverControllerV3Test {
     private lateinit var tilgangskontrollUrl: String
 
     @Autowired
-    private lateinit var motebehovArbeidsgiverControllerOldV3: MotebehovArbeidsgiverControllerV3
+    private lateinit var motebehovArbeidsgiverController: MotebehovArbeidsgiverControllerV3
 
     @Autowired
     private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV3
@@ -147,7 +147,7 @@ class MotebehovArbeidsgiverControllerV3Test {
 
     @Test
     fun getMotebehovStatusWithNoOppfolgingstilfelle() {
-        motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(false, null, null)
     }
 
@@ -161,7 +161,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             ),
         )
 
-        motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(false, null, null)
     }
 
@@ -175,7 +175,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             ),
         )
 
-        motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(false, null, null)
     }
 
@@ -199,7 +199,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             ),
         )
 
-        motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(false, null, null)
     }
 
@@ -225,7 +225,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             ),
         )
 
-        motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
     }
 
@@ -253,7 +253,7 @@ class MotebehovArbeidsgiverControllerV3Test {
 
         createKandidatInDB(ARBEIDSTAKER_FNR)
 
-        motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
     }
 
@@ -277,7 +277,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             ),
         )
 
-        motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
     }
 
@@ -291,7 +291,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             ),
         )
 
-        motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
     }
 
@@ -305,7 +305,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             ),
         )
 
-        motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
     }
 
@@ -319,7 +319,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             ),
         )
 
-        motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
     }
 
@@ -333,7 +333,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             ),
         )
 
-        val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
+        val motebehovSvar = motebehovGenerator.lagMotebehovSvarInputDTO(true)
         submitMotebehovAndSendOversikthendelse(motebehovSvar)
 
         resetMockRestServers()
@@ -344,7 +344,7 @@ class MotebehovArbeidsgiverControllerV3Test {
 
         resetMockRestServers()
         tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
-        motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
     }
 
@@ -358,12 +358,16 @@ class MotebehovArbeidsgiverControllerV3Test {
             ),
         )
 
-        val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
-        submitMotebehovAndSendOversikthendelse(motebehovSvar)
+        val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
+        val motebehovSvar = motebehovGenerator.lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
+            motebehovSvarInputDTO, MotebehovSkjemaType.MELD_BEHOV, MotebehovCreatorRole.ARBEIDSGIVER
+        )
+
+        submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO)
 
         mockRestServiceServer.reset()
 
-        motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, motebehovSvar)
     }
 
@@ -377,7 +381,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             ),
         )
 
-        motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
     }
 
@@ -391,7 +395,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             ),
         )
 
-        motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
     }
 
@@ -407,7 +411,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             ),
         )
 
-        motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
     }
 
@@ -423,14 +427,18 @@ class MotebehovArbeidsgiverControllerV3Test {
             ),
         )
 
-        val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
-        submitMotebehovAndSendOversikthendelse(motebehovSvar)
+        val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
+        val motebehovSvar = motebehovGenerator.lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
+            motebehovSvarInputDTO, MotebehovSkjemaType.SVAR_BEHOV, MotebehovCreatorRole.ARBEIDSGIVER
+        )
+
+        submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO)
         verify { esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(any(), ARBEIDSTAKER_FNR, any()) }
         verify(exactly = 0) { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ARBEIDSTAKER_FNR) }
 
         mockRestServiceServer.reset()
 
-        motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, motebehovSvar)
     }
 
@@ -446,7 +454,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             ),
         )
 
-        motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
     }
 
@@ -459,7 +467,7 @@ class MotebehovArbeidsgiverControllerV3Test {
 
         createKandidatInDB(ARBEIDSTAKER_FNR)
 
-        motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+        motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
             .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
     }
 
@@ -469,14 +477,12 @@ class MotebehovArbeidsgiverControllerV3Test {
             oppfolgingstilfelleDAO,
             generateOppfolgingstilfellePerson(),
         )
-
-        val motebehovSvar = MotebehovSvar(harMotebehov = true, forklaring = "", formFillout = emptyList())
-        val motebehovOldSubmissionDTO = motebehovGenerator.lagNyttMotebehovArbeidsgiverOldSvarSubmissionDTO(
-            motebehovSvar
+        val motebehov = motebehovGenerator.lagNyttMotebehovArbeidsgiverInput().copy(
+            motebehovSvarInput = MotebehovSvarInputDTO(harMotebehov = true, forklaring = ""),
         )
 
-        lagreMotebehovUsingOldV3Controller(motebehovOldSubmissionDTO)
-        verifyMotebehovStatus(motebehovOldSubmissionDTO.motebehovSvar)
+        lagreMotebehov(motebehov)
+        verifyMotebehovStatus(motebehov.motebehovSvarInput, MotebehovSkjemaType.SVAR_BEHOV)
     }
 
     @Test
@@ -486,13 +492,12 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(),
         )
 
-        val motebehovSvar = MotebehovSvar(harMotebehov = true, forklaring = "", formFillout = emptyList())
-        val motebehovOldSubmissionDTO = motebehovGenerator.lagNyttMotebehovArbeidsgiverOldSvarSubmissionDTO(
-            motebehovSvar
+        val motebehov = motebehovGenerator.lagNyttMotebehovArbeidsgiverInput().copy(
+            motebehovSvarInput = MotebehovSvarInputDTO(harMotebehov = false, forklaring = ""),
         )
 
-        lagreMotebehovUsingOldV3Controller(motebehovOldSubmissionDTO)
-        verifyMotebehovStatus(motebehovOldSubmissionDTO.motebehovSvar)
+        lagreMotebehov(motebehov)
+        verifyMotebehovStatus(motebehov.motebehovSvarInput, MotebehovSkjemaType.SVAR_BEHOV)
     }
 
     @Test
@@ -503,15 +508,12 @@ class MotebehovArbeidsgiverControllerV3Test {
                 personIdentNumber = LEDER_FNR,
             ),
         )
-
-        val motebehovSvar = MotebehovSvar(harMotebehov = true, forklaring = "", formFillout = emptyList())
-        val motebehovOldSubmissionDTO = motebehovGenerator.lagNyttMotebehovArbeidsgiverOldSvarSubmissionDTO(
-            motebehovSvar
-        ).copy(
+        val motebehov = motebehovGenerator.lagNyttMotebehovArbeidsgiverInput().copy(
+            motebehovSvarInput = MotebehovSvarInputDTO(harMotebehov = true, forklaring = ""),
             arbeidstakerFnr = LEDER_FNR
         )
 
-        lagreMotebehovUsingOldV3Controller(motebehovOldSubmissionDTO)
+        lagreMotebehov(motebehov)
 
         verify(exactly = 1) {
             esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(
@@ -523,7 +525,7 @@ class MotebehovArbeidsgiverControllerV3Test {
         verify(exactly = 1) { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(LEDER_FNR) }
     }
 
-    private fun submitMotebehovAndSendOversikthendelse(motebehovSvar: MotebehovSvar) {
+    private fun submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO: MotebehovSvarInputDTO) {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceServerAzureAD,
@@ -532,19 +534,19 @@ class MotebehovArbeidsgiverControllerV3Test {
             ARBEIDSTAKER_FNR,
         )
 
-        val nyttMotebehovAG = motebehovGenerator.lagNyttMotebehovArbeidsgiverOldSvarSubmissionDTO(motebehovSvar)
-
-        motebehovArbeidsgiverControllerOldV3.lagreMotebehovArbeidsgiver(nyttMotebehovAG)
-
-        if (motebehovSvar.harMotebehov) {
+        motebehovArbeidsgiverController.lagreMotebehovArbeidsgiver(
+            motebehovGenerator.lagNyttMotebehovArbeidsgiverInput().copy(
+                motebehovSvarInput = motebehovSvarInputDTO,
+            ),
+        )
+        if (motebehovSvarInputDTO.harMotebehov) {
             verify { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         } else {
             verify(exactly = 0) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         }
     }
 
-    // TODO: Rewrite this to use new V4 controller
-    private fun lagreMotebehovUsingOldV3Controller(innsendtMotebehov: MotebehovSvarArbeidsgiverInputDTO) {
+    private fun lagreMotebehov(innsendtMotebehov: NyttMotebehovArbeidsgiverInputDTO) {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceServerAzureAD,
@@ -555,19 +557,26 @@ class MotebehovArbeidsgiverControllerV3Test {
 
         createKandidatInDB(innsendtMotebehov.arbeidstakerFnr)
 
-        motebehovArbeidsgiverControllerOldV3.lagreMotebehovArbeidsgiver(
+        motebehovArbeidsgiverController.lagreMotebehovArbeidsgiver(
             innsendtMotebehov
         )
 
-        if (!innsendtMotebehov.motebehovSvar.harMotebehov) {
+        if (!innsendtMotebehov.motebehovSvarInput.harMotebehov) {
             mockRestServiceServer.reset()
         }
     }
 
-    private fun verifyMotebehovStatus(innsendtMotebehovSvar: NyttMotebehovSvarInputDTO) {
-        val motebehovStatus: MotebehovStatus = motebehovArbeidsgiverControllerOldV3.motebehovStatusArbeidsgiver(
+    private fun verifyMotebehovStatus(
+        innsendtMotebehovSvar: MotebehovSvarInputDTO,
+        innsendtSkjemaType: MotebehovSkjemaType,
+    ) {
+        val motebehovStatus: MotebehovStatus = motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(
             ARBEIDSTAKER_FNR,
             VIRKSOMHETSNUMMER,
+        )
+        val motebehovSvarThatShouldBeCreated = motebehovGenerator
+            .lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
+            innsendtMotebehovSvar, innsendtSkjemaType, MotebehovCreatorRole.ARBEIDSGIVER
         )
 
         assertTrue(motebehovStatus.visMotebehov)
@@ -578,7 +587,7 @@ class MotebehovArbeidsgiverControllerV3Test {
         assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
         assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
         assertThat(motebehov.skjemaType).isEqualTo(motebehovStatus.skjemaType)
-        assertThat(motebehov.motebehovSvar).usingRecursiveComparison().isEqualTo(innsendtMotebehovSvar)
+        assertThat(motebehov.motebehovSvar).usingRecursiveComparison().isEqualTo(motebehovSvarThatShouldBeCreated)
         if (innsendtMotebehovSvar.harMotebehov) {
             verify { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         } else {
