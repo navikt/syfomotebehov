@@ -179,7 +179,6 @@ class MotebehovService @Inject constructor(
         pMotebehov: PMotebehov,
         knownMotebehovCreatorRole: MotebehovCreatorRole?
     ): Motebehov {
-
         return Motebehov(
             id = pMotebehov.uuid,
             opprettetDato = pMotebehov.opprettetDato,
@@ -196,7 +195,6 @@ class MotebehovService @Inject constructor(
         )
     }
 
-    // Not used
     private fun mapPMotebehovToMotebehov(pMotebehov: PMotebehov): Motebehov {
         return Motebehov(
             id = pMotebehov.uuid,
@@ -222,9 +220,13 @@ class MotebehovService @Inject constructor(
         knownCreatorRole: MotebehovCreatorRole?
     ): MotebehovSvar {
         val motebehovCreatorRole = knownCreatorRole
-            ?: if (pMotebehov.opprettetAv == pMotebehov.aktoerId || pMotebehov.opprettetAvFnr == pMotebehov.sykmeldtFnr)
+            ?: if (pMotebehov.opprettetAv == pMotebehov.aktoerId ||
+                pMotebehov.opprettetAvFnr == pMotebehov.sykmeldtFnr
+            ) {
                 MotebehovCreatorRole.ARBEIDSTAKER
-            else MotebehovCreatorRole.ARBEIDSGIVER
+            } else {
+                MotebehovCreatorRole.ARBEIDSGIVER
+            }
 
         return MotebehovSvar(
             harMotebehov = pMotebehov.harMotebehov,
@@ -238,7 +240,6 @@ class MotebehovService @Inject constructor(
             skjemaType = pMotebehov.skjemaType,
         )
     }
-
 
     companion object {
         private val log = LoggerFactory.getLogger(MotebehovService::class.java)

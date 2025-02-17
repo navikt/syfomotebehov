@@ -314,7 +314,10 @@ class MotebehovArbeidstakerControllerV3Test {
 
         motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
             .assertMotebehovStatus(
-                true, MotebehovSkjemaType.MELD_BEHOV, null)
+                true,
+                MotebehovSkjemaType.MELD_BEHOV,
+                null
+            )
     }
 
     @Test
@@ -330,7 +333,10 @@ class MotebehovArbeidstakerControllerV3Test {
         val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
         val motebehovSvarThatShouldBeCreated = motebehovGenerator
             .lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
-            motebehovSvarInputDTO, MotebehovSkjemaType.MELD_BEHOV, MotebehovCreatorRole.ARBEIDSTAKER)
+                motebehovSvarInputDTO,
+                MotebehovSkjemaType.MELD_BEHOV,
+                MotebehovCreatorRole.ARBEIDSTAKER
+            )
 
         submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO)
 
@@ -338,7 +344,10 @@ class MotebehovArbeidstakerControllerV3Test {
 
         motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
             .assertMotebehovStatus(
-                true, MotebehovSkjemaType.MELD_BEHOV, motebehovSvarThatShouldBeCreated)
+                true,
+                MotebehovSkjemaType.MELD_BEHOV,
+                motebehovSvarThatShouldBeCreated
+            )
     }
 
     @Test
@@ -400,7 +409,10 @@ class MotebehovArbeidstakerControllerV3Test {
         val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
         val motebehovSvarThatShouldBeCreated = motebehovGenerator
             .lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
-            motebehovSvarInputDTO, MotebehovSkjemaType.SVAR_BEHOV, MotebehovCreatorRole.ARBEIDSTAKER)
+                motebehovSvarInputDTO,
+                MotebehovSkjemaType.SVAR_BEHOV,
+                MotebehovCreatorRole.ARBEIDSTAKER
+            )
 
         submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO)
         verify { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ARBEIDSTAKER_FNR) }
@@ -410,7 +422,10 @@ class MotebehovArbeidstakerControllerV3Test {
 
         motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
             .assertMotebehovStatus(
-                true, MotebehovSkjemaType.SVAR_BEHOV, motebehovSvarThatShouldBeCreated)
+                true,
+                MotebehovSkjemaType.SVAR_BEHOV,
+                motebehovSvarThatShouldBeCreated
+            )
     }
 
     @Test

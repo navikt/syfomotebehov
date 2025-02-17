@@ -59,6 +59,10 @@ data class FormFillout(
                 else -> throw IllegalArgumentException("Unknown field type: ${filloutField.fieldType}")
             }
         }
+
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
 }
 
 abstract class FilloutField(
@@ -67,7 +71,11 @@ abstract class FilloutField(
     @field:NotEmpty
     open val fieldLabel: String,
     open val fieldType: FormFilloutFieldType
-) : Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 data class FilloutTextField(
     override val fieldID: String,

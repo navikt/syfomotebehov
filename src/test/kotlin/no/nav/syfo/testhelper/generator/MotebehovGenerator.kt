@@ -28,17 +28,14 @@ class MotebehovGenerator {
         opprettetAv = LEDER_AKTORID,
         opprettetDato = LocalDateTime.now().minusMinutes(2L),
         motebehovSvar = lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
-            motebehovSvarInputDTO, MotebehovSkjemaType.SVAR_BEHOV, MotebehovCreatorRole.ARBEIDSGIVER),
+            motebehovSvarInputDTO,
+            MotebehovSkjemaType.SVAR_BEHOV,
+            MotebehovCreatorRole.ARBEIDSGIVER
+        ),
         tildeltEnhet = NAV_ENHET,
         behandletVeilederIdent = VEILEDER_ID,
         behandletTidspunkt = LocalDateTime.now(),
         opprettetAvFnr = LEDER_FNR,
-    )
-    private val nyttMotebehovArbeidstaker = NyttMotebehov(
-        arbeidstakerFnr = ARBEIDSTAKER_FNR,
-        virksomhetsnummer = VIRKSOMHETSNUMMER,
-        motebehovSvar = motebehovSvarInputDTO,
-        tildeltEnhet = NAV_ENHET,
     )
 
     private val nyttMotebehovArbeidsgiverInput = NyttMotebehovArbeidsgiverInputDTO(

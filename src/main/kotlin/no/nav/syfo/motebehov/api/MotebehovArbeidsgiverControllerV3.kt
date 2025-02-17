@@ -7,7 +7,11 @@ import no.nav.syfo.api.auth.tokenX.TokenXUtil.TokenXIssuer
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.*
+import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverFormFilloutInputDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverInputDTO
+import no.nav.syfo.motebehov.TemporaryCombinedNyttMotebehovSvar
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
 import org.springframework.beans.factory.annotation.Value

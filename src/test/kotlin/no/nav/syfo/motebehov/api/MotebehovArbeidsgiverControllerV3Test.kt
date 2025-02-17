@@ -10,8 +10,8 @@ import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
 import no.nav.syfo.motebehov.MotebehovCreatorRole
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverInputDTO
 import no.nav.syfo.motebehov.MotebehovSvarInputDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverInputDTO
 import no.nav.syfo.motebehov.api.internad.v3.MotebehovVeilederADControllerV3
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
@@ -360,7 +360,9 @@ class MotebehovArbeidsgiverControllerV3Test {
 
         val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
         val motebehovSvar = motebehovGenerator.lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
-            motebehovSvarInputDTO, MotebehovSkjemaType.MELD_BEHOV, MotebehovCreatorRole.ARBEIDSGIVER
+            motebehovSvarInputDTO,
+            MotebehovSkjemaType.MELD_BEHOV,
+            MotebehovCreatorRole.ARBEIDSGIVER
         )
 
         submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO)
@@ -429,7 +431,9 @@ class MotebehovArbeidsgiverControllerV3Test {
 
         val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
         val motebehovSvar = motebehovGenerator.lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
-            motebehovSvarInputDTO, MotebehovSkjemaType.SVAR_BEHOV, MotebehovCreatorRole.ARBEIDSGIVER
+            motebehovSvarInputDTO,
+            MotebehovSkjemaType.SVAR_BEHOV,
+            MotebehovCreatorRole.ARBEIDSGIVER
         )
 
         submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO)
@@ -576,8 +580,10 @@ class MotebehovArbeidsgiverControllerV3Test {
         )
         val motebehovSvarThatShouldBeCreated = motebehovGenerator
             .lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
-            innsendtMotebehovSvar, innsendtSkjemaType, MotebehovCreatorRole.ARBEIDSGIVER
-        )
+                innsendtMotebehovSvar,
+                innsendtSkjemaType,
+                MotebehovCreatorRole.ARBEIDSGIVER
+            )
 
         assertTrue(motebehovStatus.visMotebehov)
         assertEquals(MotebehovSkjemaType.SVAR_BEHOV, motebehovStatus.skjemaType)

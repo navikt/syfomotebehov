@@ -1,50 +1,50 @@
 package no.nav.syfo.motebehov
 
-import org.springframework.stereotype.Component
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
+import org.springframework.stereotype.Component
 
 enum class MotebehovCreatorRole {
     ARBEIDSGIVER,
     ARBEIDSTAKER,
 }
 
-private val formIdentifierArbeidsgiverSvarBehov = "motebehov-arbeidsgiver-svar"
-private val formIdentifierArbeidsgiverMeldBehov = "motebehov-arbeidsgiver-meld"
-private val formIdentifierArbeidsgiverUnknownSvarMeldBehov = "motebehov-arbeidsgiver-unknown"
-private val formIdentifierArbeidstakerSvarBehov = "motebehov-arbeidstaker-svar"
-private val formIdentifierArbeidstakerMeldBehov = "motebehov-arbeidstaker-meld"
-private val formIdentifierArbeidstakerUnknownSvarMeldBehov = "motebehov-arbeidstaker-unknown"
-
-private val legacyFormsSemanticVersion = "0.1.0"
-
-private val motebehovFieldIds = mapOf(
-    "svarHarBehovRadioGroupField" to "harBehovRadioGroupField",
-    "meldOnskerMoteLegacyCheckboxField" to "onskerMoteCheckboxField",
-    "onskerSykmelderDeltarCheckboxField" to "onskerSykmelderDeltarCheckboxField",
-    "begrunnelseTextField" to "begrunnelseTextField",
-)
-
-private val motebehovLegacyLabels = mapOf(
-    "svarArbeidsgiverHarBehovField" to "Har dere behov for et møte med NAV?",
-    "svarArbeidstakerHarBehovField" to "Har du behov for et møte med NAV og arbeidsgiveren din?",
-    "svarHarBehovRadioOptionYes" to "Ja, jeg mener det er behov for et møte",
-    "svarHarBehovRadioOptionNo" to "Nei, jeg mener det ikke er behov for et møte",
-    "meldArbeidsgiverOnskerMoteCheckbox" to "Jeg ønsker et møte med NAV og den ansatte",
-    "meldArbeidstakerOnskerMoteCheckbox" to "Jeg ønsker et møte med NAV og arbeidsgiveren min.",
-    "meldArbeidsgiverOnskerSykmelderDeltarCheckbox" to
-            "Jeg ønsker at den som sykmelder arbeidstakeren, også skal delta i møtet.",
-    "meldArbeidstakerOnskerSykmelderDeltarCheckbox" to
-            "Jeg ønsker at den som sykmelder meg, også skal delta i møtet.",
-    "begrunnelseTextField" to "Begrunnelse"
-)
-
-private val formFilloutOptionIds = mapOf(
-    "svarHarBehovRadioOptionYes" to "ja",
-    "svarHarBehovRadioOptionNo" to "nei"
-)
-
 @Component
 class ConvertLegacyMotebehovSvarFieldsHelper {
+    private val formIdentifierArbeidsgiverSvarBehov = "motebehov-arbeidsgiver-svar"
+    private val formIdentifierArbeidsgiverMeldBehov = "motebehov-arbeidsgiver-meld"
+    private val formIdentifierArbeidsgiverUnknownSvarMeldBehov = "motebehov-arbeidsgiver-unknown"
+    private val formIdentifierArbeidstakerSvarBehov = "motebehov-arbeidstaker-svar"
+    private val formIdentifierArbeidstakerMeldBehov = "motebehov-arbeidstaker-meld"
+    private val formIdentifierArbeidstakerUnknownSvarMeldBehov = "motebehov-arbeidstaker-unknown"
+
+    private val legacyFormsSemanticVersion = "0.1.0"
+
+    private val motebehovFieldIds = mapOf(
+        "svarHarBehovRadioGroupField" to "harBehovRadioGroupField",
+        "meldOnskerMoteLegacyCheckboxField" to "onskerMoteCheckboxField",
+        "onskerSykmelderDeltarCheckboxField" to "onskerSykmelderDeltarCheckboxField",
+        "begrunnelseTextField" to "begrunnelseTextField",
+    )
+
+    private val motebehovLegacyLabels = mapOf(
+        "svarArbeidsgiverHarBehovField" to "Har dere behov for et møte med NAV?",
+        "svarArbeidstakerHarBehovField" to "Har du behov for et møte med NAV og arbeidsgiveren din?",
+        "svarHarBehovRadioOptionYes" to "Ja, jeg mener det er behov for et møte",
+        "svarHarBehovRadioOptionNo" to "Nei, jeg mener det ikke er behov for et møte",
+        "meldArbeidsgiverOnskerMoteCheckbox" to "Jeg ønsker et møte med NAV og den ansatte",
+        "meldArbeidstakerOnskerMoteCheckbox" to "Jeg ønsker et møte med NAV og arbeidsgiveren min.",
+        "meldArbeidsgiverOnskerSykmelderDeltarCheckbox" to
+            "Jeg ønsker at den som sykmelder arbeidstakeren, også skal delta i møtet.",
+        "meldArbeidstakerOnskerSykmelderDeltarCheckbox" to
+            "Jeg ønsker at den som sykmelder meg, også skal delta i møtet.",
+        "begrunnelseTextField" to "Begrunnelse"
+    )
+
+    private val formFilloutOptionIds = mapOf(
+        "svarHarBehovRadioOptionYes" to "ja",
+        "svarHarBehovRadioOptionNo" to "nei"
+    )
+
     data class ExtractedFromLegacyForklaring(
         val actualBegrunnelse: String,
         val onskerSykmelderDeltar: Boolean
@@ -93,7 +93,8 @@ class ConvertLegacyMotebehovSvarFieldsHelper {
                     optionId = optionIdYes,
                     optionLabel = optionLabelYes,
                     isSelected = harMotebehov
-                ), FormFilloutFieldOption(
+                ),
+                FormFilloutFieldOption(
                     optionId = optionIdNo,
                     optionLabel = optionLabelNo,
                     isSelected = !harMotebehov
@@ -159,7 +160,8 @@ class ConvertLegacyMotebehovSvarFieldsHelper {
         }
 
         var actualBegrunnelse = legacyForklaring.replace(
-            "Jeg ønsker at den som sykmelder arbeidstakeren, også skal delta i møtet (valgfri).", ""
+            "Jeg ønsker at den som sykmelder arbeidstakeren, også skal delta i møtet (valgfri).",
+            ""
         )
         actualBegrunnelse = actualBegrunnelse.replace(
             "Jeg ønsker at den som sykmelder meg, også skal delta i møtet (valgfri).", ""

@@ -1,6 +1,5 @@
 package no.nav.syfo.motebehov.database
 
-import no.nav.syfo.motebehov.FilloutField
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import java.io.Serializable
 import java.time.LocalDateTime

@@ -6,7 +6,10 @@ import no.nav.syfo.api.auth.tokenX.TokenXUtil
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.TokenXIssuer
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.*
+import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
+import no.nav.syfo.motebehov.MotebehovSvarFormFilloutInputDTO
+import no.nav.syfo.motebehov.MotebehovSvarInputDTO
+import no.nav.syfo.motebehov.TemporaryCombinedNyttMotebehovSvar
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
 import org.springframework.beans.factory.annotation.Value
@@ -34,7 +37,6 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
     @Value("\${esyfo-proxy.client.id}")
     val esyfoProxyClientId: String,
 ) {
-    // TODO: Can we remove this endpoint? (See comment below)
     @GetMapping(
         value = ["/motebehov"],
         produces = [MediaType.APPLICATION_JSON_VALUE],
