@@ -77,8 +77,8 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
             arbeidstakerFnr = nyttMotebehovDTO.arbeidstakerFnr,
             virksomhetsnummer = nyttMotebehovDTO.virksomhetsnummer,
             motebehovSvarInputDTO = TemporaryCombinedNyttMotebehovSvar(
-                harMotebehov = nyttMotebehovDTO.motebehovSvarInput.harMotebehov,
-                forklaring = nyttMotebehovDTO.motebehovSvarInput.forklaring,
+                harMotebehov = nyttMotebehovDTO.motebehovSvar.harMotebehov,
+                forklaring = nyttMotebehovDTO.motebehovSvar.forklaring,
                 formFillout = null,
             ),
         )

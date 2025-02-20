@@ -41,7 +41,7 @@ class MotebehovGenerator {
     private val nyttMotebehovArbeidsgiverInput = NyttMotebehovArbeidsgiverInputDTO(
         arbeidstakerFnr = ARBEIDSTAKER_FNR,
         virksomhetsnummer = VIRKSOMHETSNUMMER,
-        motebehovSvarInput = motebehovSvarInputDTO,
+        motebehovSvar = motebehovSvarInputDTO,
         tildeltEnhet = NAV_ENHET,
     )
 

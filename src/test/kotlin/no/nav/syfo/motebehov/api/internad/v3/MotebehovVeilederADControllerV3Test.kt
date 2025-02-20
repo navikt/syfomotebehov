@@ -160,8 +160,8 @@ class MotebehovVeilederADControllerV3Test {
         assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
         assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
 
-        assertThat(motebehov.motebehovSvar.harMotebehov).isEqualTo(prosessedInputDTO.motebehovSvarInput.harMotebehov)
-        assertThat(motebehov.motebehovSvar.forklaring).isEqualTo(prosessedInputDTO.motebehovSvarInput.forklaring)
+        assertThat(motebehov.motebehovSvar.harMotebehov).isEqualTo(prosessedInputDTO.motebehovSvar.harMotebehov)
+        assertThat(motebehov.motebehovSvar.forklaring).isEqualTo(prosessedInputDTO.motebehovSvar.forklaring)
     }
 
     @Test

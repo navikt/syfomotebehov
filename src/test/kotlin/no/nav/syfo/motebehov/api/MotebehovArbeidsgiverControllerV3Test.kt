@@ -482,11 +482,11 @@ class MotebehovArbeidsgiverControllerV3Test {
             generateOppfolgingstilfellePerson(),
         )
         val motebehov = motebehovGenerator.lagNyttMotebehovArbeidsgiverInput().copy(
-            motebehovSvarInput = MotebehovSvarInputDTO(harMotebehov = true, forklaring = ""),
+            motebehovSvar = MotebehovSvarInputDTO(harMotebehov = true, forklaring = ""),
         )
 
         lagreMotebehov(motebehov)
-        verifyMotebehovStatus(motebehov.motebehovSvarInput, MotebehovSkjemaType.SVAR_BEHOV)
+        verifyMotebehovStatus(motebehov.motebehovSvar, MotebehovSkjemaType.SVAR_BEHOV)
     }
 
     @Test
@@ -497,11 +497,11 @@ class MotebehovArbeidsgiverControllerV3Test {
         )
 
         val motebehov = motebehovGenerator.lagNyttMotebehovArbeidsgiverInput().copy(
-            motebehovSvarInput = MotebehovSvarInputDTO(harMotebehov = false, forklaring = ""),
+            motebehovSvar = MotebehovSvarInputDTO(harMotebehov = false, forklaring = ""),
         )
 
         lagreMotebehov(motebehov)
-        verifyMotebehovStatus(motebehov.motebehovSvarInput, MotebehovSkjemaType.SVAR_BEHOV)
+        verifyMotebehovStatus(motebehov.motebehovSvar, MotebehovSkjemaType.SVAR_BEHOV)
     }
 
     @Test
@@ -513,7 +513,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             ),
         )
         val motebehov = motebehovGenerator.lagNyttMotebehovArbeidsgiverInput().copy(
-            motebehovSvarInput = MotebehovSvarInputDTO(harMotebehov = true, forklaring = ""),
+            motebehovSvar = MotebehovSvarInputDTO(harMotebehov = true, forklaring = ""),
             arbeidstakerFnr = LEDER_FNR
         )
 
@@ -540,7 +540,7 @@ class MotebehovArbeidsgiverControllerV3Test {
 
         motebehovArbeidsgiverController.lagreMotebehovArbeidsgiver(
             motebehovGenerator.lagNyttMotebehovArbeidsgiverInput().copy(
-                motebehovSvarInput = motebehovSvarInputDTO,
+                motebehovSvar = motebehovSvarInputDTO,
             ),
         )
         if (motebehovSvarInputDTO.harMotebehov) {
@@ -565,7 +565,7 @@ class MotebehovArbeidsgiverControllerV3Test {
             innsendtMotebehov
         )
 
-        if (!innsendtMotebehov.motebehovSvarInput.harMotebehov) {
+        if (!innsendtMotebehov.motebehovSvar.harMotebehov) {
             mockRestServiceServer.reset()
         }
     }

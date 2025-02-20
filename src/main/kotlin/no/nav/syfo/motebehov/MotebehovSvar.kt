@@ -8,7 +8,7 @@ data class MotebehovSvar(
     // This forklaring field is to be phased in favor of formFillout, and eventually removed. Details in plan.
     val forklaring: String? = null,
     val formFillout: FormFillout?,
-    val skjemaType: MotebehovSkjemaType?
+    val skjemaType: MotebehovSkjemaType?,
 ) : Serializable
 
 // Existing input DTO to phase out. MotebehovSvarFormFilloutInputDTO will take over.
