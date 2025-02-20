@@ -149,9 +149,10 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest {
     }
 
     @Test
-    fun `should convert legacy motebehovSvar from arbeidsgiver of type meld and onsker sykmelder deltar yes correctly`() {
+    fun `should convert legacy motebehovSvar from arbeidsgiver of type meld and onsker sykmelder correctly`() {
         val harMotebehov = true
-        val forklaring = "Jeg ønsker at den som sykmelder arbeidstakeren, også skal delta i møtet (valgfri). Vi trenger å ha et møte med NAV."
+        val forklaring = "Jeg ønsker at den som sykmelder arbeidstakeren, også skal delta i møtet (valgfri). " +
+            "Vi trenger å ha et møte med NAV."
         val skjemaType = MotebehovSkjemaType.MELD_BEHOV
         val motebehovCreatorRole = MotebehovCreatorRole.ARBEIDSGIVER
 
