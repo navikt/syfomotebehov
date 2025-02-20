@@ -54,7 +54,7 @@ data class FormFillout(
         get() = filloutFieldsList.associate { filloutField ->
             filloutField.fieldID to when (filloutField) {
                 is FilloutTextField -> filloutField.textValue
-                is FilloutCheckboxField -> filloutField.isChecked
+                is FilloutCheckboxField -> filloutField.wasChecked
                 is FilloutRadioGroupField -> filloutField.selectedOptionId
                 else -> throw IllegalArgumentException("Unknown field type: ${filloutField.fieldType}")
             }
@@ -82,14 +82,14 @@ data class FilloutTextField(
     override val fieldLabel: String,
     @field:NotEmpty
     val textValue: String,
-    val isOptional: Boolean? = false,
+    val wasOptional: Boolean? = false,
 ) : FilloutField(fieldID, fieldLabel, FormFilloutFieldType.TEXT)
 
 data class FilloutCheckboxField(
     override val fieldID: String,
     override val fieldLabel: String,
     @field:NotNull
-    val isChecked: Boolean,
+    val wasChecked: Boolean,
 ) : FilloutField(fieldID, fieldLabel, FormFilloutFieldType.CHECKBOX)
 
 data class FilloutRadioGroupField(
@@ -101,7 +101,7 @@ data class FilloutRadioGroupField(
     val selectedOptionLabel: String,
     @field:NotEmpty
     val options: List<FormFilloutFieldOption>,
-    val isOptional: Boolean? = false,
+    val wasOptional: Boolean? = false,
 ) : FilloutField(fieldID, fieldLabel, FormFilloutFieldType.RADIO_OPTIONS)
 
 data class FormFilloutFieldOption(
@@ -109,7 +109,7 @@ data class FormFilloutFieldOption(
     val optionId: String,
     @field:NotEmpty
     val optionLabel: String,
-    val isSelected: Boolean = false,
+    val wasSelected: Boolean = false,
 )
 
 enum class FormFilloutFieldType(val type: String) {

@@ -58,7 +58,7 @@ class ConvertLegacyMotebehovSvarFieldsHelper {
             fieldID = motebehovFieldIds["begrunnelseTextField"] ?: "",
             fieldLabel = motebehovLegacyLabels["begrunnelseTextField"] ?: "",
             textValue = begrunnelseTextValue,
-            isOptional = harMotebehov
+            wasOptional = harMotebehov
         )
     }
 
@@ -92,12 +92,12 @@ class ConvertLegacyMotebehovSvarFieldsHelper {
                 FormFilloutFieldOption(
                     optionId = optionIdYes,
                     optionLabel = optionLabelYes,
-                    isSelected = harMotebehov
+                    wasSelected = harMotebehov
                 ),
                 FormFilloutFieldOption(
                     optionId = optionIdNo,
                     optionLabel = optionLabelNo,
-                    isSelected = !harMotebehov
+                    wasSelected = !harMotebehov
                 )
             )
         )
@@ -117,7 +117,7 @@ class ConvertLegacyMotebehovSvarFieldsHelper {
                         motebehovLegacyLabels["meldArbeidstakerOnskerMoteCheckbox"] ?: ""
                 }
             },
-            isChecked = true,
+            wasChecked = true,
         )
     }
 
@@ -136,7 +136,7 @@ class ConvertLegacyMotebehovSvarFieldsHelper {
                         motebehovLegacyLabels["meldArbeidstakerOnskerSykmelderDeltarCheckbox"] ?: ""
                 }
             },
-            isChecked = onskerSykmelderDeltar,
+            wasChecked = onskerSykmelderDeltar,
         )
     }
 
