@@ -183,7 +183,8 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
             it(
                 "getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpiredOppfolgingstilfelleNoOverlapVirksomhetWithoutActiveOppfolgingstilfelle"
             ) {
-                val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
+                val activeOppfolgingstilfelleStartDate =
+                    LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
                 tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
@@ -207,7 +208,8 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
             }
 
             it(
-                "getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpiredOppfolgingstilfelleNoOverlap"
+                "getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpired" +
+                        "OppfolgingstilfelleNoOverlap"
             ) {
                 val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
                 tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
@@ -235,9 +237,11 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
             }
 
             it(
-                "getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpiredOppfolgingstilfelleWithOverlap"
+                "getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpired" +
+                        "OppfolgingstilfelleWithOverlap"
             ) {
-                val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
+                val activeOppfolgingstilfelleStartDate =
+                    LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
                 tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
 
                 dbCreateOppfolgingstilfelle(
