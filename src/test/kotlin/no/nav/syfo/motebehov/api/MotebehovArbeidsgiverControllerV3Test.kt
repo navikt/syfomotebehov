@@ -180,7 +180,9 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
                     .assertMotebehovStatus(false, null, null)
             }
 
-            it("getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpiredOppfolgingstilfelleNoOverlapVirksomhetWithoutActiveOppfolgingstilfelle") {
+            it(
+                "getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpiredOppfolgingstilfelleNoOverlapVirksomhetWithoutActiveOppfolgingstilfelle"
+            ) {
                 val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
                 tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 dbCreateOppfolgingstilfelle(
@@ -204,7 +206,9 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
                     .assertMotebehovStatus(false, null, null)
             }
 
-            it("getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpiredOppfolgingstilfelleNoOverlap") {
+            it(
+                "getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpiredOppfolgingstilfelleNoOverlap"
+            ) {
                 val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
                 tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
 
@@ -230,7 +234,9 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
 
-            it("getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpiredOppfolgingstilfelleWithOverlap") {
+            it(
+                "getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpiredOppfolgingstilfelleWithOverlap"
+            ) {
                 val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
                 tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
 
@@ -349,7 +355,9 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
 
-            it("getMotebehovStatusWithTodayInsideOppfolgingstilfelleMeldBehovMoteplanleggerActiveMeldBehovSubmitted") {
+            it(
+                "getMotebehovStatusWithTodayInsideOppfolgingstilfelleMeldBehovMoteplanleggerActiveMeldBehovSubmitted"
+            ) {
                 tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,

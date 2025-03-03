@@ -42,7 +42,6 @@ class HistorikkServiceTest : DescribeSpec({
         null
     )
 
-
     beforeTest {
         every { pdlConsumer.aktorid(NL1_FNR) } returns NL1_AKTORID
         every { pdlConsumer.fnr(NL1_AKTORID) } returns NL1_FNR
@@ -78,14 +77,13 @@ class HistorikkServiceTest : DescribeSpec({
             val historikkLesteMotebehovTekst1 = historikkForSykmeldt[2].tekst
             val historikkLesteMotebehovTekst2 = historikkForSykmeldt[3].tekst
             historikkOpprettetMotebehovTekst1 shouldBe
-                    pdlPersonResponseNL1.fullName() + HistorikkService.HAR_SVART_PAA_MOTEBEHOV
+                pdlPersonResponseNL1.fullName() + HistorikkService.HAR_SVART_PAA_MOTEBEHOV
             historikkOpprettetMotebehovTekst2 shouldBe
-                    pdlPersonResponseNL3.fullName() + HistorikkService.HAR_SVART_PAA_MOTEBEHOV
+                pdlPersonResponseNL3.fullName() + HistorikkService.HAR_SVART_PAA_MOTEBEHOV
             historikkLesteMotebehovTekst1 shouldBe HistorikkService.MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID
             historikkLesteMotebehovTekst2 shouldBe HistorikkService.MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID
         }
     }
-
 }) {
     companion object {
         private const val SM_FNR = "10000000001"

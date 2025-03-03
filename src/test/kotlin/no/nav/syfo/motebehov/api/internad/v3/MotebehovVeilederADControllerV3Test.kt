@@ -162,7 +162,6 @@ class MotebehovVeilederADControllerV3Test : IntegrationTest() {
                 assertThat(motebehov.motebehovSvar).usingRecursiveComparison().isEqualTo(nyttMotebehov.motebehovSvar)
             }
 
-
             it("arbeidstaker lagrer Motebehov og Veileder henter Motebehov") {
                 // Arbeidstaker lagrer nytt motebehov
                 mockBehandlendEnhet(ARBEIDSTAKER_FNR)

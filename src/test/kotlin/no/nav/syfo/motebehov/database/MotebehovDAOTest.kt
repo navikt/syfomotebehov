@@ -41,9 +41,9 @@ class MotebehovDAOTest : IntegrationTest() {
                 val motebehovFraDb = motebehovListe[0]
 
                 motebehovFraDb.opprettetDato.truncatedTo(ChronoUnit.SECONDS) shouldBe
-                        pMotebehov.opprettetDato.truncatedTo(
-                            ChronoUnit.SECONDS
-                        )
+                    pMotebehov.opprettetDato.truncatedTo(
+                        ChronoUnit.SECONDS
+                    )
 
                 motebehovFraDb.opprettetAv shouldBe pMotebehov.opprettetAv
                 motebehovFraDb.aktoerId shouldBe pMotebehov.aktoerId
@@ -74,9 +74,9 @@ class MotebehovDAOTest : IntegrationTest() {
                 motebehovListe.size shouldBe 1
                 val motebehovFraDb = motebehovListe[0]
                 motebehovFraDb.opprettetDato.truncatedTo(ChronoUnit.SECONDS) shouldBe
-                        pMotebehov.opprettetDato.truncatedTo(
-                            ChronoUnit.SECONDS
-                        )
+                    pMotebehov.opprettetDato.truncatedTo(
+                        ChronoUnit.SECONDS
+                    )
 
                 motebehovFraDb.opprettetAv shouldBe pMotebehov.opprettetAv
                 motebehovFraDb.aktoerId shouldBe pMotebehov.aktoerId
@@ -133,9 +133,9 @@ class MotebehovDAOTest : IntegrationTest() {
                 motebehovListe.size shouldBe 1
                 val motebehovFraDb = motebehovListe[0]
                 motebehovFraDb.opprettetDato.truncatedTo(ChronoUnit.SECONDS) shouldBe
-                        pMotebehov.opprettetDato.truncatedTo(
-                            ChronoUnit.SECONDS
-                        )
+                    pMotebehov.opprettetDato.truncatedTo(
+                        ChronoUnit.SECONDS
+                    )
                 motebehovFraDb.opprettetAv shouldBe ARBEIDSTAKER_AKTORID
                 motebehovFraDb.aktoerId shouldBe pMotebehov.aktoerId
             }

@@ -193,7 +193,9 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
 
-            it("getMotebehovStatus With Today Inside Oppfolgingstilfelle Merged By Active And Expired Oppfolgingstilfelle With Overlap") {
+            it(
+                "getMotebehovStatus With Today Inside Oppfolgingstilfelle Merged By Active And Expired Oppfolgingstilfelle With Overlap"
+            ) {
                 createKandidatInDB()
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
 
@@ -311,7 +313,9 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
 
-            it("get MotebehovStatus With Today Inside Oppfolgingstilfelle MeldBehov, Moteplanlegger Active, MeldBehov Submitted") {
+            it(
+                "get MotebehovStatus With Today Inside Oppfolgingstilfelle MeldBehov, Moteplanlegger Active, MeldBehov Submitted"
+            ) {
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,

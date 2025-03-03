@@ -19,6 +19,7 @@ abstract class IntegrationTest : DescribeSpec() {
                 withPassword("postgres")
                 withReuse(true)
             }
+
         @JvmStatic
         @DynamicPropertySource
         fun registerPgProperties(registry: DynamicPropertyRegistry) {

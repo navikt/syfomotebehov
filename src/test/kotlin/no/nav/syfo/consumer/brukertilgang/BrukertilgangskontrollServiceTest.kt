@@ -12,7 +12,8 @@ class BrukertilgangskontrollServiceTest : DescribeSpec({
     val token = mockk<TokenValidationContextHolder>()
     val tilgangskontrollService = BrukertilgangService(
         token,
-        brukertilgangConsumer)
+        brukertilgangConsumer
+    )
 
     describe("BrukertilgangskontrollService") {
         it("has access to oppslått bruker when asking about self") {
