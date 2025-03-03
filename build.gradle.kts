@@ -23,7 +23,6 @@ val apacheCommonsTextVersion = "1.12.0"
 val jakartaRsApiVersion = "4.0.0"
 val hikari = "5.1.0"
 val postgres = "42.7.3"
-//val postgresEmbedded = "1.1.0"
 val detektVersion = "1.23.6"
 val testcontainersVersion = "1.20.4"
 val kotestVersion = "5.9.1"
@@ -104,7 +103,6 @@ dependencies {
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("com.zaxxer:HikariCP:$hikari")
     implementation("org.postgresql:postgresql:$postgres")
-    //testImplementation("com.opentable.components:otj-pg-embedded:$postgresEmbedded")
 
     testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")

@@ -11,12 +11,6 @@ import org.springframework.context.annotation.Import
 @Import(MockOAuth2ServerAutoConfiguration::class)
 class LocalApplicationConfig {
 
-    /*private var embeddedPostgres: EmbeddedPostgres = EmbeddedPostgres.builder().start()
-    @Bean
-    fun embeddedPostgresTest(): DataSource {
-        return embeddedPostgres.postgresDatabase
-    }*/
-
     @Bean
     fun mockOAuthServer(@Value("\${mock.token.server.port}") mockTokenServerPort: Int): MockOAuth2Server {
         val server = MockOAuth2Server()
