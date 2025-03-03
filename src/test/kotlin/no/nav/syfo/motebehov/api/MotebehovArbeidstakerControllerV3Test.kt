@@ -166,7 +166,8 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
             }
 
             it(
-                "get MotebehovStatus With Today Inside Oppfolgingstilfelle Merged By Active And Expired Oppfolgingstilfelle No Overlap"
+                "get MotebehovStatus With Today Inside Oppfolgingstilfelle Merged By Active And" +
+                    " Expired Oppfolgingstilfelle No Overlap"
             ) {
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
                 val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
@@ -194,7 +195,8 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
             }
 
             it(
-                "getMotebehovStatus With Today Inside Oppfolgingstilfelle Merged By Active And Expired Oppfolgingstilfelle With Overlap"
+                "getMotebehovStatus With Today Inside Oppfolgingstilfelle Merged By Active And" +
+                    " Expired Oppfolgingstilfelle With Overlap"
             ) {
                 createKandidatInDB()
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
@@ -314,7 +316,8 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
             }
 
             it(
-                "get MotebehovStatus With Today Inside Oppfolgingstilfelle MeldBehov, Moteplanlegger Active, MeldBehov Submitted"
+                "get MotebehovStatus With Today Inside Oppfolgingstilfelle MeldBehov," +
+                    " Moteplanlegger Active, MeldBehov Submitted"
             ) {
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
                 dbCreateOppfolgingstilfelle(

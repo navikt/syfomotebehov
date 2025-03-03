@@ -181,7 +181,8 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
             }
 
             it(
-                "getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpiredOppfolgingstilfelleNoOverlapVirksomhetWithoutActiveOppfolgingstilfelle"
+                "getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpired" +
+                    "OppfolgingstilfelleNoOverlapVirksomhetWithoutActiveOppfolgingstilfelle"
             ) {
                 val activeOppfolgingstilfelleStartDate =
                     LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
@@ -209,7 +210,7 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
 
             it(
                 "getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpired" +
-                        "OppfolgingstilfelleNoOverlap"
+                    "OppfolgingstilfelleNoOverlap"
             ) {
                 val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
                 tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
@@ -238,7 +239,7 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
 
             it(
                 "getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpired" +
-                        "OppfolgingstilfelleWithOverlap"
+                    "OppfolgingstilfelleWithOverlap"
             ) {
                 val activeOppfolgingstilfelleStartDate =
                     LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
