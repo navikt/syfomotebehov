@@ -2,6 +2,7 @@ package no.nav.syfo.testhelper.generator
 
 import no.nav.syfo.motebehov.*
 import no.nav.syfo.motebehov.database.PMotebehov
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
@@ -14,10 +15,11 @@ import java.time.LocalDateTime
 import java.util.*
 
 class MotebehovGenerator {
-    private val motebehovSvar = MotebehovSvar(
+    private val motebehovSvarInputDTO = MotebehovSvarInputDTO(
         harMotebehov = true,
         forklaring = "",
     )
+
     private val motebehov = Motebehov(
         id = UUID.randomUUID(),
         arbeidstakerFnr = ARBEIDSTAKER_FNR,
@@ -25,34 +27,52 @@ class MotebehovGenerator {
         virksomhetsnummer = VIRKSOMHETSNUMMER,
         opprettetAv = LEDER_AKTORID,
         opprettetDato = LocalDateTime.now().minusMinutes(2L),
-        motebehovSvar = motebehovSvar.copy(harMotebehov = true),
+        motebehovSvar = lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
+            motebehovSvarInputDTO,
+            MotebehovSkjemaType.SVAR_BEHOV,
+            MotebehovCreatorRole.ARBEIDSGIVER
+        ),
         tildeltEnhet = NAV_ENHET,
         behandletVeilederIdent = VEILEDER_ID,
         behandletTidspunkt = LocalDateTime.now(),
         opprettetAvFnr = LEDER_FNR,
     )
-    private val nyttMotebehovArbeidstaker = NyttMotebehov(
+
+    private val nyttMotebehovArbeidsgiverInput = NyttMotebehovArbeidsgiverInputDTO(
         arbeidstakerFnr = ARBEIDSTAKER_FNR,
         virksomhetsnummer = VIRKSOMHETSNUMMER,
-        motebehovSvar = motebehovSvar,
+        motebehovSvar = motebehovSvarInputDTO,
         tildeltEnhet = NAV_ENHET,
     )
 
-    private val nyttMotebehovArbeidsgiver = NyttMotebehovArbeidsgiver(
-        arbeidstakerFnr = ARBEIDSTAKER_FNR,
-        virksomhetsnummer = VIRKSOMHETSNUMMER,
-        motebehovSvar = motebehovSvar,
-        tildeltEnhet = NAV_ENHET,
-    )
-
-    fun lagMotebehovSvar(harBehov: Boolean): MotebehovSvar {
-        return motebehovSvar.copy(
+    fun lagMotebehovSvarInputDTO(harBehov: Boolean): MotebehovSvarInputDTO {
+        return motebehovSvarInputDTO.copy(
             harMotebehov = harBehov,
         )
     }
 
-    fun lagNyttMotebehovArbeidsgiver(): NyttMotebehovArbeidsgiver {
-        return nyttMotebehovArbeidsgiver.copy()
+    fun lagNyttMotebehovArbeidsgiverInput(): NyttMotebehovArbeidsgiverInputDTO {
+        return nyttMotebehovArbeidsgiverInput.copy()
+    }
+
+    fun lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
+        inputDTO: MotebehovSvarInputDTO,
+        skjemaType: MotebehovSkjemaType,
+        creatorRole: MotebehovCreatorRole
+    ): MotebehovSvar {
+        val legacyFieldsToFormFilloutHelper = ConvertLegacyMotebehovSvarFieldsHelper()
+
+        return MotebehovSvar(
+            harMotebehov = inputDTO.harMotebehov,
+            forklaring = inputDTO.forklaring,
+            formFillout = legacyFieldsToFormFilloutHelper.convertLegacyMotebehovSvarToFormFillout(
+                inputDTO.harMotebehov,
+                inputDTO.forklaring,
+                skjemaType,
+                creatorRole
+            ),
+            skjemaType,
+        )
     }
 
     private val nyttPMotebehovArbeidstaker = PMotebehov(

@@ -23,40 +23,105 @@ import java.util.UUID
 @Service
 @Transactional
 @Repository
-class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate, private val jdbcTemplate: JdbcTemplate) {
+class MotebehovDAO(
+    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
+    private val jdbcTemplate: JdbcTemplate
+) {
     fun hentMotebehovListeForAktoer(aktoerId: String): List<PMotebehov> {
-        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? ORDER BY opprettet_dato ASC", innsendingRowMapper, aktoerId)).orElse(emptyList())
+        return Optional.ofNullable(
+            jdbcTemplate.query(
+                "SELECT * FROM motebehov WHERE aktoer_id = ? ORDER BY opprettet_dato ASC",
+                innsendingRowMapper,
+                aktoerId
+            )
+        ).orElse(emptyList())
     }
 
     fun hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktorId: String): List<PMotebehov> {
-        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av = ? AND opprettet_dato >= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, hentTidligsteDatoForGyldigMotebehovSvar())).orElse(emptyList())
+        return Optional.ofNullable(
+            jdbcTemplate.query(
+                "SELECT * FROM motebehov " +
+                    "WHERE aktoer_id = ? AND opprettet_av = ? AND opprettet_dato >= ? " +
+                    "ORDER BY opprettet_dato DESC",
+                innsendingRowMapper,
+                arbeidstakerAktorId,
+                arbeidstakerAktorId,
+                hentTidligsteDatoForGyldigMotebehovSvar()
+            )
+        ).orElse(emptyList())
     }
 
-    fun hentMotebehovListeForArbeidstakerOpprettetAvLeder(arbeidstakerAktorId: String, isOwnLeader: Boolean, virksomhetsnummer: String): List<PMotebehov> {
+    fun hentMotebehovListeForArbeidstakerOpprettetAvLeder(
+        arbeidstakerAktorId: String,
+        isOwnLeader: Boolean,
+        virksomhetsnummer: String
+    ): List<PMotebehov> {
         if (isOwnLeader) {
-            return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND virksomhetsnummer = ? AND opprettet_dato >= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar())).orElse(emptyList())
+            return Optional.ofNullable(
+                jdbcTemplate.query(
+                    "SELECT * FROM motebehov " +
+                        "WHERE aktoer_id = ? AND virksomhetsnummer = ? AND opprettet_dato >= ? " +
+                        "ORDER BY opprettet_dato DESC",
+                    innsendingRowMapper,
+                    arbeidstakerAktorId,
+                    virksomhetsnummer,
+                    hentTidligsteDatoForGyldigMotebehovSvar()
+                )
+            ).orElse(emptyList())
         }
 
-        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av != ? AND virksomhetsnummer = ? AND opprettet_dato >= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar())).orElse(emptyList())
+        return Optional.ofNullable(
+            jdbcTemplate.query(
+                "SELECT * FROM motebehov " +
+                    "WHERE aktoer_id = ? AND opprettet_av != ? AND virksomhetsnummer = ? AND opprettet_dato >= ? " +
+                    "ORDER BY opprettet_dato DESC",
+                innsendingRowMapper,
+                arbeidstakerAktorId,
+                arbeidstakerAktorId,
+                virksomhetsnummer,
+                hentTidligsteDatoForGyldigMotebehovSvar()
+            )
+        ).orElse(emptyList())
     }
 
     fun hentUbehandledeMotebehov(aktoerId: String): List<PMotebehov> {
-        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND har_motebehov AND behandlet_veileder_ident IS NULL", innsendingRowMapper, aktoerId)).orElse(emptyList())
+        return Optional.ofNullable(
+            jdbcTemplate.query(
+                "SELECT * FROM motebehov WHERE aktoer_id = ? AND har_motebehov AND behandlet_veileder_ident IS NULL",
+                innsendingRowMapper,
+                aktoerId
+            )
+        ).orElse(emptyList())
     }
 
     fun hentUbehandledeMotebehovEldreEnnDato(date: LocalDate): List<PMotebehov> {
-        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE opprettet_dato < ? AND har_motebehov AND behandlet_veileder_ident IS NULL", innsendingRowMapper, convert(date))).orElse(emptyList())
+        return Optional.ofNullable(
+            jdbcTemplate.query(
+                "SELECT * FROM motebehov " +
+                    "WHERE opprettet_dato < ? AND har_motebehov AND behandlet_veileder_ident IS NULL",
+                innsendingRowMapper,
+                convert(date)
+            )
+        ).orElse(emptyList())
     }
 
     fun hentMotebehov(motebehovId: String): List<PMotebehov> {
-        return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE motebehov_uuid = ?", innsendingRowMapper, motebehovId)).orElse(emptyList())
+        return Optional.ofNullable(
+            jdbcTemplate.query(
+                "SELECT * FROM motebehov WHERE motebehov_uuid = ?",
+                innsendingRowMapper,
+                motebehovId
+            )
+        ).orElse(emptyList())
     }
 
     fun oppdaterUbehandledeMotebehovTilBehandlet(
         motebehovUUID: UUID,
         veilederIdent: String,
     ): Int {
-        val oppdaterSql = "UPDATE motebehov SET behandlet_tidspunkt = ?, behandlet_veileder_ident = ? WHERE motebehov_uuid = ? AND har_motebehov AND behandlet_veileder_ident IS NULL"
+        val oppdaterSql =
+            "UPDATE motebehov SET behandlet_tidspunkt = ?, behandlet_veileder_ident = ? " +
+                "WHERE motebehov_uuid = ? AND har_motebehov AND behandlet_veileder_ident IS NULL"
         return jdbcTemplate.update(oppdaterSql, convert(LocalDateTime.now()), veilederIdent, motebehovUUID.toString())
     }
 
@@ -82,6 +147,7 @@ class MotebehovDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTem
             .addValue("sm_fnr", motebehov.sykmeldtFnr)
             .addValue("opprettet_av_fnr", motebehov.opprettetAvFnr)
         namedParameterJdbcTemplate.update(lagreSql, mapLagreSql)
+
         return uuid
     }
 

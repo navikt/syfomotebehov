@@ -1,6 +1,8 @@
-<?xml version="1.0" ?>
+<?xml version='1.0' encoding='UTF-8'?>
 <SmellBaseline>
-  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <ManuallySuppressedIssues>
+    <ID>TooManyFunctions:MotebehovService.kt$MotebehovService</ID>
+  </ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>AnnotationOnSeparateLine:MotebehovArbeidsgiverControllerV3.kt$MotebehovArbeidsgiverControllerV3$@Pattern(regexp = "^[0-9]{11}$")</ID>
     <ID>AnnotationOnSeparateLine:MotebehovVeilederADControllerV3.kt$MotebehovVeilederADControllerV3$@Pattern(regexp = "^[0-9]{11}$")</ID>
@@ -32,24 +34,24 @@
     <ID>ArgumentListWrapping:DialogmotekandidatService.kt$DialogmotekandidatService$(dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime())</ID>
     <ID>ArgumentListWrapping:EsyfovarselKafkaConfig.kt$EsyfovarselKafkaConfig$("EsyfovarselProducerFactory")</ID>
     <ID>ArgumentListWrapping:Metric.kt$Metric$( "type", "info", "kode", kode.toString() )</ID>
-    <ID>ArgumentListWrapping:Metric.kt$Metric$( "type", "info", "motebehov", if (harMotebehov) "ja" else "nei", "dag", dayInOppfolgingstilfelleMotebehovCreated?.toString().orEmpty(), "skjematype", when (motebehovSkjemaType) { MotebehovSkjemaType.MELD_BEHOV -&gt; "meldbehov" MotebehovSkjemaType.SVAR_BEHOV -&gt; "svarbehov" else -&gt; "null" } )</ID>
+    <ID>ArgumentListWrapping:Metric.kt$Metric$( "type", "info", "motebehov", if (harMotebehov) "ja" else "nei", "dag", dayInOppfolgingstilfelleMotebehovCreated?.toString().orEmpty(), "skjematype", when (motebehovSkjemaType) { MotebehovSkjemaType.MELD_BEHOV -> "meldbehov" MotebehovSkjemaType.SVAR_BEHOV -> "svarbehov" else -> "null" } )</ID>
     <ID>ArgumentListWrapping:Metric.kt$Metric$( "type", "info", "status", statusCode.toString() )</ID>
     <ID>ArgumentListWrapping:Metric.kt$Metric$(activeOppfolgingstilfelle.fom, LocalDate.now())</ID>
     <ID>ArgumentListWrapping:MotebehovArbeidsgiverControllerV3.kt$MotebehovArbeidsgiverControllerV3$(issuer = TokenXIssuer.TOKENX, claimMap = ["acr=Level4", "acr=idporten-loa-high"], combineWithOr = true)</ID>
     <ID>ArgumentListWrapping:MotebehovArbeidstakerControllerV3.kt$MotebehovArbeidstakerControllerV3$(issuer = TokenXIssuer.TOKENX, claimMap = ["acr=Level4", "acr=idporten-loa-high"], combineWithOr = true)</ID>
     <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$("SELECT * FROM motebehov WHERE aktoer_id = ? AND har_motebehov AND behandlet_veileder_ident IS NULL", innsendingRowMapper, aktoerId)</ID>
-    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av != ? AND virksomhetsnummer = ? AND opprettet_dato &gt;= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar())</ID>
-    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av = ? AND opprettet_dato &gt;= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, hentTidligsteDatoForGyldigMotebehovSvar())</ID>
-    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$("SELECT * FROM motebehov WHERE aktoer_id = ? AND virksomhetsnummer = ? AND opprettet_dato &gt;= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar())</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av != ? AND virksomhetsnummer = ? AND opprettet_dato >= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar())</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av = ? AND opprettet_dato >= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, hentTidligsteDatoForGyldigMotebehovSvar())</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$("SELECT * FROM motebehov WHERE aktoer_id = ? AND virksomhetsnummer = ? AND opprettet_dato >= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar())</ID>
     <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$("SELECT * FROM motebehov WHERE aktoer_id = ? ORDER BY opprettet_dato ASC", innsendingRowMapper, aktoerId)</ID>
     <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$("SELECT * FROM motebehov WHERE motebehov_uuid = ?", innsendingRowMapper, motebehovId)</ID>
     <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$("SELECT * FROM motebehov WHERE opprettet_dato &lt; ? AND har_motebehov AND behandlet_veileder_ident IS NULL", innsendingRowMapper, convert(date))</ID>
     <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(date)</ID>
     <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(emptyList())</ID>
     <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND har_motebehov AND behandlet_veileder_ident IS NULL", innsendingRowMapper, aktoerId))</ID>
-    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av != ? AND virksomhetsnummer = ? AND opprettet_dato &gt;= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar()))</ID>
-    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av = ? AND opprettet_dato &gt;= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, hentTidligsteDatoForGyldigMotebehovSvar()))</ID>
-    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND virksomhetsnummer = ? AND opprettet_dato &gt;= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar()))</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av != ? AND virksomhetsnummer = ? AND opprettet_dato >= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar()))</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av = ? AND opprettet_dato >= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, hentTidligsteDatoForGyldigMotebehovSvar()))</ID>
+    <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND virksomhetsnummer = ? AND opprettet_dato >= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar()))</ID>
     <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? ORDER BY opprettet_dato ASC", innsendingRowMapper, aktoerId))</ID>
     <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(jdbcTemplate.query("SELECT * FROM motebehov WHERE motebehov_uuid = ?", innsendingRowMapper, motebehovId))</ID>
     <ID>ArgumentListWrapping:MotebehovDAO.kt$MotebehovDAO$(jdbcTemplate.query("SELECT * FROM motebehov WHERE opprettet_dato &lt; ? AND har_motebehov AND behandlet_veileder_ident IS NULL", innsendingRowMapper, convert(date)))</ID>
@@ -99,7 +101,7 @@
     <ID>EmptyFunctionBlock:IsOppfolgingstilfelleKafkaConfig.kt$KafkaIsOppfolgingstilfelleDeserializer${}</ID>
     <ID>EmptyFunctionBlock:JacksonKafkaSerializer.kt$JacksonKafkaSerializer${}</ID>
     <ID>EmptyFunctionBlock:KafkaDialogmotekandidatDeserializer.kt$KafkaDialogmotekandidatDeserializer${}</ID>
-    <ID>ExplicitItLambdaParameter:KafkaOppfolgingstilfellePerson.kt${ it -&gt; this.createdAt.toNorwegianLocalDateTime().isBefore(it) }</ID>
+    <ID>ExplicitItLambdaParameter:KafkaOppfolgingstilfellePerson.kt${ it -> this.createdAt.toNorwegianLocalDateTime().isBefore(it) }</ID>
     <ID>FunctionOnlyReturningConstant:PodController.kt$PodController$@Unprotected @RequestMapping(value = ["/isAlive"], produces = [MediaType.TEXT_PLAIN_VALUE]) fun isAlive(): String</ID>
     <ID>FunctionOnlyReturningConstant:PodController.kt$PodController$@Unprotected @RequestMapping(value = ["/isReady"], produces = [MediaType.TEXT_PLAIN_VALUE]) fun isReady(): String</ID>
     <ID>ImportOrdering:DialogmoteDAO.kt$import java.time.LocalDate import java.time.LocalDateTime import java.util.* import javax.inject.Inject import no.nav.syfo.util.convert import org.springframework.jdbc.core.RowMapper import org.springframework.jdbc.core.namedparam.MapSqlParameterSource import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate import org.springframework.stereotype.Repository import org.springframework.stereotype.Service import org.springframework.transaction.annotation.Transactional</ID>
@@ -161,9 +163,9 @@
     <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$class</ID>
     <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$fun</ID>
     <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND har_motebehov AND behandlet_veileder_ident IS NULL", innsendingRowMapper, aktoerId)).orElse(emptyList())</ID>
-    <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av != ? AND virksomhetsnummer = ? AND opprettet_dato &gt;= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar())).orElse(emptyList())</ID>
-    <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av = ? AND opprettet_dato &gt;= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, hentTidligsteDatoForGyldigMotebehovSvar())).orElse(emptyList())</ID>
-    <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND virksomhetsnummer = ? AND opprettet_dato &gt;= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar())).orElse(emptyList())</ID>
+    <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av != ? AND virksomhetsnummer = ? AND opprettet_dato >= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar())).orElse(emptyList())</ID>
+    <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND opprettet_av = ? AND opprettet_dato >= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, arbeidstakerAktorId, hentTidligsteDatoForGyldigMotebehovSvar())).orElse(emptyList())</ID>
+    <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? AND virksomhetsnummer = ? AND opprettet_dato >= ? ORDER BY opprettet_dato DESC", innsendingRowMapper, arbeidstakerAktorId, virksomhetsnummer, hentTidligsteDatoForGyldigMotebehovSvar())).orElse(emptyList())</ID>
     <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE aktoer_id = ? ORDER BY opprettet_dato ASC", innsendingRowMapper, aktoerId)).orElse(emptyList())</ID>
     <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE motebehov_uuid = ?", innsendingRowMapper, motebehovId)).orElse(emptyList())</ID>
     <ID>MaxLineLength:MotebehovDAO.kt$MotebehovDAO$return Optional.ofNullable(jdbcTemplate.query("SELECT * FROM motebehov WHERE opprettet_dato &lt; ? AND har_motebehov AND behandlet_veileder_ident IS NULL", innsendingRowMapper, convert(date))).orElse(emptyList())</ID>
@@ -192,7 +194,7 @@
     <ID>MaxLineLength:OppfolgingstilfelleService.kt$OppfolgingstilfelleService.Companion$private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE = "${METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE}_update"</ID>
     <ID>MaxLineLength:OppfolgingstilfelleService.kt$OppfolgingstilfelleService.Companion$private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE_SKIP_DUPLICATE = "${METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE}_update_skip_duplicate"</ID>
     <ID>MaxLineLength:PersonoppgavehendelseKafkaConfig.kt$PersonoppgavehendelseKafkaConfig$fun</ID>
-    <ID>MaxLineLength:PersonoppgavehendelseProducer.kt$PersonoppgavehendelseProducer$@Qualifier("PersonoppgavehendelseTemplate") private val kafkaTemplate: KafkaTemplate&lt;String, KPersonoppgavehendelse&gt;</ID>
+    <ID>MaxLineLength:PersonoppgavehendelseProducer.kt$PersonoppgavehendelseProducer$@Qualifier("PersonoppgavehendelseTemplate") private val kafkaTemplate: KafkaTemplate&lt;String, KPersonoppgavehendelse></ID>
     <ID>MaxLineLength:PersonoppgavehendelseProducer.kt$PersonoppgavehendelseProducer$log.info("Sending personoppgavehendelse of type ${kPersonoppgavehendelse.hendelsetype}, personoppgaveId: $personoppgaveId")</ID>
     <ID>MaxLineLength:RestHelper.kt$.</ID>
     <ID>MaxLineLength:TestdataResetServiceTest.kt$TestdataResetServiceTest$assertThat(dialogmoteDAO.getAktiveDialogmoterEtterDato(ARBEIDSTAKER_FNR, LocalDate.now().minusDays(1))).isEmpty()</ID>
@@ -246,8 +248,8 @@
     <ID>MaximumLineLength:VarselServiceTest.kt$VarselServiceTest$ </ID>
     <ID>MaximumLineLength:VarselServiceV2.kt$VarselServiceV2$ </ID>
     <ID>MayBeConst:DateUtil.kt$val ZONE_ID = "Europe/Oslo"</ID>
-    <ID>MemberNameEqualsClassName:DialogmoteStatusendringListener.kt$DialogmoteStatusendringListener$@KafkaListener(topics = [DIALOGMOTE_STATUSENDRING_TOPIC], containerFactory = "DialogmoteListenerContainerFactory") fun dialogmoteStatusEndringListener( consumerRecord: ConsumerRecord&lt;String, KDialogmoteStatusEndring&gt;, acknowledgment: Acknowledgment )</ID>
-    <ID>MemberNameEqualsClassName:TestdataResetListener.kt$TestdataResetListener$@KafkaListener( topics = [TESTDATA_RESET_TOPIC], containerFactory = "TestdataResetListenerContainerFactory", ) fun testdataResetListener( consumerRecord: ConsumerRecord&lt;String, String&gt;, acknowledgment: Acknowledgment, )</ID>
+    <ID>MemberNameEqualsClassName:DialogmoteStatusendringListener.kt$DialogmoteStatusendringListener$@KafkaListener(topics = [DIALOGMOTE_STATUSENDRING_TOPIC], containerFactory = "DialogmoteListenerContainerFactory") fun dialogmoteStatusEndringListener( consumerRecord: ConsumerRecord&lt;String, KDialogmoteStatusEndring>, acknowledgment: Acknowledgment )</ID>
+    <ID>MemberNameEqualsClassName:TestdataResetListener.kt$TestdataResetListener$@KafkaListener( topics = [TESTDATA_RESET_TOPIC], containerFactory = "TestdataResetListenerContainerFactory", ) fun testdataResetListener( consumerRecord: ConsumerRecord&lt;String, String>, acknowledgment: Acknowledgment, )</ID>
     <ID>MultiLineIfElse:Metric.kt$Metric$"syfomotebehov_motebehov_besvart_oppfolgingstilfelle_dag_ag"</ID>
     <ID>MultiLineIfElse:Metric.kt$Metric$null</ID>
     <ID>MultiLineIfElse:MotebehovStatusServiceV2.kt$MotebehovStatusServiceV2$false</ID>
@@ -287,14 +289,14 @@
     <ID>NoWildcardImports:VeilederTilgangConsumer.kt$import no.nav.syfo.util.*</ID>
     <ID>NoWildcardImports:VeilederTilgangConsumer.kt$import org.springframework.http.*</ID>
     <ID>NoWildcardImports:VeilederTilgangConsumer.kt$import org.springframework.web.client.*</ID>
-    <ID>ParameterListWrapping:EsyfovarselKafkaConfig.kt$EsyfovarselKafkaConfig$(@Qualifier("EsyfovarselProducerFactory") producerFactory: ProducerFactory&lt;String, EsyfovarselHendelse&gt;)</ID>
+    <ID>ParameterListWrapping:EsyfovarselKafkaConfig.kt$EsyfovarselKafkaConfig$(@Qualifier("EsyfovarselProducerFactory") producerFactory: ProducerFactory&lt;String, EsyfovarselHendelse>)</ID>
     <ID>ParameterListWrapping:MotebehovDAO.kt$MotebehovDAO$(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate, private val jdbcTemplate: JdbcTemplate)</ID>
-    <ID>ParameterListWrapping:PersonoppgavehendelseKafkaConfig.kt$PersonoppgavehendelseKafkaConfig$(@Qualifier("PersonoppgavehendelseProducerFactory") producerFactory: ProducerFactory&lt;String, KPersonoppgavehendelse&gt;)</ID>
-    <ID>ParameterWrapping:PersonoppgavehendelseProducer.kt$PersonoppgavehendelseProducer$@Qualifier("PersonoppgavehendelseTemplate") private val kafkaTemplate: KafkaTemplate&lt;String, KPersonoppgavehendelse&gt;</ID>
+    <ID>ParameterListWrapping:PersonoppgavehendelseKafkaConfig.kt$PersonoppgavehendelseKafkaConfig$(@Qualifier("PersonoppgavehendelseProducerFactory") producerFactory: ProducerFactory&lt;String, KPersonoppgavehendelse>)</ID>
+    <ID>ParameterWrapping:PersonoppgavehendelseProducer.kt$PersonoppgavehendelseProducer$@Qualifier("PersonoppgavehendelseTemplate") private val kafkaTemplate: KafkaTemplate&lt;String, KPersonoppgavehendelse></ID>
     <ID>PrintStackTrace:RestHelper.kt$e</ID>
-    <ID>ReturnCount:ControllerExceptionHandler.kt$ControllerExceptionHandler$@ExceptionHandler(Exception::class, IllegalArgumentException::class, ConstraintViolationException::class, ForbiddenException::class, JwtTokenUnauthorizedException::class) fun handleException(ex: Exception, request: WebRequest): ResponseEntity&lt;ApiError&gt;</ID>
-    <ID>ReturnCount:MotebehovStatusHelper.kt$MotebehovStatusHelper$fun isSvarBehovVarselAvailable( motebehovList: List&lt;Motebehov&gt;, oppfolgingstilfelle: PersonOppfolgingstilfelle?, ): Boolean</ID>
-    <ID>ReturnCount:MotebehovStatusHelper.kt$MotebehovStatusHelper$fun motebehovStatus( hasUpcomingDialogmote: Boolean, oppfolgingstilfelle: PersonOppfolgingstilfelle?, isDialogmoteKandidat: Boolean, motebehovList: List&lt;Motebehov&gt;, ): MotebehovStatus</ID>
+    <ID>ReturnCount:ControllerExceptionHandler.kt$ControllerExceptionHandler$@ExceptionHandler(Exception::class, IllegalArgumentException::class, ConstraintViolationException::class, ForbiddenException::class, JwtTokenUnauthorizedException::class) fun handleException(ex: Exception, request: WebRequest): ResponseEntity&lt;ApiError></ID>
+    <ID>ReturnCount:MotebehovStatusHelper.kt$MotebehovStatusHelper$fun isSvarBehovVarselAvailable( motebehovList: List&lt;Motebehov>, oppfolgingstilfelle: PersonOppfolgingstilfelle?, ): Boolean</ID>
+    <ID>ReturnCount:MotebehovStatusHelper.kt$MotebehovStatusHelper$fun motebehovStatus( hasUpcomingDialogmote: Boolean, oppfolgingstilfelle: PersonOppfolgingstilfelle?, isDialogmoteKandidat: Boolean, motebehovList: List&lt;Motebehov>, ): MotebehovStatus</ID>
     <ID>SerialVersionUIDInSerializableClass:AzureAdV2Token.kt$AzureAdV2Token : Serializable</ID>
     <ID>SerialVersionUIDInSerializableClass:AzureAdV2TokenResponse.kt$AzureAdV2TokenResponse : Serializable</ID>
     <ID>SerialVersionUIDInSerializableClass:Motebehov.kt$Motebehov : Serializable</ID>

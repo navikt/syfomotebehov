@@ -8,7 +8,10 @@ import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiver
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverFormFilloutInputDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverInputDTO
+import no.nav.syfo.motebehov.TemporaryCombinedNyttMotebehovSvar
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
 import org.springframework.beans.factory.annotation.Value
@@ -19,7 +22,11 @@ import javax.validation.Valid
 import javax.validation.constraints.Pattern
 
 @RestController
-@ProtectedWithClaims(issuer = TokenXIssuer.TOKENX, claimMap = ["acr=Level4", "acr=idporten-loa-high"], combineWithOr = true)
+@ProtectedWithClaims(
+    issuer = TokenXIssuer.TOKENX,
+    claimMap = ["acr=Level4", "acr=idporten-loa-high"],
+    combineWithOr = true
+)
 @RequestMapping(value = ["/api/v3"])
 class MotebehovArbeidsgiverControllerV3 @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
@@ -48,28 +55,74 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         return motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(arbeidstakerFnr, isOwnLeader, virksomhetsnummer)
     }
 
+    // Currently used POST-endpoint to phase out
     @PostMapping(
         value = ["/motebehov"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun lagreMotebehovArbeidsgiver(
-        @RequestBody nyttMotebehov: @Valid NyttMotebehovArbeidsgiver,
+        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverInputDTO,
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
         val innloggetFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)
             .fnrFromIdportenTokenX()
-        val ansattFnr = nyttMotebehov.arbeidstakerFnr
+        val ansattFnr = nyttMotebehovDTO.arbeidstakerFnr
         brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(ansattFnr)
 
         val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
         val isOwnLeader = arbeidsgiverFnr == ansattFnr
 
+        val nyttMotebehovArbeidsgiverDTO = NyttMotebehovArbeidsgiverDTO(
+            arbeidstakerFnr = nyttMotebehovDTO.arbeidstakerFnr,
+            virksomhetsnummer = nyttMotebehovDTO.virksomhetsnummer,
+            motebehovSvarInputDTO = TemporaryCombinedNyttMotebehovSvar(
+                harMotebehov = nyttMotebehovDTO.motebehovSvar.harMotebehov,
+                forklaring = nyttMotebehovDTO.motebehovSvar.forklaring,
+                formFillout = null,
+            ),
+        )
+
         motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidgiver(
             innloggetFnr,
             ansattFnr,
             isOwnLeader,
-            nyttMotebehov,
+            nyttMotebehovArbeidsgiverDTO,
+        )
+    }
+
+    @PostMapping(
+        value = ["/motebehov-form-fillout"],
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun lagreMotebehovArbeidsgiver(
+        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverFormFilloutInputDTO,
+    ) {
+        metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
+        val innloggetFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)
+            .fnrFromIdportenTokenX()
+        val ansattFnr = nyttMotebehovDTO.arbeidstakerFnr
+        brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(ansattFnr)
+
+        val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
+        val isOwnLeader = arbeidsgiverFnr == ansattFnr
+
+        val nyttMotebehovArbeidsgiverDTO = NyttMotebehovArbeidsgiverDTO(
+            arbeidstakerFnr = nyttMotebehovDTO.arbeidstakerFnr,
+            virksomhetsnummer = nyttMotebehovDTO.virksomhetsnummer,
+            motebehovSvarInputDTO = TemporaryCombinedNyttMotebehovSvar(
+                harMotebehov = nyttMotebehovDTO.motebehovSvarInputDTO.harMotebehov,
+                forklaring = null,
+                formFillout = nyttMotebehovDTO.motebehovSvarInputDTO.formFillout,
+            ),
+        )
+
+        motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidgiver(
+            innloggetFnr,
+            ansattFnr,
+            isOwnLeader,
+            nyttMotebehovArbeidsgiverDTO,
         )
     }
 }
