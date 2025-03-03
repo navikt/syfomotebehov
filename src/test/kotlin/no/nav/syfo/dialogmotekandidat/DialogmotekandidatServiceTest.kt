@@ -20,7 +20,6 @@ import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.util.*
 
-//@ExtendWith(SpringExtension::class)
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
@@ -44,7 +43,6 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
             val sqlDeleteAll = "DELETE FROM DIALOGMOTEKANDIDAT"
             jdbcTemplate.update(sqlDeleteAll)
         }
-
 
         it("skalLagreNyKandidatEndring") {
             val existingKandidat = dialogmotekandidatDAO.get(
@@ -71,7 +69,6 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
             assertThat(kandidatAfterKafkaMessage?.kandidat).isTrue
             assertThat(kandidatAfterKafkaMessage?.arsak).isEqualTo(DialogmotekandidatEndringArsak.STOPPUNKT)
         }
-
 
         it("skalOppdatereKandidatVedNyEndring") {
             dialogmotekandidatService.receiveDialogmotekandidatEndring(
@@ -107,7 +104,6 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
             assertThat(updatedKandidat?.arsak).isEqualTo(DialogmotekandidatEndringArsak.UNNTAK)
         }
 
-
         it("rekjoringIGalRekkefolgeSkalOgsaaFungere") {
             val forsteKandidatMelding = generateDialogmotekandidatEndring(
                 kandidat = true,
@@ -140,7 +136,6 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
             assertThat(kandidatStatus?.arsak).isEqualTo(DialogmotekandidatEndringArsak.DIALOGMOTE_FERDIGSTILT)
         }
 
-
         it("skalSendeVarselDersomNyKandidat") {
             val forsteGangKandidat = generateDialogmotekandidatEndring(
                 kandidat = true,
@@ -154,7 +149,6 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
             verify(exactly = 0) { varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(any()) }
         }
 
-
         it("skalIkkeSendeVarselDersomIkkeKandidat") {
             val forsteGangKandidat = generateDialogmotekandidatEndring(
                 kandidat = false,
@@ -166,7 +160,6 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
 
             verify(exactly = 0) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
         }
-
 
         it("skalIkkeSendeVarselDersomIkkeAktuellKandidat") {
             val forsteGangKandidat = generateDialogmotekandidatEndring(
@@ -180,7 +173,6 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
             verify(exactly = 0) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
         }
 
-
         it("skalIkkeSendeVarselDersomLukketKandidat") {
             val forsteGangKandidat = generateDialogmotekandidatEndring(
                 kandidat = false,
@@ -192,7 +184,6 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
 
             verify(exactly = 0) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
         }
-
 
         it("skalFerdigsstilleVarselDersomIkkeKandidat") {
             val forsteGangKandidat = generateDialogmotekandidatEndring(
@@ -229,5 +220,4 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
             arsak
         )
     }
-
 }

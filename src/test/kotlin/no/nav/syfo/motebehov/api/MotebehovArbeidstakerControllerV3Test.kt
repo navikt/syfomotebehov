@@ -50,10 +50,8 @@ import java.time.LocalDateTime
 import java.util.*
 import java.util.function.Consumer
 
-//@ExtendWith(SpringExtension::class)
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
-//@DirtiesContext
 class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
     @Value("\${azure.openid.config.token.endpoint}")
     private lateinit var azureTokenEndpoint: String
@@ -116,15 +114,6 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
 
             mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
             mockRestServiceServerAzureAD = MockRestServiceServer.bindTo(restTemplateAzureAD).build()
-            //tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
-            /*mockkObject(TokenXUtil)
-            every { TokenXUtil.validateTokenXClaims(any(), any()) } returns mockk(relaxed = true)
-            every { TokenXUtil.validateTokenXClaims(any(), any(), any()) } returns mockk(relaxed = true)
-            every { TokenXUtil.fnrFromIdportenTokenX(any()) } returns ARBEIDSTAKER_FNR*/
-            //every { TokenXUtil.fnrFromIdportenTokenX() } returns ARBEIDSTAKER_FNR
-
-            //every { veilederTilgangConsumer.sjekkVeiledersTilgangTilPersonMedOBO(any()) } returns true
-
             cleanDB()
         }
 
@@ -256,7 +245,6 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
 
-
             it("get MotebehovStatus With Today Inside Oppfolgingstilfelle Day1") {
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
                 dbCreateOppfolgingstilfelle(
@@ -269,7 +257,6 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                 motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
-
 
             it("get MotebehovStatus With Today Inside Oppfolgingstilfelle LastDay") {
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
@@ -285,7 +272,6 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
 
-
             it("get MotebehovStatus With Today Inside Oppfolgingstilfelle") {
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
                 dbCreateOppfolgingstilfelle(
@@ -299,7 +285,6 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                 motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
-
 
             it("get MotebehovStatus With Today Inside Oppfolgingstilfelle, MeldBehov Submitted And Behandlet") {
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
@@ -326,7 +311,6 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
 
-
             it("get MotebehovStatus With Today Inside Oppfolgingstilfelle MeldBehov, Moteplanlegger Active, MeldBehov Submitted") {
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
                 dbCreateOppfolgingstilfelle(
@@ -347,7 +331,6 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, motebehovSvar)
             }
 
-
             it("get MotebehovStatus With Today Inside Oppfolgingstilfelle Before SvarBehov StartDate") {
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
                 dbCreateOppfolgingstilfelle(
@@ -362,7 +345,6 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
 
-
             it("get MotebehovStatus With Today Inside Oppfolgingstilfelle After SvarBehov EndDate") {
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
                 dbCreateOppfolgingstilfelle(
@@ -376,7 +358,6 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                 motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
-
 
             it("get MotebehovStatus With No Motebehov And Mote Inside SvarBehov Upper Limit") {
                 createKandidatInDB()
@@ -393,7 +374,6 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                 motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
             }
-
 
             it("get MotebehovStatus with SvarBehov and Mote created") {
                 createKandidatInDB()
@@ -419,7 +399,6 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, motebehovSvar)
             }
 
-
             it("get MotebehovStatus with no Motebehov and no Mote inside SvarBehov lower limit") {
                 createKandidatInDB()
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
@@ -436,7 +415,6 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
             }
 
-
             it("get MotebehovStatus with no Motebehov and no Mote") {
                 createKandidatInDB()
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
@@ -449,7 +427,6 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                 motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
             }
-
 
             it("get MotebehovStatus and sendOversikthendelse with Motebehov harBehov=true") {
                 createKandidatInDB()
@@ -465,7 +442,6 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                 lagreOgHentMotebehovOgSendOversikthendelse(harBehov = true)
             }
 
-
             it("get MotebehovStatus and SendOversikthendelse with Motebehov harBehov=false") {
                 createKandidatInDB()
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
@@ -479,7 +455,6 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
 
                 lagreOgHentMotebehovOgSendOversikthendelse(harBehov = false)
             }
-
 
             it("submitMotebehov multiple active Oppfolgingstilfeller") {
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)

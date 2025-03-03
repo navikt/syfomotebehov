@@ -25,7 +25,7 @@ import java.util.*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
-class MotebehovStatusServiceTest : DescribeSpec({ // TODO use descripspec
+class MotebehovStatusServiceTest : DescribeSpec({
 
     val motebehovService: MotebehovService = mockk<MotebehovService>()
 
@@ -52,10 +52,8 @@ class MotebehovStatusServiceTest : DescribeSpec({ // TODO use descripspec
         every { pdlConsumer.fnr(any()) } returns UserConstants.ARBEIDSTAKER_FNR
     }
 
-
     describe("describe") {
-        it("kandidatWithNoDialogmoteGivesStatusSvarBehov")
-        {
+        it("kandidatWithNoDialogmoteGivesStatusSvarBehov") {
             every { dialogmoteStatusService.isDialogmotePlanlagtEtterDato(userFnr, null, any()) } returns false
             every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(userFnr) } returns createOppfolgingstilfelle()
             every { motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(userFnr) } returns emptyList()
@@ -90,7 +88,6 @@ class MotebehovStatusServiceTest : DescribeSpec({ // TODO use descripspec
             assertThat(motebehovStatusForArbeidstaker.skjemaType).isEqualTo(MotebehovSkjemaType.MELD_BEHOV)
         }
     }
-
 })
 
 private fun createOppfolgingstilfelle(): PersonOppfolgingstilfelle {

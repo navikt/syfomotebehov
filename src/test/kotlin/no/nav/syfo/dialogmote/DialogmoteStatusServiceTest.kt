@@ -24,7 +24,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
-//@ExtendWith(SpringExtension::class)
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
@@ -44,7 +43,6 @@ class DialogmoteStatusServiceTest : IntegrationTest() {
 
     val externMoteUUID = "bae778f2-a085-11e8-98d0-529269fb1459"
     val dialogmotetidspunkt = convertLocalDateTimeToInstant(LocalDateTime.now().plusWeeks(4))
-
 
     init {
         extensions(SpringExtension)
@@ -127,7 +125,6 @@ class DialogmoteStatusServiceTest : IntegrationTest() {
 
                 moteFraDBAfter.isEmpty() shouldBe true
             }
-
 
             it("will update dialogmøte status type hvis status type er innkalling eller nytt tid sted") {
                 dialogmoteStatusService.receiveKDialogmoteStatusendring(
@@ -268,5 +265,4 @@ class DialogmoteStatusServiceTest : IntegrationTest() {
             false,
         )
     }
-
 }

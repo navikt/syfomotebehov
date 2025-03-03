@@ -16,7 +16,6 @@ class NarmesteLederServiceTest : DescribeSpec({
     val narmesteLederClient: NarmesteLederClient = mockk()
     val narmesteLederService = NarmesteLederService(narmesteLederClient)
 
-
     it("duplicate nærmesteleadere should be merged") {
         val relasjoner = listOf(
             createNarmesteLederRelasjonDTO(
@@ -88,4 +87,3 @@ fun createNarmesteLederRelasjonDTO(
         status = status
     )
 }
-

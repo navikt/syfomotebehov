@@ -27,7 +27,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-//@ExtendWith(SpringExtension::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
@@ -57,7 +56,6 @@ class TestdataResetServiceTest : IntegrationTest() {
         beforeTest {
             every { pdlConsumer.aktorid(ARBEIDSTAKER_FNR) } returns ARBEIDSTAKER_AKTORID
         }
-
 
         describe("TestdataResetService") {
             it("skalNullstilleData") {

@@ -7,15 +7,12 @@ import io.mockk.mockk
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.junit.jupiter.api.Assertions
 
-class BrukertilgangskontrollServiceTest : DescribeSpec( {
-
-
+class BrukertilgangskontrollServiceTest : DescribeSpec({
     val brukertilgangConsumer: BrukertilgangConsumer = mockk<BrukertilgangConsumer>()
     val token = mockk<TokenValidationContextHolder>()
     val tilgangskontrollService = BrukertilgangService(
         token,
         brukertilgangConsumer)
-
 
     describe("BrukertilgangskontrollService") {
         it("has access to oppslått bruker when asking about self") {

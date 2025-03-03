@@ -83,7 +83,6 @@ class HistorikkServiceTest : DescribeSpec({
                     pdlPersonResponseNL3.fullName() + HistorikkService.HAR_SVART_PAA_MOTEBEHOV
             historikkLesteMotebehovTekst1 shouldBe HistorikkService.MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID
             historikkLesteMotebehovTekst2 shouldBe HistorikkService.MOTEBEHOVET_BLE_LEST_AV + VEILEDER_ID
-            1 shouldBe 1
         }
     }
 

@@ -8,6 +8,7 @@ import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
+
 @DirtiesContext
 abstract class IntegrationTest : DescribeSpec() {
     companion object {

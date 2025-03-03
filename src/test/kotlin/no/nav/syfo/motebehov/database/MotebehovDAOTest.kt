@@ -18,7 +18,7 @@ import java.time.temporal.ChronoUnit
 
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
-@Sql(statements=["DELETE FROM MOTEBEHOV"])
+@Sql(statements = ["DELETE FROM MOTEBEHOV"])
 class MotebehovDAOTest : IntegrationTest() {
 
     @Autowired
@@ -28,7 +28,6 @@ class MotebehovDAOTest : IntegrationTest() {
     private lateinit var motebehovDAO: MotebehovDAO
 
     private val motebehovGenerator = MotebehovGenerator()
-
 
     init {
         extensions(SpringExtension)

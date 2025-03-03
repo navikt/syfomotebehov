@@ -10,11 +10,10 @@ fun MotebehovStatus.assertMotebehovStatus(
     expSkjemaType: MotebehovSkjemaType?,
     expMotebehovSvar: MotebehovSvar?
 ) {
-    // change to use shouldBe
     expVisMotebehov shouldBe this.visMotebehov
     expSkjemaType shouldBe this.skjemaType
     if (expMotebehovSvar != null) {
-        expMotebehovSvar shouldBe  this.motebehov!!.motebehovSvar
+        expMotebehovSvar shouldBe this.motebehov!!.motebehovSvar
         expSkjemaType shouldBe this.motebehov!!.skjemaType
     } else {
         expMotebehovSvar shouldBe this.motebehov

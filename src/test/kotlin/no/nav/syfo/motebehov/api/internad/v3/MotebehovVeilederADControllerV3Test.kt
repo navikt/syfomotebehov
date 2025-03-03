@@ -56,7 +56,6 @@ import java.util.function.Consumer
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
-//@DirtiesContext
 class MotebehovVeilederADControllerV3Test : IntegrationTest() {
 
     @Value("\${azure.openid.config.token.endpoint}")
@@ -160,8 +159,6 @@ class MotebehovVeilederADControllerV3Test : IntegrationTest() {
                 motebehov.opprettetAv shouldBe LEDER_AKTORID
                 motebehov.arbeidstakerFnr shouldBe ARBEIDSTAKER_FNR
                 motebehov.virksomhetsnummer shouldBe VIRKSOMHETSNUMMER
-                //motebehov.motebehovSvar shouldBeEqualUsingFields nyttMotebehov.motebehovSvar
-                //motebehov.motebehovSvar shouldBeEqualToComparingFields nyttMotebehov.motebehovSvar
                 assertThat(motebehov.motebehovSvar).usingRecursiveComparison().isEqualTo(nyttMotebehov.motebehovSvar)
             }
 
@@ -180,7 +177,6 @@ class MotebehovVeilederADControllerV3Test : IntegrationTest() {
                 motebehov.opprettetAv shouldBe ARBEIDSTAKER_AKTORID
                 motebehov.arbeidstakerFnr shouldBe ARBEIDSTAKER_FNR
                 motebehov.virksomhetsnummer shouldBe VIRKSOMHETSNUMMER
-                // motebehov.motebehovSvar).usingRecursiveComparison( shouldBe motebehovSvar)
             }
 
             it("hent Historikk") {

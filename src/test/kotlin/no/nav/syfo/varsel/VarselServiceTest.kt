@@ -89,7 +89,6 @@ class VarselServiceTest : DescribeSpec({
         every { narmesteLederService.getAllNarmesteLederRelations(userFnr) } returns createNarmesteLederRelations()
         every { motebehovStatusHelper.isSvarBehovVarselAvailable(any(), any()) } returns true
         every { metric.tellHendelse(any()) } returns Unit
-
     }
 
     describe("Varsel service") {
@@ -111,7 +110,13 @@ class VarselServiceTest : DescribeSpec({
             varselService.sendSvarBehovVarsel(userFnr, "")
 
             verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
-            verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(narmesteLederFnr1, userFnr, virksomhetsnummer1) }
+            verify(exactly = 1) {
+                esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(
+                    narmesteLederFnr1,
+                    userFnr,
+                    virksomhetsnummer1
+                )
+            }
         }
 
         it("senderIkkeVarselOmIkkeSykmeldtLenger") {
@@ -125,13 +130,17 @@ class VarselServiceTest : DescribeSpec({
                 LocalDate.now().minusMonths(4),
                 LocalDate.now().minusDays(1),
             )
-            //every { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker("12345678912") } returns Unit
-            //every { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), any(), any()) } returns Unit
 
             varselService.sendSvarBehovVarsel(userFnr, "")
 
             verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
-            verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(narmesteLederFnr2, userFnr, any()) }
+            verify(exactly = 1) {
+                esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(
+                    narmesteLederFnr2,
+                    userFnr,
+                    any()
+                )
+            }
         }
 
         it("senderIkkeVarselDersomDialogmotePlanlagt") {

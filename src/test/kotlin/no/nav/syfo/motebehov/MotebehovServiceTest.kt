@@ -17,7 +17,6 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.annotation.DirtiesContext
 import java.time.LocalDate
 
-//@ExtendWith(SpringExtension::class)
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
@@ -43,7 +42,6 @@ class MotebehovServiceTest : IntegrationTest() {
             val sqlDeleteAll = "DELETE FROM MOTEBEHOV"
             jdbcTemplate.update(sqlDeleteAll)
         }
-
 
         describe("Møtebehov Service") {
             it("skalFerdigstilleMotebehovOpprettetForDato") {

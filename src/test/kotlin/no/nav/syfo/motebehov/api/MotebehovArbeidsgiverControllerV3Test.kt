@@ -55,11 +55,9 @@ import java.time.LocalDateTime
 import java.util.*
 import java.util.function.Consumer
 
-//@ExtendWith(SpringExtension::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
-//@DirtiesContext
 class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
     @Value("\${azure.openid.config.token.endpoint}")
     private lateinit var azureTokenEndpoint: String
@@ -127,21 +125,8 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
 
             every { pdlConsumer.isKode6(ARBEIDSTAKER_FNR) } returns false
 
-            /*mockkObject(TokenXUtil)
-            every { TokenXUtil.validateTokenXClaims(any(), any()) } returns mockk(relaxed = true)
-            every { TokenXUtil.fnrFromIdportenTokenX(any()) } returns ARBEIDSTAKER_FNR*/
-            //every { TokenXUtil.JwtTokenClaims.fnrFromIdportenTokenX() } returns ARBEIDSTAKER_FNR
-
-            /* every { tokenXUtil.fnrFromIdportenTokenX(any()) } returns ARBEIDSTAKER_FNR
-
-             )*/
-
-            //every { tokenValidationUtil.logInAsDialogmoteUser(any()) } returns Unit
-            //every { tokenXUtil.getSubjectAlternativeName(any()) } returns ARBEIDSTAKER_FNR
-
             mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
             mockRestServiceServerAzureAD = MockRestServiceServer.bindTo(restTemplateAzureAD).build()
-            //tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
             cleanDB()
         }
         afterEach {
@@ -440,11 +425,8 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
                 )
 
                 val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
-                //tokenValidationUtil.logInAsNavCounselor(VEILEDER_ID)
-                //tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 submitMotebehovAndSendOversikthendelse(motebehovSvar)
                 verify { esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(any(), ARBEIDSTAKER_FNR, any()) }
-                //verify(exactly = 0) { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ARBEIDSTAKER_FNR) }
 
                 mockRestServiceServer.reset()
 

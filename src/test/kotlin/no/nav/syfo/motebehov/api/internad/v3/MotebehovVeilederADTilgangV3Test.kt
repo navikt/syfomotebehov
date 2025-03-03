@@ -22,11 +22,9 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 
-//@ExtendWith(SpringExtension::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
-//@DirtiesContext
 @Disabled
 class MotebehovVeilederADTilgangV3Test : IntegrationTest() {
 
@@ -65,10 +63,7 @@ class MotebehovVeilederADTilgangV3Test : IntegrationTest() {
             tokenValidationUtil.resetAll()
         }
 
-
-
-        describe("MotebehovVeilederADTilgangV3")
-        {
+        describe("MotebehovVeilederADTilgangV3") {
             it("veileder nektes tilgang") {
                 mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.FORBIDDEN)
                 shouldThrow<ForbiddenException> { loggInnOgKallHentMotebehovListe() }
