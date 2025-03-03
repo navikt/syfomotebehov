@@ -162,10 +162,10 @@ class VarselServiceTest : DescribeSpec({
 }) {
     companion object {
         val userFnr = UserConstants.ARBEIDSTAKER_FNR
-        val narmesteLederFnr1 = "11111111111"
-        val narmesteLederFnr2 = "33333333333"
-        val virksomhetsnummer1 = "777888555"
-        val virksomhetsnummer2 = "222222222"
+        const val narmesteLederFnr1 = "11111111111"
+        const val narmesteLederFnr2 = "33333333333"
+        const val virksomhetsnummer1 = "777888555"
+        const val virksomhetsnummer2 = "222222222"
 
         fun createOppfolgingstilfelle(): PersonOppfolgingstilfelle {
             return PersonOppfolgingstilfelle(
