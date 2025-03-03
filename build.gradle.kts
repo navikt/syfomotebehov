@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree.Companion.test
-
 group = "no.nav.syfo"
 
 val apacheHttpClientVersion = "5.3.1"
@@ -9,7 +7,6 @@ val flywayVersion = "9.22.3"
 val tokenSupportVersion = "3.2.0"
 val mockkVersion = "1.13.12"
 val kotestTestContainersExtensionVersion = "2.0.2"
-val wiremockVersion = "3.10.0"
 val wiremockKotestExtensionVersion = "3.1.0"
 val springMockkVersion = "4.0.2"
 val confluent = "7.7.0"
@@ -120,12 +117,10 @@ dependencies {
     testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:$kotestTestContainersExtensionVersion")
     testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
     testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
-    testImplementation("org.testcontainers:kafka:$testcontainersVersion")
     testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-property:$kotestVersion")
     testImplementation("io.kotest.extensions:kotest-extensions-wiremock:$wiremockKotestExtensionVersion")
-    testImplementation("org.wiremock:wiremock-standalone:$wiremockVersion")
 
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
 }

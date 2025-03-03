@@ -15,16 +15,12 @@ import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import no.nav.syfo.testhelper.UserConstants
 import no.nav.syfo.varsel.VarselServiceTest.Companion.userFnr
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.TestInstance
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.annotation.DirtiesContext
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(classes = [LocalApplication::class])
-@DirtiesContext
 class MotebehovStatusServiceTest : DescribeSpec({
 
     val motebehovService: MotebehovService = mockk<MotebehovService>()

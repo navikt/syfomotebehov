@@ -13,7 +13,7 @@ import org.testcontainers.utility.DockerImageName
 abstract class IntegrationTest : DescribeSpec() {
     companion object {
         private val postgresContainer =
-            PostgreSQLContainer<Nothing>(DockerImageName.parse("postgres:15-alpine")).apply {
+            PostgreSQLContainer<Nothing>(DockerImageName.parse("postgres:14-alpine")).apply {
                 withDatabaseName("syfomotebehov")
                 withUsername("postgres")
                 withPassword("postgres")

@@ -9,8 +9,6 @@ import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.mockSvarFraIstilgangskontrollTilgangTilBruker
 import no.nav.syfo.util.TokenValidationUtil
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -22,10 +20,8 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
-@Disabled
 class MotebehovVeilederADTilgangV3Test : IntegrationTest() {
 
     @Value("\${azure.openid.config.token.endpoint}")

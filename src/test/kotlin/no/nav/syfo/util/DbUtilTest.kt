@@ -1,46 +1,46 @@
 package no.nav.syfo.util
 
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.shouldBe
 import org.apache.commons.text.StringEscapeUtils
-import org.assertj.core.api.Assertions.assertThat
 
 class DbUtilTest : DescribeSpec({
     describe("Test av DbUtil.sanitizeUserInput") {
         it("Skal fjerne html tags") {
             val sanitize = DbUtil.sanitizeUserInput("<html />")
-            assertThat(sanitize).isEqualTo("")
+            sanitize shouldBe ""
         }
 
         it("Skal fjerne html tags og beholde tekst") {
             val sanitize = DbUtil.sanitizeUserInput("<p>test<p/>")
-            assertThat(sanitize).isEqualTo("test")
+            sanitize shouldBe "test"
         }
 
         it("Skal fjerne br tag") {
             val sanitize = DbUtil.sanitizeUserInput("<br />")
-            assertThat(sanitize).isEqualTo("")
+            sanitize shouldBe ""
         }
 
         it("Skal fjerne html tags og beholde tekst") {
             val sanitize = DbUtil.sanitizeUserInput("test <no er som skummelt> kommer test")
-            assertThat(sanitize).isEqualTo("test  kommer test")
+            sanitize shouldBe "test  kommer test"
         }
 
         it("Skal fjerne html tags og beholde tekst") {
             val sanitize = DbUtil.sanitizeUserInput("3 er > enn fire men mindre enn <")
-            assertThat(sanitize).isEqualTo("3 er > enn fire men mindre enn <")
+            sanitize shouldBe "3 er > enn fire men mindre enn <"
         }
         it("Skal fjerne html tags og beholde tekst") {
             val sanitize = DbUtil.sanitizeUserInput("3 er < enn fire men mindre enn >")
-            assertThat(sanitize).isEqualTo("3 er < enn fire men mindre enn >")
+            sanitize shouldBe "3 er < enn fire men mindre enn >"
         }
         it("Skal fjerne html tags og beholde tekst") {
             val sanitize = DbUtil.sanitizeUserInput("man får lov til masse tegn æøå!==?||''\"\"///\\``")
-            assertThat(sanitize).isEqualTo("man får lov til masse tegn æøå!==?||''\"\"///\\``")
+            sanitize shouldBe "man får lov til masse tegn æøå!==?||''\"\"///\\``"
         }
         it("Skal fjerne html tags og beholde tekst") {
             val sanitize = DbUtil.sanitizeUserInput("<div test />")
-            assertThat(sanitize).isEqualTo("")
+            sanitize shouldBe ""
         }
         it("test9") {
             val komplekstekst =
@@ -51,11 +51,11 @@ class DbUtilTest : DescribeSpec({
             "\n"+
             "???""""
             val sanitize = DbUtil.sanitizeUserInput(komplekstekst)
-            assertThat(sanitize).isEqualTo(komplekstekst)
+            sanitize shouldBe komplekstekst
         }
         it("test10") {
             val sanitize = DbUtil.sanitizeUserInput(StringEscapeUtils.escapeHtml4("<script>test</script>"))
-            assertThat(sanitize).isEqualTo("")
+            sanitize shouldBe ""
         }
     }
 })

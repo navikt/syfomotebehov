@@ -5,7 +5,6 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.narmesteleder.NarmesteLederRelasjonDTO
 import no.nav.syfo.consumer.narmesteleder.NarmesteLederRelasjonStatus
 import no.nav.syfo.consumer.narmesteleder.NarmesteLederService
@@ -19,16 +18,11 @@ import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import no.nav.syfo.testhelper.UserConstants
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
-import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDate
 import java.time.LocalDateTime.now
 import java.util.UUID.randomUUID
 
-@ExtendWith(SpringExtension::class)
-@SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
 class VarselServiceTest : DescribeSpec({
 

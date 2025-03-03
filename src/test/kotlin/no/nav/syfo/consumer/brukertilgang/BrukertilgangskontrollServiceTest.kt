@@ -5,7 +5,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import org.junit.jupiter.api.Assertions
 
 class BrukertilgangskontrollServiceTest : DescribeSpec({
     val brukertilgangConsumer: BrukertilgangConsumer = mockk<BrukertilgangConsumer>()
@@ -32,7 +31,7 @@ class BrukertilgangskontrollServiceTest : DescribeSpec({
             every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns true
 
             val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(innloggetFnr, oppslattFnr)
-            Assertions.assertEquals(true, tilgang)
+            tilgang shouldBe true
         }
 
         it("does not have access to oppslått bruker when asking about someone ikke ansatt") {
@@ -71,7 +70,7 @@ class BrukertilgangskontrollServiceTest : DescribeSpec({
             every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns false
 
             val tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetFnr, oppslattFnr)
-            Assertions.assertEquals(true, tilgang)
+            tilgang shouldBe true
         }
     }
 })
