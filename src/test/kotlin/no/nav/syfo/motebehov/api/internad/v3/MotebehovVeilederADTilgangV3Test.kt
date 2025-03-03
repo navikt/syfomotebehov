@@ -62,8 +62,6 @@ class MotebehovVeilederADTilgangV3Test : IntegrationTest() {
         afterTest {
             mockRestServiceServer.verify()
             mockRestServiceServerAzureAD.verify()
-        }
-        afterTest {
             tokenValidationUtil.resetAll()
         }
 

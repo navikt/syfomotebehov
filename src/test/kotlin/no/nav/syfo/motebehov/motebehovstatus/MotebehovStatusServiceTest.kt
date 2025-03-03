@@ -1,7 +1,8 @@
 package no.nav.syfo.motebehov.motebehovstatus
 
-import com.ninjasquad.springmockk.MockkBean
+import io.kotest.core.spec.style.DescribeSpec
 import io.mockk.every
+import io.mockk.mockk
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmote.DialogmoteStatusService
@@ -12,106 +13,102 @@ import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import no.nav.syfo.testhelper.UserConstants
+import no.nav.syfo.varsel.VarselServiceTest.Companion.userFnr
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
-class MotebehovStatusServiceTest {
+class MotebehovStatusServiceTest : DescribeSpec({ // TODO use descripspec
 
-    @MockkBean
-    private lateinit var motebehovService: MotebehovService
+    val motebehovService: MotebehovService = mockk<MotebehovService>()
 
-    @MockkBean
-    private lateinit var dialogmotekandidatService: DialogmotekandidatService
+    val dialogmotekandidatService: DialogmotekandidatService = mockk<DialogmotekandidatService>()
 
-    @MockkBean
-    private lateinit var dialogmoteStatusService: DialogmoteStatusService
+    val dialogmoteStatusService: DialogmoteStatusService = mockk<DialogmoteStatusService>()
 
-    @MockkBean
-    private lateinit var oppfolgingstilfelleService: OppfolgingstilfelleService
+    val oppfolgingstilfelleService: OppfolgingstilfelleService = mockk<OppfolgingstilfelleService>()
 
-    @MockkBean
-    private lateinit var pdlConsumer: PdlConsumer
+    val pdlConsumer: PdlConsumer = mockk<PdlConsumer>()
 
-    @Autowired
-    private lateinit var motebehovStatusServiceV2: MotebehovStatusServiceV2
+    val motebehovStatusServiceV2: MotebehovStatusServiceV2 = MotebehovStatusServiceV2(
+        motebehovService,
+        dialogmotekandidatService,
+        dialogmoteStatusService,
+        oppfolgingstilfelleService,
+        motebehovStatusHelper = MotebehovStatusHelper(),
+    )
 
-    private val userFnr = UserConstants.ARBEIDSTAKER_FNR
+    val userFnr = UserConstants.ARBEIDSTAKER_FNR
 
-    @BeforeEach
-    fun setUp() {
+    beforeTest {
         every { pdlConsumer.aktorid(any()) } returns UserConstants.ARBEIDSTAKER_AKTORID
         every { pdlConsumer.fnr(any()) } returns UserConstants.ARBEIDSTAKER_FNR
     }
 
-    @Test
-    fun kandidatWithNoDialogmoteGivesStatusSvarBehov() {
-        every { dialogmoteStatusService.isDialogmotePlanlagtEtterDato(userFnr, null, any()) } returns false
-        every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(userFnr) } returns createOppfolgingstilfelle()
-        every { motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(userFnr) } returns emptyList()
-        every { dialogmotekandidatService.getDialogmotekandidatStatus(userFnr) } returns createDialogmoteKandidatEndring()
-        val motebehovStatusForArbeidstaker =
-            motebehovStatusServiceV2.motebehovStatusForArbeidstaker(userFnr)
 
-        assertThat(motebehovStatusForArbeidstaker.skjemaType).isEqualTo(MotebehovSkjemaType.SVAR_BEHOV)
+    describe("describe") {
+        it("kandidatWithNoDialogmoteGivesStatusSvarBehov")
+        {
+            every { dialogmoteStatusService.isDialogmotePlanlagtEtterDato(userFnr, null, any()) } returns false
+            every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(userFnr) } returns createOppfolgingstilfelle()
+            every { motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(userFnr) } returns emptyList()
+            every { dialogmotekandidatService.getDialogmotekandidatStatus(userFnr) } returns createDialogmoteKandidatEndring()
+            val motebehovStatusForArbeidstaker =
+                motebehovStatusServiceV2.motebehovStatusForArbeidstaker(userFnr)
+
+            assertThat(motebehovStatusForArbeidstaker.skjemaType).isEqualTo(MotebehovSkjemaType.SVAR_BEHOV)
+        }
+
+        it("kandidatWithDialogmoteGivesNoMotebehov") {
+            every { dialogmoteStatusService.isDialogmotePlanlagtEtterDato(userFnr, null, any()) } returns true
+            every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(userFnr) } returns createOppfolgingstilfelle()
+            every { motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(userFnr) } returns emptyList()
+            every { dialogmotekandidatService.getDialogmotekandidatStatus(userFnr) } returns createDialogmoteKandidatEndring()
+
+            val motebehovStatusForArbeidstaker =
+                motebehovStatusServiceV2.motebehovStatusForArbeidstaker(userFnr)
+
+            assertThat(motebehovStatusForArbeidstaker.skjemaType).isNull()
+        }
+
+        it("noDialogmoteAndNoKandidatGivesMeldBehov") {
+            every { dialogmoteStatusService.isDialogmotePlanlagtEtterDato(userFnr, null, any()) } returns false
+            every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(userFnr) } returns createOppfolgingstilfelle()
+            every { motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(userFnr) } returns emptyList()
+            every { dialogmotekandidatService.getDialogmotekandidatStatus(userFnr) } returns null
+
+            val motebehovStatusForArbeidstaker =
+                motebehovStatusServiceV2.motebehovStatusForArbeidstaker(userFnr)
+
+            assertThat(motebehovStatusForArbeidstaker.skjemaType).isEqualTo(MotebehovSkjemaType.MELD_BEHOV)
+        }
     }
 
-    @Test
-    fun kandidatWithDialogmoteGivesNoMotebehov() {
-        every { dialogmoteStatusService.isDialogmotePlanlagtEtterDato(userFnr, null, any()) } returns true
-        every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(userFnr) } returns createOppfolgingstilfelle()
-        every { motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(userFnr) } returns emptyList()
-        every { dialogmotekandidatService.getDialogmotekandidatStatus(userFnr) } returns createDialogmoteKandidatEndring()
+})
 
-        val motebehovStatusForArbeidstaker =
-            motebehovStatusServiceV2.motebehovStatusForArbeidstaker(userFnr)
+private fun createOppfolgingstilfelle(): PersonOppfolgingstilfelle {
+    return PersonOppfolgingstilfelle(
+        userFnr,
+        LocalDate.now().minusWeeks(4),
+        LocalDate.now().minusMonths(2)
+    )
+}
 
-        assertThat(motebehovStatusForArbeidstaker.skjemaType).isNull()
-    }
-
-    @Test
-    fun noDialogmoteAndNoKandidatGivesMeldBehov() {
-        every { dialogmoteStatusService.isDialogmotePlanlagtEtterDato(userFnr, null, any()) } returns false
-        every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(userFnr) } returns createOppfolgingstilfelle()
-        every { motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(userFnr) } returns emptyList()
-        every { dialogmotekandidatService.getDialogmotekandidatStatus(userFnr) } returns null
-
-        val motebehovStatusForArbeidstaker =
-            motebehovStatusServiceV2.motebehovStatusForArbeidstaker(userFnr)
-
-        assertThat(motebehovStatusForArbeidstaker.skjemaType).isEqualTo(MotebehovSkjemaType.MELD_BEHOV)
-    }
-
-    private fun createOppfolgingstilfelle(): PersonOppfolgingstilfelle {
-        return PersonOppfolgingstilfelle(
-            userFnr,
-            LocalDate.now().minusWeeks(4),
-            LocalDate.now().minusMonths(2)
-        )
-    }
-
-    private fun createDialogmoteKandidatEndring(): DialogmoteKandidatEndring {
-        return DialogmoteKandidatEndring(
-            UUID.randomUUID(),
-            UUID.randomUUID(),
-            UserConstants.ARBEIDSTAKER_FNR,
-            true,
-            DialogmotekandidatEndringArsak.STOPPUNKT,
-            LocalDateTime.now().minusMinutes(10),
-            LocalDateTime.now()
-        )
-    }
+private fun createDialogmoteKandidatEndring(): DialogmoteKandidatEndring {
+    return DialogmoteKandidatEndring(
+        UUID.randomUUID(),
+        UUID.randomUUID(),
+        UserConstants.ARBEIDSTAKER_FNR,
+        true,
+        DialogmotekandidatEndringArsak.STOPPUNKT,
+        LocalDateTime.now().minusMinutes(10),
+        LocalDateTime.now()
+    )
 }

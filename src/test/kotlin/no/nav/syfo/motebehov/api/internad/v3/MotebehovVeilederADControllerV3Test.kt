@@ -142,6 +142,7 @@ class MotebehovVeilederADControllerV3Test : IntegrationTest() {
                 )
             cleanDB()
             AzureAdV2TokenConsumer.Companion.clearCache()
+            tokenValidationUtil.resetAll()
         }
 
         describe("MotebehovVeilederADControllerV3") {

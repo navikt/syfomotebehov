@@ -1,6 +1,7 @@
 package no.nav.syfo.varsel
 
 import io.kotest.core.spec.style.DescribeSpec
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -18,7 +19,6 @@ import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import no.nav.syfo.testhelper.UserConstants
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
@@ -27,7 +27,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime.now
 import java.util.UUID.randomUUID
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [LocalApplication::class])
 @DirtiesContext
@@ -37,7 +36,7 @@ class VarselServiceTest : DescribeSpec({
 
     val oppfolgingstilfelleService: OppfolgingstilfelleService = mockk<OppfolgingstilfelleService>()
 
-    val esyfovarselService: EsyfovarselService = mockk<EsyfovarselService>()
+    val esyfovarselService: EsyfovarselService = mockk<EsyfovarselService>(relaxed = true)
 
     val dialogmoteDAO: DialogmoteDAO = mockk<DialogmoteDAO>()
 
@@ -62,6 +61,15 @@ class VarselServiceTest : DescribeSpec({
     val virksomhetsnummer2 = "222222222"
 
     beforeTest {
+        clearMocks(
+            motebehovService,
+            oppfolgingstilfelleService,
+            esyfovarselService,
+            dialogmoteDAO,
+            narmesteLederService,
+            metric,
+            motebehovStatusHelper
+        )
         every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(any()) } returns createOppfolgingstilfelle()
         every {
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
@@ -99,12 +107,11 @@ class VarselServiceTest : DescribeSpec({
                     virksomhetsnummer2
                 )
             } returns null
-            every { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(any()) } returns Unit
             every { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), any(), any()) } returns Unit
             varselService.sendSvarBehovVarsel(userFnr, "")
 
             verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
-            verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), userFnr, any()) }
+            verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(narmesteLederFnr1, userFnr, virksomhetsnummer1) }
         }
 
         it("senderIkkeVarselOmIkkeSykmeldtLenger") {
@@ -118,13 +125,13 @@ class VarselServiceTest : DescribeSpec({
                 LocalDate.now().minusMonths(4),
                 LocalDate.now().minusDays(1),
             )
-            every { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(any()) } returns Unit
-            every { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), any(), any()) } returns Unit
+            //every { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker("12345678912") } returns Unit
+            //every { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), any(), any()) } returns Unit
 
             varselService.sendSvarBehovVarsel(userFnr, "")
 
             verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
-            verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), userFnr, any()) }
+            verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(narmesteLederFnr2, userFnr, any()) }
         }
 
         it("senderIkkeVarselDersomDialogmotePlanlagt") {

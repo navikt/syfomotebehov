@@ -13,12 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.test.context.jdbc.Sql
 import java.time.temporal.ChronoUnit
 
-//@Testcontainers
-//@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
+@Sql(statements=["DELETE FROM MOTEBEHOV"])
 class MotebehovDAOTest : IntegrationTest() {
 
     @Autowired
@@ -32,14 +32,9 @@ class MotebehovDAOTest : IntegrationTest() {
 
     init {
         extensions(SpringExtension)
-        beforeTest {
-            val sqlDeleteAll = "DELETE FROM MOTEBEHOV"
-            jdbcTemplate.update(sqlDeleteAll)
-        }
 
         describe("Møtebehov DAO") {
             it("Hent møtebehov liste for aktør") {
-                //assertEquals(1,1)
                 val pMotebehov = motebehovGenerator.generatePmotebehov()
                 insertPMotebehov(pMotebehov)
                 val motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(ARBEIDSTAKER_AKTORID)
