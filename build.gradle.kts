@@ -6,6 +6,8 @@ val kotlinJacksonVersion = "2.17.2"
 val flywayVersion = "9.22.3"
 val tokenSupportVersion = "3.2.0"
 val mockkVersion = "1.13.12"
+val kotestTestContainersExtensionVersion = "2.0.2"
+val wiremockKotestExtensionVersion = "3.1.0"
 val springMockkVersion = "4.0.2"
 val confluent = "7.7.0"
 val isdialogmoteSchema = "1.0.5"
@@ -18,8 +20,12 @@ val apacheCommonsTextVersion = "1.12.0"
 val jakartaRsApiVersion = "4.0.0"
 val hikari = "5.1.0"
 val postgres = "42.7.3"
-val postgresEmbedded = "1.1.0"
 val detektVersion = "1.23.6"
+val testcontainersVersion = "1.20.4"
+val kotestVersion = "5.9.1"
+val springKotestExtensionVersion = "1.3.0"
+
+
 
 plugins {
     id("java")
@@ -86,7 +92,6 @@ dependencies {
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("com.zaxxer:HikariCP:$hikari")
     implementation("org.postgresql:postgresql:$postgres")
-    testImplementation("com.opentable.components:otj-pg-embedded:$postgresEmbedded")
 
     testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
@@ -94,8 +99,20 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "junit")
     }
+    testImplementation("io.kotest:kotest-runner-junit5:5.9.1")
+
+    testImplementation("io.kotest:kotest-framework-datatest:5.9.1")
+    testImplementation("io.kotest.extensions:kotest-extensions-spring:$springKotestExtensionVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:$kotestTestContainersExtensionVersion")
+    testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
+    testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
+    testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion")
+    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
+    testImplementation("io.kotest:kotest-property:$kotestVersion")
+    testImplementation("io.kotest.extensions:kotest-extensions-wiremock:$wiremockKotestExtensionVersion")
 
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
 }

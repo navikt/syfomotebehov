@@ -1,6 +1,10 @@
 package no.nav.syfo.testhelper.generator
 
-import no.nav.syfo.consumer.pdl.*
+import no.nav.syfo.consumer.pdl.Adressebeskyttelse
+import no.nav.syfo.consumer.pdl.Gradering
+import no.nav.syfo.consumer.pdl.PdlHentPerson
+import no.nav.syfo.consumer.pdl.PdlPerson
+import no.nav.syfo.consumer.pdl.PdlPersonNavn
 import no.nav.syfo.testhelper.UserConstants
 
 fun generatePdlPersonNavn(): PdlPersonNavn {
