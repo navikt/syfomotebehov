@@ -3,7 +3,7 @@ package no.nav.syfo.motebehov
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import org.springframework.stereotype.Component
 
-enum class MotebehovCreatorRole {
+enum class MotebehovInnmelderType {
     ARBEIDSGIVER,
     ARBEIDSTAKER,
 }
@@ -20,10 +20,10 @@ class ConvertLegacyMotebehovSvarFieldsHelper {
     private val legacyFormsSemanticVersion = "0.1.0"
 
     private val motebehovFieldIds = mapOf(
-        "svarHarBehovRadioGroupField" to "harBehovRadioGroupField",
-        "meldOnskerMoteLegacyCheckboxField" to "onskerMoteCheckboxField",
-        "onskerSykmelderDeltarCheckboxField" to "onskerSykmelderDeltarCheckboxField",
-        "begrunnelseTextField" to "begrunnelseTextField",
+        "svarHarBehovRadioGroupField" to "harBehovRadioGroup",
+        "meldHarBehovLegacyCheckboxField" to "harBehovCheckbox",
+        "onskerSykmelderDeltarCheckboxField" to "onskerSykmelderDeltarCheckbox",
+        "begrunnelseTextField" to "begrunnelseText",
     )
 
     private val motebehovLegacyLabels = mapOf(
@@ -52,19 +52,20 @@ class ConvertLegacyMotebehovSvarFieldsHelper {
 
     fun createLegacyBegrunnelseTextField(
         begrunnelseTextValue: String,
-        harMotebehov: Boolean
+        harMotebehov: Boolean,
+        skjemaType: MotebehovSkjemaType?,
     ): FilloutTextField {
         return FilloutTextField(
             fieldID = motebehovFieldIds["begrunnelseTextField"] ?: "",
             fieldLabel = motebehovLegacyLabels["begrunnelseTextField"] ?: "",
             textValue = begrunnelseTextValue,
-            wasOptional = harMotebehov
+            wasOptional = skjemaType == MotebehovSkjemaType.MELD_BEHOV || harMotebehov
         )
     }
 
     fun createLegacySvarBehovRadioGroupField(
         harMotebehov: Boolean,
-        motebehovCreatorRole: MotebehovCreatorRole
+        motebehovInnmelderType: MotebehovInnmelderType
     ): FilloutRadioGroupField {
         val optionIdYes = formFilloutOptionIds["svarHarBehovRadioOptionYes"]!!
         val optionIdNo = formFilloutOptionIds["svarHarBehovRadioOptionNo"]!!
@@ -77,12 +78,12 @@ class ConvertLegacyMotebehovSvarFieldsHelper {
 
         return FilloutRadioGroupField(
             fieldID = motebehovFieldIds["svarHarBehovRadioGroupField"]!!,
-            fieldLabel = motebehovCreatorRole.let {
+            fieldLabel = motebehovInnmelderType.let {
                 when (it) {
-                    MotebehovCreatorRole.ARBEIDSGIVER ->
+                    MotebehovInnmelderType.ARBEIDSGIVER ->
                         motebehovLegacyLabels["svarArbeidsgiverHarBehovField"]!!
 
-                    MotebehovCreatorRole.ARBEIDSTAKER ->
+                    MotebehovInnmelderType.ARBEIDSTAKER ->
                         motebehovLegacyLabels["svarArbeidstakerHarBehovField"]!!
                 }
             },
@@ -104,16 +105,16 @@ class ConvertLegacyMotebehovSvarFieldsHelper {
     }
 
     fun createLegacyMeldOnskerMoteCheckboxField(
-        motebehovCreatorRole: MotebehovCreatorRole
+        motebehovInnmelderType: MotebehovInnmelderType
     ): FilloutCheckboxField {
         return FilloutCheckboxField(
-            fieldID = motebehovFieldIds["meldOnskerMoteLegacyCheckboxField"] ?: "",
-            fieldLabel = motebehovCreatorRole.let {
+            fieldID = motebehovFieldIds["meldHarBehovLegacyCheckboxField"] ?: "",
+            fieldLabel = motebehovInnmelderType.let {
                 when (it) {
-                    MotebehovCreatorRole.ARBEIDSGIVER ->
+                    MotebehovInnmelderType.ARBEIDSGIVER ->
                         motebehovLegacyLabels["meldArbeidsgiverOnskerMoteCheckbox"] ?: ""
 
-                    MotebehovCreatorRole.ARBEIDSTAKER ->
+                    MotebehovInnmelderType.ARBEIDSTAKER ->
                         motebehovLegacyLabels["meldArbeidstakerOnskerMoteCheckbox"] ?: ""
                 }
             },
@@ -123,16 +124,16 @@ class ConvertLegacyMotebehovSvarFieldsHelper {
 
     fun createLegacyOnskerSykmelderDeltarCheckboxField(
         onskerSykmelderDeltar: Boolean,
-        motebehovCreatorRole: MotebehovCreatorRole,
+        motebehovInnmelderType: MotebehovInnmelderType,
     ): FilloutCheckboxField {
         return FilloutCheckboxField(
             fieldID = motebehovFieldIds["onskerSykmelderDeltarCheckboxField"] ?: "",
-            fieldLabel = motebehovCreatorRole.let {
+            fieldLabel = motebehovInnmelderType.let {
                 when (it) {
-                    MotebehovCreatorRole.ARBEIDSGIVER ->
+                    MotebehovInnmelderType.ARBEIDSGIVER ->
                         motebehovLegacyLabels["meldArbeidsgiverOnskerSykmelderDeltarCheckbox"] ?: ""
 
-                    MotebehovCreatorRole.ARBEIDSTAKER ->
+                    MotebehovInnmelderType.ARBEIDSTAKER ->
                         motebehovLegacyLabels["meldArbeidstakerOnskerSykmelderDeltarCheckbox"] ?: ""
                 }
             },
@@ -186,7 +187,7 @@ class ConvertLegacyMotebehovSvarFieldsHelper {
         harMotebehov: Boolean,
         forklaring: String?,
         skjemaType: MotebehovSkjemaType?,
-        motebehovCreatorRole: MotebehovCreatorRole
+        motebehovInnmelderType: MotebehovInnmelderType
     ): FormFillout {
         val formFilloutFields = mutableListOf<FilloutField>()
 
@@ -194,13 +195,13 @@ class ConvertLegacyMotebehovSvarFieldsHelper {
             formFilloutFields.add(
                 createLegacySvarBehovRadioGroupField(
                     harMotebehov,
-                    motebehovCreatorRole
+                    motebehovInnmelderType
                 )
             )
         } else if (skjemaType == MotebehovSkjemaType.MELD_BEHOV) {
             formFilloutFields.add(
                 createLegacyMeldOnskerMoteCheckboxField(
-                    motebehovCreatorRole
+                    motebehovInnmelderType
                 )
             )
         }
@@ -213,22 +214,22 @@ class ConvertLegacyMotebehovSvarFieldsHelper {
             formFilloutFields.add(
                 createLegacyOnskerSykmelderDeltarCheckboxField(
                     onskerAtSykmelderDeltar,
-                    motebehovCreatorRole
+                    motebehovInnmelderType
                 )
             )
         }
 
-        formFilloutFields.add(createLegacyBegrunnelseTextField(actualBegrunnelse, harMotebehov))
+        formFilloutFields.add(createLegacyBegrunnelseTextField(actualBegrunnelse, harMotebehov, skjemaType))
 
-        val formIdentifier = when (motebehovCreatorRole) {
-            MotebehovCreatorRole.ARBEIDSGIVER ->
+        val formIdentifier = when (motebehovInnmelderType) {
+            MotebehovInnmelderType.ARBEIDSGIVER ->
                 when (skjemaType) {
                     MotebehovSkjemaType.SVAR_BEHOV -> formIdentifierArbeidsgiverSvarBehov
                     MotebehovSkjemaType.MELD_BEHOV -> formIdentifierArbeidsgiverMeldBehov
                     else -> formIdentifierArbeidsgiverUnknownSvarMeldBehov
                 }
 
-            MotebehovCreatorRole.ARBEIDSTAKER ->
+            MotebehovInnmelderType.ARBEIDSTAKER ->
                 when (skjemaType) {
                     MotebehovSkjemaType.SVAR_BEHOV -> formIdentifierArbeidstakerSvarBehov
                     MotebehovSkjemaType.MELD_BEHOV -> formIdentifierArbeidstakerMeldBehov

@@ -94,8 +94,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
         val motebehovSvarToStore = MotebehovSvar(
             harMotebehov = nyttMotebehov.motebehovSvarInputDTO.harMotebehov,
             forklaring = nyttMotebehov.motebehovSvarInputDTO.forklaring,
-            formFillout = nyttMotebehov.motebehovSvarInputDTO.formFillout,
-            skjemaType,
+            formFillout = nyttMotebehov.motebehovSvarInputDTO.formFillout
         )
 
         motebehovService.lagreMotebehov(
@@ -147,8 +146,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
             val motebehovSvar = MotebehovSvar(
                 harMotebehov = nyttMotebehovSvar.harMotebehov,
                 forklaring = nyttMotebehovSvar.forklaring,
-                formFillout = nyttMotebehovSvar.formFillout,
-                skjemaType = motebehovStatus.skjemaType,
+                formFillout = nyttMotebehovSvar.formFillout
             )
 
             if (virksomhetsnummerList.isNotEmpty()) {

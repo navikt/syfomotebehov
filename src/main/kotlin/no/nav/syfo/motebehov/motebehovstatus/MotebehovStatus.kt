@@ -1,13 +1,14 @@
 package no.nav.syfo.motebehov.motebehovstatus
 
 import no.nav.syfo.motebehov.Motebehov
+import no.nav.syfo.motebehov.MotebehovOutputDTO
 import no.nav.syfo.motebehov.isUbehandlet
 import java.io.Serializable
 
 data class MotebehovStatus(
     val visMotebehov: Boolean,
     val skjemaType: MotebehovSkjemaType? = null,
-    val motebehov: Motebehov? = null
+    val motebehov: MotebehovOutputDTO? = null
 ) : Serializable
 
 fun MotebehovStatus.isSvarBehovVarselAvailable(): Boolean {

@@ -90,7 +90,7 @@ class MotebehovService @Inject constructor(
                 mapPMotebehovToMotebehov(
                     arbeidstakerFnr,
                     dbMotebehov,
-                    MotebehovCreatorRole.ARBEIDSTAKER
+                    MotebehovInnmelderType.ARBEIDSTAKER
                 )
             }
             .collect(Collectors.toList())
@@ -112,7 +112,7 @@ class MotebehovService @Inject constructor(
                 mapPMotebehovToMotebehov(
                     arbeidstakerFnr,
                     dbMotebehov,
-                    MotebehovCreatorRole.ARBEIDSGIVER
+                    MotebehovInnmelderType.ARBEIDSGIVER
                 )
             }
             .collect(Collectors.toList())
@@ -177,7 +177,7 @@ class MotebehovService @Inject constructor(
     private fun mapPMotebehovToMotebehov(
         arbeidstakerFnr: String,
         pMotebehov: PMotebehov,
-        knownMotebehovCreatorRole: MotebehovCreatorRole?
+        knownMotebehovInnmelderType: MotebehovInnmelderType?
     ): Motebehov {
         return Motebehov(
             id = pMotebehov.uuid,
@@ -187,7 +187,7 @@ class MotebehovService @Inject constructor(
             opprettetAvFnr = pMotebehov.opprettetAvFnr!!,
             arbeidstakerFnr = arbeidstakerFnr,
             virksomhetsnummer = pMotebehov.virksomhetsnummer,
-            motebehovSvar = createMotebehovSvarFromPMotebehov(pMotebehov, knownMotebehovCreatorRole),
+            motebehovSvar = createMotebehovSvarFromPMotebehov(pMotebehov, knownMotebehovInnmelderType),
             tildeltEnhet = pMotebehov.tildeltEnhet,
             behandletTidspunkt = pMotebehov.behandletTidspunkt,
             behandletVeilederIdent = pMotebehov.behandletVeilederIdent,
@@ -217,15 +217,15 @@ class MotebehovService @Inject constructor(
      */
     private fun createMotebehovSvarFromPMotebehov(
         pMotebehov: PMotebehov,
-        knownCreatorRole: MotebehovCreatorRole?
+        knownInnmelderType: MotebehovInnmelderType?
     ): MotebehovSvar {
-        val motebehovCreatorRole = knownCreatorRole
+        val motebehovInnmelderType = knownInnmelderType
             ?: if (pMotebehov.opprettetAv == pMotebehov.aktoerId ||
                 pMotebehov.opprettetAvFnr == pMotebehov.sykmeldtFnr
             ) {
-                MotebehovCreatorRole.ARBEIDSTAKER
+                MotebehovInnmelderType.ARBEIDSTAKER
             } else {
-                MotebehovCreatorRole.ARBEIDSGIVER
+                MotebehovInnmelderType.ARBEIDSGIVER
             }
 
         return MotebehovSvar(
@@ -235,9 +235,8 @@ class MotebehovService @Inject constructor(
                 pMotebehov.harMotebehov,
                 pMotebehov.forklaring,
                 pMotebehov.skjemaType,
-                motebehovCreatorRole,
-            ),
-            skjemaType = pMotebehov.skjemaType,
+                motebehovInnmelderType,
+            )
         )
     }
 

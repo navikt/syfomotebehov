@@ -8,5 +8,5 @@ private val motebehovGenerator = MotebehovGenerator()
 val generateMotebehovStatus = MotebehovStatus(
     visMotebehov = true,
     skjemaType = MotebehovSkjemaType.SVAR_BEHOV,
-    motebehov = motebehovGenerator.generateMotebehov()
+    motebehov = motebehovGenerator.generateMotebehovOutputDTO()
 ).copy()

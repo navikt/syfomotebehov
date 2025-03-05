@@ -14,22 +14,22 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest {
         val harMotebehov = true
         val forklaring = "Jeg ønkser å snakke om bedre tilrettelegging"
         val skjemaType = MotebehovSkjemaType.SVAR_BEHOV
-        val motebehovCreatorRole = MotebehovCreatorRole.ARBEIDSTAKER
+        val motebehovInnmelderType = MotebehovInnmelderType.ARBEIDSTAKER
 
         val formFillout = convertLegacyMotebehovSvarFieldsHelper.convertLegacyMotebehovSvarToFormFillout(
             harMotebehov,
             forklaring,
             skjemaType,
-            motebehovCreatorRole
+            motebehovInnmelderType
         )
 
         assertEquals("motebehov-arbeidstaker-svar", formFillout.formIdentifier)
-        assertEquals("0.1.0", formFillout.semanticVersion)
+        assertEquals("0.1.0", formFillout.formSemanticVersion)
 
         assertThat(formFillout.filloutFieldsList).usingRecursiveComparison().isEqualTo(
             listOf(
                 FilloutRadioGroupField(
-                    "harBehovRadioGroupField",
+                    "harBehovRadioGroup",
                     "Har du behov for et møte med NAV og arbeidsgiveren din?",
                     "ja",
                     "Ja, jeg mener det er behov for et møte",
@@ -39,7 +39,7 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest {
                     )
                 ),
                 FilloutTextField(
-                    "begrunnelseTextField",
+                    "begrunnelseText",
                     "Begrunnelse",
                     forklaring,
                     true
@@ -49,8 +49,8 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest {
 
         assertThat(formFillout.fieldValues).isEqualTo(
             mapOf(
-                "harBehovRadioGroupField" to "ja",
-                "begrunnelseTextField" to forklaring
+                "harBehovRadioGroup" to "ja",
+                "begrunnelseText" to forklaring
             )
         )
     }
@@ -60,22 +60,22 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest {
         val harMotebehov = false
         val forklaring = "Vi trenger et møte"
         val skjemaType = MotebehovSkjemaType.SVAR_BEHOV
-        val motebehovCreatorRole = MotebehovCreatorRole.ARBEIDSGIVER
+        val motebehovInnmelderType = MotebehovInnmelderType.ARBEIDSGIVER
 
         val formFillout = convertLegacyMotebehovSvarFieldsHelper.convertLegacyMotebehovSvarToFormFillout(
             harMotebehov,
             forklaring,
             skjemaType,
-            motebehovCreatorRole
+            motebehovInnmelderType
         )
 
         assertEquals("motebehov-arbeidsgiver-svar", formFillout.formIdentifier)
-        assertEquals("0.1.0", formFillout.semanticVersion)
+        assertEquals("0.1.0", formFillout.formSemanticVersion)
 
         assertThat(formFillout.filloutFieldsList).usingRecursiveComparison().isEqualTo(
             listOf(
                 FilloutRadioGroupField(
-                    "harBehovRadioGroupField",
+                    "harBehovRadioGroup",
                     "Har dere behov for et møte med NAV?",
                     "nei",
                     "Nei, jeg mener det ikke er behov for et møte",
@@ -85,7 +85,7 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest {
                     )
                 ),
                 FilloutTextField(
-                    "begrunnelseTextField",
+                    "begrunnelseText",
                     "Begrunnelse",
                     forklaring,
                     false
@@ -95,8 +95,8 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest {
 
         assertThat(formFillout.fieldValues).isEqualTo(
             mapOf(
-                "harBehovRadioGroupField" to "nei",
-                "begrunnelseTextField" to forklaring
+                "harBehovRadioGroup" to "nei",
+                "begrunnelseText" to forklaring
             )
         )
     }
@@ -106,32 +106,32 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest {
         val harMotebehov = true
         val forklaring = "Dette er tekst i begrunnelsesfeltet"
         val skjemaType = MotebehovSkjemaType.MELD_BEHOV
-        val motebehovCreatorRole = MotebehovCreatorRole.ARBEIDSTAKER
+        val motebehovInnmelderType = MotebehovInnmelderType.ARBEIDSTAKER
 
         val formFillout = convertLegacyMotebehovSvarFieldsHelper.convertLegacyMotebehovSvarToFormFillout(
             harMotebehov,
             forklaring,
             skjemaType,
-            motebehovCreatorRole
+            motebehovInnmelderType
         )
 
         assertEquals("motebehov-arbeidstaker-meld", formFillout.formIdentifier)
-        assertEquals("0.1.0", formFillout.semanticVersion)
+        assertEquals("0.1.0", formFillout.formSemanticVersion)
 
         assertThat(formFillout.filloutFieldsList).usingRecursiveComparison().isEqualTo(
             listOf(
                 FilloutCheckboxField(
-                    "onskerMoteCheckboxField",
+                    "harBehovCheckbox",
                     "Jeg ønsker et møte med NAV og arbeidsgiveren min.",
                     true,
                 ),
                 FilloutCheckboxField(
-                    "onskerSykmelderDeltarCheckboxField",
+                    "onskerSykmelderDeltarCheckbox",
                     "Jeg ønsker at den som sykmelder meg, også skal delta i møtet.",
                     false,
                 ),
                 FilloutTextField(
-                    "begrunnelseTextField",
+                    "begrunnelseText",
                     "Begrunnelse",
                     forklaring,
                     true
@@ -141,9 +141,9 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest {
 
         assertThat(formFillout.fieldValues).isEqualTo(
             mapOf(
-                "onskerMoteCheckboxField" to true,
-                "onskerSykmelderDeltarCheckboxField" to false,
-                "begrunnelseTextField" to forklaring
+                "harBehovCheckbox" to true,
+                "onskerSykmelderDeltarCheckbox" to false,
+                "begrunnelseText" to forklaring
             )
         )
     }
@@ -154,32 +154,32 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest {
         val forklaring = "Jeg ønsker at den som sykmelder arbeidstakeren, også skal delta i møtet (valgfri). " +
             "Vi trenger å ha et møte med NAV."
         val skjemaType = MotebehovSkjemaType.MELD_BEHOV
-        val motebehovCreatorRole = MotebehovCreatorRole.ARBEIDSGIVER
+        val motebehovInnmelderType = MotebehovInnmelderType.ARBEIDSGIVER
 
         val formFillout = convertLegacyMotebehovSvarFieldsHelper.convertLegacyMotebehovSvarToFormFillout(
             harMotebehov,
             forklaring,
             skjemaType,
-            motebehovCreatorRole
+            motebehovInnmelderType
         )
 
         assertEquals("motebehov-arbeidsgiver-meld", formFillout.formIdentifier)
-        assertEquals("0.1.0", formFillout.semanticVersion)
+        assertEquals("0.1.0", formFillout.formSemanticVersion)
 
         assertThat(formFillout.filloutFieldsList).usingRecursiveComparison().isEqualTo(
             listOf(
                 FilloutCheckboxField(
-                    "onskerMoteCheckboxField",
+                    "harBehovCheckbox",
                     "Jeg ønsker et møte med NAV og den ansatte",
                     true,
                 ),
                 FilloutCheckboxField(
-                    "onskerSykmelderDeltarCheckboxField",
+                    "onskerSykmelderDeltarCheckbox",
                     "Jeg ønsker at den som sykmelder arbeidstakeren, også skal delta i møtet.",
                     true,
                 ),
                 FilloutTextField(
-                    "begrunnelseTextField",
+                    "begrunnelseText",
                     "Begrunnelse",
                     "Vi trenger å ha et møte med NAV.",
                     true
@@ -189,9 +189,9 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest {
 
         assertThat(formFillout.fieldValues).isEqualTo(
             mapOf(
-                "onskerMoteCheckboxField" to true,
-                "onskerSykmelderDeltarCheckboxField" to true,
-                "begrunnelseTextField" to "Vi trenger å ha et møte med NAV."
+                "harBehovCheckbox" to true,
+                "onskerSykmelderDeltarCheckbox" to true,
+                "begrunnelseText" to "Vi trenger å ha et møte med NAV."
             )
         )
     }

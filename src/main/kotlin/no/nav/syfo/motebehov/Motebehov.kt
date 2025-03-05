@@ -24,6 +24,21 @@ data class Motebehov(
     val skjemaType: MotebehovSkjemaType? = null,
 ) : Serializable
 
+data class MotebehovOutputDTO(
+    val id: UUID,
+    val opprettetDato: LocalDateTime,
+    val aktorId: String,
+    val opprettetAv: String,
+    val opprettetAvFnr: String,
+    val arbeidstakerFnr: String,
+    val virksomhetsnummer: String,
+    val motebehovSvar: MotebehovSvarOutputDTO,
+    val tildeltEnhet: String? = null,
+    val behandletTidspunkt: LocalDateTime? = null,
+    val behandletVeilederIdent: String? = null,
+    val skjemaType: MotebehovSkjemaType? = null,
+)
+
 fun List<Motebehov>.toMotebehovVeilederDTOList() =
     this.map { it.toMotebehovVeilederDTO() }
 
@@ -36,7 +51,7 @@ fun Motebehov.toMotebehovVeilederDTO(): MotebehovVeilederDTO {
         opprettetAvNavn = null,
         arbeidstakerFnr = this.arbeidstakerFnr,
         virksomhetsnummer = this.virksomhetsnummer,
-        motebehovSvar = this.motebehovSvar,
+        motebehovSvar = this.motebehovSvar.toMotebehovSvarOutputDTO(),
         tildeltEnhet = this.tildeltEnhet,
         behandletTidspunkt = this.behandletTidspunkt,
         behandletVeilederIdent = this.behandletVeilederIdent, skjemaType = this.skjemaType,
@@ -59,4 +74,21 @@ fun Motebehov.isSvarBehovForOppfolgingstilfelle(oppfolgingstilfelle: PersonOppfo
     val createdDate = this.opprettetDato.toLocalDate()
     return createdDate.isAfter(firstDateSvarBehovAvailability.minusDays(1)) &&
         createdDate.isBefore(lastDateSvarBehovAvailability.plusDays(1))
+}
+
+fun Motebehov.toMotebehovOutputDTO(): MotebehovOutputDTO {
+    return MotebehovOutputDTO(
+        id = this.id,
+        opprettetDato = this.opprettetDato,
+        aktorId = this.aktorId,
+        opprettetAv = this.opprettetAv,
+        opprettetAvFnr = this.opprettetAvFnr,
+        arbeidstakerFnr = this.arbeidstakerFnr,
+        virksomhetsnummer = this.virksomhetsnummer,
+        motebehovSvar = this.motebehovSvar.toMotebehovSvarOutputDTO(),
+        tildeltEnhet = this.tildeltEnhet,
+        behandletTidspunkt = this.behandletTidspunkt,
+        behandletVeilederIdent = this.behandletVeilederIdent,
+        skjemaType = this.skjemaType,
+    )
 }

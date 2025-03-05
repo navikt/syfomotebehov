@@ -1,6 +1,6 @@
 package no.nav.syfo.testhelper.assertion
 
-import no.nav.syfo.motebehov.MotebehovSvar
+import no.nav.syfo.motebehov.MotebehovSvarOutputDTO
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import org.junit.jupiter.api.Assertions
@@ -8,14 +8,14 @@ import org.junit.jupiter.api.Assertions
 fun MotebehovStatus.assertMotebehovStatus(
     expVisMotebehov: Boolean,
     expSkjemaType: MotebehovSkjemaType?,
-    expMotebehovSvar: MotebehovSvar?
+    expMotebehovSvarOutputDTO: MotebehovSvarOutputDTO?
 ) {
     Assertions.assertEquals(expVisMotebehov, this.visMotebehov)
     Assertions.assertEquals(expSkjemaType, this.skjemaType)
-    if (expMotebehovSvar != null) {
-        Assertions.assertEquals(expMotebehovSvar, this.motebehov!!.motebehovSvar)
+    if (expMotebehovSvarOutputDTO != null) {
+        Assertions.assertEquals(expMotebehovSvarOutputDTO, this.motebehov!!.motebehovSvar)
         Assertions.assertEquals(expSkjemaType, this.motebehov!!.skjemaType)
     } else {
-        Assertions.assertEquals(expMotebehovSvar, this.motebehov)
+        Assertions.assertEquals(expMotebehovSvarOutputDTO, this.motebehov)
     }
 }

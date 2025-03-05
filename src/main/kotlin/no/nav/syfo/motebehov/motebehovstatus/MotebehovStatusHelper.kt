@@ -4,6 +4,7 @@ import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.motebehov.isCreatedInOppfolgingstilfelle
 import no.nav.syfo.motebehov.isSvarBehovForOppfolgingstilfelle
 import no.nav.syfo.motebehov.isUbehandlet
+import no.nav.syfo.motebehov.toMotebehovOutputDTO
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import no.nav.syfo.oppfolgingstilfelle.database.isSykmeldtNow
 import org.springframework.stereotype.Component
@@ -29,16 +30,22 @@ class MotebehovStatusHelper {
                 null,
             )
         } else if (isDialogmoteKandidat) {
+            val newestSvarBehovInOppfolgingstilfelle =
+                getNewestSvarBehovMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList)
+
             return MotebehovStatus(
                 true,
                 MotebehovSkjemaType.SVAR_BEHOV,
-                getNewestSvarBehovMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList),
+                newestSvarBehovInOppfolgingstilfelle?.toMotebehovOutputDTO(),
             )
         } else {
+            val newestMeldBehovInOppfolgingstilfelle =
+                getNewestMeldBehovMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList)
+
             return MotebehovStatus(
                 true,
                 MotebehovSkjemaType.MELD_BEHOV,
-                getNewestMeldBehovMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList),
+                newestMeldBehovInOppfolgingstilfelle?.toMotebehovOutputDTO(),
             )
         }
     }

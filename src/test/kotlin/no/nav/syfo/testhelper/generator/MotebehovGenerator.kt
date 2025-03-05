@@ -30,7 +30,7 @@ class MotebehovGenerator {
         motebehovSvar = lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
             motebehovSvarInputDTO,
             MotebehovSkjemaType.SVAR_BEHOV,
-            MotebehovCreatorRole.ARBEIDSGIVER
+            MotebehovInnmelderType.ARBEIDSGIVER
         ),
         tildeltEnhet = NAV_ENHET,
         behandletVeilederIdent = VEILEDER_ID,
@@ -58,7 +58,7 @@ class MotebehovGenerator {
     fun lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
         inputDTO: MotebehovSvarInputDTO,
         skjemaType: MotebehovSkjemaType,
-        creatorRole: MotebehovCreatorRole
+        innmelderType: MotebehovInnmelderType
     ): MotebehovSvar {
         val legacyFieldsToFormFilloutHelper = ConvertLegacyMotebehovSvarFieldsHelper()
 
@@ -69,10 +69,28 @@ class MotebehovGenerator {
                 inputDTO.harMotebehov,
                 inputDTO.forklaring,
                 skjemaType,
-                creatorRole
-            ),
-            skjemaType,
+                innmelderType
+            )
         )
+    }
+
+    fun lagMotebehovSvarOutputDTOThatShouldBeCreatedFromInputDTO(
+        inputDTO: MotebehovSvarInputDTO,
+        skjemaType: MotebehovSkjemaType,
+        innmelderType: MotebehovInnmelderType
+    ): MotebehovSvarOutputDTO {
+        val legacyFieldsToFormFilloutHelper = ConvertLegacyMotebehovSvarFieldsHelper()
+
+        return MotebehovSvar(
+            harMotebehov = inputDTO.harMotebehov,
+            forklaring = inputDTO.forklaring,
+            formFillout = legacyFieldsToFormFilloutHelper.convertLegacyMotebehovSvarToFormFillout(
+                inputDTO.harMotebehov,
+                inputDTO.forklaring,
+                skjemaType,
+                innmelderType
+            )
+        ).toMotebehovSvarOutputDTO()
     }
 
     private val nyttPMotebehovArbeidstaker = PMotebehov(
@@ -102,5 +120,9 @@ class MotebehovGenerator {
 
     fun generateMotebehov(): Motebehov {
         return motebehov.copy()
+    }
+
+    fun generateMotebehovOutputDTO(): MotebehovOutputDTO {
+        return motebehov.toMotebehovOutputDTO()
     }
 }

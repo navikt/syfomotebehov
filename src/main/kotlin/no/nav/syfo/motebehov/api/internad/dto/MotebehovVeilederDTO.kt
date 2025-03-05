@@ -1,6 +1,6 @@
 package no.nav.syfo.motebehov.api.internad.dto
 
-import no.nav.syfo.motebehov.MotebehovSvar
+import no.nav.syfo.motebehov.MotebehovSvarOutputDTO
 import no.nav.syfo.motebehov.motebehovstatus.*
 import java.io.Serializable
 import java.time.LocalDateTime
@@ -14,7 +14,7 @@ data class MotebehovVeilederDTO(
     val opprettetAvNavn: String?,
     val arbeidstakerFnr: String,
     val virksomhetsnummer: String,
-    val motebehovSvar: MotebehovSvar,
+    val motebehovSvar: MotebehovSvarOutputDTO,
     val tildeltEnhet: String? = null,
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,

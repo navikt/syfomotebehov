@@ -45,7 +45,7 @@ data class FormFillout(
      *  ordering of the fields are changed, or the set of options for a radioGroup field is changed, it might count as a
      *  minor version bump. If the set of fieldIds for a form is changed, which can happen if new fields are added or
      *  existing fields are removed, or if an existing fieldId is changed, it might count as a major version bump. */
-    val semanticVersion: String,
+    val formSemanticVersion: String,
     @field:NotEmpty
     val filloutFieldsList: List<FilloutField>,
 ) : Serializable {

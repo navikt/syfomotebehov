@@ -8,7 +8,7 @@ import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
-import no.nav.syfo.motebehov.MotebehovCreatorRole
+import no.nav.syfo.motebehov.MotebehovInnmelderType
 import no.nav.syfo.motebehov.MotebehovSvarInputDTO
 import no.nav.syfo.motebehov.api.internad.v3.MotebehovVeilederADControllerV3
 import no.nav.syfo.motebehov.database.MotebehovDAO
@@ -331,11 +331,11 @@ class MotebehovArbeidstakerControllerV3Test {
         )
 
         val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
-        val motebehovSvarThatShouldBeCreated = motebehovGenerator
-            .lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
+        val motebehovSvarOutputDTOThatShouldBeCreated = motebehovGenerator
+            .lagMotebehovSvarOutputDTOThatShouldBeCreatedFromInputDTO(
                 motebehovSvarInputDTO,
                 MotebehovSkjemaType.MELD_BEHOV,
-                MotebehovCreatorRole.ARBEIDSTAKER
+                MotebehovInnmelderType.ARBEIDSTAKER
             )
 
         submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO)
@@ -346,7 +346,7 @@ class MotebehovArbeidstakerControllerV3Test {
             .assertMotebehovStatus(
                 true,
                 MotebehovSkjemaType.MELD_BEHOV,
-                motebehovSvarThatShouldBeCreated
+                motebehovSvarOutputDTOThatShouldBeCreated
             )
     }
 
@@ -407,11 +407,11 @@ class MotebehovArbeidstakerControllerV3Test {
         )
 
         val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
-        val motebehovSvarThatShouldBeCreated = motebehovGenerator
-            .lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
+        val motebehovSvarOutputDTOThatShouldBeCreated = motebehovGenerator
+            .lagMotebehovSvarOutputDTOThatShouldBeCreatedFromInputDTO(
                 motebehovSvarInputDTO,
                 MotebehovSkjemaType.SVAR_BEHOV,
-                MotebehovCreatorRole.ARBEIDSTAKER
+                MotebehovInnmelderType.ARBEIDSTAKER
             )
 
         submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO)
@@ -424,7 +424,7 @@ class MotebehovArbeidstakerControllerV3Test {
             .assertMotebehovStatus(
                 true,
                 MotebehovSkjemaType.SVAR_BEHOV,
-                motebehovSvarThatShouldBeCreated
+                motebehovSvarOutputDTOThatShouldBeCreated
             )
     }
 
