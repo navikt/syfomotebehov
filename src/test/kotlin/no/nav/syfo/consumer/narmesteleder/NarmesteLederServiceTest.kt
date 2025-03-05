@@ -1,23 +1,22 @@
 package no.nav.syfo.consumer.narmesteleder
 
+import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR_2
 import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-internal class NarmesteLederServiceTest {
-    private val narmesteLederClient: NarmesteLederClient = mockk()
-    private val narmesteLederService: NarmesteLederService = NarmesteLederService(narmesteLederClient)
+class NarmesteLederServiceTest : DescribeSpec({
+    val narmesteLederClient: NarmesteLederClient = mockk()
+    val narmesteLederService = NarmesteLederService(narmesteLederClient)
 
-    @Test
-    fun duplikateNarmesteLedereSkalSlaasSammen() {
+    it("duplicate nærmesteleadere should be merged") {
         val relasjoner = listOf(
             createNarmesteLederRelasjonDTO(
                 virksomhetsnummer = VIRKSOMHETSNUMMER,
@@ -38,11 +37,10 @@ internal class NarmesteLederServiceTest {
         val allNarmesteLederRelations =
             narmesteLederService.getAllNarmesteLederRelations(ARBEIDSTAKER_FNR)
 
-        assertThat(allNarmesteLederRelations?.size).isEqualTo(1)
+        allNarmesteLederRelations?.size shouldBe 1
     }
 
-    @Test
-    fun skalKunHenteDenSykmeldtesLedere() {
+    it("will only get the nærmesteleder for the sykmeldte") {
         val relasjoner = listOf(
             createNarmesteLederRelasjonDTO(
                 virksomhetsnummer = VIRKSOMHETSNUMMER,
@@ -63,29 +61,29 @@ internal class NarmesteLederServiceTest {
         val allNarmesteLederRelations =
             narmesteLederService.getAllNarmesteLederRelations(ARBEIDSTAKER_FNR)
 
-        assertThat(allNarmesteLederRelations?.size).isEqualTo(1)
+        allNarmesteLederRelations?.size shouldBe 1
     }
+})
 
-    fun createNarmesteLederRelasjonDTO(
-        virksomhetsnummer: String,
-        arbeidstakerPersonIdentNumber: String,
-        narmesteLederPersonIdentNumber: String,
-        status: NarmesteLederRelasjonStatus
-    ): NarmesteLederRelasjonDTO {
-        return NarmesteLederRelasjonDTO(
-            uuid = UUID.randomUUID().toString(),
-            arbeidstakerPersonIdentNumber = arbeidstakerPersonIdentNumber,
-            virksomhetsnavn = "Yolomasters",
-            virksomhetsnummer = virksomhetsnummer,
-            narmesteLederPersonIdentNumber = narmesteLederPersonIdentNumber,
-            narmesteLederTelefonnummer = "99",
-            narmesteLederEpost = "9@9.mooo",
-            narmesteLederNavn = "Hei heisann",
-            aktivFom = LocalDate.now().minusYears(1),
-            aktivTom = null,
-            arbeidsgiverForskutterer = null,
-            timestamp = LocalDateTime.now(),
-            status = status
-        )
-    }
+fun createNarmesteLederRelasjonDTO(
+    virksomhetsnummer: String,
+    arbeidstakerPersonIdentNumber: String,
+    narmesteLederPersonIdentNumber: String,
+    status: NarmesteLederRelasjonStatus
+): NarmesteLederRelasjonDTO {
+    return NarmesteLederRelasjonDTO(
+        uuid = UUID.randomUUID().toString(),
+        arbeidstakerPersonIdentNumber = arbeidstakerPersonIdentNumber,
+        virksomhetsnavn = "Yolomasters",
+        virksomhetsnummer = virksomhetsnummer,
+        narmesteLederPersonIdentNumber = narmesteLederPersonIdentNumber,
+        narmesteLederTelefonnummer = "99",
+        narmesteLederEpost = "9@9.mooo",
+        narmesteLederNavn = "Hei heisann",
+        aktivFom = LocalDate.now().minusYears(1),
+        aktivTom = null,
+        arbeidsgiverForskutterer = null,
+        timestamp = LocalDateTime.now(),
+        status = status
+    )
 }

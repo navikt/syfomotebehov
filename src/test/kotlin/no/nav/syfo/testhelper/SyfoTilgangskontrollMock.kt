@@ -5,7 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.syfo.consumer.veiledertilgang.Tilgang
 import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
-import org.springframework.http.*
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.test.web.client.ExpectedCount
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.ResponseCreator
