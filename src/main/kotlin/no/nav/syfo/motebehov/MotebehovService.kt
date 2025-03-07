@@ -23,6 +23,7 @@ class MotebehovService @Inject constructor(
     private val behandlendeEnhetConsumer: BehandlendeEnhetConsumer,
     private val personoppgavehendelseService: PersonoppgavehendelseService,
     private val motebehovDAO: MotebehovDAO,
+    private val convertLegacyMotebehovSvarFieldsHelper: ConvertLegacyMotebehovSvarFieldsHelper,
     private val pdlConsumer: PdlConsumer,
 ) {
     @Transactional
@@ -68,7 +69,7 @@ class MotebehovService @Inject constructor(
         val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
         return motebehovDAO.hentMotebehovListeForAktoer(arbeidstakerAktoerId)
             .stream()
-            .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
+            .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov, null) }
             .collect(Collectors.toList())
     }
 
@@ -85,7 +86,13 @@ class MotebehovService @Inject constructor(
         val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
         return motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktoerId)
             .stream()
-            .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
+            .map { dbMotebehov: PMotebehov ->
+                mapPMotebehovToMotebehov(
+                    arbeidstakerFnr,
+                    dbMotebehov,
+                    MotebehovInnmelderType.ARBEIDSTAKER
+                )
+            }
             .collect(Collectors.toList())
     }
 
@@ -101,7 +108,13 @@ class MotebehovService @Inject constructor(
             virksomhetsnummer,
         )
             .stream()
-            .map { dbMotebehov: PMotebehov -> mapPMotebehovToMotebehov(arbeidstakerFnr, dbMotebehov) }
+            .map { dbMotebehov: PMotebehov ->
+                mapPMotebehovToMotebehov(
+                    arbeidstakerFnr,
+                    dbMotebehov,
+                    MotebehovInnmelderType.ARBEIDSGIVER
+                )
+            }
             .collect(Collectors.toList())
     }
 
@@ -161,7 +174,11 @@ class MotebehovService @Inject constructor(
         )
     }
 
-    private fun mapPMotebehovToMotebehov(arbeidstakerFnr: String, pMotebehov: PMotebehov): Motebehov {
+    private fun mapPMotebehovToMotebehov(
+        arbeidstakerFnr: String,
+        pMotebehov: PMotebehov,
+        knownMotebehovInnmelderType: MotebehovInnmelderType?
+    ): Motebehov {
         return Motebehov(
             id = pMotebehov.uuid,
             opprettetDato = pMotebehov.opprettetDato,
@@ -170,10 +187,7 @@ class MotebehovService @Inject constructor(
             opprettetAvFnr = pMotebehov.opprettetAvFnr!!,
             arbeidstakerFnr = arbeidstakerFnr,
             virksomhetsnummer = pMotebehov.virksomhetsnummer,
-            motebehovSvar = MotebehovSvar(
-                harMotebehov = pMotebehov.harMotebehov,
-                forklaring = pMotebehov.forklaring,
-            ),
+            motebehovSvar = createMotebehovSvarFromPMotebehov(pMotebehov, knownMotebehovInnmelderType),
             tildeltEnhet = pMotebehov.tildeltEnhet,
             behandletTidspunkt = pMotebehov.behandletTidspunkt,
             behandletVeilederIdent = pMotebehov.behandletVeilederIdent,
@@ -190,14 +204,39 @@ class MotebehovService @Inject constructor(
             opprettetAvFnr = pMotebehov.opprettetAvFnr!!,
             arbeidstakerFnr = pMotebehov.sykmeldtFnr!!,
             virksomhetsnummer = pMotebehov.virksomhetsnummer,
-            motebehovSvar = MotebehovSvar(
-                harMotebehov = pMotebehov.harMotebehov,
-                forklaring = pMotebehov.forklaring,
-            ),
+            motebehovSvar = createMotebehovSvarFromPMotebehov(pMotebehov, null),
             tildeltEnhet = pMotebehov.tildeltEnhet,
             behandletTidspunkt = pMotebehov.behandletTidspunkt,
             behandletVeilederIdent = pMotebehov.behandletVeilederIdent,
             skjemaType = pMotebehov.skjemaType,
+        )
+    }
+
+    /**
+     * Legacy db entities will not have formFillout. In that case we create it from harMotebehov and forklaring.
+     */
+    private fun createMotebehovSvarFromPMotebehov(
+        pMotebehov: PMotebehov,
+        knownInnmelderType: MotebehovInnmelderType?
+    ): MotebehovSvar {
+        val motebehovInnmelderType = knownInnmelderType
+            ?: if (pMotebehov.opprettetAv == pMotebehov.aktoerId ||
+                pMotebehov.opprettetAvFnr == pMotebehov.sykmeldtFnr
+            ) {
+                MotebehovInnmelderType.ARBEIDSTAKER
+            } else {
+                MotebehovInnmelderType.ARBEIDSGIVER
+            }
+
+        return MotebehovSvar(
+            harMotebehov = pMotebehov.harMotebehov,
+            forklaring = pMotebehov.forklaring,
+            formFillout = convertLegacyMotebehovSvarFieldsHelper.convertLegacyMotebehovSvarToFormFillout(
+                pMotebehov.harMotebehov,
+                pMotebehov.forklaring,
+                pMotebehov.skjemaType,
+                motebehovInnmelderType,
+            )
         )
     }
 

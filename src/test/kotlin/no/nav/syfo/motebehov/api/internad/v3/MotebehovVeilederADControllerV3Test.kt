@@ -13,8 +13,8 @@ import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
-import no.nav.syfo.motebehov.MotebehovSvar
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiver
+import no.nav.syfo.motebehov.MotebehovSvarInputDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverInputDTO
 import no.nav.syfo.motebehov.api.MotebehovArbeidsgiverControllerV3
 import no.nav.syfo.motebehov.api.MotebehovArbeidstakerControllerV3
 import no.nav.syfo.motebehov.api.dbCreateOppfolgingstilfelle
@@ -38,7 +38,6 @@ import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import no.nav.syfo.testhelper.mockSvarFraIstilgangskontrollTilgangTilBruker
 import no.nav.syfo.util.TokenValidationUtil
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -148,7 +147,7 @@ class MotebehovVeilederADControllerV3Test : IntegrationTest() {
             it("arbeidsgiver lagrer Motebehov og Veileder henter Motebehov") {
                 // Arbeidsgiver lagrer nytt motebehov
                 mockBehandlendEnhet(ARBEIDSTAKER_FNR)
-                val nyttMotebehov = arbeidsgiverLoggerInnOgLagrerMotebehov()
+                val prosessedInputDTO = arbeidsgiverLoggerInnOgLagrerMotebehov()
 
                 // Veileder henter møtebehov
                 resetMockRestServers()
@@ -159,13 +158,15 @@ class MotebehovVeilederADControllerV3Test : IntegrationTest() {
                 motebehov.opprettetAv shouldBe LEDER_AKTORID
                 motebehov.arbeidstakerFnr shouldBe ARBEIDSTAKER_FNR
                 motebehov.virksomhetsnummer shouldBe VIRKSOMHETSNUMMER
-                assertThat(motebehov.motebehovSvar).usingRecursiveComparison().isEqualTo(nyttMotebehov.motebehovSvar)
+
+                motebehov.motebehovSvar.harMotebehov shouldBe prosessedInputDTO.motebehovSvar.harMotebehov
+                motebehov.motebehovSvar.forklaring shouldBe prosessedInputDTO.motebehovSvar.forklaring
             }
 
             it("arbeidstaker lagrer Motebehov og Veileder henter Motebehov") {
                 // Arbeidstaker lagrer nytt motebehov
                 mockBehandlendEnhet(ARBEIDSTAKER_FNR)
-                val motebehovSvar = sykmeldtLoggerInnOgLagrerMotebehov(true)
+                val prosessedMotebehovSvarInput = sykmeldtLoggerInnOgLagrerMotebehov(true)
 
                 // Veileder henter møtebehov
                 resetMockRestServers()
@@ -176,6 +177,9 @@ class MotebehovVeilederADControllerV3Test : IntegrationTest() {
                 motebehov.opprettetAv shouldBe ARBEIDSTAKER_AKTORID
                 motebehov.arbeidstakerFnr shouldBe ARBEIDSTAKER_FNR
                 motebehov.virksomhetsnummer shouldBe VIRKSOMHETSNUMMER
+
+                motebehov.motebehovSvar.harMotebehov shouldBe prosessedMotebehovSvarInput.harMotebehov
+                motebehov.motebehovSvar.forklaring shouldBe prosessedMotebehovSvarInput.forklaring
             }
 
             it("hent Historikk") {
@@ -281,30 +285,32 @@ class MotebehovVeilederADControllerV3Test : IntegrationTest() {
         }
     }
 
-    private fun arbeidsgiverLoggerInnOgLagrerMotebehov(): NyttMotebehovArbeidsgiver {
-        val motebehovSvar = MotebehovSvar(
+    private fun arbeidsgiverLoggerInnOgLagrerMotebehov(): NyttMotebehovArbeidsgiverInputDTO {
+        val motebehovSvarInputDTO = MotebehovSvarInputDTO(
             harMotebehov = true,
             forklaring = "",
         )
-        val nyttMotebehov = NyttMotebehovArbeidsgiver(
+        val nyttMotebehovInputDTO = NyttMotebehovArbeidsgiverInputDTO(
             arbeidstakerFnr = ARBEIDSTAKER_FNR,
             virksomhetsnummer = VIRKSOMHETSNUMMER,
-            motebehovSvar = motebehovSvar,
+            motebehovSvarInputDTO,
         )
         tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
-        motebehovArbeidsgiverControllerV3.lagreMotebehovArbeidsgiver(nyttMotebehov)
-        return nyttMotebehov
+        motebehovArbeidsgiverControllerV3.lagreMotebehovArbeidsgiver(nyttMotebehovInputDTO)
+
+        return nyttMotebehovInputDTO
     }
 
     private fun sykmeldtLoggerInnOgLagrerMotebehov(
         harBehov: Boolean,
-    ): MotebehovSvar {
-        val motebehovSvar = MotebehovSvar(
+    ): MotebehovSvarInputDTO {
+        val motebehovSvar = MotebehovSvarInputDTO(
             harMotebehov = harBehov,
             forklaring = "",
         )
         tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
         motebehovArbeidstakerControllerV3.submitMotebehovArbeidstaker(motebehovSvar)
+
         return motebehovSvar
     }
 

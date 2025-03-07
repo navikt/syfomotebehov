@@ -10,7 +10,8 @@ import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
-import no.nav.syfo.motebehov.MotebehovSvar
+import no.nav.syfo.motebehov.MotebehovInnmelderType
+import no.nav.syfo.motebehov.MotebehovSvarInputDTO
 import no.nav.syfo.motebehov.api.internad.v3.MotebehovVeilederADControllerV3
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
@@ -300,8 +301,9 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ),
                 )
 
-                val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
-                submitMotebehovAndSendOversikthendelse(motebehovSvar)
+                val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
+
+                submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO)
 
                 resetMockRestServers()
                 mockBehandlendEnhetWithTilgangskontroll(ARBEIDSTAKER_FNR)
@@ -309,10 +311,14 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                 motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
 
                 resetMockRestServers()
-
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
+
                 motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
-                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
+                    .assertMotebehovStatus(
+                        true,
+                        MotebehovSkjemaType.MELD_BEHOV,
+                        null
+                    )
             }
 
             it(
@@ -328,14 +334,24 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ),
                 )
 
-                val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
+                val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
+                val motebehovSvarOutputDTOThatShouldBeCreated = motebehovGenerator
+                    .lagMotebehovSvarOutputDTOThatShouldBeCreatedFromInputDTO(
+                        motebehovSvarInputDTO,
+                        MotebehovSkjemaType.MELD_BEHOV,
+                        MotebehovInnmelderType.ARBEIDSTAKER
+                    )
 
-                submitMotebehovAndSendOversikthendelse(motebehovSvar)
+                submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO)
 
                 mockRestServiceServer.reset()
 
                 motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
-                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, motebehovSvar)
+                    .assertMotebehovStatus(
+                        true,
+                        MotebehovSkjemaType.MELD_BEHOV,
+                        motebehovSvarOutputDTOThatShouldBeCreated
+                    )
             }
 
             it("get MotebehovStatus With Today Inside Oppfolgingstilfelle Before SvarBehov StartDate") {
@@ -394,16 +410,26 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ),
                 )
 
-                val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
+                val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
+                val motebehovSvarOutputDTOThatShouldBeCreated = motebehovGenerator
+                    .lagMotebehovSvarOutputDTOThatShouldBeCreatedFromInputDTO(
+                        motebehovSvarInputDTO,
+                        MotebehovSkjemaType.SVAR_BEHOV,
+                        MotebehovInnmelderType.ARBEIDSTAKER
+                    )
 
-                submitMotebehovAndSendOversikthendelse(motebehovSvar)
+                submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO)
                 verify { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ARBEIDSTAKER_FNR) }
                 verify(exactly = 0) { esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(any(), any(), any()) }
 
                 mockRestServiceServer.reset()
 
                 motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
-                    .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, motebehovSvar)
+                    .assertMotebehovStatus(
+                        true,
+                        MotebehovSkjemaType.SVAR_BEHOV,
+                        motebehovSvarOutputDTOThatShouldBeCreated
+                    )
             }
 
             it("get MotebehovStatus with no Motebehov and no Mote inside SvarBehov lower limit") {
@@ -498,7 +524,7 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ARBEIDSTAKER_FNR,
                 )
 
-                val motebehovSvar = motebehovGenerator.lagMotebehovSvar(true)
+                val motebehovSvar = motebehovGenerator.lagMotebehovSvarInputDTO(true)
                 motebehovArbeidstakerController.submitMotebehovArbeidstaker(motebehovSvar)
 
                 val motebehovList = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(ARBEIDSTAKER_AKTORID)
@@ -509,7 +535,7 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
         }
     }
 
-    private fun submitMotebehovAndSendOversikthendelse(motebehovSvar: MotebehovSvar) {
+    private fun submitMotebehovAndSendOversikthendelse(motebehovSvar: MotebehovSvarInputDTO) {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceServerAzureAD,
@@ -535,9 +561,9 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
             ARBEIDSTAKER_FNR,
         )
 
-        val motebehovSvar = motebehovGenerator.lagMotebehovSvar(harBehov)
+        val motebehovSvarInput = motebehovGenerator.lagMotebehovSvarInputDTO(harBehov)
 
-        motebehovArbeidstakerController.submitMotebehovArbeidstaker(motebehovSvar)
+        motebehovArbeidstakerController.submitMotebehovArbeidstaker(motebehovSvarInput)
 
         if (!harBehov) {
             mockRestServiceServer.reset()
@@ -554,7 +580,8 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
         assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
         assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
         assertThat(motebehov.skjemaType).isEqualTo(motebehovStatus.skjemaType)
-        assertThat(motebehov.motebehovSvar).usingRecursiveComparison().isEqualTo(motebehovSvar)
+        assertThat(motebehov.motebehovSvar.harMotebehov).isEqualTo(motebehovSvarInput.harMotebehov)
+        assertThat(motebehov.motebehovSvar.forklaring).isEqualTo(motebehovSvarInput.forklaring)
         if (harBehov) {
             verify { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         } else {

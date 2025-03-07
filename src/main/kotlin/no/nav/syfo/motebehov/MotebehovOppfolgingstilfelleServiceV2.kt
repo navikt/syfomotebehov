@@ -20,49 +20,118 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
     private val oppfolgingstilfelleService: OppfolgingstilfelleService,
     private val varselServiceV2: VarselServiceV2,
 ) {
+    /**
+     * Creates a arbeidsgiver-motebehov if there is an active oppfolgingstilfelle for the arbeidstaker and if the
+     * calculated motebehovStatus indicates that the arbeidsgiver can submit a motebehov for the arbeidstaker at this
+     * time. If this is a "svar behov" (not "meld behov"), the related varsel or varsler will be ferdigstilt.
+     */
     fun createMotebehovForArbeidgiver(
         innloggetFnr: String,
         arbeidstakerFnr: String,
         isOwnLeader: Boolean,
-        nyttMotebehov: NyttMotebehovArbeidsgiver,
+        nyttMotebehov: NyttMotebehovArbeidsgiverDTO,
     ) {
-        val activeOppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(arbeidstakerFnr, nyttMotebehov.virksomhetsnummer)
-        if (activeOppfolgingstilfelle != null) {
-            val motebehovStatus = motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(arbeidstakerFnr, isOwnLeader, nyttMotebehov.virksomhetsnummer)
+        val activeOppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
+            arbeidstakerFnr,
+            nyttMotebehov.virksomhetsnummer
+        )
 
-            if (motebehovStatus.isMotebehovAvailableForAnswer()) {
-                motebehovService.lagreMotebehov(
-                    innloggetFnr,
+        val activeOppfolgingstilfelleExists = activeOppfolgingstilfelle != null
+
+        val motebehovStatus = motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(
+            arbeidstakerFnr,
+            isOwnLeader,
+            nyttMotebehov.virksomhetsnummer
+        )
+
+        if (activeOppfolgingstilfelleExists && motebehovStatus.isMotebehovAvailableForAnswer()) {
+            val storedMotebehovSvar = storeNyttMotebehovForArbeidsgiver(
+                arbeidstakerFnr,
+                nyttMotebehov,
+                innloggetFnr,
+                motebehovStatus.skjemaType,
+            )
+
+            metric.tellBesvarMotebehov(
+                activeOppfolgingstilfelle!!,
+                motebehovStatus.skjemaType,
+                storedMotebehovSvar,
+                false,
+            )
+
+            if (motebehovStatus.skjemaType == MotebehovSkjemaType.SVAR_BEHOV) {
+                ferdigstillVarselForSvarMotebehovForArbeidsgiver(
                     arbeidstakerFnr,
-                    nyttMotebehov.virksomhetsnummer,
-                    motebehovStatus.skjemaType!!,
-                    nyttMotebehov.motebehovSvar,
+                    innloggetFnr,
+                    nyttMotebehov,
+                    isOwnLeader
                 )
-                metric.tellBesvarMotebehov(
-                    activeOppfolgingstilfelle,
-                    motebehovStatus.skjemaType,
-                    nyttMotebehov.motebehovSvar,
-                    false,
-                )
-                if (motebehovStatus.skjemaType == MotebehovSkjemaType.SVAR_BEHOV) {
-                    varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLeder(arbeidstakerFnr, innloggetFnr, nyttMotebehov.virksomhetsnummer)
-                    if (isOwnLeader) {
-                        varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(arbeidstakerFnr)
-                    }
-                }
-            } else {
-                metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSGIVER)
-                throwCreateMotebehovConflict("Failed to create Motebehov for Arbeidsgiver: Found no Virksomhetsnummer with active Oppfolgingstilfelle available for answer")
             }
         } else {
-            metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSGIVER)
-            throwCreateMotebehovFailed("Failed to create Motebehov for Arbeidsgiver: Found no active Oppfolgingstilfelle for ${nyttMotebehov.virksomhetsnummer}")
+            if (!activeOppfolgingstilfelleExists) {
+                metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSGIVER)
+                throwCreateMotebehovFailed(
+                    "Failed to create Motebehov for Arbeidsgiver:" +
+                        "Found no active Oppfolgingstilfelle for ${nyttMotebehov.virksomhetsnummer}"
+                )
+            }
+            if (!motebehovStatus.isMotebehovAvailableForAnswer()) {
+                metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSGIVER)
+                throwCreateMotebehovConflict(
+                    "Failed to create Motebehov for Arbeidsgiver:" +
+                        "Found no Virksomhetsnummer with active Oppfolgingstilfelle available for answer"
+                )
+            }
+        }
+    }
+
+    private fun storeNyttMotebehovForArbeidsgiver(
+        arbeidstakerFnr: String,
+        nyttMotebehov: NyttMotebehovArbeidsgiverDTO,
+        innloggetFnr: String,
+        skjemaType: MotebehovSkjemaType?,
+    ): MotebehovSvar {
+        val motebehovSvarToStore = MotebehovSvar(
+            harMotebehov = nyttMotebehov.motebehovSvarInputDTO.harMotebehov,
+            forklaring = nyttMotebehov.motebehovSvarInputDTO.forklaring,
+            formFillout = nyttMotebehov.motebehovSvarInputDTO.formFillout
+        )
+
+        motebehovService.lagreMotebehov(
+            innloggetFnr,
+            arbeidstakerFnr,
+            nyttMotebehov.virksomhetsnummer,
+            skjemaType!!,
+            motebehovSvarToStore,
+        )
+
+        return motebehovSvarToStore
+    }
+
+    private fun ferdigstillVarselForSvarMotebehovForArbeidsgiver(
+        arbeidstakerFnr: String,
+        innloggetFnr: String,
+        nyttMotebehov: NyttMotebehovArbeidsgiverDTO,
+        isOwnLeader: Boolean
+    ) {
+        varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLeder(
+            arbeidstakerFnr,
+            innloggetFnr,
+            nyttMotebehov.virksomhetsnummer
+        )
+        if (isOwnLeader) {
+            varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(arbeidstakerFnr)
         }
     }
 
     @Transactional
-    fun createMotebehovForArbeidstaker(arbeidstakerFnr: String, motebehovSvar: MotebehovSvar) {
-        val activeOppolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
+    fun createMotebehovForArbeidstaker(
+        arbeidstakerFnr: String,
+        nyttMotebehovSvar: TemporaryCombinedNyttMotebehovSvar
+    ) {
+        val activeOppolgingstilfelle =
+            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
+
         if (activeOppolgingstilfelle != null) {
             val motebehovStatus = motebehovStatusServiceV2.motebehovStatusForArbeidstaker(arbeidstakerFnr)
 
@@ -73,6 +142,12 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
             } else {
                 emptyList()
             }
+
+            val motebehovSvar = MotebehovSvar(
+                harMotebehov = nyttMotebehovSvar.harMotebehov,
+                forklaring = nyttMotebehovSvar.forklaring,
+                formFillout = nyttMotebehovSvar.formFillout
+            )
 
             if (virksomhetsnummerList.isNotEmpty()) {
                 for (virksomhetsnummer in virksomhetsnummerList) {

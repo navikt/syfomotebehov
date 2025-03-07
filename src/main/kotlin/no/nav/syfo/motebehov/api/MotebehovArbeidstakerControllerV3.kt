@@ -7,7 +7,9 @@ import no.nav.syfo.api.auth.tokenX.TokenXUtil.TokenXIssuer
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
-import no.nav.syfo.motebehov.MotebehovSvar
+import no.nav.syfo.motebehov.MotebehovSvarFormFilloutInputDTO
+import no.nav.syfo.motebehov.MotebehovSvarInputDTO
+import no.nav.syfo.motebehov.TemporaryCombinedNyttMotebehovSvar
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
 import org.springframework.beans.factory.annotation.Value
@@ -17,7 +19,11 @@ import javax.inject.Inject
 import javax.validation.Valid
 
 @RestController
-@ProtectedWithClaims(issuer = TokenXIssuer.TOKENX, claimMap = ["acr=Level4", "acr=idporten-loa-high"], combineWithOr = true)
+@ProtectedWithClaims(
+    issuer = TokenXIssuer.TOKENX,
+    claimMap = ["acr=Level4", "acr=idporten-loa-high"],
+    combineWithOr = true
+)
 @RequestMapping(value = ["/api/v3/arbeidstaker"])
 class MotebehovArbeidstakerControllerV3 @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
@@ -52,28 +58,6 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         )
     }
 
-    @PostMapping(
-        value = ["/motebehov"],
-        consumes = [MediaType.APPLICATION_JSON_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
-    fun submitMotebehovArbeidstaker(
-        @RequestBody nyttMotebehovSvar: @Valid MotebehovSvar,
-    ) {
-        metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker")
-        val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
-            contextHolder,
-            dialogmoteClientId,
-            esyfoProxyClientId
-        )
-            .fnrFromIdportenTokenX()
-
-        motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidstaker(
-            arbeidstakerFnr,
-            nyttMotebehovSvar,
-        )
-    }
-
     @GetMapping(
         value = ["/motebehov/all"],
         produces = [MediaType.APPLICATION_JSON_VALUE],
@@ -89,5 +73,62 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker_all")
 
         return motebehovStatusServiceV2.motebehovStatusForArbeidstaker(arbeidstakerFnr)
+    }
+
+    // Currently used POST-endpoint to phase out
+    @PostMapping(
+        value = ["/motebehov"],
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun submitMotebehovArbeidstaker(
+        @RequestBody nyttMotebehovSvar: @Valid MotebehovSvarInputDTO,
+    ) {
+        metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker")
+        val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
+            contextHolder,
+            dialogmoteClientId,
+            esyfoProxyClientId
+        )
+            .fnrFromIdportenTokenX()
+
+        val motebehovSvar = TemporaryCombinedNyttMotebehovSvar(
+            harMotebehov = nyttMotebehovSvar.harMotebehov,
+            forklaring = nyttMotebehovSvar.forklaring,
+            formFillout = null,
+        )
+
+        motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidstaker(
+            arbeidstakerFnr,
+            motebehovSvar,
+        )
+    }
+
+    @PostMapping(
+        value = ["/motebehov-form-fillout"],
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun submitMotebehovArbeidstaker(
+        @RequestBody nyttMotebehovSvar: @Valid MotebehovSvarFormFilloutInputDTO,
+    ) {
+        metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker")
+        val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
+            contextHolder,
+            dialogmoteClientId,
+            esyfoProxyClientId
+        )
+            .fnrFromIdportenTokenX()
+
+        val motebehovSvar = TemporaryCombinedNyttMotebehovSvar(
+            harMotebehov = nyttMotebehovSvar.harMotebehov,
+            forklaring = null,
+            formFillout = nyttMotebehovSvar.formFillout,
+        )
+
+        motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidstaker(
+            arbeidstakerFnr,
+            motebehovSvar,
+        )
     }
 }

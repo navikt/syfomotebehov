@@ -25,8 +25,6 @@ val testcontainersVersion = "1.20.4"
 val kotestVersion = "5.9.1"
 val springKotestExtensionVersion = "1.3.0"
 
-
-
 plugins {
     id("java")
     id("org.springframework.boot") version "3.3.6"
@@ -138,4 +136,3 @@ detekt {
     buildUponDefaultConfig = true
     baseline = file("detekt-baseline.xml")
 }
-
