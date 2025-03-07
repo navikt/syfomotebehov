@@ -30,7 +30,11 @@ class MotebehovDAO(
     fun hentMotebehovListeForAktoer(aktoerId: String): List<PMotebehov> {
         return Optional.ofNullable(
             jdbcTemplate.query(
-                "SELECT * FROM motebehov WHERE aktoer_id = ? ORDER BY opprettet_dato ASC",
+                """
+                SELECT m.*, s.* FROM motebehov m
+                LEFT JOIN motebehovSvar s ON m.motebehov_svar_id = s.id
+                WHERE m.aktoer_id = ? ORDER BY m.opprettet_dato ASC
+                """,
                 innsendingRowMapper,
                 aktoerId
             )
@@ -40,9 +44,11 @@ class MotebehovDAO(
     fun hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktorId: String): List<PMotebehov> {
         return Optional.ofNullable(
             jdbcTemplate.query(
-                "SELECT * FROM motebehov " +
-                    "WHERE aktoer_id = ? AND opprettet_av = ? AND opprettet_dato >= ? " +
-                    "ORDER BY opprettet_dato DESC",
+                """
+                SELECT m.*, s.* FROM motebehov m
+                LEFT JOIN motebehovSvar s ON m.motebehov_svar_id = s.id
+                WHERE m.aktoer_id = ? ORDER BY m.opprettet_dato ASC
+                """,
                 innsendingRowMapper,
                 arbeidstakerAktorId,
                 arbeidstakerAktorId,
@@ -56,28 +62,27 @@ class MotebehovDAO(
         isOwnLeader: Boolean,
         virksomhetsnummer: String
     ): List<PMotebehov> {
-        if (isOwnLeader) {
-            return Optional.ofNullable(
-                jdbcTemplate.query(
-                    "SELECT * FROM motebehov " +
-                        "WHERE aktoer_id = ? AND virksomhetsnummer = ? AND opprettet_dato >= ? " +
-                        "ORDER BY opprettet_dato DESC",
-                    innsendingRowMapper,
-                    arbeidstakerAktorId,
-                    virksomhetsnummer,
-                    hentTidligsteDatoForGyldigMotebehovSvar()
-                )
-            ).orElse(emptyList())
+        val query = if (isOwnLeader) {
+            """
+            SELECT m.*, s.* FROM motebehov m
+            LEFT JOIN motebehovSvar s ON m.motebehov_svar_id = s.id
+            WHERE m.aktoer_id = ? AND m.virksomhetsnummer = ? AND m.opprettet_dato >= ?
+            ORDER BY m.opprettet_dato DESC
+            """
+        } else {
+            """
+            SELECT m.*, s.* FROM motebehov m
+            LEFT JOIN motebehovSvar s ON m.motebehov_svar_id = s.id
+            WHERE m.aktoer_id = ? AND m.opprettet_av != ? AND m.virksomhetsnummer = ? AND m.opprettet_dato >= ?
+            ORDER BY m.opprettet_dato DESC
+            """
         }
-
         return Optional.ofNullable(
             jdbcTemplate.query(
-                "SELECT * FROM motebehov " +
-                    "WHERE aktoer_id = ? AND opprettet_av != ? AND virksomhetsnummer = ? AND opprettet_dato >= ? " +
-                    "ORDER BY opprettet_dato DESC",
+                query,
                 innsendingRowMapper,
                 arbeidstakerAktorId,
-                arbeidstakerAktorId,
+                if (isOwnLeader) virksomhetsnummer else arbeidstakerAktorId,
                 virksomhetsnummer,
                 hentTidligsteDatoForGyldigMotebehovSvar()
             )
@@ -87,7 +92,11 @@ class MotebehovDAO(
     fun hentUbehandledeMotebehov(aktoerId: String): List<PMotebehov> {
         return Optional.ofNullable(
             jdbcTemplate.query(
-                "SELECT * FROM motebehov WHERE aktoer_id = ? AND har_motebehov AND behandlet_veileder_ident IS NULL",
+                """
+                SELECT m.*, s.* FROM motebehov m
+                LEFT JOIN motebehovSvar s ON m.motebehov_svar_id = s.id
+                WHERE m.aktoer_id = ? AND m.har_motebehov AND m.behandlet_veileder_ident IS NULL
+                """,
                 innsendingRowMapper,
                 aktoerId
             )
@@ -97,8 +106,11 @@ class MotebehovDAO(
     fun hentUbehandledeMotebehovEldreEnnDato(date: LocalDate): List<PMotebehov> {
         return Optional.ofNullable(
             jdbcTemplate.query(
-                "SELECT * FROM motebehov " +
-                    "WHERE opprettet_dato < ? AND har_motebehov AND behandlet_veileder_ident IS NULL",
+                """
+                SELECT m.*, s.* FROM motebehov m
+                LEFT JOIN motebehovSvar s ON m.motebehov_svar_id = s.id
+                WHERE m.opprettet_dato < ? AND m.har_motebehov AND m.behandlet_veileder_ident IS NULL
+                """,
                 innsendingRowMapper,
                 convert(date)
             )
@@ -108,7 +120,11 @@ class MotebehovDAO(
     fun hentMotebehov(motebehovId: String): List<PMotebehov> {
         return Optional.ofNullable(
             jdbcTemplate.query(
-                "SELECT * FROM motebehov WHERE motebehov_uuid = ?",
+                """
+                SELECT m.*, s.* FROM motebehov m
+                LEFT JOIN motebehovSvar s ON m.motebehov_svar_id = s.id
+                WHERE m.motebehov_uuid = ?
+                """,
                 innsendingRowMapper,
                 motebehovId
             )
@@ -126,11 +142,28 @@ class MotebehovDAO(
     }
 
     fun create(motebehov: PMotebehov): UUID {
+        val motebehovSvarId = motebehov.motebehovSvar?.let {
+            val svarUuid = UUID.randomUUID()
+            val lagreSvarSql = """
+            INSERT INTO motebehovSvar (id, form_fillout, begrunnelse, onsker_sykmelder_deltar, onsker_sykmelder_deltar_begrunnelse, onsker_tolk, tolk_sprak)
+            VALUES (:id, :form_fillout, :begrunnelse, :onsker_sykmelder_deltar, :onsker_sykmelder_deltar_begrunnelse, :onsker_tolk, :tolk_sprak)
+            """.trimIndent()
+            val mapLagreSvarSql = MapSqlParameterSource()
+                .addValue("id", svarUuid.toString())
+                .addValue("form_fillout", it.formFilloutJSON, Types.OTHER)
+                .addValue("begrunnelse", it.begrunnelse)
+                .addValue("onsker_sykmelder_deltar", it.onskerSykmelderDeltar)
+                .addValue("onsker_sykmelder_deltar_begrunnelse", it.onskerSykmelderDeltarBegrunnelse)
+                .addValue("onsker_tolk", it.onskerTolk)
+                .addValue("tolk_sprak", it.tolkSprak)
+            namedParameterJdbcTemplate.update(lagreSvarSql, mapLagreSvarSql)
+            svarUuid
+        }
+
         val uuid = UUID.randomUUID()
         val lagreSql = """
-            INSERT INTO motebehov (motebehov_uuid, opprettet_dato, opprettet_av, aktoer_id, virksomhetsnummer, har_motebehov, forklaring, tildelt_enhet, behandlet_tidspunkt, behandlet_veileder_ident, skjematype, sm_fnr, opprettet_av_fnr)
-            VALUES (
-                :motebehov_uuid, :opprettet_dato, :opprettet_av, :aktoer_id, :virksomhetsnummer, :har_motebehov, :forklaring, :tildelt_enhet, :behandlet_tidspunkt, :behandlet_veileder_ident, :skjematype, :sm_fnr, :opprettet_av_fnr)
+        INSERT INTO motebehov (motebehov_uuid, opprettet_dato, opprettet_av, aktoer_id, virksomhetsnummer, har_motebehov, forklaring, tildelt_enhet, behandlet_tidspunkt, behandlet_veileder_ident, skjematype, sm_fnr, opprettet_av_fnr, motebehov_svar_id)
+        VALUES (:motebehov_uuid, :opprettet_dato, :opprettet_av, :aktoer_id, :virksomhetsnummer, :har_motebehov, :forklaring, :tildelt_enhet, :behandlet_tidspunkt, :behandlet_veileder_ident, :skjematype, :sm_fnr, :opprettet_av_fnr, :motebehov_svar_id)
         """.trimIndent()
         val mapLagreSql = MapSqlParameterSource()
             .addValue("motebehov_uuid", uuid.toString())
@@ -146,44 +179,68 @@ class MotebehovDAO(
             .addValue("skjematype", motebehov.skjemaType?.name)
             .addValue("sm_fnr", motebehov.sykmeldtFnr)
             .addValue("opprettet_av_fnr", motebehov.opprettetAvFnr)
+            .addValue("motebehov_svar_id", motebehovSvarId?.toString())
         namedParameterJdbcTemplate.update(lagreSql, mapLagreSql)
 
         return uuid
     }
 
     fun nullstillMotebehov(aktoerId: String): Int {
-        return if (hentMotebehovListeForAktoer(aktoerId).isNotEmpty()) {
-            val motebehovIder: List<String> = hentMotebehovListeForAktoer(aktoerId).map {
-                it.uuid.toString()
-            }
+        val motebehovListe = hentMotebehovListeForAktoer(aktoerId)
+        if (motebehovListe.isNotEmpty()) {
+            val motebehovIder: List<String> = motebehovListe.map { it.uuid.toString() }
+            val motebehovSvarIder: List<String> = motebehovListe.mapNotNull { it.motebehovSvar?.uuid?.toString() }
+
             namedParameterJdbcTemplate.update(
                 "DELETE FROM motebehov WHERE motebehov_uuid IN (:motebehovIder)",
-                MapSqlParameterSource()
-                    .addValue("motebehovIder", motebehovIder),
+                MapSqlParameterSource().addValue("motebehovIder", motebehovIder)
             )
+
+            if (motebehovSvarIder.isNotEmpty()) {
+                namedParameterJdbcTemplate.update(
+                    "DELETE FROM motebehovSvar WHERE id IN (:motebehovSvarIder)",
+                    MapSqlParameterSource().addValue("motebehovSvarIder", motebehovSvarIder)
+                )
+            }
+
+            return motebehovIder.size
         } else {
-            0
+            return 0
         }
     }
 
     companion object {
-        private val innsendingRowMapper: RowMapper<PMotebehov>
-            get() = RowMapper { rs: ResultSet, _: Int ->
-                PMotebehov(
-                    uuid = UUID.fromString(rs.getString("motebehov_uuid")),
-                    opprettetDato = rs.getTimestamp("opprettet_dato").toLocalDateTime(),
-                    opprettetAv = rs.getString("opprettet_av"),
-                    aktoerId = rs.getString("aktoer_id"),
-                    virksomhetsnummer = rs.getString("virksomhetsnummer"),
-                    harMotebehov = rs.getBoolean("har_motebehov"),
-                    forklaring = rs.getString("forklaring"),
-                    tildeltEnhet = rs.getString("tildelt_enhet"),
-                    behandletTidspunkt = convertNullable(rs.getTimestamp("behandlet_tidspunkt")),
-                    behandletVeilederIdent = rs.getString("behandlet_veileder_ident"),
-                    skjemaType = rs.getString("skjematype")?.let { MotebehovSkjemaType.valueOf(it) },
-                    sykmeldtFnr = rs.getString("sm_fnr"),
-                    opprettetAvFnr = rs.getString("opprettet_av_fnr"),
-                )
-            }
+        val innsendingRowMapper: RowMapper<PMotebehov> = RowMapper { rs: ResultSet, _: Int ->
+            PMotebehov(
+                uuid = UUID.fromString(rs.getString("motebehov_uuid")),
+                opprettetDato = rs.getTimestamp("opprettet_dato").toLocalDateTime(),
+                opprettetAv = rs.getString("opprettet_av"),
+                aktoerId = rs.getString("aktoer_id"),
+                virksomhetsnummer = rs.getString("virksomhetsnummer"),
+                harMotebehov = rs.getBoolean("har_motebehov"),
+                forklaring = rs.getString("forklaring"),
+                tildeltEnhet = rs.getString("tildelt_enhet"),
+                behandletTidspunkt = convertNullable(rs.getTimestamp("behandlet_tidspunkt")),
+                behandletVeilederIdent = rs.getString("behandlet_veileder_ident"),
+                skjemaType = rs.getString("skjematype")?.let { MotebehovSkjemaType.valueOf(it) },
+                sykmeldtFnr = rs.getString("sm_fnr"),
+                opprettetAvFnr = rs.getString("opprettet_av_fnr"),
+                motebehovSvar = motebehovSvarRowMapper.mapRow(rs, rs.row)
+            )
+        }
+
+        val motebehovSvarRowMapper: RowMapper<PMotebehovSvar> = RowMapper { rs: ResultSet, _: Int ->
+            PMotebehovSvar(
+                uuid = UUID.fromString(rs.getString("id")),
+                formFilloutJSON = rs.getString("form_fillout"),
+                begrunnelse = rs.getString("begrunnelse")?.takeIf { it.isNotEmpty() },
+                onskerSykmelderDeltar = rs.getBoolean("onsker_sykmelder_deltar"),
+                onskerSykmelderDeltarBegrunnelse = rs.getString(
+                    "onsker_sykmelder_deltar_begrunnelse"
+                )?.takeIf { it.isNotEmpty() },
+                onskerTolk = rs.getBoolean("onsker_tolk"),
+                tolkSprak = rs.getString("tolk_sprak")?.takeIf { it.isNotEmpty() },
+            )
+        }
     }
 }

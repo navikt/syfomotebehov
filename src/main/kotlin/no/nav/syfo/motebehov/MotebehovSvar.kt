@@ -1,6 +1,15 @@
 package no.nav.syfo.motebehov
 
+import no.nav.syfo.motebehov.database.PMotebehovSvar
+import no.nav.syfo.motebehov.database.convertFormFilloutToJson
+import no.nav.syfo.motebehov.formFillout.BEGRUNNELSE_TEXT_FIELD_ID
+import no.nav.syfo.motebehov.formFillout.FormFillout
+import no.nav.syfo.motebehov.formFillout.ONSKER_SYKMELDER_DELTAR_BEGRUNNELSE_TEXT_FIELD_ID
+import no.nav.syfo.motebehov.formFillout.ONSKER_SYKMELDER_DELTAR_CHECKBOX_FIELD_ID
+import no.nav.syfo.motebehov.formFillout.ONSKER_TOLK_CHECKBOX_FIELD_ID
+import no.nav.syfo.motebehov.formFillout.TOLK_SPRAK_TEXT_FIELD_ID
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
+import java.util.*
 
 data class MotebehovSvar(
     val harMotebehov: Boolean,
@@ -40,16 +49,55 @@ data class MotebehovSvarOutputDTO(
     val tolkSprak: String? = null,
 )
 
+data class MotebehovSvarFieldsFromFormFillout(
+    val begrunnelse: String? = null,
+    val onskerSykmelderDeltar: Boolean,
+    val onskerSykmelderDeltarBegrunnelse: String? = null,
+    val onskerTolk: Boolean,
+    val tolkSprak: String? = null,
+)
+
+fun extractValuesFromFormFillout(formFillout: FormFillout): MotebehovSvarFieldsFromFormFillout {
+    val fieldValues = formFillout.fieldValues
+
+    return MotebehovSvarFieldsFromFormFillout(
+        begrunnelse = fieldValues[BEGRUNNELSE_TEXT_FIELD_ID] as? String,
+        onskerSykmelderDeltar = fieldValues[ONSKER_SYKMELDER_DELTAR_CHECKBOX_FIELD_ID] as? Boolean ?: false,
+        onskerSykmelderDeltarBegrunnelse = fieldValues[ONSKER_SYKMELDER_DELTAR_BEGRUNNELSE_TEXT_FIELD_ID] as? String,
+        onskerTolk = fieldValues[ONSKER_TOLK_CHECKBOX_FIELD_ID] as? Boolean ?: false,
+        tolkSprak = fieldValues[TOLK_SPRAK_TEXT_FIELD_ID] as? String,
+    )
+}
+
 fun MotebehovSvar.toMotebehovSvarOutputDTO(): MotebehovSvarOutputDTO {
+    val valuesFromFormFillout = this.formFillout?.let { extractValuesFromFormFillout(it) }
+
     return MotebehovSvarOutputDTO(
         harMotebehov = this.harMotebehov,
         forklaring = this.forklaring,
         formFillout = this.formFillout,
-        begrunnelse = this.formFillout?.fieldValues?.get("begrunnelseText") as? String,
-        onskerSykmelderDeltar = this.formFillout?.fieldValues?.get("onskerSykmelderDeltarCheckbox") as? Boolean,
-        onskerSykmelderDeltarBegrunnelse =
-        this.formFillout?.fieldValues?.get("onskerSykmelderDeltarBegrunnelseText") as? String,
-        onskerTolk = this.formFillout?.fieldValues?.get("onskerTolkCheckbox") as? Boolean,
-        tolkSprak = this.formFillout?.fieldValues?.get("tolkSprakText") as? String,
+        begrunnelse = valuesFromFormFillout?.begrunnelse,
+        onskerSykmelderDeltar = valuesFromFormFillout?.onskerSykmelderDeltar,
+        onskerSykmelderDeltarBegrunnelse = valuesFromFormFillout?.onskerSykmelderDeltarBegrunnelse,
+        onskerTolk = valuesFromFormFillout?.onskerTolk,
+        tolkSprak = valuesFromFormFillout?.tolkSprak,
+    )
+}
+
+fun MotebehovSvar.toPMotebehovSvar(): PMotebehovSvar? {
+    if (this.formFillout == null) {
+        return null
+    }
+
+    val valuesFromFormFillout = extractValuesFromFormFillout(this.formFillout)
+
+    return PMotebehovSvar(
+        uuid = UUID.randomUUID(),
+        formFilloutJSON = convertFormFilloutToJson(this.formFillout),
+        begrunnelse = valuesFromFormFillout.begrunnelse,
+        onskerSykmelderDeltar = valuesFromFormFillout.onskerSykmelderDeltar,
+        onskerSykmelderDeltarBegrunnelse = valuesFromFormFillout.onskerSykmelderDeltarBegrunnelse,
+        onskerTolk = valuesFromFormFillout.onskerTolk,
+        tolkSprak = valuesFromFormFillout.tolkSprak,
     )
 }

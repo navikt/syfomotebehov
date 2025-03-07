@@ -1,4 +1,4 @@
-package no.nav.syfo.motebehov
+package no.nav.syfo.motebehov.formFillout
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
