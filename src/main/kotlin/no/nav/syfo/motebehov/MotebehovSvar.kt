@@ -1,24 +1,19 @@
 package no.nav.syfo.motebehov
 
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
-import java.io.Serializable
 
 data class MotebehovSvar(
     val harMotebehov: Boolean,
     // This forklaring field is to be phased in favor of formFillout, and eventually removed. Details in plan.
     val forklaring: String? = null,
     val formFillout: FormFillout?
-) : Serializable
+)
 
 // Existing input DTO to phase out. MotebehovSvarFormFilloutInputDTO will take over.
 data class MotebehovSvarInputDTO(
     val harMotebehov: Boolean,
     val forklaring: String? = null,
-) : Serializable {
-    companion object {
-        private const val serialVersionUID: Long = 1L
-    }
-}
+)
 
 data class MotebehovSvarFormFilloutInputDTO(
     val harMotebehov: Boolean,
@@ -26,11 +21,7 @@ data class MotebehovSvarFormFilloutInputDTO(
     // New fields to get on input and store, instead of having to calculate them in a probably unstable way.
     val skjemaType: MotebehovSkjemaType,
     val innmelderType: MotebehovInnmelderType,
-) : Serializable {
-    companion object {
-        private const val serialVersionUID: Long = 1L
-    }
-}
+)
 
 data class TemporaryCombinedNyttMotebehovSvar(
     val harMotebehov: Boolean,
