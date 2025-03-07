@@ -18,5 +18,16 @@ data class PMotebehov(
     val behandletVeilederIdent: String? = null,
     val skjemaType: MotebehovSkjemaType? = null,
     val sykmeldtFnr: String? = null,
-    val opprettetAvFnr: String? = null
+    val opprettetAvFnr: String? = null,
+    val motebehovSvar: PMotebehovSvar? = null,
 ) : Serializable
+
+data class PMotebehovSvar(
+    val uuid: UUID,
+    val formFilloutJSON: String?,
+    val begrunnelse: String?,
+    val onskerSykmelderDeltar: Boolean,
+    val onskerSykmelderDeltarBegrunnelse: String?,
+    val onskerTolk: Boolean,
+    val tolkSprak: String?,
+)

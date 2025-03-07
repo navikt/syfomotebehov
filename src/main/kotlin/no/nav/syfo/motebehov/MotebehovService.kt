@@ -171,6 +171,7 @@ class MotebehovService @Inject constructor(
             skjemaType = skjemaType,
             sykmeldtFnr = arbeidstakerFnr,
             opprettetAvFnr = innloggetFnr,
+            motebehovSvar = motebehovSvar.toPMotebehovSvar()
         )
     }
 

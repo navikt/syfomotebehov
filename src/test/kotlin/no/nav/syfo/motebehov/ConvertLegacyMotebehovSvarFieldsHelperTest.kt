@@ -3,6 +3,10 @@ package no.nav.syfo.motebehov
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import no.nav.syfo.motebehov.formFillout.FilloutCheckboxField
+import no.nav.syfo.motebehov.formFillout.FilloutRadioGroupField
+import no.nav.syfo.motebehov.formFillout.FilloutTextField
+import no.nav.syfo.motebehov.formFillout.FormFilloutFieldOption
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 
 class ConvertLegacyMotebehovSvarFieldsHelperTest : DescribeSpec({
