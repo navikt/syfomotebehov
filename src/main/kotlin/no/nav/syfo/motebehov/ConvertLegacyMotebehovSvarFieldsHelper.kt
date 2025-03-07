@@ -1,5 +1,6 @@
 package no.nav.syfo.motebehov
 
+import no.nav.syfo.motebehov.formFillout.*
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import org.springframework.stereotype.Component
 
@@ -19,26 +20,21 @@ class ConvertLegacyMotebehovSvarFieldsHelper {
 
     private val legacyFormsSemanticVersion = "0.1.0"
 
-    private val motebehovFieldIds = mapOf(
-        "svarHarBehovRadioGroupField" to "harBehovRadioGroup",
-        "meldHarBehovLegacyCheckboxField" to "harBehovCheckbox",
-        "onskerSykmelderDeltarCheckboxField" to "onskerSykmelderDeltarCheckbox",
-        "begrunnelseTextField" to "begrunnelseText",
-    )
-
-    private val motebehovLegacyLabels = mapOf(
-        "svarArbeidsgiverHarBehovField" to "Har dere behov for et møte med NAV?",
-        "svarArbeidstakerHarBehovField" to "Har du behov for et møte med NAV og arbeidsgiveren din?",
-        "svarHarBehovRadioOptionYes" to "Ja, jeg mener det er behov for et møte",
-        "svarHarBehovRadioOptionNo" to "Nei, jeg mener det ikke er behov for et møte",
-        "meldArbeidsgiverOnskerMoteCheckbox" to "Jeg ønsker et møte med NAV og den ansatte",
-        "meldArbeidstakerOnskerMoteCheckbox" to "Jeg ønsker et møte med NAV og arbeidsgiveren min.",
-        "meldArbeidsgiverOnskerSykmelderDeltarCheckbox" to
-            "Jeg ønsker at den som sykmelder arbeidstakeren, også skal delta i møtet.",
-        "meldArbeidstakerOnskerSykmelderDeltarCheckbox" to
-            "Jeg ønsker at den som sykmelder meg, også skal delta i møtet.",
-        "begrunnelseTextField" to "Begrunnelse"
-    )
+    enum class MotebehovLegacyLabel(val label: String) {
+        SVAR_ARBEIDSGIVER_HAR_BEHOV_FIELD("Har dere behov for et møte med NAV?"),
+        SVAR_ARBEIDSTAKER_HAR_BEHOV_FIELD("Har du behov for et møte med NAV og arbeidsgiveren din?"),
+        SVAR_HAR_BEHOV_RADIO_OPTION_YES("Ja, jeg mener det er behov for et møte"),
+        SVAR_HAR_BEHOV_RADIO_OPTION_NO("Nei, jeg mener det ikke er behov for et møte"),
+        MELD_ARBEIDSGIVER_ONSKER_MOTE_CHECKBOX("Jeg ønsker et møte med NAV og den ansatte"),
+        MELD_ARBEIDSTAKER_ONSKER_MOTE_CHECKBOX("Jeg ønsker et møte med NAV og arbeidsgiveren min."),
+        MELD_ARBEIDSGIVER_ONSKER_SYKMELDER_DELTAR_CHECKBOX(
+            "Jeg ønsker at den som sykmelder arbeidstakeren, også skal delta i møtet."
+        ),
+        MELD_ARBEIDSTAKER_ONSKER_SYKMELDER_DELTAR_CHECKBOX(
+            "Jeg ønsker at den som sykmelder meg, også skal delta i møtet."
+        ),
+        BEGRUNNELSE_TEXT_FIELD("Begrunnelse")
+    }
 
     private val formFilloutOptionIds = mapOf(
         "svarHarBehovRadioOptionYes" to "ja",
@@ -54,14 +50,12 @@ class ConvertLegacyMotebehovSvarFieldsHelper {
         begrunnelseTextValue: String,
         harMotebehov: Boolean,
         skjemaType: MotebehovSkjemaType?,
-    ): FilloutTextField {
-        return FilloutTextField(
-            fieldID = motebehovFieldIds["begrunnelseTextField"] ?: "",
-            fieldLabel = motebehovLegacyLabels["begrunnelseTextField"] ?: "",
-            textValue = begrunnelseTextValue,
-            wasOptional = skjemaType == MotebehovSkjemaType.MELD_BEHOV || harMotebehov
-        )
-    }
+    ): FilloutTextField = FilloutTextField(
+        fieldID = BEGRUNNELSE_TEXT_FIELD_ID,
+        fieldLabel = MotebehovLegacyLabel.BEGRUNNELSE_TEXT_FIELD.label,
+        textValue = begrunnelseTextValue,
+        wasOptional = skjemaType == MotebehovSkjemaType.MELD_BEHOV || harMotebehov
+    )
 
     fun createLegacySvarBehovRadioGroupField(
         harMotebehov: Boolean,
@@ -70,21 +64,20 @@ class ConvertLegacyMotebehovSvarFieldsHelper {
         val optionIdYes = formFilloutOptionIds["svarHarBehovRadioOptionYes"]!!
         val optionIdNo = formFilloutOptionIds["svarHarBehovRadioOptionNo"]!!
 
-        val optionLabelYes = motebehovLegacyLabels["svarHarBehovRadioOptionYes"]!!
-        val optionLabelNo = motebehovLegacyLabels["svarHarBehovRadioOptionNo"]!!
+        val optionLabelYes = MotebehovLegacyLabel.SVAR_HAR_BEHOV_RADIO_OPTION_YES.label
+        val optionLabelNo = MotebehovLegacyLabel.SVAR_HAR_BEHOV_RADIO_OPTION_NO.label
 
         val selectedOptionId = if (harMotebehov) optionIdYes else optionIdNo
         val selectedOptionLabel = if (harMotebehov) optionLabelYes else optionLabelNo
 
         return FilloutRadioGroupField(
-            fieldID = motebehovFieldIds["svarHarBehovRadioGroupField"]!!,
+            fieldID = SVAR_HAR_BEHOV_RADIO_GROUP_FIELD_ID,
             fieldLabel = motebehovInnmelderType.let {
                 when (it) {
                     MotebehovInnmelderType.ARBEIDSGIVER ->
-                        motebehovLegacyLabels["svarArbeidsgiverHarBehovField"]!!
-
+                        MotebehovLegacyLabel.SVAR_ARBEIDSGIVER_HAR_BEHOV_FIELD.label
                     MotebehovInnmelderType.ARBEIDSTAKER ->
-                        motebehovLegacyLabels["svarArbeidstakerHarBehovField"]!!
+                        MotebehovLegacyLabel.SVAR_ARBEIDSTAKER_HAR_BEHOV_FIELD.label
                 }
             },
             selectedOptionId,
@@ -106,40 +99,35 @@ class ConvertLegacyMotebehovSvarFieldsHelper {
 
     fun createLegacyMeldOnskerMoteCheckboxField(
         motebehovInnmelderType: MotebehovInnmelderType
-    ): FilloutCheckboxField {
-        return FilloutCheckboxField(
-            fieldID = motebehovFieldIds["meldHarBehovLegacyCheckboxField"] ?: "",
-            fieldLabel = motebehovInnmelderType.let {
-                when (it) {
-                    MotebehovInnmelderType.ARBEIDSGIVER ->
-                        motebehovLegacyLabels["meldArbeidsgiverOnskerMoteCheckbox"] ?: ""
-
-                    MotebehovInnmelderType.ARBEIDSTAKER ->
-                        motebehovLegacyLabels["meldArbeidstakerOnskerMoteCheckbox"] ?: ""
-                }
-            },
-            wasChecked = true,
-        )
-    }
+    ): FilloutCheckboxField = FilloutCheckboxField(
+        fieldID = MELD_HAR_BEHOV_LEGACY_CHECKBOX_FIELD_ID,
+        fieldLabel = motebehovInnmelderType.let {
+            when (it) {
+                MotebehovInnmelderType.ARBEIDSGIVER ->
+                    MotebehovLegacyLabel.MELD_ARBEIDSGIVER_ONSKER_MOTE_CHECKBOX.label
+                MotebehovInnmelderType.ARBEIDSTAKER ->
+                    MotebehovLegacyLabel.MELD_ARBEIDSTAKER_ONSKER_MOTE_CHECKBOX.label
+            }
+        },
+        wasChecked = true,
+    )
 
     fun createLegacyOnskerSykmelderDeltarCheckboxField(
         onskerSykmelderDeltar: Boolean,
         motebehovInnmelderType: MotebehovInnmelderType,
-    ): FilloutCheckboxField {
-        return FilloutCheckboxField(
-            fieldID = motebehovFieldIds["onskerSykmelderDeltarCheckboxField"] ?: "",
-            fieldLabel = motebehovInnmelderType.let {
-                when (it) {
-                    MotebehovInnmelderType.ARBEIDSGIVER ->
-                        motebehovLegacyLabels["meldArbeidsgiverOnskerSykmelderDeltarCheckbox"] ?: ""
+    ): FilloutCheckboxField = FilloutCheckboxField(
+        fieldID = ONSKER_SYKMELDER_DELTAR_CHECKBOX_FIELD_ID,
+        fieldLabel = motebehovInnmelderType.let {
+            when (it) {
+                MotebehovInnmelderType.ARBEIDSGIVER ->
+                    MotebehovLegacyLabel.MELD_ARBEIDSGIVER_ONSKER_SYKMELDER_DELTAR_CHECKBOX.label
 
-                    MotebehovInnmelderType.ARBEIDSTAKER ->
-                        motebehovLegacyLabels["meldArbeidstakerOnskerSykmelderDeltarCheckbox"] ?: ""
-                }
-            },
-            wasChecked = onskerSykmelderDeltar,
-        )
-    }
+                MotebehovInnmelderType.ARBEIDSTAKER ->
+                    MotebehovLegacyLabel.MELD_ARBEIDSTAKER_ONSKER_SYKMELDER_DELTAR_CHECKBOX.label
+            }
+        },
+        wasChecked = onskerSykmelderDeltar,
+    )
 
     // When a user checked the checkbox for onskerSykmelderDeltar in the legacy form, the text in the forklaring field
     // submitted from the frontend would contain the label text for that checkbox concatenated with the text value of
