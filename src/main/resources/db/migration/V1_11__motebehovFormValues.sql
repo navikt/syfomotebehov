@@ -1,0 +1,20 @@
+-- Everything is commented out in order for the migration to not take effect in dev yet
+
+-- -- Create the motebehovFormValues table
+-- CREATE TABLE MOTEBEHOV_FORM_VALUES (
+--     id UUID PRIMARY KEY,
+--     form_snapshot JSONB NOT NULL,
+--     begrunnelse VARCHAR(1000),
+--     onsker_sykmelder_deltar BOOLEAN NOT NULL,
+--     onsker_sykmelder_deltar_begrunnelse VARCHAR(500),
+--     onsker_tolk BOOLEAN NOT NULL,
+--     tolk_sprak VARCHAR(100),
+-- );
+--
+-- -- Add a new nullable field to the motebehov table
+-- ALTER TABLE MOTEBEHOV ADD COLUMN motebehov_form_values_id UUID;
+--
+-- -- Add a foreign key constraint to the new field
+-- ALTER TABLE MOTEBEHOV
+--     ADD CONSTRAINT fk_motebehov_motebehovFormValues
+--         FOREIGN KEY (motebehov_form_values_id) REFERENCES MOTEBEHOV_FORM_VALUES(id);

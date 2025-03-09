@@ -27,7 +27,7 @@ class MotebehovGenerator {
         virksomhetsnummer = VIRKSOMHETSNUMMER,
         opprettetAv = LEDER_AKTORID,
         opprettetDato = LocalDateTime.now().minusMinutes(2L),
-        motebehovSvar = lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
+        formValues = lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
             motebehovSvarInputDTO,
             MotebehovSkjemaType.SVAR_BEHOV,
             MotebehovInnmelderType.ARBEIDSGIVER
@@ -59,13 +59,13 @@ class MotebehovGenerator {
         inputDTO: MotebehovSvarInputDTO,
         skjemaType: MotebehovSkjemaType,
         innmelderType: MotebehovInnmelderType
-    ): MotebehovSvar {
-        val legacyFieldsToFormFilloutHelper = ConvertLegacyMotebehovSvarFieldsHelper()
+    ): MotebehovFormValues {
+        val legacyFieldsToFormSnapshotHelper = CreateFormSnapshotFromLegacyMotebehovHelper()
 
-        return MotebehovSvar(
+        return MotebehovFormValues(
             harMotebehov = inputDTO.harMotebehov,
             forklaring = inputDTO.forklaring,
-            formFillout = legacyFieldsToFormFilloutHelper.convertLegacyMotebehovSvarToFormFillout(
+            formSnapshot = legacyFieldsToFormSnapshotHelper.createFormSnapshotFromLegacyMotebehov(
                 inputDTO.harMotebehov,
                 inputDTO.forklaring,
                 skjemaType,
@@ -78,19 +78,19 @@ class MotebehovGenerator {
         inputDTO: MotebehovSvarInputDTO,
         skjemaType: MotebehovSkjemaType,
         innmelderType: MotebehovInnmelderType
-    ): MotebehovSvarOutputDTO {
-        val legacyFieldsToFormFilloutHelper = ConvertLegacyMotebehovSvarFieldsHelper()
+    ): MotebehovFormValuesOutputDTO {
+        val legacyFieldsToFormSnapshotHelper = CreateFormSnapshotFromLegacyMotebehovHelper()
 
-        return MotebehovSvar(
+        return MotebehovFormValues(
             harMotebehov = inputDTO.harMotebehov,
             forklaring = inputDTO.forklaring,
-            formFillout = legacyFieldsToFormFilloutHelper.convertLegacyMotebehovSvarToFormFillout(
+            formSnapshot = legacyFieldsToFormSnapshotHelper.createFormSnapshotFromLegacyMotebehov(
                 inputDTO.harMotebehov,
                 inputDTO.forklaring,
                 skjemaType,
                 innmelderType
             )
-        ).toMotebehovSvarOutputDTO()
+        ).toMotebehovFormValuesOutputDTO()
     }
 
     private val nyttPMotebehovArbeidstaker = PMotebehov(
