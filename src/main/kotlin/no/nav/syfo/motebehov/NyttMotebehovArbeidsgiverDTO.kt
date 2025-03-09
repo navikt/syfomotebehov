@@ -9,10 +9,10 @@ data class NyttMotebehovArbeidsgiverInputDTO(
     val tildeltEnhet: String? = null
 )
 
-data class NyttMotebehovArbeidsgiverFormFilloutInputDTO(
+data class NyttMotebehovArbeidsgiverFormValuesInputDTO(
     val arbeidstakerFnr: String,
     val virksomhetsnummer: @NotEmpty String,
-    val motebehovSvarInputDTO: MotebehovSvarFormFilloutInputDTO,
+    val motebehovFormValues: MotebehovFormValuesInputDTO,
     val tildeltEnhet: String? = null
 )
 

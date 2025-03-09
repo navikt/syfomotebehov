@@ -1,4 +1,4 @@
-package no.nav.syfo.motebehov.formFillout
+package no.nav.syfo.motebehov.formSnapshot
 
 const val SVAR_HAR_BEHOV_RADIO_GROUP_FIELD_ID = "harBehovRadioGroup"
 const val BEGRUNNELSE_TEXT_FIELD_ID = "begrunnelseText"

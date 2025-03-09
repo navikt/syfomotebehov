@@ -17,7 +17,7 @@ data class Motebehov(
     val opprettetAvFnr: String,
     val arbeidstakerFnr: String,
     val virksomhetsnummer: String,
-    val motebehovSvar: MotebehovSvar,
+    val formValues: MotebehovFormValues,
     val tildeltEnhet: String? = null,
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
@@ -32,7 +32,7 @@ data class MotebehovOutputDTO(
     val opprettetAvFnr: String,
     val arbeidstakerFnr: String,
     val virksomhetsnummer: String,
-    val motebehovSvar: MotebehovSvarOutputDTO,
+    val motebehovSvar: MotebehovFormValuesOutputDTO,
     val tildeltEnhet: String? = null,
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
@@ -51,7 +51,7 @@ fun Motebehov.toMotebehovVeilederDTO(): MotebehovVeilederDTO {
         opprettetAvNavn = null,
         arbeidstakerFnr = this.arbeidstakerFnr,
         virksomhetsnummer = this.virksomhetsnummer,
-        motebehovSvar = this.motebehovSvar.toMotebehovSvarOutputDTO(),
+        motebehovSvar = this.formValues.toMotebehovFormValuesOutputDTO(),
         tildeltEnhet = this.tildeltEnhet,
         behandletTidspunkt = this.behandletTidspunkt,
         behandletVeilederIdent = this.behandletVeilederIdent, skjemaType = this.skjemaType,
@@ -59,7 +59,7 @@ fun Motebehov.toMotebehovVeilederDTO(): MotebehovVeilederDTO {
 }
 
 fun Motebehov.isUbehandlet(): Boolean {
-    return this.motebehovSvar.harMotebehov && this.behandletVeilederIdent.isNullOrEmpty()
+    return this.formValues.harMotebehov && this.behandletVeilederIdent.isNullOrEmpty()
 }
 
 fun Motebehov.isCreatedInOppfolgingstilfelle(oppfolgingstilfelle: PersonOppfolgingstilfelle): Boolean {
@@ -76,8 +76,8 @@ fun Motebehov.isSvarBehovForOppfolgingstilfelle(oppfolgingstilfelle: PersonOppfo
         createdDate.isBefore(lastDateSvarBehovAvailability.plusDays(1))
 }
 
-fun Motebehov.toMotebehovOutputDTO(): MotebehovOutputDTO {
-    return MotebehovOutputDTO(
+fun Motebehov.toMotebehovOutputDTO(): MotebehovOutputDTO =
+    MotebehovOutputDTO(
         id = this.id,
         opprettetDato = this.opprettetDato,
         aktorId = this.aktorId,
@@ -85,10 +85,9 @@ fun Motebehov.toMotebehovOutputDTO(): MotebehovOutputDTO {
         opprettetAvFnr = this.opprettetAvFnr,
         arbeidstakerFnr = this.arbeidstakerFnr,
         virksomhetsnummer = this.virksomhetsnummer,
-        motebehovSvar = this.motebehovSvar.toMotebehovSvarOutputDTO(),
+        motebehovSvar = this.formValues.toMotebehovFormValuesOutputDTO(),
         tildeltEnhet = this.tildeltEnhet,
         behandletTidspunkt = this.behandletTidspunkt,
         behandletVeilederIdent = this.behandletVeilederIdent,
         skjemaType = this.skjemaType,
     )
-}
