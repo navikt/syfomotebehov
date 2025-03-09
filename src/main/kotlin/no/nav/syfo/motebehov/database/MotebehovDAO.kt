@@ -145,12 +145,12 @@ class MotebehovDAO(
         val motebehovSvarId = motebehov.motebehovSvar?.let {
             val svarUuid = UUID.randomUUID()
             val lagreSvarSql = """
-            INSERT INTO motebehovSvar (id, form_fillout, begrunnelse, onsker_sykmelder_deltar, onsker_sykmelder_deltar_begrunnelse, onsker_tolk, tolk_sprak)
-            VALUES (:id, :form_fillout, :begrunnelse, :onsker_sykmelder_deltar, :onsker_sykmelder_deltar_begrunnelse, :onsker_tolk, :tolk_sprak)
+            INSERT INTO motebehovSvar (id, form_snapshot, begrunnelse, onsker_sykmelder_deltar, onsker_sykmelder_deltar_begrunnelse, onsker_tolk, tolk_sprak)
+            VALUES (:id, :form_snapshot, :begrunnelse, :onsker_sykmelder_deltar, :onsker_sykmelder_deltar_begrunnelse, :onsker_tolk, :tolk_sprak)
             """.trimIndent()
             val mapLagreSvarSql = MapSqlParameterSource()
                 .addValue("id", svarUuid.toString())
-                .addValue("form_fillout", it.formFilloutJSON, Types.OTHER)
+                .addValue("form_snapshot", it.formSnapshotJSON, Types.OTHER)
                 .addValue("begrunnelse", it.begrunnelse)
                 .addValue("onsker_sykmelder_deltar", it.onskerSykmelderDeltar)
                 .addValue("onsker_sykmelder_deltar_begrunnelse", it.onskerSykmelderDeltarBegrunnelse)
@@ -232,7 +232,7 @@ class MotebehovDAO(
         val motebehovSvarRowMapper: RowMapper<PMotebehovSvar> = RowMapper { rs: ResultSet, _: Int ->
             PMotebehovSvar(
                 uuid = UUID.fromString(rs.getString("id")),
-                formFilloutJSON = rs.getString("form_fillout"),
+                formSnapshotJSON = rs.getString("form_snapshot"),
                 begrunnelse = rs.getString("begrunnelse")?.takeIf { it.isNotEmpty() },
                 onskerSykmelderDeltar = rs.getBoolean("onsker_sykmelder_deltar"),
                 onskerSykmelderDeltarBegrunnelse = rs.getString(

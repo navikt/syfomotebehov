@@ -7,7 +7,7 @@ import no.nav.syfo.api.auth.tokenX.TokenXUtil.TokenXIssuer
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
-import no.nav.syfo.motebehov.MotebehovSvarFormFilloutInputDTO
+import no.nav.syfo.motebehov.MotebehovFormValuesInputDTO
 import no.nav.syfo.motebehov.MotebehovSvarInputDTO
 import no.nav.syfo.motebehov.TemporaryCombinedNyttMotebehovSvar
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
@@ -95,7 +95,7 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         val motebehovSvar = TemporaryCombinedNyttMotebehovSvar(
             harMotebehov = nyttMotebehovSvar.harMotebehov,
             forklaring = nyttMotebehovSvar.forklaring,
-            formFillout = null,
+            formSnapshot = null,
         )
 
         motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidstaker(
@@ -105,12 +105,12 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
     }
 
     @PostMapping(
-        value = ["/motebehov-form-fillout"],
+        value = ["/motebehov-form-snapshot"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun submitMotebehovArbeidstaker(
-        @RequestBody nyttMotebehovSvar: @Valid MotebehovSvarFormFilloutInputDTO,
+        @RequestBody nyttMotebehovSvar: @Valid MotebehovFormValuesInputDTO,
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker")
         val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
@@ -123,7 +123,7 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         val motebehovSvar = TemporaryCombinedNyttMotebehovSvar(
             harMotebehov = nyttMotebehovSvar.harMotebehov,
             forklaring = null,
-            formFillout = nyttMotebehovSvar.formFillout,
+            formSnapshot = nyttMotebehovSvar.formSnapshot,
         )
 
         motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidstaker(
