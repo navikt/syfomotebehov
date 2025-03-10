@@ -47,7 +47,8 @@ class MotebehovDAO(
                 """
                 SELECT m.*, s.* FROM motebehov m
                 LEFT JOIN motebehov_form_values s ON m.motebehov_form_values_id = s.id
-                WHERE m.aktoer_id = ? ORDER BY m.opprettet_dato ASC
+                WHERE m.aktoer_id = ? AND m.opprettet_av = ? AND m.opprettet_dato >= ?
+                ORDER BY m.opprettet_dato DESC
                 """,
                 innsendingRowMapper,
                 arbeidstakerAktorId,
@@ -148,7 +149,7 @@ class MotebehovDAO(
     ): Int {
         val oppdaterSql =
             "UPDATE motebehov SET behandlet_tidspunkt = ?, behandlet_veileder_ident = ? " +
-                    "WHERE motebehov_uuid = ? AND har_motebehov AND behandlet_veileder_ident IS NULL"
+                "WHERE motebehov_uuid = ? AND har_motebehov AND behandlet_veileder_ident IS NULL"
         return jdbcTemplate.update(oppdaterSql, convert(LocalDateTime.now()), veilederIdent, motebehovUUID.toString())
     }
 
