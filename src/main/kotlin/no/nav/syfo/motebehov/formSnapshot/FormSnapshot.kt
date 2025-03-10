@@ -11,9 +11,9 @@ import javax.validation.constraints.NotNull
 /**
  * FormSnapshot is a data class describing details of some simple form and how it was filled out in a form submission.
  *
- * FormSnapshot can be used as a DTO for transmitting a form snapshot between frontend and backend, and as a serializable
- * storage format. The main use case for the FormSnapshot format is to support storage and display of form responses for
- * forms where at least some of these conditions apply:
+ * FormSnapshot can be used as a DTO for transmitting a form snapshot between frontend and backend, and as a
+ * serializable storage format. The main use case for the FormSnapshot format is to support storage and display of form
+ * responses for forms where at least some of these conditions apply:
  * - The form will probably change over time (for example with labels changing, or fields being added or removed).
  * - The form responses are mainly submitted in order to be displayed to humans (as opposed to mainly being read
  *   programmatically).

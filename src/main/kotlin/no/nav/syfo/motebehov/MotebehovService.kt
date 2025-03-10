@@ -5,7 +5,6 @@ import no.nav.syfo.consumer.behandlendeenhet.BehandlendeEnhetConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.database.MotebehovDAO
-import no.nav.syfo.motebehov.database.PMotebehov
 import no.nav.syfo.motebehov.database.toMotebehov
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseService
@@ -112,57 +111,33 @@ class MotebehovService @Inject constructor(
         arbeidstakerFnr: String,
         virksomhetsnummer: String,
         skjemaType: MotebehovSkjemaType,
-        motebehovSvar: MotebehovFormValues,
+        motebehovFormValues: MotebehovFormValues,
     ): UUID {
         val innloggetBrukerAktoerId = pdlConsumer.aktorid(innloggetFNR)
         val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
         val arbeidstakerBehandlendeEnhet =
             behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr, null).enhetId
 
-        val pMotebehov = createNewPMotebehovToStore(
-            innloggetBrukerAktoerId,
-            arbeidstakerAktoerId,
-            innloggetFNR,
-            arbeidstakerFnr,
-            arbeidstakerBehandlendeEnhet,
-            virksomhetsnummer,
-            skjemaType,
-            motebehovSvar,
+        val motebehov = Motebehov(
+            id = UUID.randomUUID(),
+            opprettetDato = LocalDateTime.now(),
+            aktorId = arbeidstakerAktoerId,
+            opprettetAv = innloggetBrukerAktoerId,
+            opprettetAvFnr = innloggetFNR,
+            arbeidstakerFnr = arbeidstakerFnr,
+            virksomhetsnummer = virksomhetsnummer,
+            formValues = motebehovFormValues,
+            tildeltEnhet = arbeidstakerBehandlendeEnhet,
+            skjemaType = skjemaType,
         )
 
+        val pMotebehov = motebehov.toPMotebehov()
+
         val uuid = motebehovDAO.create(pMotebehov)
-        if (motebehovSvar.harMotebehov) {
+        if (motebehovFormValues.harMotebehov) {
             personoppgavehendelseService.sendPersonoppgaveHendelseMottatt(uuid, arbeidstakerFnr)
         }
         return uuid
-    }
-
-    private fun createNewPMotebehovToStore(
-        innloggetAktoerId: String,
-        arbeidstakerAktoerId: String,
-        innloggetFnr: String,
-        arbeidstakerFnr: String,
-        tildeltEnhet: String,
-        virksomhetsnummer: String,
-        skjemaType: MotebehovSkjemaType,
-        motebehovSvar: MotebehovFormValues,
-    ): PMotebehov {
-        return PMotebehov(
-            uuid = UUID.randomUUID(),
-            opprettetDato = LocalDateTime.now(),
-            opprettetAv = innloggetAktoerId,
-            aktoerId = arbeidstakerAktoerId,
-            virksomhetsnummer = virksomhetsnummer,
-            harMotebehov = motebehovSvar.harMotebehov,
-            forklaring = motebehovSvar.forklaring,
-            tildeltEnhet = tildeltEnhet,
-            behandletVeilederIdent = null,
-            behandletTidspunkt = null,
-            skjemaType = skjemaType,
-            sykmeldtFnr = arbeidstakerFnr,
-            opprettetAvFnr = innloggetFnr,
-            motebehovFormValues = motebehovSvar.toPMotebehovFormValues()
-        )
     }
 
     companion object {

@@ -6,8 +6,8 @@ import no.nav.syfo.api.auth.tokenX.TokenXUtil
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.TokenXIssuer
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.MotebehovFormValuesInputDTO
+import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.MotebehovSvarInputDTO
 import no.nav.syfo.motebehov.TemporaryCombinedNyttMotebehovSvar
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
