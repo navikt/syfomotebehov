@@ -1,6 +1,7 @@
 package no.nav.syfo.motebehov
 
 import no.nav.syfo.motebehov.api.internad.dto.MotebehovVeilederDTO
+import no.nav.syfo.motebehov.database.PMotebehov
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
@@ -75,6 +76,24 @@ fun Motebehov.isSvarBehovForOppfolgingstilfelle(oppfolgingstilfelle: PersonOppfo
     return createdDate.isAfter(firstDateSvarBehovAvailability.minusDays(1)) &&
         createdDate.isBefore(lastDateSvarBehovAvailability.plusDays(1))
 }
+
+fun Motebehov.toPMotebehov(): PMotebehov =
+    PMotebehov(
+        uuid = this.id,
+        opprettetDato = this.opprettetDato,
+        opprettetAv = this.opprettetAv,
+        aktoerId = this.aktorId,
+        virksomhetsnummer = this.virksomhetsnummer,
+        harMotebehov = this.formValues.harMotebehov,
+        forklaring = this.formValues.forklaring,
+        tildeltEnhet = this.tildeltEnhet,
+        behandletVeilederIdent = this.behandletVeilederIdent,
+        behandletTidspunkt = this.behandletTidspunkt,
+        skjemaType = this.skjemaType,
+        sykmeldtFnr = this.arbeidstakerFnr,
+        opprettetAvFnr = this.opprettetAvFnr,
+        motebehovFormValues = this.formValues.toPMotebehovFormValues(),
+    )
 
 fun Motebehov.toMotebehovOutputDTO(): MotebehovOutputDTO =
     MotebehovOutputDTO(

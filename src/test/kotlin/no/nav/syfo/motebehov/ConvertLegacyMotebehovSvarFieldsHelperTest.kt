@@ -3,10 +3,10 @@ package no.nav.syfo.motebehov
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
-import no.nav.syfo.motebehov.formSnapshot.SingleCheckboxFieldSnapshot
-import no.nav.syfo.motebehov.formSnapshot.RadioGroupFieldSnapshot
-import no.nav.syfo.motebehov.formSnapshot.TextFieldSnapshot
 import no.nav.syfo.motebehov.formSnapshot.FormSnapshotFieldOption
+import no.nav.syfo.motebehov.formSnapshot.RadioGroupFieldSnapshot
+import no.nav.syfo.motebehov.formSnapshot.SingleCheckboxFieldSnapshot
+import no.nav.syfo.motebehov.formSnapshot.TextFieldSnapshot
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 
 class ConvertLegacyMotebehovSvarFieldsHelperTest : DescribeSpec({

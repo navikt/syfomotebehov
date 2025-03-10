@@ -1,6 +1,15 @@
 package no.nav.syfo.motebehov
 
-import no.nav.syfo.motebehov.formSnapshot.*
+import no.nav.syfo.motebehov.formSnapshot.BEGRUNNELSE_TEXT_FIELD_ID
+import no.nav.syfo.motebehov.formSnapshot.FieldSnapshot
+import no.nav.syfo.motebehov.formSnapshot.FormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.FormSnapshotFieldOption
+import no.nav.syfo.motebehov.formSnapshot.MELD_HAR_BEHOV_LEGACY_CHECKBOX_FIELD_ID
+import no.nav.syfo.motebehov.formSnapshot.ONSKER_SYKMELDER_DELTAR_CHECKBOX_FIELD_ID
+import no.nav.syfo.motebehov.formSnapshot.RadioGroupFieldSnapshot
+import no.nav.syfo.motebehov.formSnapshot.SVAR_HAR_BEHOV_RADIO_GROUP_FIELD_ID
+import no.nav.syfo.motebehov.formSnapshot.SingleCheckboxFieldSnapshot
+import no.nav.syfo.motebehov.formSnapshot.TextFieldSnapshot
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import org.springframework.stereotype.Component
 
