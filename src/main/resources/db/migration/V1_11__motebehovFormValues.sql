@@ -1,5 +1,5 @@
 -- Everything is commented out in order for the migration to not take effect in dev yet
-
+--
 -- -- Create the motebehovFormValues table
 -- CREATE TABLE MOTEBEHOV_FORM_VALUES (
 --     id UUID PRIMARY KEY,
@@ -10,6 +10,9 @@
 --     onsker_tolk BOOLEAN NOT NULL,
 --     tolk_sprak VARCHAR(100),
 -- );
+--
+-- -- Create an index on the id field
+-- CREATE INDEX idx_motebehov_form_values_id ON MOTEBEHOV_FORM_VALUES(id);
 --
 -- -- Add a new nullable field to the motebehov table
 -- ALTER TABLE MOTEBEHOV ADD COLUMN motebehov_form_values_id UUID;
