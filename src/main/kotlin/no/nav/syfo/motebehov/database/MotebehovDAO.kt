@@ -32,7 +32,7 @@ class MotebehovDAO(
             jdbcTemplate.query(
                 """
                 SELECT m.*, s.* FROM motebehov m
-                LEFT JOIN motebehovSvar s ON m.motebehov_svar_id = s.id
+                LEFT JOIN motebehov_form_values s ON m.motebehov_form_values_id = s.id
                 WHERE m.aktoer_id = ? ORDER BY m.opprettet_dato ASC
                 """,
                 innsendingRowMapper,
@@ -46,7 +46,7 @@ class MotebehovDAO(
             jdbcTemplate.query(
                 """
                 SELECT m.*, s.* FROM motebehov m
-                LEFT JOIN motebehovSvar s ON m.motebehov_svar_id = s.id
+                LEFT JOIN motebehov_form_values s ON m.motebehov_form_values_id = s.id
                 WHERE m.aktoer_id = ? ORDER BY m.opprettet_dato ASC
                 """,
                 innsendingRowMapper,
@@ -65,14 +65,14 @@ class MotebehovDAO(
         val query = if (isOwnLeader) {
             """
             SELECT m.*, s.* FROM motebehov m
-            LEFT JOIN motebehovSvar s ON m.motebehov_svar_id = s.id
+            LEFT JOIN motebehov_form_values s ON m.motebehov_form_values_id = s.id
             WHERE m.aktoer_id = ? AND m.virksomhetsnummer = ? AND m.opprettet_dato >= ?
             ORDER BY m.opprettet_dato DESC
             """
         } else {
             """
             SELECT m.*, s.* FROM motebehov m
-            LEFT JOIN motebehovSvar s ON m.motebehov_svar_id = s.id
+            LEFT JOIN motebehov_form_values s ON m.motebehov_form_values_id = s.id
             WHERE m.aktoer_id = ? AND m.opprettet_av != ? AND m.virksomhetsnummer = ? AND m.opprettet_dato >= ?
             ORDER BY m.opprettet_dato DESC
             """
@@ -94,7 +94,7 @@ class MotebehovDAO(
             jdbcTemplate.query(
                 """
                 SELECT m.*, s.* FROM motebehov m
-                LEFT JOIN motebehovSvar s ON m.motebehov_svar_id = s.id
+                LEFT JOIN motebehov_form_values s ON m.motebehov_form_values_id = s.id
                 WHERE m.aktoer_id = ? AND m.har_motebehov AND m.behandlet_veileder_ident IS NULL
                 """,
                 innsendingRowMapper,
@@ -108,7 +108,7 @@ class MotebehovDAO(
             jdbcTemplate.query(
                 """
                 SELECT m.*, s.* FROM motebehov m
-                LEFT JOIN motebehovSvar s ON m.motebehov_svar_id = s.id
+                LEFT JOIN motebehov_form_values s ON m.motebehov_form_values_id = s.id
                 WHERE m.opprettet_dato < ? AND m.har_motebehov AND m.behandlet_veileder_ident IS NULL
                 """,
                 innsendingRowMapper,
@@ -122,7 +122,7 @@ class MotebehovDAO(
             jdbcTemplate.query(
                 """
                 SELECT m.*, s.* FROM motebehov m
-                LEFT JOIN motebehovSvar s ON m.motebehov_svar_id = s.id
+                LEFT JOIN motebehov_form_values s ON m.motebehov_form_values_id = s.id
                 WHERE m.motebehov_uuid = ?
                 """,
                 innsendingRowMapper,
@@ -142,7 +142,7 @@ class MotebehovDAO(
     }
 
     fun create(motebehov: PMotebehov): UUID {
-        val motebehovSvarId = motebehov.motebehovSvar?.let {
+        val motebehovSvarId = motebehov.motebehovFormValues?.let {
             val svarUuid = UUID.randomUUID()
             val lagreSvarSql = """
             INSERT INTO motebehovSvar (id, form_snapshot, begrunnelse, onsker_sykmelder_deltar, onsker_sykmelder_deltar_begrunnelse, onsker_tolk, tolk_sprak)
@@ -162,8 +162,8 @@ class MotebehovDAO(
 
         val uuid = UUID.randomUUID()
         val lagreSql = """
-        INSERT INTO motebehov (motebehov_uuid, opprettet_dato, opprettet_av, aktoer_id, virksomhetsnummer, har_motebehov, forklaring, tildelt_enhet, behandlet_tidspunkt, behandlet_veileder_ident, skjematype, sm_fnr, opprettet_av_fnr, motebehov_svar_id)
-        VALUES (:motebehov_uuid, :opprettet_dato, :opprettet_av, :aktoer_id, :virksomhetsnummer, :har_motebehov, :forklaring, :tildelt_enhet, :behandlet_tidspunkt, :behandlet_veileder_ident, :skjematype, :sm_fnr, :opprettet_av_fnr, :motebehov_svar_id)
+        INSERT INTO motebehov (motebehov_uuid, opprettet_dato, opprettet_av, aktoer_id, virksomhetsnummer, har_motebehov, forklaring, tildelt_enhet, behandlet_tidspunkt, behandlet_veileder_ident, skjematype, sm_fnr, opprettet_av_fnr, motebehov_form_values_id)
+        VALUES (:motebehov_uuid, :opprettet_dato, :opprettet_av, :aktoer_id, :virksomhetsnummer, :har_motebehov, :forklaring, :tildelt_enhet, :behandlet_tidspunkt, :behandlet_veileder_ident, :skjematype, :sm_fnr, :opprettet_av_fnr, :motebehov_form_values_id)
         """.trimIndent()
         val mapLagreSql = MapSqlParameterSource()
             .addValue("motebehov_uuid", uuid.toString())
@@ -179,7 +179,7 @@ class MotebehovDAO(
             .addValue("skjematype", motebehov.skjemaType?.name)
             .addValue("sm_fnr", motebehov.sykmeldtFnr)
             .addValue("opprettet_av_fnr", motebehov.opprettetAvFnr)
-            .addValue("motebehov_svar_id", motebehovSvarId?.toString())
+            .addValue("motebehov_form_values_id", motebehovSvarId?.toString())
         namedParameterJdbcTemplate.update(lagreSql, mapLagreSql)
 
         return uuid
@@ -189,7 +189,7 @@ class MotebehovDAO(
         val motebehovListe = hentMotebehovListeForAktoer(aktoerId)
         if (motebehovListe.isNotEmpty()) {
             val motebehovIder: List<String> = motebehovListe.map { it.uuid.toString() }
-            val motebehovSvarIder: List<String> = motebehovListe.mapNotNull { it.motebehovSvar?.uuid?.toString() }
+            val motebehovSvarIder: List<String> = motebehovListe.mapNotNull { it.motebehovFormValues?.uuid?.toString() }
 
             namedParameterJdbcTemplate.update(
                 "DELETE FROM motebehov WHERE motebehov_uuid IN (:motebehovIder)",
@@ -225,12 +225,16 @@ class MotebehovDAO(
                 skjemaType = rs.getString("skjematype")?.let { MotebehovSkjemaType.valueOf(it) },
                 sykmeldtFnr = rs.getString("sm_fnr"),
                 opprettetAvFnr = rs.getString("opprettet_av_fnr"),
-                motebehovSvar = motebehovSvarRowMapper.mapRow(rs, rs.row)
+                motebehovFormValues = if (rs.getString("motebehov_form_values_id") != null) {
+                    motebehovSvarRowMapper.mapRow(rs, rs.row)
+                } else {
+                    null
+                }
             )
         }
 
-        val motebehovSvarRowMapper: RowMapper<PMotebehovSvar> = RowMapper { rs: ResultSet, _: Int ->
-            PMotebehovSvar(
+        val motebehovSvarRowMapper: RowMapper<PMotebehovFormValues> = RowMapper { rs: ResultSet, _: Int ->
+            PMotebehovFormValues(
                 uuid = UUID.fromString(rs.getString("id")),
                 formSnapshotJSON = rs.getString("form_snapshot"),
                 begrunnelse = rs.getString("begrunnelse")?.takeIf { it.isNotEmpty() },

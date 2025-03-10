@@ -8,14 +8,14 @@ import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 fun MotebehovStatus.assertMotebehovStatus(
     expVisMotebehov: Boolean,
     expSkjemaType: MotebehovSkjemaType?,
-    expMotebehovSvarOutputDTO: MotebehovFormValuesOutputDTO?
+    expMotebehovFormValuesOutputDTO: MotebehovFormValuesOutputDTO?
 ) {
     expVisMotebehov shouldBe this.visMotebehov
     expSkjemaType shouldBe this.skjemaType
-    if (expMotebehovSvarOutputDTO != null) {
-        expMotebehovSvarOutputDTO shouldBe this.motebehov!!.motebehovSvar
+    if (expMotebehovFormValuesOutputDTO != null) {
+        expMotebehovFormValuesOutputDTO shouldBe this.motebehov!!.motebehovSvar
         expSkjemaType shouldBe this.motebehov!!.skjemaType
     } else {
-        expMotebehovSvarOutputDTO shouldBe this.motebehov
+        expMotebehovFormValuesOutputDTO shouldBe this.motebehov
     }
 }

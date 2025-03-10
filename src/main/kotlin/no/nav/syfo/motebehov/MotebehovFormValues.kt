@@ -1,6 +1,6 @@
 package no.nav.syfo.motebehov
 
-import no.nav.syfo.motebehov.database.PMotebehovSvar
+import no.nav.syfo.motebehov.database.PMotebehovFormValues
 import no.nav.syfo.motebehov.database.convertFormSnapshotToJson
 import no.nav.syfo.motebehov.formSnapshot.BEGRUNNELSE_TEXT_FIELD_ID
 import no.nav.syfo.motebehov.formSnapshot.FormSnapshot
@@ -84,14 +84,14 @@ fun MotebehovFormValues.toMotebehovFormValuesOutputDTO(): MotebehovFormValuesOut
     )
 }
 
-fun MotebehovFormValues.toPMotebehovSvar(): PMotebehovSvar? {
+fun MotebehovFormValues.toPMotebehovFormValues(): PMotebehovFormValues? {
     if (this.formSnapshot == null) {
         return null
     }
 
     val valuesFromFormSnapshot = extractValuesFromFormSnapshot(this.formSnapshot)
 
-    return PMotebehovSvar(
+    return PMotebehovFormValues(
         uuid = UUID.randomUUID(),
         formSnapshotJSON = convertFormSnapshotToJson(this.formSnapshot),
         begrunnelse = valuesFromFormSnapshot.begrunnelse,
