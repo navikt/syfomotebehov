@@ -90,11 +90,11 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
         nyttMotebehov: NyttMotebehovArbeidsgiverDTO,
         innloggetFnr: String,
         skjemaType: MotebehovSkjemaType?,
-    ): MotebehovSvar {
-        val motebehovSvarToStore = MotebehovSvar(
+    ): MotebehovFormValues {
+        val motebehovFormValues = MotebehovFormValues(
             harMotebehov = nyttMotebehov.motebehovSvarInputDTO.harMotebehov,
             forklaring = nyttMotebehov.motebehovSvarInputDTO.forklaring,
-            formFillout = nyttMotebehov.motebehovSvarInputDTO.formFillout
+            formSnapshot = nyttMotebehov.motebehovSvarInputDTO.formSnapshot
         )
 
         motebehovService.lagreMotebehov(
@@ -102,10 +102,10 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
             arbeidstakerFnr,
             nyttMotebehov.virksomhetsnummer,
             skjemaType!!,
-            motebehovSvarToStore,
+            motebehovFormValues,
         )
 
-        return motebehovSvarToStore
+        return motebehovFormValues
     }
 
     private fun ferdigstillVarselForSvarMotebehovForArbeidsgiver(
@@ -143,10 +143,10 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                 emptyList()
             }
 
-            val motebehovSvar = MotebehovSvar(
+            val motebehovFormValues = MotebehovFormValues(
                 harMotebehov = nyttMotebehovSvar.harMotebehov,
                 forklaring = nyttMotebehovSvar.forklaring,
-                formFillout = nyttMotebehovSvar.formFillout
+                formSnapshot = nyttMotebehovSvar.formSnapshot
             )
 
             if (virksomhetsnummerList.isNotEmpty()) {
@@ -156,13 +156,13 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                         arbeidstakerFnr,
                         virksomhetsnummer,
                         motebehovStatus.skjemaType!!,
-                        motebehovSvar,
+                        motebehovFormValues,
                     )
                 }
                 metric.tellBesvarMotebehov(
                     activeOppolgingstilfelle,
                     motebehovStatus.skjemaType,
-                    motebehovSvar,
+                    motebehovFormValues,
                     true,
                 )
                 if (motebehovStatus.skjemaType == MotebehovSkjemaType.SVAR_BEHOV) {

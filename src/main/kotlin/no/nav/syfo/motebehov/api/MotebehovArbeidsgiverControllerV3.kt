@@ -9,7 +9,7 @@ import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverFormFilloutInputDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverFormValuesInputDTO
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverInputDTO
 import no.nav.syfo.motebehov.TemporaryCombinedNyttMotebehovSvar
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
@@ -79,7 +79,7 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
             motebehovSvarInputDTO = TemporaryCombinedNyttMotebehovSvar(
                 harMotebehov = nyttMotebehovDTO.motebehovSvar.harMotebehov,
                 forklaring = nyttMotebehovDTO.motebehovSvar.forklaring,
-                formFillout = null,
+                formSnapshot = null,
             ),
         )
 
@@ -92,12 +92,12 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
     }
 
     @PostMapping(
-        value = ["/motebehov-form-fillout"],
+        value = ["/motebehov-form-snapshot"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun lagreMotebehovArbeidsgiver(
-        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverFormFilloutInputDTO,
+        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverFormValuesInputDTO,
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
         val innloggetFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)
@@ -112,9 +112,9 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
             arbeidstakerFnr = nyttMotebehovDTO.arbeidstakerFnr,
             virksomhetsnummer = nyttMotebehovDTO.virksomhetsnummer,
             motebehovSvarInputDTO = TemporaryCombinedNyttMotebehovSvar(
-                harMotebehov = nyttMotebehovDTO.motebehovSvarInputDTO.harMotebehov,
+                harMotebehov = nyttMotebehovDTO.motebehovFormValues.harMotebehov,
                 forklaring = null,
-                formFillout = nyttMotebehovDTO.motebehovSvarInputDTO.formFillout,
+                formSnapshot = nyttMotebehovDTO.motebehovFormValues.formSnapshot,
             ),
         )
 
