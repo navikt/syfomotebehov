@@ -8,7 +8,7 @@
 --     onsker_sykmelder_deltar BOOLEAN NOT NULL,
 --     onsker_sykmelder_deltar_begrunnelse VARCHAR(500),
 --     onsker_tolk BOOLEAN NOT NULL,
---     tolk_sprak VARCHAR(100),
+--     tolk_sprak VARCHAR(100)
 -- );
 --
 -- -- Create an index on the id field
