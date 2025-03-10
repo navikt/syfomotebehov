@@ -62,31 +62,42 @@ class MotebehovDAO(
         isOwnLeader: Boolean,
         virksomhetsnummer: String
     ): List<PMotebehov> {
-        val query = if (isOwnLeader) {
-            """
-            SELECT m.*, s.* FROM motebehov m
-            LEFT JOIN motebehov_form_values s ON m.motebehov_form_values_id = s.id
-            WHERE m.aktoer_id = ? AND m.virksomhetsnummer = ? AND m.opprettet_dato >= ?
-            ORDER BY m.opprettet_dato DESC
-            """
+        if (isOwnLeader) {
+            val query =
+                """
+                SELECT m.*, s.* FROM motebehov m
+                LEFT JOIN motebehov_form_values s ON m.motebehov_form_values_id = s.id
+                WHERE m.aktoer_id = ? AND m.virksomhetsnummer = ? AND m.opprettet_dato >= ?
+                ORDER BY m.opprettet_dato DESC
+                """
+            return Optional.ofNullable(
+                jdbcTemplate.query(
+                    query,
+                    innsendingRowMapper,
+                    arbeidstakerAktorId,
+                    virksomhetsnummer,
+                    hentTidligsteDatoForGyldigMotebehovSvar()
+                )
+            ).orElse(emptyList())
         } else {
-            """
-            SELECT m.*, s.* FROM motebehov m
-            LEFT JOIN motebehov_form_values s ON m.motebehov_form_values_id = s.id
-            WHERE m.aktoer_id = ? AND m.opprettet_av != ? AND m.virksomhetsnummer = ? AND m.opprettet_dato >= ?
-            ORDER BY m.opprettet_dato DESC
-            """
+            val query =
+                """
+                SELECT m.*, s.* FROM motebehov m
+                LEFT JOIN motebehov_form_values s ON m.motebehov_form_values_id = s.id
+                WHERE m.aktoer_id = ? AND m.opprettet_av != ? AND m.virksomhetsnummer = ? AND m.opprettet_dato >= ?
+                ORDER BY m.opprettet_dato DESC
+                """
+            return Optional.ofNullable(
+                jdbcTemplate.query(
+                    query,
+                    innsendingRowMapper,
+                    arbeidstakerAktorId,
+                    arbeidstakerAktorId,
+                    virksomhetsnummer,
+                    hentTidligsteDatoForGyldigMotebehovSvar()
+                )
+            ).orElse(emptyList())
         }
-        return Optional.ofNullable(
-            jdbcTemplate.query(
-                query,
-                innsendingRowMapper,
-                arbeidstakerAktorId,
-                if (isOwnLeader) virksomhetsnummer else arbeidstakerAktorId,
-                virksomhetsnummer,
-                hentTidligsteDatoForGyldigMotebehovSvar()
-            )
-        ).orElse(emptyList())
     }
 
     fun hentUbehandledeMotebehov(aktoerId: String): List<PMotebehov> {
@@ -137,7 +148,7 @@ class MotebehovDAO(
     ): Int {
         val oppdaterSql =
             "UPDATE motebehov SET behandlet_tidspunkt = ?, behandlet_veileder_ident = ? " +
-                "WHERE motebehov_uuid = ? AND har_motebehov AND behandlet_veileder_ident IS NULL"
+                    "WHERE motebehov_uuid = ? AND har_motebehov AND behandlet_veileder_ident IS NULL"
         return jdbcTemplate.update(oppdaterSql, convert(LocalDateTime.now()), veilederIdent, motebehovUUID.toString())
     }
 
@@ -145,7 +156,7 @@ class MotebehovDAO(
         val motebehovSvarId = motebehov.motebehovFormValues?.let {
             val svarUuid = UUID.randomUUID()
             val lagreSvarSql = """
-            INSERT INTO motebehovSvar (id, form_snapshot, begrunnelse, onsker_sykmelder_deltar, onsker_sykmelder_deltar_begrunnelse, onsker_tolk, tolk_sprak)
+            INSERT INTO motebehov_field_values (id, form_snapshot, begrunnelse, onsker_sykmelder_deltar, onsker_sykmelder_deltar_begrunnelse, onsker_tolk, tolk_sprak)
             VALUES (:id, :form_snapshot, :begrunnelse, :onsker_sykmelder_deltar, :onsker_sykmelder_deltar_begrunnelse, :onsker_tolk, :tolk_sprak)
             """.trimIndent()
             val mapLagreSvarSql = MapSqlParameterSource()
@@ -198,7 +209,7 @@ class MotebehovDAO(
 
             if (motebehovSvarIder.isNotEmpty()) {
                 namedParameterJdbcTemplate.update(
-                    "DELETE FROM motebehovSvar WHERE id IN (:motebehovSvarIder)",
+                    "DELETE FROM motebehov_field_values WHERE id IN (:motebehovSvarIder)",
                     MapSqlParameterSource().addValue("motebehovSvarIder", motebehovSvarIder)
                 )
             }
