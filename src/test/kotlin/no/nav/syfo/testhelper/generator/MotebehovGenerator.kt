@@ -2,6 +2,7 @@ package no.nav.syfo.testhelper.generator
 
 import no.nav.syfo.motebehov.*
 import no.nav.syfo.motebehov.database.PMotebehov
+import no.nav.syfo.motebehov.database.PMotebehovFormValues
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
@@ -93,6 +94,28 @@ class MotebehovGenerator {
         ).toMotebehovFormValuesOutputDTO()
     }
 
+    val formSnapshotJSONSample = """
+        {
+          "formIdentifier": "motebehov-arbeidstaker-meld",
+          "semanticVersion": "0.1.0",
+          "snapshotFields": [
+            {
+              "fieldID": "onskerSykmelderDeltar",
+              "fieldLabel": "Jeg ønsker at den som sykmelder meg, også skal delta i møtet.",
+              "wasChecked": true,
+              "fieldType": "checkboxSingle"
+            },
+            {
+              "fieldID": "begrunnelse",
+              "fieldLabel": "Begrunnelse",
+              "textValue": "Begrunnelsestekst kommer her.",
+              "wasOptional": true,
+              "fieldType": "text"
+            }
+          ]
+        }
+    """.trimIndent()
+
     private val nyttPMotebehovArbeidstaker = PMotebehov(
         uuid = UUID.randomUUID(),
         opprettetDato = getOpprettetDato(true),
@@ -103,6 +126,14 @@ class MotebehovGenerator {
         harMotebehov = true,
         tildeltEnhet = NAV_ENHET,
         sykmeldtFnr = ARBEIDSTAKER_FNR,
+        motebehovFormValues = PMotebehovFormValues(
+            formSnapshotJSON = formSnapshotJSONSample,
+            begrunnelse = "Begrunnelse",
+            onskerSykmelderDeltar = true,
+            onskerSykmelderDeltarBegrunnelse = "Vil snakke med legen om noen ting",
+            onskerTolk = true,
+            tolkSprak = "Tysk",
+        )
     )
 
     fun getOpprettetDato(erGyldig: Boolean): LocalDateTime {

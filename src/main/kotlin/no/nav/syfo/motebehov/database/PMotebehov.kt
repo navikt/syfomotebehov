@@ -29,7 +29,6 @@ data class PMotebehov(
 ) : Serializable
 
 data class PMotebehovFormValues(
-    val uuid: UUID,
     val formSnapshotJSON: String?,
     // These values for these fields are extracted from the formSnapshot
     val begrunnelse: String?,

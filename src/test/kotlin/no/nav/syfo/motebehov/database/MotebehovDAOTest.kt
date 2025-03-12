@@ -35,7 +35,8 @@ class MotebehovDAOTest : IntegrationTest() {
         describe("Møtebehov DAO") {
             it("Hent møtebehov liste for aktør") {
                 val pMotebehov = motebehovGenerator.generatePmotebehov()
-                insertPMotebehov(pMotebehov)
+//                insertPMotebehov(pMotebehov)
+                motebehovDAO.create(pMotebehov)
                 val motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(ARBEIDSTAKER_AKTORID)
                 motebehovListe.size shouldBe 1
                 val motebehovFraDb = motebehovListe[0]
@@ -52,6 +53,9 @@ class MotebehovDAOTest : IntegrationTest() {
                 motebehovFraDb.forklaring shouldBe pMotebehov.forklaring
                 motebehovFraDb.tildeltEnhet shouldBe pMotebehov.tildeltEnhet
                 motebehovFraDb.skjemaType shouldBe pMotebehov.skjemaType
+
+                motebehovFraDb.motebehovFormValues?.formSnapshotJSON shouldBe
+                    pMotebehov.motebehovFormValues?.formSnapshotJSON
             }
 
             it("hentMotebehovListeForOgOpprettetAvArbeidstakerIkkeGyldig") {

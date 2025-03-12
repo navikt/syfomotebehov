@@ -9,7 +9,6 @@ import no.nav.syfo.motebehov.formSnapshot.ONSKER_SYKMELDER_DELTAR_CHECKBOX_FIELD
 import no.nav.syfo.motebehov.formSnapshot.ONSKER_TOLK_CHECKBOX_FIELD_ID
 import no.nav.syfo.motebehov.formSnapshot.TOLK_SPRAK_TEXT_FIELD_ID
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
-import java.util.*
 
 data class MotebehovFormValues(
     val harMotebehov: Boolean,
@@ -92,7 +91,6 @@ fun MotebehovFormValues.toPMotebehovFormValues(): PMotebehovFormValues? {
     val valuesFromFormSnapshot = extractValuesFromFormSnapshot(this.formSnapshot)
 
     return PMotebehovFormValues(
-        uuid = UUID.randomUUID(),
         formSnapshotJSON = convertFormSnapshotToJson(this.formSnapshot),
         begrunnelse = valuesFromFormSnapshot.begrunnelse,
         onskerSykmelderDeltar = valuesFromFormSnapshot.onskerSykmelderDeltar,
