@@ -92,7 +92,8 @@ class OppfolgingstilfelleService @Inject constructor(
         }
         log.info(
             """After filter isSykmeldtLast16days activeOppfolgingstilfelleList,
-            | size: ${activeOppfolgingstilfelleList.size}""".trimMargin()
+            size: ${activeOppfolgingstilfelleList.size}
+            """.trimMargin()
         )
         val expiredOppfolgingstilfelleList = oppfolgingstilfelleList.filterNot {
             it.isSykmeldtLast16Days()
@@ -100,7 +101,8 @@ class OppfolgingstilfelleService @Inject constructor(
 
         log.info(
             """After filterNOT isSykmeldtLast16days activeOppfolgingstilfelleList,
-            | size: ${activeOppfolgingstilfelleList.size}""".trimMargin()
+             size: ${activeOppfolgingstilfelleList.size}
+            """.trimMargin()
         )
 
         return when {

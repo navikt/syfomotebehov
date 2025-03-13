@@ -72,14 +72,14 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                 metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSGIVER)
                 throwCreateMotebehovFailed(
                     "Failed to create Motebehov for Arbeidsgiver:" +
-                            "Found no active Oppfolgingstilfelle for ${nyttMotebehov.virksomhetsnummer}"
+                        "Found no active Oppfolgingstilfelle for ${nyttMotebehov.virksomhetsnummer}"
                 )
             }
             if (!motebehovStatus.isMotebehovAvailableForAnswer()) {
                 metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSGIVER)
                 throwCreateMotebehovConflict(
                     "Failed to create Motebehov for Arbeidsgiver:" +
-                            "Found no Virksomhetsnummer with active Oppfolgingstilfelle available for answer"
+                        "Found no Virksomhetsnummer with active Oppfolgingstilfelle available for answer"
                 )
             }
         }
@@ -133,7 +133,8 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
         log.info(
             """We have gotten the active oppfolgingstilfelle for the arbeidstaker 
-            |${activeOppolgingstilfelle?.fom} and ${activeOppolgingstilfelle?.tom}""".trimMargin()
+            ${activeOppolgingstilfelle?.fom} and ${activeOppolgingstilfelle?.tom}
+            """.trimMargin()
         )
 
         if (activeOppolgingstilfelle != null) {
@@ -180,7 +181,8 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
             metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSTAKER)
             throwCreateMotebehovFailed(
                 """Failed to create Motebehov for Arbeidstaker: 
-                |Found no active Oppfolgingstilfelle""".trimMargin()
+                Found no active Oppfolgingstilfelle
+                """.trimMargin()
             )
         }
     }
