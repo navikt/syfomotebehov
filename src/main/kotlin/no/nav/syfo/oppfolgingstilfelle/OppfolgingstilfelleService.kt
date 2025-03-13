@@ -76,7 +76,10 @@ class OppfolgingstilfelleService @Inject constructor(
     fun getActiveOppfolgingstilfelleForArbeidstaker(
         arbeidstakerFnr: String,
     ): PersonOppfolgingstilfelle? {
-        return getActiveOppfolgingstilfelle(arbeidstakerFnr, getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr))
+        return getActiveOppfolgingstilfelle(
+            arbeidstakerFnr,
+            getPOppfolgingstilfellerInActiveOppfolgingstilfelle(arbeidstakerFnr)
+        )
     }
 
     private fun getPOppfolgingstilfellerInActiveOppfolgingstilfelle(
@@ -87,14 +90,18 @@ class OppfolgingstilfelleService @Inject constructor(
         val activeOppfolgingstilfelleList = oppfolgingstilfelleList.filter {
             it.isSykmeldtLast16Days()
         }
-        log.info("""After filter isSykmeldtLast16days activeOppfolgingstilfelleList,
-            | size: ${activeOppfolgingstilfelleList.size}""".trimMargin())
+        log.info(
+            """After filter isSykmeldtLast16days activeOppfolgingstilfelleList,
+            | size: ${activeOppfolgingstilfelleList.size}""".trimMargin()
+        )
         val expiredOppfolgingstilfelleList = oppfolgingstilfelleList.filterNot {
             it.isSykmeldtLast16Days()
         }
 
-        log.info("""After filterNOT isSykmeldtLast16days activeOppfolgingstilfelleList,
-            | size: ${activeOppfolgingstilfelleList.size}""".trimMargin())
+        log.info(
+            """After filterNOT isSykmeldtLast16days activeOppfolgingstilfelleList,
+            | size: ${activeOppfolgingstilfelleList.size}""".trimMargin()
+        )
 
         return when {
             activeOppfolgingstilfelleList.isEmpty() -> {
@@ -106,9 +113,14 @@ class OppfolgingstilfelleService @Inject constructor(
             }
 
             else -> {
-                val expiredOverlappingOppfolgingstilfelleList = expiredOppfolgingstilfelleList.filter { expiredOppfolgingstilfelle ->
-                    expiredOppfolgingstilfelle.tom.isAfter(activeOppfolgingstilfelleList.minByOrNull { it.fom }!!.fom.minusDays(1))
-                }
+                val expiredOverlappingOppfolgingstilfelleList =
+                    expiredOppfolgingstilfelleList.filter { expiredOppfolgingstilfelle ->
+                        expiredOppfolgingstilfelle.tom.isAfter(
+                            activeOppfolgingstilfelleList.minByOrNull { it.fom }!!.fom.minusDays(
+                                1
+                            )
+                        )
+                    }
                 activeOppfolgingstilfelleList.plus(expiredOverlappingOppfolgingstilfelleList)
             }
         }
@@ -142,8 +154,11 @@ class OppfolgingstilfelleService @Inject constructor(
     companion object {
         private val log = LoggerFactory.getLogger(OppfolgingstilfelleService::class.java)
         private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE = "receive_oppfolgingstilfelle"
-        private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_CREATE = "${METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE}_create"
-        private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE = "${METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE}_update"
-        private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE_SKIP_DUPLICATE = "${METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE}_update_skip_duplicate"
+        private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_CREATE =
+            "${METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE}_create"
+        private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE =
+            "${METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE}_update"
+        private const val METRIC_RECEIVE_OPPFOLGINGSTILFELLE_UPDATE_SKIP_DUPLICATE =
+            "${METRIC_RECEIVE_OPPFOLGINGSTILFELLE_BASE}_update_skip_duplicate"
     }
 }

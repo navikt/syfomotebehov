@@ -72,14 +72,14 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                 metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSGIVER)
                 throwCreateMotebehovFailed(
                     "Failed to create Motebehov for Arbeidsgiver:" +
-                        "Found no active Oppfolgingstilfelle for ${nyttMotebehov.virksomhetsnummer}"
+                            "Found no active Oppfolgingstilfelle for ${nyttMotebehov.virksomhetsnummer}"
                 )
             }
             if (!motebehovStatus.isMotebehovAvailableForAnswer()) {
                 metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSGIVER)
                 throwCreateMotebehovConflict(
                     "Failed to create Motebehov for Arbeidsgiver:" +
-                        "Found no Virksomhetsnummer with active Oppfolgingstilfelle available for answer"
+                            "Found no Virksomhetsnummer with active Oppfolgingstilfelle available for answer"
                 )
             }
         }
@@ -131,8 +131,10 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
     ) {
         val activeOppolgingstilfelle =
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
-        log.info("""We have gotten the active oppfolgingstilfelle for the arbeidstaker 
-            |${activeOppolgingstilfelle?.fom} and ${activeOppolgingstilfelle?.tom}""".trimMargin())
+        log.info(
+            """We have gotten the active oppfolgingstilfelle for the arbeidstaker 
+            |${activeOppolgingstilfelle?.fom} and ${activeOppolgingstilfelle?.tom}""".trimMargin()
+        )
 
         if (activeOppolgingstilfelle != null) {
             val motebehovStatus = motebehovStatusServiceV2.motebehovStatusForArbeidstaker(arbeidstakerFnr)
@@ -176,8 +178,10 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
             }
         } else {
             metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSTAKER)
-            throwCreateMotebehovFailed("""Failed to create Motebehov for Arbeidstaker: 
-                |Found no active Oppfolgingstilfelle""".trimMargin())
+            throwCreateMotebehovFailed(
+                """Failed to create Motebehov for Arbeidstaker: 
+                |Found no active Oppfolgingstilfelle""".trimMargin()
+            )
         }
     }
 
