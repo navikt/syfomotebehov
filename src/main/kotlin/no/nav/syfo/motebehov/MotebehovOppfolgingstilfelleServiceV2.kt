@@ -131,6 +131,11 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
     ) {
         val activeOppolgingstilfelle =
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
+        log.info(
+            """We have gotten the active oppfolgingstilfelle for the arbeidstaker 
+            ${activeOppolgingstilfelle?.fom} and ${activeOppolgingstilfelle?.tom}
+            """.trimMargin()
+        )
 
         if (activeOppolgingstilfelle != null) {
             val motebehovStatus = motebehovStatusServiceV2.motebehovStatusForArbeidstaker(arbeidstakerFnr)
@@ -174,7 +179,11 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
             }
         } else {
             metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSTAKER)
-            throwCreateMotebehovFailed("Failed to create Motebehov for Arbeidstaker: Found no Virksomhetsnummer with active Oppfolgingstilfelle")
+            throwCreateMotebehovFailed(
+                """Failed to create Motebehov for Arbeidstaker: 
+                Found no active Oppfolgingstilfelle
+                """.trimMargin()
+            )
         }
     }
 
