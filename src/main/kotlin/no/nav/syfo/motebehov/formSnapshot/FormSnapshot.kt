@@ -1,6 +1,6 @@
 package no.nav.syfo.motebehov.formSnapshot
 
-import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.io.Serializable
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
@@ -49,7 +49,7 @@ data class FormSnapshot(
     @field:NotEmpty
     val fieldSnapshots: List<FieldSnapshot>,
 ) {
-    @get:JsonProperty
+    @get:JsonIgnore
     val fieldValues: Map<String, Any>
         get() = fieldSnapshots.associate { fieldSnapshot ->
             fieldSnapshot.fieldID to when (fieldSnapshot) {
@@ -66,6 +66,7 @@ abstract class FieldSnapshot(
     open val fieldID: String,
     @field:NotEmpty
     open val fieldLabel: String,
+    open val description: String? = null,
     open val fieldType: FormSnapshotFieldType
 ) : Serializable {
     companion object {
@@ -76,29 +77,32 @@ abstract class FieldSnapshot(
 data class TextFieldSnapshot(
     override val fieldID: String,
     override val fieldLabel: String,
+    override val description: String? = null,
     @field:NotEmpty
     val textValue: String,
     val wasOptional: Boolean? = false,
-) : FieldSnapshot(fieldID, fieldLabel, FormSnapshotFieldType.TEXT)
+) : FieldSnapshot(fieldID, fieldLabel, description, FormSnapshotFieldType.TEXT)
 
 data class SingleCheckboxFieldSnapshot(
     override val fieldID: String,
     override val fieldLabel: String,
+    override val description: String? = null,
     @field:NotNull
     val wasChecked: Boolean,
-) : FieldSnapshot(fieldID, fieldLabel, FormSnapshotFieldType.CHECKBOX_SINGLE)
+) : FieldSnapshot(fieldID, fieldLabel, description = null, FormSnapshotFieldType.CHECKBOX_SINGLE)
 
 data class RadioGroupFieldSnapshot(
     override val fieldID: String,
     override val fieldLabel: String,
     @field:NotEmpty
+    override val description: String? = null,
     val selectedOptionId: String,
     @field:NotEmpty
     val selectedOptionLabel: String,
     @field:NotEmpty
     val options: List<FormSnapshotFieldOption>,
     val wasOptional: Boolean? = false,
-) : FieldSnapshot(fieldID, fieldLabel, FormSnapshotFieldType.RADIO_GROUP)
+) : FieldSnapshot(fieldID, fieldLabel, description, FormSnapshotFieldType.RADIO_GROUP)
 
 data class FormSnapshotFieldOption(
     @field:NotEmpty
