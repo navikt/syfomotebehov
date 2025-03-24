@@ -18,7 +18,7 @@ data class Motebehov(
     val opprettetAvFnr: String,
     val arbeidstakerFnr: String,
     val virksomhetsnummer: String,
-    val formValues: MotebehovFormValues,
+    val formSubmission: MotebehovFormSubmissionCombinedDTO,
     val tildeltEnhet: String? = null,
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
@@ -33,7 +33,7 @@ data class MotebehovOutputDTO(
     val opprettetAvFnr: String,
     val arbeidstakerFnr: String,
     val virksomhetsnummer: String,
-    val motebehovSvar: MotebehovFormValuesOutputDTO,
+    val formValues: MotebehovFormValuesOutputDTO,
     val tildeltEnhet: String? = null,
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
@@ -52,7 +52,7 @@ fun Motebehov.toMotebehovVeilederDTO(): MotebehovVeilederDTO {
         opprettetAvNavn = null,
         arbeidstakerFnr = this.arbeidstakerFnr,
         virksomhetsnummer = this.virksomhetsnummer,
-        motebehovSvar = this.formValues.toMotebehovFormValuesOutputDTO(),
+        motebehovSvar = this.formSubmission.toMotebehovFormValuesOutputDTO(),
         tildeltEnhet = this.tildeltEnhet,
         behandletTidspunkt = this.behandletTidspunkt,
         behandletVeilederIdent = this.behandletVeilederIdent, skjemaType = this.skjemaType,
@@ -60,7 +60,7 @@ fun Motebehov.toMotebehovVeilederDTO(): MotebehovVeilederDTO {
 }
 
 fun Motebehov.isUbehandlet(): Boolean {
-    return this.formValues.harMotebehov && this.behandletVeilederIdent.isNullOrEmpty()
+    return this.formSubmission.harMotebehov && this.behandletVeilederIdent.isNullOrEmpty()
 }
 
 fun Motebehov.isCreatedInOppfolgingstilfelle(oppfolgingstilfelle: PersonOppfolgingstilfelle): Boolean {
@@ -84,15 +84,15 @@ fun Motebehov.toPMotebehov(): PMotebehov =
         opprettetAv = this.opprettetAv,
         aktoerId = this.aktorId,
         virksomhetsnummer = this.virksomhetsnummer,
-        harMotebehov = this.formValues.harMotebehov,
-        forklaring = this.formValues.forklaring,
+        harMotebehov = this.formSubmission.harMotebehov,
+        forklaring = this.formSubmission.forklaring,
         tildeltEnhet = this.tildeltEnhet,
         behandletVeilederIdent = this.behandletVeilederIdent,
         behandletTidspunkt = this.behandletTidspunkt,
         skjemaType = this.skjemaType,
         sykmeldtFnr = this.arbeidstakerFnr,
         opprettetAvFnr = this.opprettetAvFnr,
-        motebehovFormValues = this.formValues.toPMotebehovFormValues(),
+        formValues = this.formSubmission.toPMotebehovFormValues(),
     )
 
 fun Motebehov.toMotebehovOutputDTO(): MotebehovOutputDTO =
@@ -104,7 +104,7 @@ fun Motebehov.toMotebehovOutputDTO(): MotebehovOutputDTO =
         opprettetAvFnr = this.opprettetAvFnr,
         arbeidstakerFnr = this.arbeidstakerFnr,
         virksomhetsnummer = this.virksomhetsnummer,
-        motebehovSvar = this.formValues.toMotebehovFormValuesOutputDTO(),
+        formValues = this.formSubmission.toMotebehovFormValuesOutputDTO(),
         tildeltEnhet = this.tildeltEnhet,
         behandletTidspunkt = this.behandletTidspunkt,
         behandletVeilederIdent = this.behandletVeilederIdent,

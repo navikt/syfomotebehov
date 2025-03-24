@@ -7,11 +7,11 @@ import no.nav.syfo.api.auth.tokenX.TokenXUtil.TokenXIssuer
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
+import no.nav.syfo.motebehov.MotebehovFormSubmissionCombinedDTO
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverFormValuesInputDTO
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverInputDTO
-import no.nav.syfo.motebehov.TemporaryCombinedNyttMotebehovSvar
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverFormSubmissionInputDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverLegacyInputDTO
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
 import org.springframework.beans.factory.annotation.Value
@@ -62,7 +62,7 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun lagreMotebehovArbeidsgiver(
-        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverInputDTO,
+        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverLegacyInputDTO,
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
         val innloggetFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)
@@ -76,7 +76,7 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         val nyttMotebehovArbeidsgiverDTO = NyttMotebehovArbeidsgiverDTO(
             arbeidstakerFnr = nyttMotebehovDTO.arbeidstakerFnr,
             virksomhetsnummer = nyttMotebehovDTO.virksomhetsnummer,
-            motebehovSvarInputDTO = TemporaryCombinedNyttMotebehovSvar(
+            motebehovFormSubmission = MotebehovFormSubmissionCombinedDTO(
                 harMotebehov = nyttMotebehovDTO.motebehovSvar.harMotebehov,
                 forklaring = nyttMotebehovDTO.motebehovSvar.forklaring,
                 formSnapshot = null,
@@ -97,7 +97,7 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun lagreMotebehovArbeidsgiver(
-        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverFormValuesInputDTO,
+        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverFormSubmissionInputDTO,
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
         val innloggetFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)
@@ -111,10 +111,10 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         val nyttMotebehovArbeidsgiverDTO = NyttMotebehovArbeidsgiverDTO(
             arbeidstakerFnr = nyttMotebehovDTO.arbeidstakerFnr,
             virksomhetsnummer = nyttMotebehovDTO.virksomhetsnummer,
-            motebehovSvarInputDTO = TemporaryCombinedNyttMotebehovSvar(
-                harMotebehov = nyttMotebehovDTO.motebehovFormValues.harMotebehov,
+            motebehovFormSubmission = MotebehovFormSubmissionCombinedDTO(
+                harMotebehov = nyttMotebehovDTO.motebehovFormSubmission.harMotebehov,
                 forklaring = null,
-                formSnapshot = nyttMotebehovDTO.motebehovFormValues.formSnapshot,
+                formSnapshot = nyttMotebehovDTO.motebehovFormSubmission.formSnapshot,
             ),
         )
 

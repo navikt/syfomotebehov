@@ -176,7 +176,7 @@ class MotebehovDAO(
             .addValue("opprettet_av_fnr", motebehov.opprettetAvFnr)
         namedParameterJdbcTemplate.update(lagreMotebehovSql, mapLagreMotebehovSql)
 
-        motebehov.motebehovFormValues?.let {
+        motebehov.formValues?.let {
             val lagreMotebehovFieldValuesSql = """
             INSERT INTO motebehov_form_values (motebehov_uuid, form_snapshot, begrunnelse, onsker_sykmelder_deltar, onsker_sykmelder_deltar_begrunnelse, onsker_tolk, tolk_sprak)
             VALUES (:motebehov_uuid, :form_snapshot, :begrunnelse, :onsker_sykmelder_deltar, :onsker_sykmelder_deltar_begrunnelse, :onsker_tolk, :tolk_sprak)
@@ -227,7 +227,7 @@ class MotebehovDAO(
                 skjemaType = rs.getString("skjematype")?.let { MotebehovSkjemaType.valueOf(it) },
                 sykmeldtFnr = rs.getString("sm_fnr"),
                 opprettetAvFnr = rs.getString("opprettet_av_fnr"),
-                motebehovFormValues = if (rs.getString("form_snapshot") != null) {
+                formValues = if (rs.getString("form_snapshot") != null) {
                     motebehovFormValuesRowMapper.mapRow(rs, rs.row)
                 } else {
                     null

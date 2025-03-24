@@ -13,7 +13,7 @@ fun MotebehovStatus.assertMotebehovStatus(
     expVisMotebehov shouldBe this.visMotebehov
     expSkjemaType shouldBe this.skjemaType
     if (expMotebehovFormValuesOutputDTO != null) {
-        expMotebehovFormValuesOutputDTO shouldBe this.motebehov!!.motebehovSvar
+        expMotebehovFormValuesOutputDTO shouldBe this.motebehov!!.formValues
         expSkjemaType shouldBe this.motebehov!!.skjemaType
     } else {
         expMotebehovFormValuesOutputDTO shouldBe this.motebehov

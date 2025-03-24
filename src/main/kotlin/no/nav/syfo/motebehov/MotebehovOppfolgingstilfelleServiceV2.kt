@@ -90,11 +90,11 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
         nyttMotebehov: NyttMotebehovArbeidsgiverDTO,
         innloggetFnr: String,
         skjemaType: MotebehovSkjemaType?,
-    ): MotebehovFormValues {
-        val motebehovFormValues = MotebehovFormValues(
-            harMotebehov = nyttMotebehov.motebehovSvarInputDTO.harMotebehov,
-            forklaring = nyttMotebehov.motebehovSvarInputDTO.forklaring,
-            formSnapshot = nyttMotebehov.motebehovSvarInputDTO.formSnapshot
+    ): MotebehovFormSubmissionCombinedDTO {
+        val motebehovFormSubmission = MotebehovFormSubmissionCombinedDTO(
+            harMotebehov = nyttMotebehov.motebehovFormSubmission.harMotebehov,
+            forklaring = nyttMotebehov.motebehovFormSubmission.forklaring,
+            formSnapshot = nyttMotebehov.motebehovFormSubmission.formSnapshot
         )
 
         motebehovService.lagreMotebehov(
@@ -102,10 +102,10 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
             arbeidstakerFnr,
             nyttMotebehov.virksomhetsnummer,
             skjemaType!!,
-            motebehovFormValues,
+            motebehovFormSubmission,
         )
 
-        return motebehovFormValues
+        return motebehovFormSubmission
     }
 
     private fun ferdigstillVarselForSvarMotebehovForArbeidsgiver(
@@ -127,7 +127,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
     @Transactional
     fun createMotebehovForArbeidstaker(
         arbeidstakerFnr: String,
-        nyttMotebehovSvar: TemporaryCombinedNyttMotebehovSvar
+        formSubmission: MotebehovFormSubmissionCombinedDTO
     ) {
         val activeOppolgingstilfelle =
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
@@ -148,10 +148,10 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                 emptyList()
             }
 
-            val motebehovFormValues = MotebehovFormValues(
-                harMotebehov = nyttMotebehovSvar.harMotebehov,
-                forklaring = nyttMotebehovSvar.forklaring,
-                formSnapshot = nyttMotebehovSvar.formSnapshot
+            val motebehovFormValues = MotebehovFormSubmissionCombinedDTO(
+                harMotebehov = formSubmission.harMotebehov,
+                forklaring = formSubmission.forklaring,
+                formSnapshot = formSubmission.formSnapshot
             )
 
             if (virksomhetsnummerList.isNotEmpty()) {

@@ -1,44 +1,36 @@
 package no.nav.syfo.motebehov
 
 import no.nav.syfo.motebehov.database.PMotebehovFormValues
-import no.nav.syfo.motebehov.database.convertFormSnapshotToJson
 import no.nav.syfo.motebehov.formSnapshot.BEGRUNNELSE_TEXT_FIELD_ID
 import no.nav.syfo.motebehov.formSnapshot.FormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.ONSKER_SYKMELDER_DELTAR_BEGRUNNELSE_TEXT_FIELD_ID
 import no.nav.syfo.motebehov.formSnapshot.ONSKER_SYKMELDER_DELTAR_CHECKBOX_FIELD_ID
 import no.nav.syfo.motebehov.formSnapshot.ONSKER_TOLK_CHECKBOX_FIELD_ID
 import no.nav.syfo.motebehov.formSnapshot.TOLK_SPRAK_TEXT_FIELD_ID
-import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
+import no.nav.syfo.motebehov.formSnapshot.convertFormSnapshotToJsonString
 
-data class MotebehovFormValues(
+// Temporary class used in services to contain values of both legacy and new form submission DTOs below.
+// To be replaced by MotebehovFormSubmissionInputDTO.
+data class MotebehovFormSubmissionCombinedDTO(
     val harMotebehov: Boolean,
-    // This forklaring field is to be phased in favor of formSnapshot, and eventually removed.
     val forklaring: String? = null,
     val formSnapshot: FormSnapshot?
 )
 
 // Existing input DTO to phase out. MotebehovFormValuesInputDTO will take over.
-data class MotebehovSvarInputDTO(
+data class MotebehovSvarLegacyInputDTO(
     val harMotebehov: Boolean,
     val forklaring: String? = null,
 )
 
-data class MotebehovFormValuesInputDTO(
+data class MotebehovFormSubmissionInputDTO(
     val harMotebehov: Boolean,
     val formSnapshot: FormSnapshot,
-    // New fields to get on input and store, instead of having to calculate them in a probably unstable way.
-    val skjemaType: MotebehovSkjemaType,
-    val innmelderType: MotebehovInnmelderType,
-)
-
-data class TemporaryCombinedNyttMotebehovSvar(
-    val harMotebehov: Boolean,
-    val forklaring: String? = null,
-    val formSnapshot: FormSnapshot?,
 )
 
 data class MotebehovFormValuesOutputDTO(
     val harMotebehov: Boolean,
+    // forklaring field is to be phased out
     val forklaring: String? = null,
     val formSnapshot: FormSnapshot?,
     val begrunnelse: String? = null,
@@ -48,7 +40,7 @@ data class MotebehovFormValuesOutputDTO(
     val tolkSprak: String? = null,
 )
 
-data class MotebehovFormValuesFromFormSnapshot(
+data class MotebehovFormValuesExtractedFromFormSnapshot(
     val begrunnelse: String? = null,
     val onskerSykmelderDeltar: Boolean,
     val onskerSykmelderDeltarBegrunnelse: String? = null,
@@ -56,10 +48,10 @@ data class MotebehovFormValuesFromFormSnapshot(
     val tolkSprak: String? = null,
 )
 
-fun extractValuesFromFormSnapshot(formSnapshot: FormSnapshot): MotebehovFormValuesFromFormSnapshot {
+fun extractValuesFromFormSnapshot(formSnapshot: FormSnapshot): MotebehovFormValuesExtractedFromFormSnapshot {
     val fieldValues = formSnapshot.fieldValues
 
-    return MotebehovFormValuesFromFormSnapshot(
+    return MotebehovFormValuesExtractedFromFormSnapshot(
         begrunnelse = fieldValues[BEGRUNNELSE_TEXT_FIELD_ID] as? String,
         onskerSykmelderDeltar = fieldValues[ONSKER_SYKMELDER_DELTAR_CHECKBOX_FIELD_ID] as? Boolean ?: false,
         onskerSykmelderDeltarBegrunnelse = fieldValues[ONSKER_SYKMELDER_DELTAR_BEGRUNNELSE_TEXT_FIELD_ID] as? String,
@@ -68,7 +60,7 @@ fun extractValuesFromFormSnapshot(formSnapshot: FormSnapshot): MotebehovFormValu
     )
 }
 
-fun MotebehovFormValues.toMotebehovFormValuesOutputDTO(): MotebehovFormValuesOutputDTO {
+fun MotebehovFormSubmissionCombinedDTO.toMotebehovFormValuesOutputDTO(): MotebehovFormValuesOutputDTO {
     val valuesFromFormSnapshot = this.formSnapshot?.let { extractValuesFromFormSnapshot(it) }
 
     return MotebehovFormValuesOutputDTO(
@@ -83,7 +75,7 @@ fun MotebehovFormValues.toMotebehovFormValuesOutputDTO(): MotebehovFormValuesOut
     )
 }
 
-fun MotebehovFormValues.toPMotebehovFormValues(): PMotebehovFormValues? {
+fun MotebehovFormSubmissionCombinedDTO.toPMotebehovFormValues(): PMotebehovFormValues? {
     if (this.formSnapshot == null) {
         return null
     }
@@ -91,7 +83,7 @@ fun MotebehovFormValues.toPMotebehovFormValues(): PMotebehovFormValues? {
     val valuesFromFormSnapshot = extractValuesFromFormSnapshot(this.formSnapshot)
 
     return PMotebehovFormValues(
-        formSnapshotJSON = convertFormSnapshotToJson(this.formSnapshot),
+        formSnapshotJSON = convertFormSnapshotToJsonString(this.formSnapshot),
         begrunnelse = valuesFromFormSnapshot.begrunnelse,
         onskerSykmelderDeltar = valuesFromFormSnapshot.onskerSykmelderDeltar,
         onskerSykmelderDeltarBegrunnelse = valuesFromFormSnapshot.onskerSykmelderDeltarBegrunnelse,

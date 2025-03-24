@@ -6,6 +6,7 @@ import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.database.toMotebehov
+import no.nav.syfo.motebehov.formSnapshot.MotebehovInnmelderType
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseService
 import org.slf4j.LoggerFactory
@@ -111,7 +112,7 @@ class MotebehovService @Inject constructor(
         arbeidstakerFnr: String,
         virksomhetsnummer: String,
         skjemaType: MotebehovSkjemaType,
-        motebehovFormValues: MotebehovFormValues,
+        motebehovFormSubmission: MotebehovFormSubmissionCombinedDTO,
     ): UUID {
         val innloggetBrukerAktoerId = pdlConsumer.aktorid(innloggetFNR)
         val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
@@ -126,7 +127,7 @@ class MotebehovService @Inject constructor(
             opprettetAvFnr = innloggetFNR,
             arbeidstakerFnr = arbeidstakerFnr,
             virksomhetsnummer = virksomhetsnummer,
-            formValues = motebehovFormValues,
+            formSubmission = motebehovFormSubmission,
             tildeltEnhet = arbeidstakerBehandlendeEnhet,
             skjemaType = skjemaType,
         )
@@ -134,7 +135,7 @@ class MotebehovService @Inject constructor(
         val pMotebehov = motebehov.toPMotebehov()
 
         val uuid = motebehovDAO.create(pMotebehov)
-        if (motebehovFormValues.harMotebehov) {
+        if (motebehovFormSubmission.harMotebehov) {
             personoppgavehendelseService.sendPersonoppgaveHendelseMottatt(uuid, arbeidstakerFnr)
         }
         return uuid

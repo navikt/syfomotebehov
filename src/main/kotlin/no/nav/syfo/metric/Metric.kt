@@ -2,7 +2,7 @@ package no.nav.syfo.metric
 
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tags
-import no.nav.syfo.motebehov.MotebehovFormValues
+import no.nav.syfo.motebehov.MotebehovFormSubmissionCombinedDTO
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import org.springframework.stereotype.Controller
@@ -150,29 +150,29 @@ class Metric @Inject constructor(
     fun tellBesvarMotebehov(
         activeOppfolgingstilfelle: PersonOppfolgingstilfelle,
         motebehovSkjemaType: MotebehovSkjemaType?,
-        motebehovFormValues: MotebehovFormValues,
+        formSubmission: MotebehovFormSubmissionCombinedDTO,
         erInnloggetBrukerArbeidstaker: Boolean
     ) {
-        val harForklaring = motebehovFormValues.forklaring?.isNotBlank() ?: false
+        val harForklaring = formSubmission.forklaring?.isNotBlank() ?: false
 
         tellMotebehovBesvart(
             activeOppfolgingstilfelle,
             motebehovSkjemaType,
-            motebehovFormValues.harMotebehov,
+            formSubmission.harMotebehov,
             erInnloggetBrukerArbeidstaker
         )
         countDayInOppfolgingstilfelleMotebehovCreated(
             activeOppfolgingstilfelle,
             motebehovSkjemaType,
-            motebehovFormValues.harMotebehov,
+            formSubmission.harMotebehov,
             harForklaring,
             erInnloggetBrukerArbeidstaker
         )
-        if (!motebehovFormValues.harMotebehov) {
-            tellMotebehovBesvartNeiAntallTegn(motebehovFormValues.forklaring!!.length, erInnloggetBrukerArbeidstaker)
+        if (!formSubmission.harMotebehov) {
+            tellMotebehovBesvartNeiAntallTegn(formSubmission.forklaring!!.length, erInnloggetBrukerArbeidstaker)
         } else if (harForklaring) {
             tellMotebehovBesvartJaMedForklaringTegn(
-                motebehovFormValues.forklaring!!.length,
+                formSubmission.forklaring!!.length,
                 erInnloggetBrukerArbeidstaker
             )
             tellMotebehovBesvartJaMedForklaringAntall(erInnloggetBrukerArbeidstaker)

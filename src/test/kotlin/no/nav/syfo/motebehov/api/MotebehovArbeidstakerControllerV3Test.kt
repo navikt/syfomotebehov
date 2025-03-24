@@ -10,10 +10,10 @@ import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
-import no.nav.syfo.motebehov.MotebehovInnmelderType
-import no.nav.syfo.motebehov.MotebehovSvarInputDTO
+import no.nav.syfo.motebehov.MotebehovSvarLegacyInputDTO
 import no.nav.syfo.motebehov.api.internad.v3.MotebehovVeilederADControllerV3
 import no.nav.syfo.motebehov.database.MotebehovDAO
+import no.nav.syfo.motebehov.formSnapshot.MotebehovInnmelderType
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
@@ -336,7 +336,7 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
 
                 val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
                 val motebehovSvarOutputDTOThatShouldBeCreated = motebehovGenerator
-                    .lagMotebehovSvarOutputDTOThatShouldBeCreatedFromInputDTO(
+                    .lagFormValuesOutputDTOMatchingInputDTO(
                         motebehovSvarInputDTO,
                         MotebehovSkjemaType.MELD_BEHOV,
                         MotebehovInnmelderType.ARBEIDSTAKER
@@ -412,7 +412,7 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
 
                 val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
                 val motebehovSvarOutputDTOThatShouldBeCreated = motebehovGenerator
-                    .lagMotebehovSvarOutputDTOThatShouldBeCreatedFromInputDTO(
+                    .lagFormValuesOutputDTOMatchingInputDTO(
                         motebehovSvarInputDTO,
                         MotebehovSkjemaType.SVAR_BEHOV,
                         MotebehovInnmelderType.ARBEIDSTAKER
@@ -535,7 +535,7 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
         }
     }
 
-    private fun submitMotebehovAndSendOversikthendelse(motebehovSvar: MotebehovSvarInputDTO) {
+    private fun submitMotebehovAndSendOversikthendelse(motebehovSvar: MotebehovSvarLegacyInputDTO) {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceServerAzureAD,
@@ -580,8 +580,8 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
         assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
         assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
         assertThat(motebehov.skjemaType).isEqualTo(motebehovStatus.skjemaType)
-        assertThat(motebehov.motebehovSvar.harMotebehov).isEqualTo(motebehovSvarInput.harMotebehov)
-        assertThat(motebehov.motebehovSvar.forklaring).isEqualTo(motebehovSvarInput.forklaring)
+        assertThat(motebehov.formValues.harMotebehov).isEqualTo(motebehovSvarInput.harMotebehov)
+        assertThat(motebehov.formValues.forklaring).isEqualTo(motebehovSvarInput.forklaring)
         if (harBehov) {
             verify { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         } else {

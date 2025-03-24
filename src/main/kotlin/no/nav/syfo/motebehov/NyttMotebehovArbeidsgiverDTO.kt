@@ -2,23 +2,23 @@ package no.nav.syfo.motebehov
 
 import javax.validation.constraints.NotEmpty
 
-data class NyttMotebehovArbeidsgiverInputDTO(
+data class NyttMotebehovArbeidsgiverLegacyInputDTO(
     val arbeidstakerFnr: String,
     val virksomhetsnummer: @NotEmpty String,
-    val motebehovSvar: MotebehovSvarInputDTO,
+    val motebehovSvar: MotebehovSvarLegacyInputDTO,
     val tildeltEnhet: String? = null
 )
 
-data class NyttMotebehovArbeidsgiverFormValuesInputDTO(
+data class NyttMotebehovArbeidsgiverFormSubmissionInputDTO(
     val arbeidstakerFnr: String,
     val virksomhetsnummer: @NotEmpty String,
-    val motebehovFormValues: MotebehovFormValuesInputDTO,
+    val motebehovFormSubmission: MotebehovFormSubmissionInputDTO,
     val tildeltEnhet: String? = null
 )
 
 data class NyttMotebehovArbeidsgiverDTO(
     val arbeidstakerFnr: String,
     val virksomhetsnummer: @NotEmpty String,
-    val motebehovSvarInputDTO: TemporaryCombinedNyttMotebehovSvar,
+    val motebehovFormSubmission: MotebehovFormSubmissionCombinedDTO,
     val tildeltEnhet: String? = null
 )

@@ -6,10 +6,10 @@ import no.nav.syfo.api.auth.tokenX.TokenXUtil
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.TokenXIssuer
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.MotebehovFormValuesInputDTO
+import no.nav.syfo.motebehov.MotebehovFormSubmissionCombinedDTO
+import no.nav.syfo.motebehov.MotebehovFormSubmissionInputDTO
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
-import no.nav.syfo.motebehov.MotebehovSvarInputDTO
-import no.nav.syfo.motebehov.TemporaryCombinedNyttMotebehovSvar
+import no.nav.syfo.motebehov.MotebehovSvarLegacyInputDTO
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
 import org.springframework.beans.factory.annotation.Value
@@ -82,7 +82,7 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun submitMotebehovArbeidstaker(
-        @RequestBody nyttMotebehovSvar: @Valid MotebehovSvarInputDTO,
+        @RequestBody nyttMotebehovSvar: @Valid MotebehovSvarLegacyInputDTO,
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker")
         val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
@@ -92,7 +92,7 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         )
             .fnrFromIdportenTokenX()
 
-        val motebehovSvar = TemporaryCombinedNyttMotebehovSvar(
+        val formSubmission = MotebehovFormSubmissionCombinedDTO(
             harMotebehov = nyttMotebehovSvar.harMotebehov,
             forklaring = nyttMotebehovSvar.forklaring,
             formSnapshot = null,
@@ -100,7 +100,7 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
 
         motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidstaker(
             arbeidstakerFnr,
-            motebehovSvar,
+            formSubmission,
         )
     }
 
@@ -110,7 +110,7 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun submitMotebehovArbeidstaker(
-        @RequestBody nyttMotebehovFormValues: @Valid MotebehovFormValuesInputDTO,
+        @RequestBody nyttMotebehovFormValues: @Valid MotebehovFormSubmissionInputDTO,
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker")
         val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
@@ -120,7 +120,7 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         )
             .fnrFromIdportenTokenX()
 
-        val motebehovSvar = TemporaryCombinedNyttMotebehovSvar(
+        val formSubmission = MotebehovFormSubmissionCombinedDTO(
             harMotebehov = nyttMotebehovFormValues.harMotebehov,
             forklaring = null,
             formSnapshot = nyttMotebehovFormValues.formSnapshot,
@@ -128,7 +128,7 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
 
         motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidstaker(
             arbeidstakerFnr,
-            motebehovSvar,
+            formSubmission,
         )
     }
 

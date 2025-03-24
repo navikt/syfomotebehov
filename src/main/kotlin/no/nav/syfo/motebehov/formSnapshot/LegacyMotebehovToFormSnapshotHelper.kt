@@ -1,15 +1,5 @@
-package no.nav.syfo.motebehov
+package no.nav.syfo.motebehov.formSnapshot
 
-import no.nav.syfo.motebehov.formSnapshot.BEGRUNNELSE_TEXT_FIELD_ID
-import no.nav.syfo.motebehov.formSnapshot.FieldSnapshot
-import no.nav.syfo.motebehov.formSnapshot.FormSnapshot
-import no.nav.syfo.motebehov.formSnapshot.FormSnapshotFieldOption
-import no.nav.syfo.motebehov.formSnapshot.MELD_HAR_BEHOV_LEGACY_CHECKBOX_FIELD_ID
-import no.nav.syfo.motebehov.formSnapshot.ONSKER_SYKMELDER_DELTAR_CHECKBOX_FIELD_ID
-import no.nav.syfo.motebehov.formSnapshot.RadioGroupFieldSnapshot
-import no.nav.syfo.motebehov.formSnapshot.SVAR_HAR_BEHOV_RADIO_GROUP_FIELD_ID
-import no.nav.syfo.motebehov.formSnapshot.SingleCheckboxFieldSnapshot
-import no.nav.syfo.motebehov.formSnapshot.TextFieldSnapshot
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import org.springframework.stereotype.Component
 
@@ -18,8 +8,11 @@ enum class MotebehovInnmelderType {
     ARBEIDSTAKER,
 }
 
+/**
+ * Used for creating a FormSnapshot from a stored "legacy" motebehov.
+ */
 @Component
-class CreateFormSnapshotFromLegacyMotebehovHelper {
+class LegacyMotebehovToFormSnapshotHelper {
     private val formIdentifierArbeidsgiverSvarBehov = "motebehov-arbeidsgiver-svar"
     private val formIdentifierArbeidsgiverMeldBehov = "motebehov-arbeidsgiver-meld"
     private val formIdentifierArbeidsgiverUnknownSvarMeldBehov = "motebehov-arbeidsgiver-unknown"
@@ -56,12 +49,12 @@ class CreateFormSnapshotFromLegacyMotebehovHelper {
     )
 
     /**
-     * Converts a "legacy motebehovSvar" with fields harMotebehov and forklaring to a FormSnapshot.
-     * The returned FormSnapshot matches what the forms look like in production at the time of writing, which is before
-     * an update to the frontend that will make the forms contain more fields, and that will make the frontend submit
-     * a FormSnapshot instead of individual hard-coded field values.
+     * Creates a FormSnapshot from legacy motebehov form field values harMotebehov and forklaring.
+     * The returned FormSnapshot matches what the "legacy" motebehov forms looked like, which was before an update to
+     * the frontend that makes the forms contain more fields, and that makes the frontend submit a FormSnapshot instead
+     * of values for specific fields.
      */
-    fun createFormSnapshotFromLegacyMotebehov(
+    fun createFormSnapshotFromLegacyMotebehovValues(
         harMotebehov: Boolean,
         forklaring: String?,
         skjemaType: MotebehovSkjemaType?,
@@ -118,18 +111,19 @@ class CreateFormSnapshotFromLegacyMotebehovHelper {
         return FormSnapshot(formIdentifier, legacyFormsSemanticVersion, fieldSnapshots)
     }
 
-    fun createLegacyBegrunnelseTextField(
+    private fun createLegacyBegrunnelseTextField(
         begrunnelseTextValue: String,
         harMotebehov: Boolean,
         skjemaType: MotebehovSkjemaType?,
     ): TextFieldSnapshot = TextFieldSnapshot(
         fieldID = BEGRUNNELSE_TEXT_FIELD_ID,
         fieldLabel = MotebehovLegacyFormLabel.BEGRUNNELSE_TEXT_FIELD.label,
+        null,
         textValue = begrunnelseTextValue,
         wasOptional = skjemaType == MotebehovSkjemaType.MELD_BEHOV || harMotebehov
     )
 
-    fun createLegacySvarBehovRadioGroupField(
+    private fun createLegacySvarBehovRadioGroupField(
         harMotebehov: Boolean,
         motebehovInnmelderType: MotebehovInnmelderType
     ): RadioGroupFieldSnapshot {
@@ -152,6 +146,7 @@ class CreateFormSnapshotFromLegacyMotebehovHelper {
                         MotebehovLegacyFormLabel.SVAR_ARBEIDSTAKER_HAR_BEHOV_FIELD.label
                 }
             },
+            null,
             selectedOptionId,
             selectedOptionLabel,
             options = listOf(
@@ -169,7 +164,7 @@ class CreateFormSnapshotFromLegacyMotebehovHelper {
         )
     }
 
-    fun createLegacyMeldOnskerMoteCheckboxField(
+    private fun createLegacyMeldOnskerMoteCheckboxField(
         motebehovInnmelderType: MotebehovInnmelderType
     ): SingleCheckboxFieldSnapshot = SingleCheckboxFieldSnapshot(
         fieldID = MELD_HAR_BEHOV_LEGACY_CHECKBOX_FIELD_ID,
@@ -181,10 +176,11 @@ class CreateFormSnapshotFromLegacyMotebehovHelper {
                     MotebehovLegacyFormLabel.MELD_ARBEIDSTAKER_ONSKER_MOTE_CHECKBOX.label
             }
         },
+        null,
         wasChecked = true,
     )
 
-    fun createLegacyOnskerSykmelderDeltarCheckboxField(
+    private fun createLegacyOnskerSykmelderDeltarCheckboxField(
         onskerSykmelderDeltar: Boolean,
         motebehovInnmelderType: MotebehovInnmelderType,
     ): SingleCheckboxFieldSnapshot = SingleCheckboxFieldSnapshot(
@@ -198,13 +194,14 @@ class CreateFormSnapshotFromLegacyMotebehovHelper {
                     MotebehovLegacyFormLabel.MELD_ARBEIDSTAKER_ONSKER_SYKMELDER_DELTAR_CHECKBOX.label
             }
         },
+        null,
         wasChecked = onskerSykmelderDeltar,
     )
 
     // When a user checked the checkbox for onskerSykmelderDeltar in the legacy form, the text in the forklaring field
     // submitted from the frontend would contain the label text for that checkbox concatenated with the text value of
     // the begrunnelse text field.
-    fun extractActualUserBegrunnelseAndOnskerSykmelderDeltarFromLegacyForklaring(
+    private fun extractActualUserBegrunnelseAndOnskerSykmelderDeltarFromLegacyForklaring(
         legacyForklaring: String?
     ): ExtractedFromLegacyForklaring {
         if (legacyForklaring == null) return ExtractedFromLegacyForklaring("", false)
