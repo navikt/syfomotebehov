@@ -131,4 +131,21 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
             motebehovSvar,
         )
     }
+
+    @PostMapping(
+        value = ["/motebehov/ferdigstill"],
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun ferdigstillMotebehovArbeidstaker() {
+        metric.tellEndepunktKall("call_endpoint_ferdigstill_motebehov_arbeidstaker")
+        val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
+            contextHolder,
+            dialogmoteClientId,
+            esyfoProxyClientId
+        )
+            .fnrFromIdportenTokenX()
+
+        motebehovOppfolgingstilfelleServiceV2.ferdigstillMotebehov(arbeidstakerFnr)
+    }
 }

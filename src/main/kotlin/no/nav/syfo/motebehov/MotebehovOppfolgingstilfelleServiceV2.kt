@@ -187,6 +187,10 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
         }
     }
 
+    fun ferdigstillMotebehov(arbeidstakerFnr: String) {
+        varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(arbeidstakerFnr)
+    }
+
     private fun throwCreateMotebehovConflict(errorMessage: String) {
         log.warn(errorMessage)
         throw ConflictException()
