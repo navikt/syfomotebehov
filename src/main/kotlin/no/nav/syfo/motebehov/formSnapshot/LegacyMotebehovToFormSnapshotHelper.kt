@@ -13,12 +13,6 @@ enum class MotebehovInnmelderType {
  */
 @Component
 class LegacyMotebehovToFormSnapshotHelper {
-    private val formIdentifierArbeidsgiverSvarBehov = "motebehov-arbeidsgiver-svar"
-    private val formIdentifierArbeidsgiverMeldBehov = "motebehov-arbeidsgiver-meld"
-    private val formIdentifierArbeidsgiverUnknownSvarMeldBehov = "motebehov-arbeidsgiver-unknown"
-    private val formIdentifierArbeidstakerSvarBehov = "motebehov-arbeidstaker-svar"
-    private val formIdentifierArbeidstakerMeldBehov = "motebehov-arbeidstaker-meld"
-    private val formIdentifierArbeidstakerUnknownSvarMeldBehov = "motebehov-arbeidstaker-unknown"
 
     private val legacyFormsSemanticVersion = "0.1.0"
 
@@ -95,16 +89,16 @@ class LegacyMotebehovToFormSnapshotHelper {
         val formIdentifier = when (motebehovInnmelderType) {
             MotebehovInnmelderType.ARBEIDSGIVER ->
                 when (skjemaType) {
-                    MotebehovSkjemaType.SVAR_BEHOV -> formIdentifierArbeidsgiverSvarBehov
-                    MotebehovSkjemaType.MELD_BEHOV -> formIdentifierArbeidsgiverMeldBehov
-                    else -> formIdentifierArbeidsgiverUnknownSvarMeldBehov
+                    MotebehovSkjemaType.SVAR_BEHOV -> FORM_IDENTIFIER_ARBEIDSGIVER_SVAR
+                    MotebehovSkjemaType.MELD_BEHOV -> FORM_IDENTIFIER_ARBEIDSGIVER_MELD
+                    else -> FORM_IDENTIFIER_ARBEIDSGIVER_UNKNOWN
                 }
 
             MotebehovInnmelderType.ARBEIDSTAKER ->
                 when (skjemaType) {
-                    MotebehovSkjemaType.SVAR_BEHOV -> formIdentifierArbeidstakerSvarBehov
-                    MotebehovSkjemaType.MELD_BEHOV -> formIdentifierArbeidstakerMeldBehov
-                    else -> formIdentifierArbeidstakerUnknownSvarMeldBehov
+                    MotebehovSkjemaType.SVAR_BEHOV -> FORM_IDENTIFIER_ARBEIDSTAKER_SVAR
+                    MotebehovSkjemaType.MELD_BEHOV -> FORM_IDENTIFIER_ARBEIDSTAKER_MELD
+                    else -> FORM_IDENTIFIER_ARBEIDSTAKER_UNKNOWN
                 }
         }
 

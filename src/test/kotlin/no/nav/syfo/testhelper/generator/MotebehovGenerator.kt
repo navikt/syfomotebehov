@@ -3,6 +3,7 @@ package no.nav.syfo.testhelper.generator
 import no.nav.syfo.motebehov.*
 import no.nav.syfo.motebehov.database.PMotebehov
 import no.nav.syfo.motebehov.database.PMotebehovFormValues
+import no.nav.syfo.motebehov.formSnapshot.FORM_IDENTIFIER_ARBEIDSTAKER_SVAR
 import no.nav.syfo.motebehov.formSnapshot.LegacyMotebehovToFormSnapshotHelper
 import no.nav.syfo.motebehov.formSnapshot.MOCK_FORM_SNAPSHOT_JSON_ARBEIDSTAKER_SVAR
 import no.nav.syfo.motebehov.formSnapshot.MotebehovInnmelderType
@@ -108,6 +109,8 @@ class MotebehovGenerator {
         sykmeldtFnr = ARBEIDSTAKER_FNR,
         formValues = PMotebehovFormValues(
             formSnapshotJSON = MOCK_FORM_SNAPSHOT_JSON_ARBEIDSTAKER_SVAR,
+            formIdentifier = FORM_IDENTIFIER_ARBEIDSTAKER_SVAR,
+            formSemanticVersion = "1.0.0",
             begrunnelse = "Vi må snakke om arbeidsoppgavene mine",
             onskerSykmelderDeltar = true,
             onskerSykmelderDeltarBegrunnelse = "Vil snakke med legen om noen ting",
