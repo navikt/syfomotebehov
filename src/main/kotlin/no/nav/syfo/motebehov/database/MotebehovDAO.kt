@@ -1,5 +1,8 @@
 package no.nav.syfo.motebehov.database
 
+import no.nav.syfo.motebehov.extractFormValuesFromFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.convertFormSnapshotToJsonString
+import no.nav.syfo.motebehov.formSnapshot.convertJsonStringToFormSnapshot
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.util.DbUtil.sanitizeUserInput
 import no.nav.syfo.util.convert
@@ -35,7 +38,7 @@ class MotebehovDAO(
                 LEFT JOIN motebehov_form_values f ON m.motebehov_uuid = f.motebehov_uuid
                 WHERE m.aktoer_id = ? ORDER BY m.opprettet_dato ASC
                 """,
-                innsendingRowMapper,
+                motebehovRowMapper,
                 aktoerId
             )
         ).orElse(emptyList())
@@ -50,7 +53,7 @@ class MotebehovDAO(
                 WHERE m.aktoer_id = ? AND m.opprettet_av = ? AND m.opprettet_dato >= ?
                 ORDER BY m.opprettet_dato DESC
                 """,
-                innsendingRowMapper,
+                motebehovRowMapper,
                 arbeidstakerAktorId,
                 arbeidstakerAktorId,
                 hentTidligsteDatoForGyldigMotebehovSvar()
@@ -74,7 +77,7 @@ class MotebehovDAO(
             return Optional.ofNullable(
                 jdbcTemplate.query(
                     query,
-                    innsendingRowMapper,
+                    motebehovRowMapper,
                     arbeidstakerAktorId,
                     virksomhetsnummer,
                     hentTidligsteDatoForGyldigMotebehovSvar()
@@ -91,7 +94,7 @@ class MotebehovDAO(
             return Optional.ofNullable(
                 jdbcTemplate.query(
                     query,
-                    innsendingRowMapper,
+                    motebehovRowMapper,
                     arbeidstakerAktorId,
                     arbeidstakerAktorId,
                     virksomhetsnummer,
@@ -109,7 +112,7 @@ class MotebehovDAO(
                 LEFT JOIN motebehov_form_values f ON m.motebehov_uuid = f.motebehov_uuid
                 WHERE m.aktoer_id = ? AND m.har_motebehov AND m.behandlet_veileder_ident IS NULL
                 """,
-                innsendingRowMapper,
+                motebehovRowMapper,
                 aktoerId
             )
         ).orElse(emptyList())
@@ -123,7 +126,7 @@ class MotebehovDAO(
                 LEFT JOIN motebehov_form_values f ON m.motebehov_uuid = f.motebehov_uuid
                 WHERE m.opprettet_dato < ? AND m.har_motebehov AND m.behandlet_veileder_ident IS NULL
                 """,
-                innsendingRowMapper,
+                motebehovRowMapper,
                 convert(date)
             )
         ).orElse(emptyList())
@@ -137,7 +140,7 @@ class MotebehovDAO(
                 LEFT JOIN motebehov_form_values f ON m.motebehov_uuid = f.motebehov_uuid
                 WHERE m.motebehov_uuid = ?
                 """,
-                innsendingRowMapper,
+                motebehovRowMapper,
                 motebehovId
             )
         ).orElse(emptyList())
@@ -157,8 +160,12 @@ class MotebehovDAO(
         val uuid = UUID.randomUUID()
 
         val lagreMotebehovSql = """
-        INSERT INTO motebehov (motebehov_uuid, opprettet_dato, opprettet_av, aktoer_id, virksomhetsnummer, har_motebehov, forklaring, tildelt_enhet, behandlet_tidspunkt, behandlet_veileder_ident, skjematype, sm_fnr, opprettet_av_fnr)
-        VALUES (:motebehov_uuid, :opprettet_dato, :opprettet_av, :aktoer_id, :virksomhetsnummer, :har_motebehov, :forklaring, :tildelt_enhet, :behandlet_tidspunkt, :behandlet_veileder_ident, :skjematype, :sm_fnr, :opprettet_av_fnr)
+        INSERT INTO motebehov (motebehov_uuid, opprettet_dato, opprettet_av, aktoer_id, virksomhetsnummer,
+            har_motebehov, forklaring, tildelt_enhet, behandlet_tidspunkt, behandlet_veileder_ident, skjematype,
+            sm_fnr, opprettet_av_fnr)
+        VALUES                (:motebehov_uuid, :opprettet_dato, :opprettet_av, :aktoer_id, :virksomhetsnummer,
+            :har_motebehov, :forklaring, :tildelt_enhet, :behandlet_tidspunkt, :behandlet_veileder_ident, :skjematype,
+            :sm_fnr, :opprettet_av_fnr)
         """.trimIndent()
         val mapLagreMotebehovSql = MapSqlParameterSource()
             .addValue("motebehov_uuid", uuid.toString())
@@ -176,20 +183,29 @@ class MotebehovDAO(
             .addValue("opprettet_av_fnr", motebehov.opprettetAvFnr)
         namedParameterJdbcTemplate.update(lagreMotebehovSql, mapLagreMotebehovSql)
 
-        motebehov.formValues?.let {
-            val lagreMotebehovFieldValuesSql = """
-            INSERT INTO motebehov_form_values (motebehov_uuid, form_snapshot, begrunnelse, onsker_sykmelder_deltar, onsker_sykmelder_deltar_begrunnelse, onsker_tolk, tolk_sprak)
-            VALUES (:motebehov_uuid, :form_snapshot, :begrunnelse, :onsker_sykmelder_deltar, :onsker_sykmelder_deltar_begrunnelse, :onsker_tolk, :tolk_sprak)
+        motebehov.formSnapshot?.let {
+            val formSnapshotJSON = convertFormSnapshotToJsonString(motebehov.formSnapshot)
+            val formValues = extractFormValuesFromFormSnapshot(motebehov.formSnapshot)
+
+            val lagreMotebehovFormValuesSql = """
+            INSERT INTO motebehov_form_values (motebehov_uuid, form_identifier, form_semantic_version,
+                form_snapshot, begrunnelse, onsker_sykmelder_deltar, onsker_sykmelder_deltar_begrunnelse,
+                onsker_tolk, tolk_sprak)
+            VALUES                            (:motebehov_uuid, :form_identifier, :form_semantic_version,
+                :form_snapshot, :begrunnelse, :onsker_sykmelder_deltar, :onsker_sykmelder_deltar_begrunnelse,
+                :onsker_tolk, :tolk_sprak)
             """.trimIndent()
-            val mapLagreMotebehovFieldValuesSql = MapSqlParameterSource()
+            val mapLagreMotebehovFormValuesSql = MapSqlParameterSource()
                 .addValue("motebehov_uuid", uuid.toString())
-                .addValue("form_snapshot", it.formSnapshotJSON, Types.OTHER)
-                .addValue("begrunnelse", it.begrunnelse)
-                .addValue("onsker_sykmelder_deltar", it.onskerSykmelderDeltar)
-                .addValue("onsker_sykmelder_deltar_begrunnelse", it.onskerSykmelderDeltarBegrunnelse)
-                .addValue("onsker_tolk", it.onskerTolk)
-                .addValue("tolk_sprak", it.tolkSprak)
-            namedParameterJdbcTemplate.update(lagreMotebehovFieldValuesSql, mapLagreMotebehovFieldValuesSql)
+                .addValue("form_identifier", formValues.formIdentifier)
+                .addValue("form_semantic_version", formValues.formSemanticVersion)
+                .addValue("form_snapshot", formSnapshotJSON, Types.OTHER)
+                .addValue("begrunnelse", formValues.begrunnelse)
+                .addValue("onsker_sykmelder_deltar", formValues.onskerSykmelderDeltar)
+                .addValue("onsker_sykmelder_deltar_begrunnelse", formValues.onskerSykmelderDeltarBegrunnelse)
+                .addValue("onsker_tolk", formValues.onskerTolk)
+                .addValue("tolk_sprak", formValues.tolkSprak)
+            namedParameterJdbcTemplate.update(lagreMotebehovFormValuesSql, mapLagreMotebehovFormValuesSql)
         }
 
         return uuid
@@ -212,7 +228,7 @@ class MotebehovDAO(
     }
 
     companion object {
-        val innsendingRowMapper: RowMapper<PMotebehov> = RowMapper { rs: ResultSet, _: Int ->
+        val motebehovRowMapper: RowMapper<PMotebehov> = RowMapper { rs: ResultSet, _: Int ->
             PMotebehov(
                 uuid = UUID.fromString(rs.getString("motebehov_uuid")),
                 opprettetDato = rs.getTimestamp("opprettet_dato").toLocalDateTime(),
@@ -227,24 +243,7 @@ class MotebehovDAO(
                 skjemaType = rs.getString("skjematype")?.let { MotebehovSkjemaType.valueOf(it) },
                 sykmeldtFnr = rs.getString("sm_fnr"),
                 opprettetAvFnr = rs.getString("opprettet_av_fnr"),
-                formValues = if (rs.getString("form_snapshot") != null) {
-                    motebehovFormValuesRowMapper.mapRow(rs, rs.row)
-                } else {
-                    null
-                }
-            )
-        }
-
-        val motebehovFormValuesRowMapper: RowMapper<PMotebehovFormValues> = RowMapper { rs: ResultSet, _: Int ->
-            PMotebehovFormValues(
-                formSnapshotJSON = rs.getString("form_snapshot"),
-                begrunnelse = rs.getString("begrunnelse")?.takeIf { it.isNotEmpty() },
-                onskerSykmelderDeltar = rs.getBoolean("onsker_sykmelder_deltar"),
-                onskerSykmelderDeltarBegrunnelse = rs.getString(
-                    "onsker_sykmelder_deltar_begrunnelse"
-                )?.takeIf { it.isNotEmpty() },
-                onskerTolk = rs.getBoolean("onsker_tolk"),
-                tolkSprak = rs.getString("tolk_sprak")?.takeIf { it.isNotEmpty() },
+                formSnapshot = rs.getString("form_snapshot")?.let { convertJsonStringToFormSnapshot(it) },
             )
         }
     }

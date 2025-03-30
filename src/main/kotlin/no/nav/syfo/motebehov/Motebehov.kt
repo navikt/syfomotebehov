@@ -92,7 +92,7 @@ fun Motebehov.toPMotebehov(): PMotebehov =
         skjemaType = this.skjemaType,
         sykmeldtFnr = this.arbeidstakerFnr,
         opprettetAvFnr = this.opprettetAvFnr,
-        formValues = this.formSubmission.toPMotebehovFormValues(),
+        formSnapshot = this.formSubmission.formSnapshot,
     )
 
 fun Motebehov.toMotebehovOutputDTO(): MotebehovOutputDTO =
@@ -104,9 +104,9 @@ fun Motebehov.toMotebehovOutputDTO(): MotebehovOutputDTO =
         opprettetAvFnr = this.opprettetAvFnr,
         arbeidstakerFnr = this.arbeidstakerFnr,
         virksomhetsnummer = this.virksomhetsnummer,
-        formValues = this.formSubmission.toMotebehovFormValuesOutputDTO(),
         tildeltEnhet = this.tildeltEnhet,
         behandletTidspunkt = this.behandletTidspunkt,
         behandletVeilederIdent = this.behandletVeilederIdent,
         skjemaType = this.skjemaType,
+        formValues = this.formSubmission.toMotebehovFormValuesOutputDTO(),
     )

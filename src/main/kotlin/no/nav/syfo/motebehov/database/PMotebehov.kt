@@ -2,9 +2,9 @@ package no.nav.syfo.motebehov.database
 
 import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.motebehov.MotebehovFormSubmissionCombinedDTO
+import no.nav.syfo.motebehov.formSnapshot.FormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.LegacyMotebehovToFormSnapshotHelper
 import no.nav.syfo.motebehov.formSnapshot.MotebehovInnmelderType
-import no.nav.syfo.motebehov.formSnapshot.convertJsonStringToFormSnapshot
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import java.io.Serializable
 import java.time.LocalDateTime
@@ -24,20 +24,9 @@ data class PMotebehov(
     val skjemaType: MotebehovSkjemaType? = null,
     val sykmeldtFnr: String? = null,
     val opprettetAvFnr: String? = null,
-    // For old "legacy motebehov", this field will be null. For new motebehov that was submitted with a formSnapshot,
-    // this field will be populated with values from the corresponding MOTEBEHOV_FORM_VALUES table.
-    val formValues: PMotebehovFormValues? = null,
+    // For old "legacy motebehov", this field will be null.
+    val formSnapshot: FormSnapshot? = null,
 ) : Serializable
-
-data class PMotebehovFormValues(
-    val formSnapshotJSON: String,
-    // These values for these fields are extracted from the formSnapshot
-    val begrunnelse: String?,
-    val onskerSykmelderDeltar: Boolean,
-    val onskerSykmelderDeltarBegrunnelse: String?,
-    val onskerTolk: Boolean,
-    val tolkSprak: String?,
-)
 
 fun PMotebehov.toMotebehov(
     arbeidstakerFnr: String? = null,
@@ -51,15 +40,15 @@ fun PMotebehov.toMotebehov(
         opprettetAvFnr = this.opprettetAvFnr!!,
         arbeidstakerFnr = arbeidstakerFnr ?: this.sykmeldtFnr!!,
         virksomhetsnummer = this.virksomhetsnummer,
-        formSubmission = createMotebehovSvarFromPMotebehov(this, knownInnmelderType),
         tildeltEnhet = this.tildeltEnhet,
         behandletTidspunkt = this.behandletTidspunkt,
         behandletVeilederIdent = this.behandletVeilederIdent,
         skjemaType = this.skjemaType,
+        formSubmission = createMotebehovFormSubmissionFromPMotebehov(this, knownInnmelderType),
     )
 }
 
-private fun createMotebehovSvarFromPMotebehov(
+private fun createMotebehovFormSubmissionFromPMotebehov(
     pMotebehov: PMotebehov,
     knownInnmelderType: MotebehovInnmelderType?
 ): MotebehovFormSubmissionCombinedDTO {
@@ -72,10 +61,8 @@ private fun createMotebehovSvarFromPMotebehov(
             MotebehovInnmelderType.ARBEIDSGIVER
         }
 
-    val isLegacyMotebehov = pMotebehov.formValues == null
+    val isLegacyMotebehov = pMotebehov.formSnapshot == null
 
-    // Legacy pMotebehov db entries will not have formValues containing a formSnapshot. In that case we create
-    // a formSnapshot representing the legacy motebehov from harMotebehov and forklaring.
     val formSnapshot = if (isLegacyMotebehov) {
         val helper = LegacyMotebehovToFormSnapshotHelper()
         helper.createFormSnapshotFromLegacyMotebehovValues(
@@ -85,7 +72,7 @@ private fun createMotebehovSvarFromPMotebehov(
             motebehovInnmelderType,
         )
     } else {
-        pMotebehov.formValues?.formSnapshotJSON?.let { convertJsonStringToFormSnapshot(it) }
+        pMotebehov.formSnapshot
     }
 
     return MotebehovFormSubmissionCombinedDTO(

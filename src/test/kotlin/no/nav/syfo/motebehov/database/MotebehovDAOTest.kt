@@ -1,11 +1,18 @@
 package no.nav.syfo.motebehov.database
 
 import io.kotest.extensions.spring.SpringExtension
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.motebehov.formSnapshot.MOCK_FORM_SNAPSHOT_JSON_ARBEIDSTAKER_SVAR
+import no.nav.syfo.motebehov.extractFormValuesFromFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.FORM_IDENTIFIER_ARBEIDSTAKER_SVAR
+import no.nav.syfo.motebehov.formSnapshot.MOCK_ARBEIDSTAKER_SVAR_SPRAK
+import no.nav.syfo.motebehov.formSnapshot.MOCK_ARRBEIDSTAKER_SVAR_BEGRUNNELSE
+import no.nav.syfo.motebehov.formSnapshot.MOCK_SNAPSHOTS_FORM_SEMANTIC_VERSION
+import no.nav.syfo.motebehov.formSnapshot.convertFormSnapshotToJsonString
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarFormSnapshot
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
@@ -16,7 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.jdbc.core.RowMapper
 import org.springframework.test.context.jdbc.Sql
+import java.sql.ResultSet
 import java.time.temporal.ChronoUnit
 
 @TestConfiguration
@@ -36,7 +45,7 @@ class MotebehovDAOTest : IntegrationTest() {
         extensions(SpringExtension)
 
         describe("Møtebehov DAO") {
-            it("Hent møtebehov liste for aktør og sammenlign inserted med hentet") {
+            it("Hent møtebehov liste for aktør") {
                 val pMotebehov = motebehovGenerator.generatePmotebehov()
                 insertPMotebehov(pMotebehov)
                 val motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(ARBEIDSTAKER_AKTORID)
@@ -55,21 +64,7 @@ class MotebehovDAOTest : IntegrationTest() {
                 motebehovFraDb.forklaring shouldBe pMotebehov.forklaring
                 motebehovFraDb.tildeltEnhet shouldBe pMotebehov.tildeltEnhet
                 motebehovFraDb.skjemaType shouldBe pMotebehov.skjemaType
-
-                areStringsEqualAsSqlJsonbValues(
-                    pMotebehov.formValues?.formSnapshotJSON!!,
-                    motebehovFraDb.formValues?.formSnapshotJSON!!
-                ) shouldBe true
-                motebehovFraDb.formValues?.begrunnelse shouldBe pMotebehov.formValues?.begrunnelse
-                motebehovFraDb.formValues?.onskerSykmelderDeltar shouldBe
-                    pMotebehov.formValues?.onskerSykmelderDeltar
-                motebehovFraDb.formValues?.onskerSykmelderDeltar shouldBe
-                    pMotebehov.formValues?.onskerSykmelderDeltar
-                motebehovFraDb.formValues?.onskerSykmelderDeltarBegrunnelse shouldBe
-                    pMotebehov.formValues?.onskerSykmelderDeltarBegrunnelse
-                motebehovFraDb.formValues?.onskerTolk shouldBe
-                    pMotebehov.formValues?.onskerTolk
-                motebehovFraDb.formValues?.tolkSprak shouldBe pMotebehov.formValues?.tolkSprak
+                motebehovFraDb.formSnapshot shouldBe pMotebehov.formSnapshot
             }
 
             it("hentMotebehovListeForOgOpprettetAvArbeidstakerIkkeGyldig") {
@@ -158,8 +153,9 @@ class MotebehovDAOTest : IntegrationTest() {
                 motebehovFraDb.aktoerId shouldBe pMotebehov.aktoerId
             }
 
-            it("create møtebehov and retrieve it back") {
-                val uuid = motebehovDAO.create(motebehovGenerator.generatePmotebehov())
+            it("should create møtebehov and retrieve it back with same values") {
+                val motebehovToStore = motebehovGenerator.generatePmotebehov()
+                val uuid = motebehovDAO.create(motebehovToStore)
                 val motebehovListe = motebehovDAO.hentMotebehovListeForAktoer(ARBEIDSTAKER_AKTORID)
                 motebehovListe.size shouldBe 1
 
@@ -170,11 +166,38 @@ class MotebehovDAOTest : IntegrationTest() {
                 retrievedMotebehov.aktoerId shouldBe ARBEIDSTAKER_AKTORID
                 retrievedMotebehov.sykmeldtFnr shouldBe ARBEIDSTAKER_FNR
 
-                retrievedMotebehov.formValues.shouldNotBeNull()
+                retrievedMotebehov.formSnapshot.shouldNotBeNull()
+                retrievedMotebehov.formSnapshot shouldBe mockArbeidstakerSvarFormSnapshot
+            }
+
+            it(
+                "should store the correct values in motebehov_form_values when creating a motebehov " +
+                    "with a formSnapshot"
+            ) {
+                val motebehovToStore = motebehovGenerator.generatePmotebehov()
+                val motebehovToStoreFormSnapshotConvertedToJSON = motebehovToStore.formSnapshot?.let {
+                    convertFormSnapshotToJsonString(
+                        it
+                    )
+                }
+
+                val uuid = motebehovDAO.create(motebehovToStore)
+                val motebehovFormValuesFromDb = readMotebehovFormValuesFromDb(uuid.toString())
+
+                motebehovFormValuesFromDb.shouldNotBeNull()
+
                 areStringsEqualAsSqlJsonbValues(
-                    MOCK_FORM_SNAPSHOT_JSON_ARBEIDSTAKER_SVAR,
-                    retrievedMotebehov.formValues?.formSnapshotJSON!!
+                    motebehovFormValuesFromDb.formSnapshotJSON,
+                    motebehovToStoreFormSnapshotConvertedToJSON ?: ""
                 ) shouldBe true
+
+                motebehovFormValuesFromDb.formIdentifier shouldBe FORM_IDENTIFIER_ARBEIDSTAKER_SVAR
+                motebehovFormValuesFromDb.formSemanticVersion shouldBe MOCK_SNAPSHOTS_FORM_SEMANTIC_VERSION
+                motebehovFormValuesFromDb.begrunnelse shouldBe MOCK_ARRBEIDSTAKER_SVAR_BEGRUNNELSE
+                motebehovFormValuesFromDb.onskerSykmelderDeltar shouldBe false
+                motebehovFormValuesFromDb.onskerSykmelderDeltarBegrunnelse.shouldBeNull()
+                motebehovFormValuesFromDb.onskerTolk shouldBe true
+                motebehovFormValuesFromDb.tolkSprak shouldBe MOCK_ARBEIDSTAKER_SVAR_SPRAK
             }
         }
     }
@@ -183,33 +206,92 @@ class MotebehovDAOTest : IntegrationTest() {
         val motebehovId = "bae778f2-a085-11e8-98d0-529269fb1459"
 
         val sqlMotebehovInsert = """
-            INSERT INTO MOTEBEHOV VALUES(DEFAULT, '$motebehovId', '${motebehov.opprettetDato}',
-            '${motebehov.opprettetAv}', '${motebehov.aktoerId}', '${motebehov.virksomhetsnummer}', TRUE,
-            '${motebehov.forklaring}', '${motebehov.tildeltEnhet}', null, null, null, null, null)
+            INSERT INTO MOTEBEHOV (id, motebehov_uuid, opprettet_dato, opprettet_av, aktoer_id, virksomhetsnummer,
+                har_motebehov, forklaring, tildelt_enhet, behandlet_tidspunkt, behandlet_veileder_ident, skjematype,
+                sm_fnr, opprettet_av_fnr)
+            VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?)
         """.trimIndent()
-        jdbcTemplate.update(sqlMotebehovInsert)
+        jdbcTemplate.update(
+            sqlMotebehovInsert,
+            motebehovId,
+            motebehov.opprettetDato,
+            motebehov.opprettetAv,
+            motebehov.aktoerId,
+            motebehov.virksomhetsnummer,
+            motebehov.harMotebehov,
+            motebehov.forklaring,
+            motebehov.tildeltEnhet,
+            motebehov.behandletTidspunkt,
+            motebehov.behandletVeilederIdent,
+            motebehov.skjemaType,
+            motebehov.sykmeldtFnr,
+            motebehov.opprettetAvFnr
+        )
 
-        motebehov.formValues?.let {
+        val formSnapshot = motebehov.formSnapshot
+
+        formSnapshot?.let {
+            val formSnapshotJSON = convertFormSnapshotToJsonString(formSnapshot)
+            val formValues = extractFormValuesFromFormSnapshot(formSnapshot)
+
             val sqlFormValuesInsert = """
-                INSERT INTO motebehov_form_values (motebehov_uuid, form_snapshot, begrunnelse, onsker_sykmelder_deltar,
-                    onsker_sykmelder_deltar_begrunnelse, onsker_tolk, tolk_sprak)
-                VALUES (?, ?::jsonb, ?, ?, ?, ?, ?)
+                INSERT INTO motebehov_form_values (motebehov_uuid, form_identifier, form_semantic_version,
+                    form_snapshot, begrunnelse, onsker_sykmelder_deltar, onsker_sykmelder_deltar_begrunnelse,
+                    onsker_tolk, tolk_sprak)
+                VALUES (?, ?, ?, ?::jsonb, ?, ?, ?, ?, ?)
             """.trimIndent()
             jdbcTemplate.update(
                 sqlFormValuesInsert,
                 motebehovId,
-                it.formSnapshotJSON,
-                it.begrunnelse,
-                it.onskerSykmelderDeltar,
-                it.onskerSykmelderDeltarBegrunnelse,
-                it.onskerTolk,
-                it.tolkSprak
+                formValues.formIdentifier,
+                formValues.formSemanticVersion,
+                formSnapshotJSON,
+                formValues.begrunnelse,
+                formValues.onskerSykmelderDeltar,
+                formValues.onskerSykmelderDeltarBegrunnelse,
+                formValues.onskerTolk,
+                formValues.tolkSprak
             )
         }
+    }
+
+    private fun readMotebehovFormValuesFromDb(motebehovId: String): PMotebehovFormValues? {
+        val motebehovFormValuesRowMapper: RowMapper<PMotebehovFormValues> = RowMapper { rs: ResultSet, _: Int ->
+            PMotebehovFormValues(
+                formIdentifier = rs.getString("form_identifier"),
+                formSemanticVersion = rs.getString("form_semantic_version"),
+                formSnapshotJSON = rs.getString("form_snapshot"),
+                begrunnelse = rs.getString("begrunnelse")?.takeIf { it.isNotEmpty() },
+                onskerSykmelderDeltar = rs.getBoolean("onsker_sykmelder_deltar"),
+                onskerSykmelderDeltarBegrunnelse = rs.getString(
+                    "onsker_sykmelder_deltar_begrunnelse"
+                )?.takeIf { it.isNotEmpty() },
+                onskerTolk = rs.getBoolean("onsker_tolk"),
+                tolkSprak = rs.getString("tolk_sprak")?.takeIf { it.isNotEmpty() },
+            )
+        }
+
+        val sql = "SELECT * FROM motebehov_form_values WHERE motebehov_uuid = ?"
+        return jdbcTemplate.queryForObject(sql, motebehovFormValuesRowMapper, motebehovId)
     }
 
     fun areStringsEqualAsSqlJsonbValues(jsonb1: String, jsonb2: String): Boolean {
         val sql = "SELECT ?::jsonb = ?::jsonb"
         return jdbcTemplate.queryForObject(sql, Boolean::class.java, jsonb1, jsonb2) ?: false
+    }
+
+    companion object {
+        // Beside formSnapshotJSON, these fields are not read out of the database (in this application).
+        // That is why this data class is only defined inside of this test class.
+        data class PMotebehovFormValues(
+            val formSnapshotJSON: String,
+            val formIdentifier: String,
+            val formSemanticVersion: String,
+            val begrunnelse: String?,
+            val onskerSykmelderDeltar: Boolean,
+            val onskerSykmelderDeltarBegrunnelse: String?,
+            val onskerTolk: Boolean,
+            val tolkSprak: String?,
+        )
     }
 }

@@ -1,8 +1,13 @@
 package no.nav.syfo.motebehov.formSnapshot
 
+const val MOCK_ARRBEIDSTAKER_SVAR_BEGRUNNELSE = "Ønsker å snakke om mine behov for tilrettelegging"
+const val MOCK_ARBEIDSTAKER_SVAR_SPRAK = "tegnspråk"
+
+const val MOCK_SNAPSHOTS_FORM_SEMANTIC_VERSION = "1.0.0"
+
 val mockArbeidsgiverSvarOnskerSykmelderFormSnapshot = FormSnapshot(
-    "motebehov-arbeidsgiver-svar",
-    "1.0.0",
+    FORM_IDENTIFIER_ARBEIDSGIVER_SVAR,
+    MOCK_SNAPSHOTS_FORM_SEMANTIC_VERSION,
     listOf(
         RadioGroupFieldSnapshot(
             "harBehovRadioGroup",
@@ -45,7 +50,7 @@ val mockArbeidsgiverSvarOnskerSykmelderFormSnapshot = FormSnapshot(
 )
 
 val mockArbeidstakerSvarFormSnapshot = FormSnapshot(
-    "motebehov-arbeidstaker-svar",
+    FORM_IDENTIFIER_ARBEIDSTAKER_SVAR,
     "1.0.0",
     listOf(
         RadioGroupFieldSnapshot(
@@ -64,7 +69,7 @@ val mockArbeidstakerSvarFormSnapshot = FormSnapshot(
             "Begrunnelse (valgfri)",
             "Hva ønsker du å ta opp i møtet? Ikke skriv sensitiv informasjon, for eksempel detaljerte " +
                 "opplysninger om helse.",
-            "Ønsker å snakke om mine behov for tilrettelegging",
+            MOCK_ARRBEIDSTAKER_SVAR_BEGRUNNELSE,
             wasOptional = true
         ),
         SingleCheckboxFieldSnapshot(
@@ -77,13 +82,19 @@ val mockArbeidstakerSvarFormSnapshot = FormSnapshot(
             "onskerTolkCheckbox",
             " Jeg har behov for tolk.",
             null,
-            false
+            true
+        ),
+        TextFieldSnapshot(
+            "tolkSprakText",
+            "Hva slags tolk har du behov for? (Må fylles ut)",
+            "Oppgi for eksempel et språk eller tegnspråktolk.",
+            MOCK_ARBEIDSTAKER_SVAR_SPRAK
         )
     )
 )
 
 val mockArbeidsgiverMeldOnskerSykmelderOgTolkFormSnapshot = FormSnapshot(
-    "motebehov-arbeidsgiver-meld",
+    FORM_IDENTIFIER_ARBEIDSGIVER_MELD,
     "1.0.0",
     listOf(
         TextFieldSnapshot(

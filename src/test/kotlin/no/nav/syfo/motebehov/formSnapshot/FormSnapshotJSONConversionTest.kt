@@ -11,7 +11,6 @@ class FormSnapshotJSONConversionTest : DescribeSpec({
 
             it("should get the same FormSnapshot back after converting to json and back for $formSnapshotName") {
                 val json = convertFormSnapshotToJsonString(formSnapshotToConvert)
-                println(json)
 
                 val formSnapshotConvertedBackFromJson = convertJsonStringToFormSnapshot(json)
 

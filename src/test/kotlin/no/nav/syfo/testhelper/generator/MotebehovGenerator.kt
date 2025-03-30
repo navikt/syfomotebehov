@@ -2,12 +2,10 @@ package no.nav.syfo.testhelper.generator
 
 import no.nav.syfo.motebehov.*
 import no.nav.syfo.motebehov.database.PMotebehov
-import no.nav.syfo.motebehov.database.PMotebehovFormValues
-import no.nav.syfo.motebehov.formSnapshot.FORM_IDENTIFIER_ARBEIDSTAKER_SVAR
 import no.nav.syfo.motebehov.formSnapshot.LegacyMotebehovToFormSnapshotHelper
-import no.nav.syfo.motebehov.formSnapshot.MOCK_FORM_SNAPSHOT_JSON_ARBEIDSTAKER_SVAR
 import no.nav.syfo.motebehov.formSnapshot.MotebehovInnmelderType
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarOnskerSykmelderFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarFormSnapshot
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
@@ -103,20 +101,11 @@ class MotebehovGenerator {
         opprettetAv = LEDER_AKTORID,
         aktoerId = ARBEIDSTAKER_AKTORID,
         virksomhetsnummer = VIRKSOMHETSNUMMER,
-        forklaring = "Megling",
+        forklaring = null,
         harMotebehov = true,
         tildeltEnhet = NAV_ENHET,
         sykmeldtFnr = ARBEIDSTAKER_FNR,
-        formValues = PMotebehovFormValues(
-            formSnapshotJSON = MOCK_FORM_SNAPSHOT_JSON_ARBEIDSTAKER_SVAR,
-            formIdentifier = FORM_IDENTIFIER_ARBEIDSTAKER_SVAR,
-            formSemanticVersion = "1.0.0",
-            begrunnelse = "Vi må snakke om arbeidsoppgavene mine",
-            onskerSykmelderDeltar = true,
-            onskerSykmelderDeltarBegrunnelse = "Vil snakke med legen om noen ting",
-            onskerTolk = false,
-            tolkSprak = null,
-        )
+        formSnapshot = mockArbeidstakerSvarFormSnapshot,
     )
 
     fun getOpprettetDato(erGyldig: Boolean): LocalDateTime {

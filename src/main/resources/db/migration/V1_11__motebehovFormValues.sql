@@ -1,13 +1,16 @@
 -- -- Create the motebehovFormValues table
 -- CREATE TABLE MOTEBEHOV_FORM_VALUES
 -- (
+--     motebehov_uuid                      VARCHAR(36) NOT NULL,
 --     form_snapshot                       JSONB       NOT NULL,
---     begrunnelse                         VARCHAR(1000),
+--     -- The fields below are only used for debugging and data monitoring purposes
+--     form_identifier                     VARCHAR(50) NOT NULL,
+--     form_semantic_version               VARCHAR(20) NOT NULL,
+--     begrunnelse                         TEXT,
 --     onsker_sykmelder_deltar             BOOLEAN     NOT NULL,
---     onsker_sykmelder_deltar_begrunnelse VARCHAR(500),
+--     onsker_sykmelder_deltar_begrunnelse TEXT,
 --     onsker_tolk                         BOOLEAN     NOT NULL,
---     tolk_sprak                          VARCHAR(100),
---     motebehov_uuid                      VARCHAR(36) NOT NULL
+--     tolk_sprak                          TEXT
 -- );
 --
 -- -- Create an index on the id field
