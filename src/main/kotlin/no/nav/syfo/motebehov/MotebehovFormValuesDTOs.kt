@@ -8,20 +8,19 @@ import no.nav.syfo.motebehov.formSnapshot.ONSKER_TOLK_CHECKBOX_FIELD_ID
 import no.nav.syfo.motebehov.formSnapshot.TOLK_SPRAK_TEXT_FIELD_ID
 
 // Temporary class used in services to contain values of both legacy and new form submission DTOs below.
-// To be replaced by MotebehovFormSubmissionInputDTO.
 data class MotebehovFormSubmissionCombinedDTO(
     val harMotebehov: Boolean,
     val forklaring: String? = null,
     val formSnapshot: FormSnapshot?
 )
 
-// Existing input DTO to phase out. MotebehovFormValuesInputDTO will take over.
-data class MotebehovSvarLegacyInputDTO(
+// Existing input and output DTO to phase out.
+data class MotebehovSvarLegacyDTO(
     val harMotebehov: Boolean,
     val forklaring: String? = null,
 )
 
-data class MotebehovFormSubmissionInputDTO(
+data class MotebehovFormSubmissionDTO(
     val harMotebehov: Boolean,
     val formSnapshot: FormSnapshot,
 )

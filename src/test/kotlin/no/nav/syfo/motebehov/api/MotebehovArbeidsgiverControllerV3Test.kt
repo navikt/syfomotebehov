@@ -11,7 +11,7 @@ import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
-import no.nav.syfo.motebehov.MotebehovSvarLegacyInputDTO
+import no.nav.syfo.motebehov.MotebehovSvarLegacyDTO
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverLegacyInputDTO
 import no.nav.syfo.motebehov.api.internad.v3.MotebehovVeilederADControllerV3
 import no.nav.syfo.motebehov.database.MotebehovDAO
@@ -499,7 +499,7 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
                     generateOppfolgingstilfellePerson(),
                 )
                 val motebehov = motebehovGenerator.lagNyttMotebehovArbeidsgiverInput().copy(
-                    motebehovSvar = MotebehovSvarLegacyInputDTO(harMotebehov = true, forklaring = ""),
+                    motebehovSvar = MotebehovSvarLegacyDTO(harMotebehov = true, forklaring = ""),
                 )
 
                 lagreMotebehov(motebehov)
@@ -514,7 +514,7 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
                 )
 
                 val motebehov = motebehovGenerator.lagNyttMotebehovArbeidsgiverInput().copy(
-                    motebehovSvar = MotebehovSvarLegacyInputDTO(harMotebehov = false, forklaring = ""),
+                    motebehovSvar = MotebehovSvarLegacyDTO(harMotebehov = false, forklaring = ""),
                 )
 
                 lagreMotebehov(motebehov)
@@ -531,7 +531,7 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
                     ),
                 )
                 val motebehov = motebehovGenerator.lagNyttMotebehovArbeidsgiverInput().copy(
-                    motebehovSvar = MotebehovSvarLegacyInputDTO(harMotebehov = true, forklaring = ""),
+                    motebehovSvar = MotebehovSvarLegacyDTO(harMotebehov = true, forklaring = ""),
                     arbeidstakerFnr = LEDER_FNR
                 )
 
@@ -549,7 +549,7 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
         }
     }
 
-    private fun submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO: MotebehovSvarLegacyInputDTO) {
+    private fun submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO: MotebehovSvarLegacyDTO) {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceServerAzureAD,
@@ -591,7 +591,7 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
     }
 
     private fun verifyMotebehovStatus(
-        innsendtMotebehovSvar: MotebehovSvarLegacyInputDTO,
+        innsendtMotebehovSvar: MotebehovSvarLegacyDTO,
         innsendtSkjemaType: MotebehovSkjemaType,
     ) {
         val motebehovStatus: MotebehovStatus = motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(

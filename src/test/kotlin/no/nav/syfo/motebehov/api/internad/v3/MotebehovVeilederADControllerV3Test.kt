@@ -13,12 +13,12 @@ import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
-import no.nav.syfo.motebehov.MotebehovSvarLegacyInputDTO
+import no.nav.syfo.motebehov.MotebehovSvarLegacyDTO
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverLegacyInputDTO
 import no.nav.syfo.motebehov.api.MotebehovArbeidsgiverControllerV3
 import no.nav.syfo.motebehov.api.MotebehovArbeidstakerControllerV3
 import no.nav.syfo.motebehov.api.dbCreateOppfolgingstilfelle
-import no.nav.syfo.motebehov.api.internad.dto.MotebehovVeilederDTO
+import no.nav.syfo.motebehov.api.internad.dto.MotebehovVeilederDTOv3
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.historikk.Historikk
 import no.nav.syfo.motebehov.historikk.HistorikkService
@@ -286,7 +286,7 @@ class MotebehovVeilederADControllerV3Test : IntegrationTest() {
     }
 
     private fun arbeidsgiverLoggerInnOgLagrerMotebehov(): NyttMotebehovArbeidsgiverLegacyInputDTO {
-        val motebehovSvarInputDTO = MotebehovSvarLegacyInputDTO(
+        val motebehovSvarInputDTO = MotebehovSvarLegacyDTO(
             harMotebehov = true,
             forklaring = "",
         )
@@ -303,8 +303,8 @@ class MotebehovVeilederADControllerV3Test : IntegrationTest() {
 
     private fun sykmeldtLoggerInnOgLagrerMotebehov(
         harBehov: Boolean,
-    ): MotebehovSvarLegacyInputDTO {
-        val motebehovSvar = MotebehovSvarLegacyInputDTO(
+    ): MotebehovSvarLegacyDTO {
+        val motebehovSvar = MotebehovSvarLegacyDTO(
             harMotebehov = harBehov,
             forklaring = "",
         )
@@ -326,7 +326,7 @@ class MotebehovVeilederADControllerV3Test : IntegrationTest() {
         motebehovVeilederController.behandleMotebehov(fnr)
     }
 
-    private fun loggInnOgKallHentMotebehovListe(fnr: String, veileder: String): List<MotebehovVeilederDTO> {
+    private fun loggInnOgKallHentMotebehovListe(fnr: String, veileder: String): List<MotebehovVeilederDTOv3> {
         tokenValidationUtil.logInAsNavCounselor(veileder)
         return motebehovVeilederController.hentMotebehovListe(fnr)
     }

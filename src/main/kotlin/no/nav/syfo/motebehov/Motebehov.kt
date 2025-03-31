@@ -1,6 +1,7 @@
 package no.nav.syfo.motebehov
 
-import no.nav.syfo.motebehov.api.internad.dto.MotebehovVeilederDTO
+import no.nav.syfo.motebehov.api.internad.dto.MotebehovVeilederDTOv3
+import no.nav.syfo.motebehov.api.internad.dto.MotebehovVeilederDTOv4
 import no.nav.syfo.motebehov.database.PMotebehov
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_SVAR_BEHOV
@@ -43,8 +44,8 @@ data class MotebehovOutputDTO(
 fun List<Motebehov>.toMotebehovVeilederDTOList() =
     this.map { it.toMotebehovVeilederDTO() }
 
-fun Motebehov.toMotebehovVeilederDTO(): MotebehovVeilederDTO {
-    return MotebehovVeilederDTO(
+fun Motebehov.toMotebehovVeilederDTO(): MotebehovVeilederDTOv3 {
+    return MotebehovVeilederDTOv3(
         id = this.id,
         opprettetDato = this.opprettetDato,
         aktorId = this.aktorId,
@@ -52,10 +53,29 @@ fun Motebehov.toMotebehovVeilederDTO(): MotebehovVeilederDTO {
         opprettetAvNavn = null,
         arbeidstakerFnr = this.arbeidstakerFnr,
         virksomhetsnummer = this.virksomhetsnummer,
-        motebehovSvar = this.formSubmission.toMotebehovFormValuesOutputDTO(),
+        motebehovSvar = MotebehovSvarLegacyDTO(this.formSubmission.harMotebehov, this.formSubmission.forklaring),
         tildeltEnhet = this.tildeltEnhet,
         behandletTidspunkt = this.behandletTidspunkt,
-        behandletVeilederIdent = this.behandletVeilederIdent, skjemaType = this.skjemaType,
+        behandletVeilederIdent = this.behandletVeilederIdent,
+        skjemaType = this.skjemaType,
+    )
+}
+
+fun List<Motebehov>.toMotebehovVeilederDTOv4List() =
+    this.map { it.toMotebehovVeilederDTOv4() }
+
+fun Motebehov.toMotebehovVeilederDTOv4(): MotebehovVeilederDTOv4 {
+    return MotebehovVeilederDTOv4(
+        id = this.id,
+        opprettetDato = this.opprettetDato,
+        opprettetAv = this.opprettetAv,
+        opprettetAvNavn = null,
+        arbeidstakerFnr = this.arbeidstakerFnr,
+        virksomhetsnummer = this.virksomhetsnummer,
+        behandletTidspunkt = this.behandletTidspunkt,
+        behandletVeilederIdent = this.behandletVeilederIdent,
+        skjemaType = this.skjemaType,
+        formValues = this.formSubmission.toMotebehovFormValuesOutputDTO(),
     )
 }
 

@@ -2,6 +2,7 @@
 <SmellBaseline>
   <ManuallySuppressedIssues>
     <ID>TooManyFunctions:MotebehovService.kt$MotebehovService</ID>
+    <ID>LongParameterList:MotebehovVeilederADControllerV4.kt$MotebehovVeilederADControllerV4$( private val contextHolder: TokenValidationContextHolder, private val metric: Metric, private val historikkService: HistorikkService, private val motebehovService: MotebehovService, private val pdlConsumer: PdlConsumer, private val veilederTilgangConsumer: VeilederTilgangConsumer, private val esyfovarselService: EsyfovarselService, )</ID>
   </ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>AnnotationOnSeparateLine:MotebehovArbeidsgiverControllerV3.kt$MotebehovArbeidsgiverControllerV3$@Pattern(regexp = "^[0-9]{11}$")</ID>

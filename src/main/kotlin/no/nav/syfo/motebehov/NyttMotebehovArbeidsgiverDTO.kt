@@ -5,14 +5,14 @@ import javax.validation.constraints.NotEmpty
 data class NyttMotebehovArbeidsgiverLegacyInputDTO(
     val arbeidstakerFnr: String,
     val virksomhetsnummer: @NotEmpty String,
-    val motebehovSvar: MotebehovSvarLegacyInputDTO,
+    val motebehovSvar: MotebehovSvarLegacyDTO,
     val tildeltEnhet: String? = null
 )
 
 data class NyttMotebehovArbeidsgiverFormSubmissionInputDTO(
     val arbeidstakerFnr: String,
     val virksomhetsnummer: @NotEmpty String,
-    val motebehovFormSubmission: MotebehovFormSubmissionInputDTO,
+    val motebehovFormSubmission: MotebehovFormSubmissionDTO,
     val tildeltEnhet: String? = null
 )
 

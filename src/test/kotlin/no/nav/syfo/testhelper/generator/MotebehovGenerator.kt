@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class MotebehovGenerator {
-    private val motebehovSvarLegacyInputDTO = MotebehovSvarLegacyInputDTO(
+    private val motebehovSvarLegacyInputDTO = MotebehovSvarLegacyDTO(
         harMotebehov = true,
         forklaring = "",
     )
@@ -54,7 +54,7 @@ class MotebehovGenerator {
         tildeltEnhet = NAV_ENHET,
     )
 
-    fun lagMotebehovSvarInputDTO(harBehov: Boolean): MotebehovSvarLegacyInputDTO {
+    fun lagMotebehovSvarInputDTO(harBehov: Boolean): MotebehovSvarLegacyDTO {
         return motebehovSvarLegacyInputDTO.copy(
             harMotebehov = harBehov,
         )
@@ -65,7 +65,7 @@ class MotebehovGenerator {
     }
 
     fun lagFormSubmissionDTOMatchingLegacyInputDTO(
-        inputDTO: MotebehovSvarLegacyInputDTO,
+        inputDTO: MotebehovSvarLegacyDTO,
         skjemaType: MotebehovSkjemaType,
         innmelderType: MotebehovInnmelderType
     ): MotebehovFormSubmissionCombinedDTO {
@@ -84,7 +84,7 @@ class MotebehovGenerator {
     }
 
     fun lagFormValuesOutputDTOMatchingInputDTO(
-        inputDTO: MotebehovSvarLegacyInputDTO,
+        inputDTO: MotebehovSvarLegacyDTO,
         skjemaType: MotebehovSkjemaType,
         innmelderType: MotebehovInnmelderType
     ): MotebehovFormValuesOutputDTO {
