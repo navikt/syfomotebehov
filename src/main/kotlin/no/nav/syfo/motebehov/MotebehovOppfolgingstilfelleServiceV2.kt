@@ -45,7 +45,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
         )
 
         if (activeOppfolgingstilfelleExists && motebehovStatus.isMotebehovAvailableForAnswer()) {
-            val storedMotebehovSvar = storeNyttMotebehovForArbeidsgiver(
+            val storedMotebehovFormSubmission = storeNyttMotebehovForArbeidsgiver(
                 arbeidstakerFnr,
                 nyttMotebehov,
                 innloggetFnr,
@@ -55,7 +55,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
             metric.tellBesvarMotebehov(
                 activeOppfolgingstilfelle!!,
                 motebehovStatus.skjemaType,
-                storedMotebehovSvar,
+                storedMotebehovFormSubmission,
                 false,
             )
 
@@ -91,11 +91,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
         innloggetFnr: String,
         skjemaType: MotebehovSkjemaType?,
     ): MotebehovFormSubmissionCombinedDTO {
-        val motebehovFormSubmission = MotebehovFormSubmissionCombinedDTO(
-            harMotebehov = nyttMotebehov.motebehovFormSubmission.harMotebehov,
-            forklaring = nyttMotebehov.motebehovFormSubmission.forklaring,
-            formSnapshot = nyttMotebehov.motebehovFormSubmission.formSnapshot
-        )
+        val motebehovFormSubmission = nyttMotebehov.formSubmission
 
         motebehovService.lagreMotebehov(
             innloggetFnr,
@@ -148,12 +144,6 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                 emptyList()
             }
 
-            val motebehovFormValues = MotebehovFormSubmissionCombinedDTO(
-                harMotebehov = formSubmission.harMotebehov,
-                forklaring = formSubmission.forklaring,
-                formSnapshot = formSubmission.formSnapshot
-            )
-
             if (virksomhetsnummerList.isNotEmpty()) {
                 for (virksomhetsnummer in virksomhetsnummerList) {
                     motebehovService.lagreMotebehov(
@@ -161,13 +151,13 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                         arbeidstakerFnr,
                         virksomhetsnummer,
                         motebehovStatus.skjemaType!!,
-                        motebehovFormValues,
+                        formSubmission,
                     )
                 }
                 metric.tellBesvarMotebehov(
                     activeOppolgingstilfelle,
                     motebehovStatus.skjemaType,
-                    motebehovFormValues,
+                    formSubmission,
                     true,
                 )
                 if (motebehovStatus.skjemaType == MotebehovSkjemaType.SVAR_BEHOV) {

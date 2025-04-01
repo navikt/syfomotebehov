@@ -26,7 +26,7 @@ data class Motebehov(
     val skjemaType: MotebehovSkjemaType? = null,
 ) : Serializable
 
-data class MotebehovOutputDTO(
+data class MotebehovWithFormValuesOutputDTO(
     val id: UUID,
     val opprettetDato: LocalDateTime,
     val aktorId: String,
@@ -34,11 +34,11 @@ data class MotebehovOutputDTO(
     val opprettetAvFnr: String,
     val arbeidstakerFnr: String,
     val virksomhetsnummer: String,
-    val formValues: MotebehovFormValuesOutputDTO,
     val tildeltEnhet: String? = null,
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
-    val skjemaType: MotebehovSkjemaType? = null,
+    val skjemaType: MotebehovSkjemaType? = null, // make not nullable
+    val formValues: MotebehovFormValuesOutputDTO,
 )
 
 fun List<Motebehov>.toMotebehovVeilederDTOList() =
@@ -115,8 +115,8 @@ fun Motebehov.toPMotebehov(): PMotebehov =
         formSnapshot = this.formSubmission.formSnapshot,
     )
 
-fun Motebehov.toMotebehovOutputDTO(): MotebehovOutputDTO =
-    MotebehovOutputDTO(
+fun Motebehov.toMotebehovWithFormValuesOutputDTO(): MotebehovWithFormValuesOutputDTO =
+    MotebehovWithFormValuesOutputDTO(
         id = this.id,
         opprettetDato = this.opprettetDato,
         aktorId = this.aktorId,

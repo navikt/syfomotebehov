@@ -12,7 +12,7 @@ import no.nav.syfo.motebehov.formSnapshot.MOCK_ARBEIDSTAKER_SVAR_SPRAK
 import no.nav.syfo.motebehov.formSnapshot.MOCK_ARRBEIDSTAKER_SVAR_BEGRUNNELSE
 import no.nav.syfo.motebehov.formSnapshot.MOCK_SNAPSHOTS_FORM_SEMANTIC_VERSION
 import no.nav.syfo.motebehov.formSnapshot.convertFormSnapshotToJsonString
-import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarJaFormSnapshot
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
@@ -167,7 +167,7 @@ class MotebehovDAOTest : IntegrationTest() {
                 retrievedMotebehov.sykmeldtFnr shouldBe ARBEIDSTAKER_FNR
 
                 retrievedMotebehov.formSnapshot.shouldNotBeNull()
-                retrievedMotebehov.formSnapshot shouldBe mockArbeidstakerSvarFormSnapshot
+                retrievedMotebehov.formSnapshot shouldBe mockArbeidstakerSvarJaFormSnapshot
             }
 
             it(

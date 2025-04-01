@@ -1,14 +1,15 @@
 package no.nav.syfo.motebehov.motebehovstatus
 
 import no.nav.syfo.motebehov.Motebehov
-import no.nav.syfo.motebehov.MotebehovOutputDTO
+import no.nav.syfo.motebehov.MotebehovWithFormValuesOutputDTO
 import no.nav.syfo.motebehov.isUbehandlet
+import no.nav.syfo.motebehov.toMotebehovWithFormValuesOutputDTO
 import java.io.Serializable
 
 data class MotebehovStatus(
     val visMotebehov: Boolean,
     val skjemaType: MotebehovSkjemaType? = null,
-    val motebehov: MotebehovOutputDTO? = null
+    val motebehov: Motebehov? = null
 ) : Serializable
 
 fun MotebehovStatus.isSvarBehovVarselAvailable(): Boolean {
@@ -29,3 +30,17 @@ fun MotebehovStatus.isMotebehovAvailableForAnswer(): Boolean {
         this.skjemaType != null &&
         this.motebehov == null
 }
+
+fun MotebehovStatus.toMotebehovStatusWithFormValuesDTO(): MotebehovStatusWithFormValuesDTO {
+    return MotebehovStatusWithFormValuesDTO(
+        visMotebehov = this.visMotebehov,
+        skjemaType = this.skjemaType,
+        motebehovWithFormValues = this.motebehov?.toMotebehovWithFormValuesOutputDTO()
+    )
+}
+
+data class MotebehovStatusWithFormValuesDTO(
+    val visMotebehov: Boolean,
+    val skjemaType: MotebehovSkjemaType? = null,
+    val motebehovWithFormValues: MotebehovWithFormValuesOutputDTO? = null,
+)

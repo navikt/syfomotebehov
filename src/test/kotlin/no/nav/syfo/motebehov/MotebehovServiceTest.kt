@@ -10,7 +10,7 @@ import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.motebehov.database.MotebehovDAO
-import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarOnskerSykmelderFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseService
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
@@ -126,7 +126,7 @@ class MotebehovServiceTest : IntegrationTest() {
                     MotebehovFormSubmissionCombinedDTO(
                         true,
                         null,
-                        mockArbeidsgiverSvarOnskerSykmelderFormSnapshot
+                        mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
                     )
                 )
 
@@ -145,7 +145,7 @@ class MotebehovServiceTest : IntegrationTest() {
                 retrievedMotebehov.skjemaType shouldBe MotebehovSkjemaType.SVAR_BEHOV
 
                 val retrievedformSnapshot = retrievedMotebehov.formSubmission.formSnapshot
-                retrievedformSnapshot shouldBe mockArbeidsgiverSvarOnskerSykmelderFormSnapshot
+                retrievedformSnapshot shouldBe mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
             }
         }
     }

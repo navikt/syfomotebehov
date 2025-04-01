@@ -3,6 +3,7 @@
   <ManuallySuppressedIssues>
     <ID>TooManyFunctions:MotebehovService.kt$MotebehovService</ID>
     <ID>LongParameterList:MotebehovVeilederADControllerV4.kt$MotebehovVeilederADControllerV4$( private val contextHolder: TokenValidationContextHolder, private val metric: Metric, private val historikkService: HistorikkService, private val motebehovService: MotebehovService, private val pdlConsumer: PdlConsumer, private val veilederTilgangConsumer: VeilederTilgangConsumer, private val esyfovarselService: EsyfovarselService, )</ID>
+    <ID>LongParameterList:MotebehovArbeidstakerControllerV4.kt$MotebehovArbeidstakerControllerV4$( private val contextHolder: TokenValidationContextHolder, private val metric: Metric, private val motebehovStatusServiceV2: MotebehovStatusServiceV2, private val motebehovOppfolgingstilfelleServiceV2: MotebehovOppfolgingstilfelleServiceV2, @Value("\${dialogmote.frontend.client.id}") val dialogmoteClientId: String, @Value("\${ditt.sykefravaer.frontend.client.id}") val dittSykefravaerClientId: String, @Value("\${esyfo-proxy.client.id}") val esyfoProxyClientId: String, )</ID>
   </ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>AnnotationOnSeparateLine:MotebehovArbeidsgiverControllerV3.kt$MotebehovArbeidsgiverControllerV3$@Pattern(regexp = "^[0-9]{11}$")</ID>

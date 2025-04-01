@@ -7,21 +7,26 @@ import io.mockk.verify
 import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
+import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
-import no.nav.syfo.motebehov.MotebehovSvarLegacyDTO
-import no.nav.syfo.motebehov.api.internad.v3.MotebehovVeilederADControllerV3
+import no.nav.syfo.motebehov.MotebehovFormSubmissionDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverFormSubmissionInputDTO
+import no.nav.syfo.motebehov.api.internad.v4.MotebehovVeilederADControllerV4
 import no.nav.syfo.motebehov.database.MotebehovDAO
-import no.nav.syfo.motebehov.formSnapshot.MotebehovInnmelderType
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
-import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
+import no.nav.syfo.motebehov.toMotebehovFormSubmissionCombinedDTO
+import no.nav.syfo.motebehov.toMotebehovFormValuesOutputDTO
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseProducer
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
+import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
+import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER_2
@@ -38,6 +43,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -51,9 +57,10 @@ import java.time.LocalDateTime
 import java.util.*
 import java.util.function.Consumer
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
-class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
+class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
     @Value("\${azure.openid.config.token.endpoint}")
     private lateinit var azureTokenEndpoint: String
 
@@ -64,10 +71,10 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
     private lateinit var tilgangskontrollUrl: String
 
     @Autowired
-    private lateinit var motebehovArbeidstakerController: MotebehovArbeidstakerControllerV3
+    private lateinit var motebehovArbeidsgiverController: MotebehovArbeidsgiverControllerV4
 
     @Autowired
-    private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV3
+    private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV4
 
     @Autowired
     private lateinit var motebehovDAO: MotebehovDAO
@@ -94,8 +101,11 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
     @MockkBean(relaxed = true)
     private lateinit var esyfovarselService: EsyfovarselService
 
-    @MockkBean
+    @MockkBean(relaxed = true)
     private lateinit var pdlConsumer: PdlConsumer
+
+    @MockkBean
+    private lateinit var brukertilgangConsumer: BrukertilgangConsumer
 
     @MockkBean(relaxed = true)
     private lateinit var personoppgavehendelseProducer: PersonoppgavehendelseProducer
@@ -108,16 +118,19 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
     init {
         extensions(SpringExtension)
         beforeTest {
+
+            every { brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR) } returns true
+            every { brukertilgangConsumer.hasAccessToAnsatt(LEDER_FNR) } returns true
             every { pdlConsumer.person(ARBEIDSTAKER_FNR) } returns generatePdlHentPerson(null, null)
-            every { pdlConsumer.aktorid(any()) } returns ARBEIDSTAKER_AKTORID
-            every { pdlConsumer.fnr(any()) } returns ARBEIDSTAKER_FNR
+            every { pdlConsumer.aktorid(ARBEIDSTAKER_FNR) } returns ARBEIDSTAKER_AKTORID
+            every { pdlConsumer.aktorid(LEDER_FNR) } returns LEDER_AKTORID
+
             every { pdlConsumer.isKode6(ARBEIDSTAKER_FNR) } returns false
 
             mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
             mockRestServiceServerAzureAD = MockRestServiceServer.bindTo(restTemplateAzureAD).build()
             cleanDB()
         }
-
         afterEach {
             resetMockRestServers()
             cacheManager.cacheNames
@@ -127,19 +140,22 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                         cache?.clear()
                     },
                 )
-            AzureAdV2TokenConsumer.Companion.clearCache()
             cleanDB()
+            AzureAdV2TokenConsumer.Companion.clearCache()
+        }
+        afterTest {
+            tokenValidationUtil.resetAll()
         }
 
-        describe("Møtebehov arbeidstaker controller V3") {
-            it("get MotebehovStatus With No Oppfolgingstilfelle") {
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+        describe("MotebehovArbeidsgiverControllerV4") {
+            it("getMotebehovStatusWithNoOppfolgingstilfelle") {
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
+                motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
                     .assertMotebehovStatus(false, null, null)
             }
 
-            it("get MotebehovStatus With Today Outside OppfolgingstilfelleStart") {
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
+            it("getMotebehovStatusWithTodayOutsideOppfolgingstilfelleStart") {
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
                     generateOppfolgingstilfellePerson(
@@ -148,12 +164,12 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
                     .assertMotebehovStatus(false, null, null)
             }
 
-            it("get MotebehovStatus With Today Outside OppfolgingstilfelleEnd") {
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
+            it("getMotebehovStatusWithTodayOutsideOppfolgingstilfelleEnd") {
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
                     generateOppfolgingstilfellePerson(
@@ -162,23 +178,51 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
                     .assertMotebehovStatus(false, null, null)
             }
 
             it(
-                "get MotebehovStatus With Today Inside Oppfolgingstilfelle Merged By Active And" +
-                    " Expired Oppfolgingstilfelle No Overlap"
+                "getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpired" +
+                    "OppfolgingstilfelleNoOverlapVirksomhetWithoutActiveOppfolgingstilfelle"
             ) {
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
+                val activeOppfolgingstilfelleStartDate =
+                    LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
+                dbCreateOppfolgingstilfelle(
+                    oppfolgingstilfelleDAO,
+                    generateOppfolgingstilfellePerson(
+                        start = activeOppfolgingstilfelleStartDate.minusDays(2),
+                        end = activeOppfolgingstilfelleStartDate.minusDays(1),
+                    ),
+                )
+
+                dbCreateOppfolgingstilfelle(
+                    oppfolgingstilfelleDAO,
+                    generateOppfolgingstilfellePerson(
+                        start = activeOppfolgingstilfelleStartDate,
+                        end = LocalDate.now().plusDays(1),
+                        virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER_2),
+                    ),
+                )
+
+                motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+                    .assertMotebehovStatus(false, null, null)
+            }
+
+            it(
+                "getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpired" +
+                    "OppfolgingstilfelleNoOverlap"
+            ) {
                 val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
 
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
                     generateOppfolgingstilfellePerson(
                         start = activeOppfolgingstilfelleStartDate.minusDays(2),
                         end = activeOppfolgingstilfelleStartDate.minusDays(1),
-                        virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER),
+                        virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER_2),
                     ),
                 )
 
@@ -187,29 +231,28 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     generateOppfolgingstilfellePerson(
                         start = activeOppfolgingstilfelleStartDate,
                         end = LocalDate.now().plusDays(1),
-                        virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER_2),
+                        virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER),
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
 
             it(
-                "getMotebehovStatus With Today Inside Oppfolgingstilfelle Merged By Active And" +
-                    " Expired Oppfolgingstilfelle With Overlap"
+                "getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedByActiveAndExpired" +
+                    "OppfolgingstilfelleWithOverlap"
             ) {
-                createKandidatInDB()
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
-
-                val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
+                val activeOppfolgingstilfelleStartDate =
+                    LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
 
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
                     generateOppfolgingstilfellePerson(
                         start = activeOppfolgingstilfelleStartDate.minusDays(2),
                         end = activeOppfolgingstilfelleStartDate,
-                        virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER),
+                        virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER_2),
                     ),
                 )
 
@@ -218,16 +261,18 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     generateOppfolgingstilfellePerson(
                         start = activeOppfolgingstilfelleStartDate,
                         end = LocalDate.now().plusDays(1),
-                        virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER_2),
+                        virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER),
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                createKandidatInDB(ARBEIDSTAKER_FNR)
+
+                motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
                     .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
             }
 
-            it("get MotebehovStatus With Today Inside Oppfolgingstilfelle Merged By 2 Oppfolgingstilfeller") {
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
+            it("getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedBy2Oppfolgingstilfeller") {
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
                     generateOppfolgingstilfellePerson(
@@ -246,12 +291,12 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
 
-            it("get MotebehovStatus With Today Inside Oppfolgingstilfelle Day1") {
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
+            it("getMotebehovStatusWithTodayInsideOppfolgingstilfelleDay1") {
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
                     generateOppfolgingstilfellePerson(
@@ -259,12 +304,13 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                         end = LocalDate.now(),
                     ),
                 )
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+
+                motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
 
-            it("get MotebehovStatus With Today Inside Oppfolgingstilfelle LastDay") {
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
+            it("getMotebehovStatusWithTodayInsideOppfolgingstilfelleLastDay") {
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
                     generateOppfolgingstilfellePerson(
@@ -273,12 +319,12 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
 
-            it("get MotebehovStatus With Today Inside Oppfolgingstilfelle") {
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
+            it("getMotebehovStatusWithTodayInsideOppfolgingstilfelleMedBehov") {
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
                     generateOppfolgingstilfellePerson(
@@ -287,12 +333,12 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
 
-            it("get MotebehovStatus With Today Inside Oppfolgingstilfelle, MeldBehov Submitted And Behandlet") {
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
+            it("getMotebehovStatusWithTodayInsideOppfolgingstilfelleMeldBehovSubmittedAndBehandlet") {
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
                     generateOppfolgingstilfellePerson(
@@ -301,31 +347,25 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ),
                 )
 
-                val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
-
-                submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO)
+                val arbeidsgiverFormSubmissionMeld = motebehovGenerator.lagNyArbeidsgiverFormSubmissionMeld()
+                submitMotebehovAndSendOversikthendelse(arbeidsgiverFormSubmissionMeld)
 
                 resetMockRestServers()
+
                 mockBehandlendEnhetWithTilgangskontroll(ARBEIDSTAKER_FNR)
                 tokenValidationUtil.logInAsNavCounselor(VEILEDER_ID)
                 motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
 
                 resetMockRestServers()
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
-
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
-                    .assertMotebehovStatus(
-                        true,
-                        MotebehovSkjemaType.MELD_BEHOV,
-                        null
-                    )
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
+                motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
+                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
 
             it(
-                "get MotebehovStatus With Today Inside Oppfolgingstilfelle MeldBehov," +
-                    " Moteplanlegger Active, MeldBehov Submitted"
+                "getMotebehovStatusWithTodayInsideOppfolgingstilfelleMeldBehovMoteplanleggerActiveMeldBehovSubmitted"
             ) {
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
                     generateOppfolgingstilfellePerson(
@@ -334,28 +374,25 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ),
                 )
 
-                val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
-                val motebehovFormSubmissionDTOThatShouldBeCreated = motebehovGenerator
-                    .lagFormSubmissionDTOMatchingLegacyInputDTO(
-                        motebehovSvarInputDTO,
-                        MotebehovSkjemaType.MELD_BEHOV,
-                        MotebehovInnmelderType.ARBEIDSTAKER
-                    )
+                val arbeidsgiverFormSubmissionMeld = motebehovGenerator.lagNyArbeidsgiverFormSubmissionMeld()
+                val formValuesOutputDTOThatShouldBeCreated = arbeidsgiverFormSubmissionMeld.formSubmission
+                    .toMotebehovFormSubmissionCombinedDTO()
+                    .toMotebehovFormValuesOutputDTO()
 
-                submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO)
+                submitMotebehovAndSendOversikthendelse(arbeidsgiverFormSubmissionMeld)
 
                 mockRestServiceServer.reset()
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
                     .assertMotebehovStatus(
                         true,
                         MotebehovSkjemaType.MELD_BEHOV,
-                        motebehovFormSubmissionDTOThatShouldBeCreated
+                        formValuesOutputDTOThatShouldBeCreated
                     )
             }
 
-            it("get MotebehovStatus With Today Inside Oppfolgingstilfelle Before SvarBehov StartDate") {
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
+            it("getMotebehovStatusWithTodayInsideOppfolgingstilfelleBeforeSvarBehovStartDate") {
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
                     generateOppfolgingstilfellePerson(
@@ -364,12 +401,12 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
 
-            it("get MotebehovStatus With Today Inside Oppfolgingstilfelle After SvarBehov EndDate") {
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
+            it("getMotebehovStatusWithTodayInsideOppfolgingstilfelleAfterSvarBehovEndDate") {
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
                     generateOppfolgingstilfellePerson(
@@ -378,13 +415,13 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
                     .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
             }
 
-            it("get MotebehovStatus With No Motebehov And Mote Inside SvarBehov Upper Limit") {
-                createKandidatInDB()
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
+            it("getMotebehovStatusWithNoMotebehovInsideSvarBehovUpperLimit") {
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
+                createKandidatInDB(ARBEIDSTAKER_FNR)
 
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
@@ -394,13 +431,13 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
                     .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
             }
 
-            it("get MotebehovStatus with SvarBehov and Mote created") {
-                createKandidatInDB()
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
+            it("getMotebehovStatusWithSvarBehovAndMoteCreated") {
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
+                createKandidatInDB(ARBEIDSTAKER_FNR)
 
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
@@ -410,31 +447,28 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ),
                 )
 
-                val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
-                val motebehovFormSubmissionThatShouldBeCreated = motebehovGenerator
-                    .lagFormSubmissionDTOMatchingLegacyInputDTO(
-                        motebehovSvarInputDTO,
-                        MotebehovSkjemaType.SVAR_BEHOV,
-                        MotebehovInnmelderType.ARBEIDSTAKER
-                    )
+                val arbeidsgiverFormSubmissionSvarJa = motebehovGenerator.lagNyArbeidsgiverFormSubmissionSvarJa()
+                val formValuesOutputDTOThatShouldBeCreated = arbeidsgiverFormSubmissionSvarJa.formSubmission
+                    .toMotebehovFormSubmissionCombinedDTO()
+                    .toMotebehovFormValuesOutputDTO()
 
-                submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO)
-                verify { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ARBEIDSTAKER_FNR) }
-                verify(exactly = 0) { esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(any(), any(), any()) }
+                submitMotebehovAndSendOversikthendelse(arbeidsgiverFormSubmissionSvarJa)
+                verify { esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(any(), ARBEIDSTAKER_FNR, any()) }
+                verify(exactly = 0) { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ARBEIDSTAKER_FNR) }
 
                 mockRestServiceServer.reset()
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
                     .assertMotebehovStatus(
                         true,
                         MotebehovSkjemaType.SVAR_BEHOV,
-                        motebehovFormSubmissionThatShouldBeCreated
+                        formValuesOutputDTOThatShouldBeCreated
                     )
             }
 
-            it("get MotebehovStatus with no Motebehov and no Mote inside SvarBehov lower limit") {
-                createKandidatInDB()
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
+            it("getMotebehovStatusWithNoMotebehovAndNoMoteInsideSvarBehovLowerLimit") {
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
+                createKandidatInDB(ARBEIDSTAKER_FNR)
 
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
@@ -444,98 +478,84 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
                     .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
             }
 
-            it("get MotebehovStatus with no Motebehov and no Mote") {
-                createKandidatInDB()
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
-
+            it("getMotebehovStatusWithNoMotebehovAndNoMote") {
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
                     generateOppfolgingstilfellePerson(),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                createKandidatInDB(ARBEIDSTAKER_FNR)
+
+                motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
                     .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
             }
 
-            it("get MotebehovStatus and sendOversikthendelse with Motebehov harBehov=true") {
-                createKandidatInDB()
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
+            it("getMotebehovStatusAndSendOversikthendelseWithMotebehovHarBehovTrue") {
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
+                dbCreateOppfolgingstilfelle(
+                    oppfolgingstilfelleDAO,
+                    generateOppfolgingstilfellePerson(),
+                )
+                val motebehov = motebehovGenerator.lagNyArbeidsgiverFormSubmissionSvarJa()
 
+                lagreMotebehov(motebehov)
+                verifyMotebehovStatus(motebehov.formSubmission)
+            }
+
+            it("getMotebehovStatusAndSendOversikthendelseWithMotebehovHarBehovFalse") {
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
+                dbCreateOppfolgingstilfelle(
+                    oppfolgingstilfelleDAO,
+                    generateOppfolgingstilfellePerson(),
+                )
+
+                val motebehov = motebehovGenerator.lagNyArbeidsgiverFormSubmissionSvarNei()
+
+                lagreMotebehov(motebehov)
+                verifyMotebehovStatus(motebehov.formSubmission)
+            }
+
+            it("innsendtMotebehovForEgenLederFerdigstillerOgsaaSykmeldtVarsel") {
+                cleanDB()
+                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
                     generateOppfolgingstilfellePerson(virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER)).copy(
-                        personIdentNumber = ARBEIDSTAKER_FNR,
+                        personIdentNumber = LEDER_FNR,
                     ),
                 )
+                val motebehov = NyttMotebehovArbeidsgiverFormSubmissionInputDTO(
+                    arbeidstakerFnr = LEDER_FNR,
+                    virksomhetsnummer = VIRKSOMHETSNUMMER,
+                    formSubmission = MotebehovFormSubmissionDTO(
+                        harMotebehov = true,
+                        formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
+                    )
 
-                lagreOgHentMotebehovOgSendOversikthendelse(harBehov = true)
-            }
-
-            it("get MotebehovStatus and SendOversikthendelse with Motebehov harBehov=false") {
-                createKandidatInDB()
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
-
-                dbCreateOppfolgingstilfelle(
-                    oppfolgingstilfelleDAO,
-                    generateOppfolgingstilfellePerson(virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER)).copy(
-                        personIdentNumber = ARBEIDSTAKER_FNR,
-                    ),
                 )
 
-                lagreOgHentMotebehovOgSendOversikthendelse(harBehov = false)
-            }
+                lagreMotebehov(motebehov)
 
-            it("submitMotebehov multiple active Oppfolgingstilfeller") {
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
-                dbCreateOppfolgingstilfelle(
-                    oppfolgingstilfelleDAO,
-                    generateOppfolgingstilfellePerson(
-                        start = LocalDate.now().minusDays(DAYS_END_SVAR_BEHOV).minusDays(1),
-                        end = LocalDate.now(),
-                        virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER),
-                    ),
-                )
-
-                dbCreateOppfolgingstilfelle(
-                    oppfolgingstilfelleDAO,
-                    generateOppfolgingstilfellePerson(
-                        start = LocalDate.now().minusDays(2),
-                        end = LocalDate.now().plusDays(1),
-                        virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER_2),
-                    ),
-                )
-
-                mockAndExpectBehandlendeEnhetRequest(
-                    azureTokenEndpoint,
-                    mockRestServiceServerAzureAD,
-                    mockRestServiceServer,
-                    behandlendeenhetUrl,
-                    ARBEIDSTAKER_FNR,
-                )
-                mockAndExpectBehandlendeEnhetRequest(
-                    azureTokenEndpoint,
-                    mockRestServiceServerAzureAD,
-                    mockRestServiceServer,
-                    behandlendeenhetUrl,
-                    ARBEIDSTAKER_FNR,
-                )
-
-                val motebehovSvar = motebehovGenerator.lagMotebehovSvarInputDTO(true)
-                motebehovArbeidstakerController.submitMotebehovArbeidstaker(motebehovSvar)
-
-                val motebehovList = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(ARBEIDSTAKER_AKTORID)
-
-                assertEquals(2, motebehovList.size)
-                verify(exactly = 2) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
+                verify(exactly = 1) {
+                    esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(
+                        LEDER_FNR,
+                        LEDER_FNR,
+                        VIRKSOMHETSNUMMER
+                    )
+                }
+                verify(exactly = 1) { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(LEDER_FNR) }
             }
         }
     }
 
-    private fun submitMotebehovAndSendOversikthendelse(motebehovSvar: MotebehovSvarLegacyDTO) {
+    private fun submitMotebehovAndSendOversikthendelse(
+        arbeidsgiverFormSubmissionInputDTO: NyttMotebehovArbeidsgiverFormSubmissionInputDTO
+    ) {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceServerAzureAD,
@@ -544,51 +564,76 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
             ARBEIDSTAKER_FNR,
         )
 
-        motebehovArbeidstakerController.submitMotebehovArbeidstaker(motebehovSvar)
-        if (motebehovSvar.harMotebehov) {
+        motebehovArbeidsgiverController.lagreMotebehovArbeidsgiver(arbeidsgiverFormSubmissionInputDTO)
+        if (arbeidsgiverFormSubmissionInputDTO.formSubmission.harMotebehov) {
             verify { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         } else {
             verify(exactly = 0) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         }
     }
 
-    private fun lagreOgHentMotebehovOgSendOversikthendelse(harBehov: Boolean) {
+    private fun lagreMotebehov(innsendtMotebehov: NyttMotebehovArbeidsgiverFormSubmissionInputDTO) {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceServerAzureAD,
             mockRestServiceServer,
             behandlendeenhetUrl,
-            ARBEIDSTAKER_FNR,
+            innsendtMotebehov.arbeidstakerFnr,
         )
 
-        val motebehovSvarInput = motebehovGenerator.lagMotebehovSvarInputDTO(harBehov)
+        createKandidatInDB(innsendtMotebehov.arbeidstakerFnr)
 
-        motebehovArbeidstakerController.submitMotebehovArbeidstaker(motebehovSvarInput)
+        motebehovArbeidsgiverController.lagreMotebehovArbeidsgiver(
+            innsendtMotebehov
+        )
 
-        if (!harBehov) {
+        if (!innsendtMotebehov.formSubmission.harMotebehov) {
             mockRestServiceServer.reset()
         }
+    }
 
-        val motebehovStatus: MotebehovStatus =
-            motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+    private fun verifyMotebehovStatus(innsendtFormSubmission: MotebehovFormSubmissionDTO) {
+        val motebehovStatus = motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(
+            ARBEIDSTAKER_FNR,
+            VIRKSOMHETSNUMMER,
+        )
+        val formValuesOutputDTOThatShouldBeCreated = innsendtFormSubmission
+            .toMotebehovFormSubmissionCombinedDTO()
+            .toMotebehovFormValuesOutputDTO()
 
         assertTrue(motebehovStatus.visMotebehov)
         assertEquals(MotebehovSkjemaType.SVAR_BEHOV, motebehovStatus.skjemaType)
-        val motebehov = motebehovStatus.motebehov!!
+        val motebehov = motebehovStatus.motebehovWithFormValues!!
         assertNotNull(motebehov)
-        assertThat(motebehov.opprettetAv).isEqualTo(ARBEIDSTAKER_AKTORID)
+        assertThat(motebehov.opprettetAv).isEqualTo(LEDER_AKTORID)
         assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
         assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
         assertThat(motebehov.skjemaType).isEqualTo(motebehovStatus.skjemaType)
-        assertThat(motebehov.formSubmission.harMotebehov).isEqualTo(motebehovSvarInput.harMotebehov)
-        assertThat(motebehov.formSubmission.forklaring).isEqualTo(motebehovSvarInput.forklaring)
-        if (harBehov) {
+
+        assertThat(motebehov.formValues).usingRecursiveComparison()
+            .isEqualTo(formValuesOutputDTOThatShouldBeCreated)
+
+        if (innsendtFormSubmission.harMotebehov) {
             verify { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         } else {
             verify(exactly = 0) { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         }
-        verify { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(motebehov.arbeidstakerFnr) }
-        verify(exactly = 0) { esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(any(), any(), any()) }
+        verify { esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(any(), any(), any()) }
+        verify(exactly = 0) { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(motebehov.arbeidstakerFnr) }
+    }
+
+    private fun resetMockRestServers() {
+        mockRestServiceServer.reset()
+        mockRestServiceServerAzureAD.reset()
+    }
+
+    private fun cleanDB() {
+        motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID)
+        motebehovDAO.nullstillMotebehov(LEDER_AKTORID)
+        oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(ARBEIDSTAKER_FNR)
+        oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(LEDER_AKTORID)
+        dialogmotekandidatDAO.delete(ARBEIDSTAKER_FNR)
+        dialogmotekandidatDAO.delete(LEDER_FNR)
     }
 
     private fun mockBehandlendEnhetWithTilgangskontroll(fnr: String) {
@@ -602,24 +647,13 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
         )
     }
 
-    private fun createKandidatInDB() {
+    private fun createKandidatInDB(fnr: String) {
         dialogmotekandidatDAO.create(
             dialogmotekandidatExternalUUID = UUID.randomUUID().toString(),
             createdAt = LocalDateTime.now().minusDays(DAYS_START_SVAR_BEHOV),
-            fnr = ARBEIDSTAKER_FNR,
+            fnr = fnr,
             kandidat = true,
             arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
         )
-    }
-
-    private fun resetMockRestServers() {
-        mockRestServiceServer.reset()
-        mockRestServiceServerAzureAD.reset()
-    }
-
-    private fun cleanDB() {
-        motebehovDAO.nullstillMotebehov(ARBEIDSTAKER_AKTORID)
-        oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(ARBEIDSTAKER_FNR)
-        dialogmotekandidatDAO.delete(ARBEIDSTAKER_FNR)
     }
 }

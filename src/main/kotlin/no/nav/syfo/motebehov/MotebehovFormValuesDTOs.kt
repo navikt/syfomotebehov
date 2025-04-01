@@ -27,8 +27,6 @@ data class MotebehovFormSubmissionDTO(
 
 data class MotebehovFormValuesOutputDTO(
     val harMotebehov: Boolean,
-    // forklaring field is to be phased out
-    val forklaring: String? = null,
     val formSnapshot: FormSnapshot?,
     val begrunnelse: String? = null,
     val onskerSykmelderDeltar: Boolean? = null,
@@ -61,12 +59,19 @@ fun extractFormValuesFromFormSnapshot(formSnapshot: FormSnapshot): MotebehovForm
     )
 }
 
+fun MotebehovFormSubmissionDTO.toMotebehovFormSubmissionCombinedDTO(): MotebehovFormSubmissionCombinedDTO {
+    return MotebehovFormSubmissionCombinedDTO(
+        harMotebehov = this.harMotebehov,
+        forklaring = null,
+        formSnapshot = this.formSnapshot,
+    )
+}
+
 fun MotebehovFormSubmissionCombinedDTO.toMotebehovFormValuesOutputDTO(): MotebehovFormValuesOutputDTO {
     val valuesFromFormSnapshot = this.formSnapshot?.let { extractFormValuesFromFormSnapshot(it) }
 
     return MotebehovFormValuesOutputDTO(
         harMotebehov = this.harMotebehov,
-        forklaring = this.forklaring,
         formSnapshot = this.formSnapshot,
         begrunnelse = valuesFromFormSnapshot?.begrunnelse,
         onskerSykmelderDeltar = valuesFromFormSnapshot?.onskerSykmelderDeltar,

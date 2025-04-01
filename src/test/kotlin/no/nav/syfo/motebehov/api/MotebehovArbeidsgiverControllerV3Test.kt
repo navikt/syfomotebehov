@@ -375,7 +375,7 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
 
                 val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
                 val motebehovSvarOutputDTO =
-                    motebehovGenerator.lagFormValuesOutputDTOMatchingInputDTO(
+                    motebehovGenerator.lagFormSubmissionDTOMatchingLegacyInputDTO(
                         motebehovSvarInputDTO,
                         MotebehovSkjemaType.MELD_BEHOV,
                         MotebehovInnmelderType.ARBEIDSGIVER
@@ -447,7 +447,7 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
 
                 val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
                 val motebehovSvarOutputDTO =
-                    motebehovGenerator.lagFormValuesOutputDTOMatchingInputDTO(
+                    motebehovGenerator.lagFormSubmissionDTOMatchingLegacyInputDTO(
                         motebehovSvarInputDTO,
                         MotebehovSkjemaType.SVAR_BEHOV,
                         MotebehovInnmelderType.ARBEIDSGIVER
@@ -498,7 +498,7 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
                     oppfolgingstilfelleDAO,
                     generateOppfolgingstilfellePerson(),
                 )
-                val motebehov = motebehovGenerator.lagNyttMotebehovArbeidsgiverInput().copy(
+                val motebehov = motebehovGenerator.lagNyttMotebehovArbeidsgiverLegacyInput().copy(
                     motebehovSvar = MotebehovSvarLegacyDTO(harMotebehov = true, forklaring = ""),
                 )
 
@@ -513,7 +513,7 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
                     generateOppfolgingstilfellePerson(),
                 )
 
-                val motebehov = motebehovGenerator.lagNyttMotebehovArbeidsgiverInput().copy(
+                val motebehov = motebehovGenerator.lagNyttMotebehovArbeidsgiverLegacyInput().copy(
                     motebehovSvar = MotebehovSvarLegacyDTO(harMotebehov = false, forklaring = ""),
                 )
 
@@ -530,7 +530,7 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
                         personIdentNumber = LEDER_FNR,
                     ),
                 )
-                val motebehov = motebehovGenerator.lagNyttMotebehovArbeidsgiverInput().copy(
+                val motebehov = motebehovGenerator.lagNyttMotebehovArbeidsgiverLegacyInput().copy(
                     motebehovSvar = MotebehovSvarLegacyDTO(harMotebehov = true, forklaring = ""),
                     arbeidstakerFnr = LEDER_FNR
                 )
@@ -559,7 +559,7 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
         )
 
         motebehovArbeidsgiverController.lagreMotebehovArbeidsgiver(
-            motebehovGenerator.lagNyttMotebehovArbeidsgiverInput().copy(
+            motebehovGenerator.lagNyttMotebehovArbeidsgiverLegacyInput().copy(
                 motebehovSvar = motebehovSvarInputDTO,
             ),
         )
@@ -599,7 +599,7 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
             VIRKSOMHETSNUMMER,
         )
         val formValuesOutputDTOThatShouldBeCreated = motebehovGenerator
-            .lagFormValuesOutputDTOMatchingInputDTO(
+            .lagFormSubmissionDTOMatchingLegacyInputDTO(
                 innsendtMotebehovSvar,
                 innsendtSkjemaType,
                 MotebehovInnmelderType.ARBEIDSGIVER
@@ -613,7 +613,7 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
         assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
         assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
         assertThat(motebehov.skjemaType).isEqualTo(motebehovStatus.skjemaType)
-        assertThat(motebehov.formValues).usingRecursiveComparison()
+        assertThat(motebehov.formSubmission).usingRecursiveComparison()
             .isEqualTo(formValuesOutputDTOThatShouldBeCreated)
         if (innsendtMotebehovSvar.harMotebehov) {
             verify { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }

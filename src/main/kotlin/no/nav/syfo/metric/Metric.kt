@@ -168,8 +168,9 @@ class Metric @Inject constructor(
             harForklaring,
             erInnloggetBrukerArbeidstaker
         )
-        if (!formSubmission.harMotebehov) {
-            tellMotebehovBesvartNeiAntallTegn(formSubmission.forklaring!!.length, erInnloggetBrukerArbeidstaker)
+
+        if (!formSubmission.harMotebehov && formSubmission.forklaring !== null) {
+            tellMotebehovBesvartNeiAntallTegn(formSubmission.forklaring.length, erInnloggetBrukerArbeidstaker)
         } else if (harForklaring) {
             tellMotebehovBesvartJaMedForklaringTegn(
                 formSubmission.forklaring!!.length,

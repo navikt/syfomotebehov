@@ -4,8 +4,12 @@ import no.nav.syfo.motebehov.*
 import no.nav.syfo.motebehov.database.PMotebehov
 import no.nav.syfo.motebehov.formSnapshot.LegacyMotebehovToFormSnapshotHelper
 import no.nav.syfo.motebehov.formSnapshot.MotebehovInnmelderType
-import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarOnskerSykmelderFormSnapshot
-import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverMeldOnskerSykmelderOgTolkFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarNeiFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerMeldSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarJaFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarNeiFormSnapshot
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
@@ -34,23 +38,28 @@ class MotebehovGenerator {
         formSubmission = MotebehovFormSubmissionCombinedDTO(
             harMotebehov = true,
             forklaring = "",
-            formSnapshot = mockArbeidsgiverSvarOnskerSykmelderFormSnapshot
+            formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
         ),
-//        lagFormSubmissionDTOMatchingLegacyInputDTO(
-//            motebehovSvarLegacyInputDTO,
-//            MotebehovSkjemaType.SVAR_BEHOV,
-//            MotebehovInnmelderType.ARBEIDSGIVER
-//        ),
         tildeltEnhet = NAV_ENHET,
         behandletVeilederIdent = VEILEDER_ID,
         behandletTidspunkt = LocalDateTime.now(),
         opprettetAvFnr = LEDER_FNR,
     )
 
-    private val nyttMotebehovArbeidsgiverInput = NyttMotebehovArbeidsgiverLegacyInputDTO(
+    private val nyttMotebehovArbeidsgiverLegacyInput = NyttMotebehovArbeidsgiverLegacyInputDTO(
         arbeidstakerFnr = ARBEIDSTAKER_FNR,
         virksomhetsnummer = VIRKSOMHETSNUMMER,
         motebehovSvar = motebehovSvarLegacyInputDTO,
+        tildeltEnhet = NAV_ENHET,
+    )
+
+    private val nyttMotebehovArbeidsgiverFormSubmissionInput = NyttMotebehovArbeidsgiverFormSubmissionInputDTO(
+        arbeidstakerFnr = ARBEIDSTAKER_FNR,
+        virksomhetsnummer = VIRKSOMHETSNUMMER,
+        formSubmission = MotebehovFormSubmissionDTO(
+            harMotebehov = true,
+            formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
+        ),
         tildeltEnhet = NAV_ENHET,
     )
 
@@ -60,8 +69,56 @@ class MotebehovGenerator {
         )
     }
 
-    fun lagNyttMotebehovArbeidsgiverInput(): NyttMotebehovArbeidsgiverLegacyInputDTO {
-        return nyttMotebehovArbeidsgiverInput.copy()
+    fun lagFormSubmissionArbeidstakerSvarJaDTO(): MotebehovFormSubmissionDTO {
+        return MotebehovFormSubmissionDTO(
+            harMotebehov = true,
+            formSnapshot = mockArbeidstakerSvarJaFormSnapshot,
+        )
+    }
+
+    fun lagFormSubmissionArbeidstakerSvarNeiDTO(): MotebehovFormSubmissionDTO {
+        return MotebehovFormSubmissionDTO(
+            harMotebehov = false,
+            formSnapshot = mockArbeidstakerSvarNeiFormSnapshot,
+        )
+    }
+
+    fun lagFormSubmissionArbeidstakerMeldDTO(): MotebehovFormSubmissionDTO {
+        return MotebehovFormSubmissionDTO(
+            harMotebehov = true,
+            formSnapshot = mockArbeidstakerMeldSnapshot,
+        )
+    }
+
+    fun lagNyttMotebehovArbeidsgiverLegacyInput(): NyttMotebehovArbeidsgiverLegacyInputDTO {
+        return nyttMotebehovArbeidsgiverLegacyInput.copy()
+    }
+
+    fun lagNyArbeidsgiverFormSubmissionSvarJa(): NyttMotebehovArbeidsgiverFormSubmissionInputDTO {
+        return nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
+            formSubmission = MotebehovFormSubmissionDTO(
+                harMotebehov = true,
+                formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
+            )
+        )
+    }
+
+    fun lagNyArbeidsgiverFormSubmissionSvarNei(): NyttMotebehovArbeidsgiverFormSubmissionInputDTO {
+        return nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
+            formSubmission = MotebehovFormSubmissionDTO(
+                harMotebehov = false,
+                formSnapshot = mockArbeidsgiverSvarNeiFormSnapshot,
+            )
+        )
+    }
+
+    fun lagNyArbeidsgiverFormSubmissionMeld(): NyttMotebehovArbeidsgiverFormSubmissionInputDTO {
+        return nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
+            formSubmission = MotebehovFormSubmissionDTO(
+                harMotebehov = true,
+                formSnapshot = mockArbeidsgiverMeldOnskerSykmelderOgTolkFormSnapshot,
+            )
+        )
     }
 
     fun lagFormSubmissionDTOMatchingLegacyInputDTO(
@@ -83,18 +140,6 @@ class MotebehovGenerator {
         )
     }
 
-    fun lagFormValuesOutputDTOMatchingInputDTO(
-        inputDTO: MotebehovSvarLegacyDTO,
-        skjemaType: MotebehovSkjemaType,
-        innmelderType: MotebehovInnmelderType
-    ): MotebehovFormValuesOutputDTO {
-        return lagFormSubmissionDTOMatchingLegacyInputDTO(
-            inputDTO,
-            skjemaType,
-            innmelderType
-        ).toMotebehovFormValuesOutputDTO()
-    }
-
     private val nyttPMotebehovArbeidstaker = PMotebehov(
         uuid = UUID.randomUUID(),
         opprettetDato = getOpprettetDato(true),
@@ -105,7 +150,7 @@ class MotebehovGenerator {
         harMotebehov = true,
         tildeltEnhet = NAV_ENHET,
         sykmeldtFnr = ARBEIDSTAKER_FNR,
-        formSnapshot = mockArbeidstakerSvarFormSnapshot,
+        formSnapshot = mockArbeidstakerSvarJaFormSnapshot,
     )
 
     fun getOpprettetDato(erGyldig: Boolean): LocalDateTime {
@@ -125,7 +170,7 @@ class MotebehovGenerator {
         return motebehov.copy()
     }
 
-    fun generateMotebehovOutputDTO(): MotebehovOutputDTO {
-        return motebehov.toMotebehovOutputDTO()
+    fun generateMotebehovOutputDTO(): MotebehovWithFormValuesOutputDTO {
+        return motebehov.toMotebehovWithFormValuesOutputDTO()
     }
 }

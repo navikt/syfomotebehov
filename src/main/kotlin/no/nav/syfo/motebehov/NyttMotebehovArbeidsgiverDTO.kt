@@ -12,13 +12,13 @@ data class NyttMotebehovArbeidsgiverLegacyInputDTO(
 data class NyttMotebehovArbeidsgiverFormSubmissionInputDTO(
     val arbeidstakerFnr: String,
     val virksomhetsnummer: @NotEmpty String,
-    val motebehovFormSubmission: MotebehovFormSubmissionDTO,
+    val formSubmission: MotebehovFormSubmissionDTO,
     val tildeltEnhet: String? = null
 )
 
 data class NyttMotebehovArbeidsgiverDTO(
     val arbeidstakerFnr: String,
     val virksomhetsnummer: @NotEmpty String,
-    val motebehovFormSubmission: MotebehovFormSubmissionCombinedDTO,
+    val formSubmission: MotebehovFormSubmissionCombinedDTO,
     val tildeltEnhet: String? = null
 )
