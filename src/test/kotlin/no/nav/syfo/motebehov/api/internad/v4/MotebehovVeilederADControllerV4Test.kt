@@ -14,7 +14,7 @@ import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.motebehov.MotebehovFormSubmissionDTO
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverFormSubmissionInputDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverFormSubmissionDTO
 import no.nav.syfo.motebehov.api.MotebehovArbeidsgiverControllerV4
 import no.nav.syfo.motebehov.api.MotebehovArbeidstakerControllerV4
 import no.nav.syfo.motebehov.api.dbCreateOppfolgingstilfelle
@@ -294,12 +294,12 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
         }
     }
 
-    private fun arbeidsgiverLoggerInnOgLagrerMotebehov(): NyttMotebehovArbeidsgiverFormSubmissionInputDTO {
+    private fun arbeidsgiverLoggerInnOgLagrerMotebehov(): NyttMotebehovArbeidsgiverFormSubmissionDTO {
         val formSubmission = MotebehovFormSubmissionDTO(
             harMotebehov = true,
             formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
         )
-        val arbeidsgiverFormSubmission = NyttMotebehovArbeidsgiverFormSubmissionInputDTO(
+        val arbeidsgiverFormSubmission = NyttMotebehovArbeidsgiverFormSubmissionDTO(
             arbeidstakerFnr = ARBEIDSTAKER_FNR,
             virksomhetsnummer = VIRKSOMHETSNUMMER,
             formSubmission,

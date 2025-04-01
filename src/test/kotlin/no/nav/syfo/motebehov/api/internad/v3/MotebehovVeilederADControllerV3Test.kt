@@ -14,7 +14,7 @@ import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.motebehov.MotebehovSvarLegacyDTO
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverLegacyInputDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverLegacyDTO
 import no.nav.syfo.motebehov.api.MotebehovArbeidsgiverControllerV3
 import no.nav.syfo.motebehov.api.MotebehovArbeidstakerControllerV3
 import no.nav.syfo.motebehov.api.dbCreateOppfolgingstilfelle
@@ -285,12 +285,12 @@ class MotebehovVeilederADControllerV3Test : IntegrationTest() {
         }
     }
 
-    private fun arbeidsgiverLoggerInnOgLagrerMotebehov(): NyttMotebehovArbeidsgiverLegacyInputDTO {
+    private fun arbeidsgiverLoggerInnOgLagrerMotebehov(): NyttMotebehovArbeidsgiverLegacyDTO {
         val motebehovSvarInputDTO = MotebehovSvarLegacyDTO(
             harMotebehov = true,
             forklaring = "",
         )
-        val nyttMotebehovInputDTO = NyttMotebehovArbeidsgiverLegacyInputDTO(
+        val nyttMotebehovInputDTO = NyttMotebehovArbeidsgiverLegacyDTO(
             arbeidstakerFnr = ARBEIDSTAKER_FNR,
             virksomhetsnummer = VIRKSOMHETSNUMMER,
             motebehovSvarInputDTO,

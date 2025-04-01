@@ -10,7 +10,7 @@ import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovFormSubmissionCombinedDTO
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverLegacyInputDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverLegacyDTO
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
 import org.springframework.beans.factory.annotation.Value
@@ -61,7 +61,7 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun lagreMotebehovArbeidsgiver(
-        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverLegacyInputDTO,
+        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverLegacyDTO,
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
         val innloggetFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)

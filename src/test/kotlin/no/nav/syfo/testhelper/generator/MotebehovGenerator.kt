@@ -46,14 +46,14 @@ class MotebehovGenerator {
         opprettetAvFnr = LEDER_FNR,
     )
 
-    private val nyttMotebehovArbeidsgiverLegacyInput = NyttMotebehovArbeidsgiverLegacyInputDTO(
+    private val nyttMotebehovArbeidsgiverLegacyInput = NyttMotebehovArbeidsgiverLegacyDTO(
         arbeidstakerFnr = ARBEIDSTAKER_FNR,
         virksomhetsnummer = VIRKSOMHETSNUMMER,
         motebehovSvar = motebehovSvarLegacyInputDTO,
         tildeltEnhet = NAV_ENHET,
     )
 
-    private val nyttMotebehovArbeidsgiverFormSubmissionInput = NyttMotebehovArbeidsgiverFormSubmissionInputDTO(
+    private val nyttMotebehovArbeidsgiverFormSubmissionInput = NyttMotebehovArbeidsgiverFormSubmissionDTO(
         arbeidstakerFnr = ARBEIDSTAKER_FNR,
         virksomhetsnummer = VIRKSOMHETSNUMMER,
         formSubmission = MotebehovFormSubmissionDTO(
@@ -90,11 +90,11 @@ class MotebehovGenerator {
         )
     }
 
-    fun lagNyttMotebehovArbeidsgiverLegacyInput(): NyttMotebehovArbeidsgiverLegacyInputDTO {
+    fun lagNyttMotebehovArbeidsgiverLegacyInput(): NyttMotebehovArbeidsgiverLegacyDTO {
         return nyttMotebehovArbeidsgiverLegacyInput.copy()
     }
 
-    fun lagNyArbeidsgiverFormSubmissionSvarJa(): NyttMotebehovArbeidsgiverFormSubmissionInputDTO {
+    fun lagNyArbeidsgiverFormSubmissionSvarJa(): NyttMotebehovArbeidsgiverFormSubmissionDTO {
         return nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
             formSubmission = MotebehovFormSubmissionDTO(
                 harMotebehov = true,
@@ -103,7 +103,7 @@ class MotebehovGenerator {
         )
     }
 
-    fun lagNyArbeidsgiverFormSubmissionSvarNei(): NyttMotebehovArbeidsgiverFormSubmissionInputDTO {
+    fun lagNyArbeidsgiverFormSubmissionSvarNei(): NyttMotebehovArbeidsgiverFormSubmissionDTO {
         return nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
             formSubmission = MotebehovFormSubmissionDTO(
                 harMotebehov = false,
@@ -112,7 +112,7 @@ class MotebehovGenerator {
         )
     }
 
-    fun lagNyArbeidsgiverFormSubmissionMeld(): NyttMotebehovArbeidsgiverFormSubmissionInputDTO {
+    fun lagNyArbeidsgiverFormSubmissionMeld(): NyttMotebehovArbeidsgiverFormSubmissionDTO {
         return nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
             formSubmission = MotebehovFormSubmissionDTO(
                 harMotebehov = true,

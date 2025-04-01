@@ -9,7 +9,7 @@ import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverFormSubmissionInputDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverFormSubmissionDTO
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusWithFormValuesDTO
 import no.nav.syfo.motebehov.motebehovstatus.toMotebehovStatusWithFormValuesDTO
@@ -72,7 +72,7 @@ class MotebehovArbeidsgiverControllerV4 @Inject constructor(
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun lagreMotebehovArbeidsgiver(
-        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverFormSubmissionInputDTO,
+        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverFormSubmissionDTO,
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
         val innloggetFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)

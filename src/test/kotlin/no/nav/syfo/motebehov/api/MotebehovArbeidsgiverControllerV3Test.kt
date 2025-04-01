@@ -12,7 +12,7 @@ import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
 import no.nav.syfo.motebehov.MotebehovSvarLegacyDTO
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverLegacyInputDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverLegacyDTO
 import no.nav.syfo.motebehov.api.internad.v3.MotebehovVeilederADControllerV3
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.formSnapshot.MotebehovInnmelderType
@@ -570,7 +570,7 @@ class MotebehovArbeidsgiverControllerV3Test : IntegrationTest() {
         }
     }
 
-    private fun lagreMotebehov(innsendtMotebehov: NyttMotebehovArbeidsgiverLegacyInputDTO) {
+    private fun lagreMotebehov(innsendtMotebehov: NyttMotebehovArbeidsgiverLegacyDTO) {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceServerAzureAD,
