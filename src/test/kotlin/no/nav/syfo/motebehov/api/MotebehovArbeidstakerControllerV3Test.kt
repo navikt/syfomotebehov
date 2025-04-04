@@ -13,11 +13,9 @@ import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
 import no.nav.syfo.motebehov.MotebehovSvarLegacyDTO
 import no.nav.syfo.motebehov.api.internad.v3.MotebehovVeilederADControllerV3
 import no.nav.syfo.motebehov.database.MotebehovDAO
-import no.nav.syfo.motebehov.formSnapshot.MotebehovInnmelderType
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
-import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseProducer
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
@@ -301,7 +299,7 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ),
                 )
 
-                val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
+                val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarLegacyDTO(true)
 
                 submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO)
 
@@ -334,15 +332,9 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ),
                 )
 
-                val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
-                val motebehovFormSubmissionDTOThatShouldBeCreated = motebehovGenerator
-                    .lagFormSubmissionDTOMatchingLegacyInputDTO(
-                        motebehovSvarInputDTO,
-                        MotebehovSkjemaType.MELD_BEHOV,
-                        MotebehovInnmelderType.ARBEIDSTAKER
-                    )
+                val legacyMotebehovSvar = motebehovGenerator.lagMotebehovSvarLegacyDTO(true)
 
-                submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO)
+                submitMotebehovAndSendOversikthendelse(legacyMotebehovSvar)
 
                 mockRestServiceServer.reset()
 
@@ -350,7 +342,7 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     .assertMotebehovStatus(
                         true,
                         MotebehovSkjemaType.MELD_BEHOV,
-                        motebehovFormSubmissionDTOThatShouldBeCreated
+                        legacyMotebehovSvar
                     )
             }
 
@@ -410,15 +402,9 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ),
                 )
 
-                val motebehovSvarInputDTO = motebehovGenerator.lagMotebehovSvarInputDTO(true)
-                val motebehovFormSubmissionThatShouldBeCreated = motebehovGenerator
-                    .lagFormSubmissionDTOMatchingLegacyInputDTO(
-                        motebehovSvarInputDTO,
-                        MotebehovSkjemaType.SVAR_BEHOV,
-                        MotebehovInnmelderType.ARBEIDSTAKER
-                    )
+                val legacyMotebehovSvar = motebehovGenerator.lagMotebehovSvarLegacyDTO(true)
 
-                submitMotebehovAndSendOversikthendelse(motebehovSvarInputDTO)
+                submitMotebehovAndSendOversikthendelse(legacyMotebehovSvar)
                 verify { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ARBEIDSTAKER_FNR) }
                 verify(exactly = 0) { esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(any(), any(), any()) }
 
@@ -428,7 +414,7 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     .assertMotebehovStatus(
                         true,
                         MotebehovSkjemaType.SVAR_BEHOV,
-                        motebehovFormSubmissionThatShouldBeCreated
+                        legacyMotebehovSvar
                     )
             }
 
@@ -524,7 +510,7 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
                     ARBEIDSTAKER_FNR,
                 )
 
-                val motebehovSvar = motebehovGenerator.lagMotebehovSvarInputDTO(true)
+                val motebehovSvar = motebehovGenerator.lagMotebehovSvarLegacyDTO(true)
                 motebehovArbeidstakerController.submitMotebehovArbeidstaker(motebehovSvar)
 
                 val motebehovList = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(ARBEIDSTAKER_AKTORID)
@@ -561,15 +547,15 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
             ARBEIDSTAKER_FNR,
         )
 
-        val motebehovSvarInput = motebehovGenerator.lagMotebehovSvarInputDTO(harBehov)
+        val legacyMotebehovSvar = motebehovGenerator.lagMotebehovSvarLegacyDTO(harBehov)
 
-        motebehovArbeidstakerController.submitMotebehovArbeidstaker(motebehovSvarInput)
+        motebehovArbeidstakerController.submitMotebehovArbeidstaker(legacyMotebehovSvar)
 
         if (!harBehov) {
             mockRestServiceServer.reset()
         }
 
-        val motebehovStatus: MotebehovStatus =
+        val motebehovStatus =
             motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
 
         assertTrue(motebehovStatus.visMotebehov)
@@ -580,8 +566,8 @@ class MotebehovArbeidstakerControllerV3Test : IntegrationTest() {
         assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
         assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
         assertThat(motebehov.skjemaType).isEqualTo(motebehovStatus.skjemaType)
-        assertThat(motebehov.formSubmission.harMotebehov).isEqualTo(motebehovSvarInput.harMotebehov)
-        assertThat(motebehov.formSubmission.forklaring).isEqualTo(motebehovSvarInput.forklaring)
+        assertThat(motebehov.motebehovSvar.harMotebehov).isEqualTo(legacyMotebehovSvar.harMotebehov)
+        assertThat(motebehov.motebehovSvar.forklaring).isEqualTo(legacyMotebehovSvar.forklaring)
         if (harBehov) {
             verify { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
         } else {

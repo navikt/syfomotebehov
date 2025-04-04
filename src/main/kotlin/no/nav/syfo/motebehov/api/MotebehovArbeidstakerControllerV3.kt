@@ -11,6 +11,8 @@ import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.MotebehovSvarLegacyDTO
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusWithLegacyMotebehovDTO
+import no.nav.syfo.motebehov.motebehovstatus.toMotebehovStatusWithLegacyMotebehovDTO
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
@@ -61,7 +63,7 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         value = ["/motebehov/all"],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
-    fun motebehovStatusArbeidstakerWithCodeSixUsers(): MotebehovStatus {
+    fun motebehovStatusArbeidstakerWithCodeSixUsers(): MotebehovStatusWithLegacyMotebehovDTO {
         val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
             contextHolder,
             dialogmoteClientId,
@@ -72,6 +74,7 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker_all")
 
         return motebehovStatusServiceV2.motebehovStatusForArbeidstaker(arbeidstakerFnr)
+            .toMotebehovStatusWithLegacyMotebehovDTO()
     }
 
     // Currently used POST-endpoint to phase out

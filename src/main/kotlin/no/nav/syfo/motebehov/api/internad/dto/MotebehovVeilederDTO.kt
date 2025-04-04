@@ -14,11 +14,11 @@ data class MotebehovVeilederDTOv3(
     val opprettetAvNavn: String?,
     val arbeidstakerFnr: String,
     val virksomhetsnummer: String,
-    val motebehovSvar: MotebehovSvarLegacyDTO,
     val tildeltEnhet: String? = null,
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
-    val skjemaType: MotebehovSkjemaType? = null
+    val skjemaType: MotebehovSkjemaType? = null,
+    val motebehovSvar: MotebehovSvarLegacyDTO,
 )
 
 data class MotebehovVeilederDTOv4(

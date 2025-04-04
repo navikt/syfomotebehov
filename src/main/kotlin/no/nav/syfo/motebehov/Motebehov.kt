@@ -26,6 +26,21 @@ data class Motebehov(
     val skjemaType: MotebehovSkjemaType? = null,
 ) : Serializable
 
+data class MotebehovWithLegacyMotebehovSvarOutputDTO(
+    val id: UUID,
+    val opprettetDato: LocalDateTime,
+    val aktorId: String,
+    val opprettetAv: String,
+    val opprettetAvFnr: String,
+    val arbeidstakerFnr: String,
+    val virksomhetsnummer: String,
+    val tildeltEnhet: String? = null,
+    val behandletTidspunkt: LocalDateTime? = null,
+    val behandletVeilederIdent: String? = null,
+    val skjemaType: MotebehovSkjemaType? = null, // make not nullable
+    val motebehovSvar: MotebehovSvarLegacyDTO,
+)
+
 data class MotebehovWithFormValuesOutputDTO(
     val id: UUID,
     val opprettetDato: LocalDateTime,
@@ -129,4 +144,20 @@ fun Motebehov.toMotebehovWithFormValuesOutputDTO(): MotebehovWithFormValuesOutpu
         behandletVeilederIdent = this.behandletVeilederIdent,
         skjemaType = this.skjemaType,
         formValues = this.formSubmission.toMotebehovFormValuesOutputDTO(),
+    )
+
+fun Motebehov.toMotebehovWithLegacyMotebehovSvarOutputDTO(): MotebehovWithLegacyMotebehovSvarOutputDTO =
+    MotebehovWithLegacyMotebehovSvarOutputDTO(
+        id = this.id,
+        opprettetDato = this.opprettetDato,
+        aktorId = this.aktorId,
+        opprettetAv = this.opprettetAv,
+        opprettetAvFnr = this.opprettetAvFnr,
+        arbeidstakerFnr = this.arbeidstakerFnr,
+        virksomhetsnummer = this.virksomhetsnummer,
+        tildeltEnhet = this.tildeltEnhet,
+        behandletTidspunkt = this.behandletTidspunkt,
+        behandletVeilederIdent = this.behandletVeilederIdent,
+        skjemaType = this.skjemaType,
+        motebehovSvar = this.formSubmission.toMotebehovSvarLegacyDTO()
     )

@@ -2,8 +2,10 @@ package no.nav.syfo.motebehov.motebehovstatus
 
 import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.motebehov.MotebehovWithFormValuesOutputDTO
+import no.nav.syfo.motebehov.MotebehovWithLegacyMotebehovSvarOutputDTO
 import no.nav.syfo.motebehov.isUbehandlet
 import no.nav.syfo.motebehov.toMotebehovWithFormValuesOutputDTO
+import no.nav.syfo.motebehov.toMotebehovWithLegacyMotebehovSvarOutputDTO
 import java.io.Serializable
 
 data class MotebehovStatus(
@@ -31,11 +33,17 @@ fun MotebehovStatus.isMotebehovAvailableForAnswer(): Boolean {
         this.motebehov == null
 }
 
-fun MotebehovStatus.toMotebehovStatusWithFormValuesDTO(): MotebehovStatusWithFormValuesDTO {
-    return MotebehovStatusWithFormValuesDTO(
+data class MotebehovStatusWithLegacyMotebehovDTO(
+    val visMotebehov: Boolean,
+    val skjemaType: MotebehovSkjemaType? = null,
+    val motebehov: MotebehovWithLegacyMotebehovSvarOutputDTO? = null,
+)
+
+fun MotebehovStatus.toMotebehovStatusWithLegacyMotebehovDTO(): MotebehovStatusWithLegacyMotebehovDTO {
+    return MotebehovStatusWithLegacyMotebehovDTO(
         visMotebehov = this.visMotebehov,
         skjemaType = this.skjemaType,
-        motebehovWithFormValues = this.motebehov?.toMotebehovWithFormValuesOutputDTO()
+        motebehov = this.motebehov?.toMotebehovWithLegacyMotebehovSvarOutputDTO()
     )
 }
 
@@ -44,3 +52,11 @@ data class MotebehovStatusWithFormValuesDTO(
     val skjemaType: MotebehovSkjemaType? = null,
     val motebehovWithFormValues: MotebehovWithFormValuesOutputDTO? = null,
 )
+
+fun MotebehovStatus.toMotebehovStatusWithFormValuesDTO(): MotebehovStatusWithFormValuesDTO {
+    return MotebehovStatusWithFormValuesDTO(
+        visMotebehov = this.visMotebehov,
+        skjemaType = this.skjemaType,
+        motebehovWithFormValues = this.motebehov?.toMotebehovWithFormValuesOutputDTO()
+    )
+}

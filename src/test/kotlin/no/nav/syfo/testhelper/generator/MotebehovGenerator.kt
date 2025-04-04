@@ -2,15 +2,12 @@ package no.nav.syfo.testhelper.generator
 
 import no.nav.syfo.motebehov.*
 import no.nav.syfo.motebehov.database.PMotebehov
-import no.nav.syfo.motebehov.formSnapshot.LegacyMotebehovToFormSnapshotHelper
-import no.nav.syfo.motebehov.formSnapshot.MotebehovInnmelderType
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverMeldOnskerSykmelderOgTolkFormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarNeiFormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerMeldSnapshot
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarJaFormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarNeiFormSnapshot
-import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
@@ -63,7 +60,7 @@ class MotebehovGenerator {
         tildeltEnhet = NAV_ENHET,
     )
 
-    fun lagMotebehovSvarInputDTO(harBehov: Boolean): MotebehovSvarLegacyDTO {
+    fun lagMotebehovSvarLegacyDTO(harBehov: Boolean): MotebehovSvarLegacyDTO {
         return motebehovSvarLegacyInputDTO.copy(
             harMotebehov = harBehov,
         )
@@ -117,25 +114,6 @@ class MotebehovGenerator {
             formSubmission = MotebehovFormSubmissionDTO(
                 harMotebehov = true,
                 formSnapshot = mockArbeidsgiverMeldOnskerSykmelderOgTolkFormSnapshot,
-            )
-        )
-    }
-
-    fun lagFormSubmissionDTOMatchingLegacyInputDTO(
-        inputDTO: MotebehovSvarLegacyDTO,
-        skjemaType: MotebehovSkjemaType,
-        innmelderType: MotebehovInnmelderType
-    ): MotebehovFormSubmissionCombinedDTO {
-        val legacyFieldsToFormSnapshotHelper = LegacyMotebehovToFormSnapshotHelper()
-
-        return MotebehovFormSubmissionCombinedDTO(
-            harMotebehov = inputDTO.harMotebehov,
-            forklaring = inputDTO.forklaring,
-            formSnapshot = legacyFieldsToFormSnapshotHelper.createFormSnapshotFromLegacyMotebehovValues(
-                inputDTO.harMotebehov,
-                inputDTO.forklaring,
-                skjemaType,
-                innmelderType
             )
         )
     }

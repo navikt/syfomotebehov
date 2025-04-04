@@ -11,8 +11,9 @@ import no.nav.syfo.motebehov.MotebehovFormSubmissionCombinedDTO
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverLegacyDTO
-import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusWithLegacyMotebehovDTO
+import no.nav.syfo.motebehov.motebehovstatus.toMotebehovStatusWithLegacyMotebehovDTO
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
@@ -43,7 +44,7 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
     fun motebehovStatusArbeidsgiver(
         @RequestParam(name = "fnr") arbeidstakerFnr: @Pattern(regexp = "^[0-9]{11}$") String,
         @RequestParam(name = "virksomhetsnummer") virksomhetsnummer: String,
-    ): MotebehovStatus {
+    ): MotebehovStatusWithLegacyMotebehovDTO {
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver")
         TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)
         brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(arbeidstakerFnr)
@@ -52,6 +53,7 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         val isOwnLeader = arbeidsgiverFnr == arbeidstakerFnr
 
         return motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(arbeidstakerFnr, isOwnLeader, virksomhetsnummer)
+            .toMotebehovStatusWithLegacyMotebehovDTO()
     }
 
     // Currently used POST-endpoint to phase out

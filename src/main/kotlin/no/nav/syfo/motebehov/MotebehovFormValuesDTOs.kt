@@ -80,3 +80,10 @@ fun MotebehovFormSubmissionCombinedDTO.toMotebehovFormValuesOutputDTO(): Motebeh
         tolkSprak = valuesFromFormSnapshot?.tolkSprak,
     )
 }
+
+fun MotebehovFormSubmissionCombinedDTO.toMotebehovSvarLegacyDTO(): MotebehovSvarLegacyDTO {
+    return MotebehovSvarLegacyDTO(
+        harMotebehov = this.harMotebehov,
+        forklaring = this.forklaring,
+    )
+}
