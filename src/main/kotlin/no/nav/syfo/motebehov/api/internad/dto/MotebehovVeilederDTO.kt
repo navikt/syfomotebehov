@@ -1,6 +1,7 @@
 package no.nav.syfo.motebehov.api.internad.dto
 
 import no.nav.syfo.motebehov.MotebehovFormValuesOutputDTO
+import no.nav.syfo.motebehov.MotebehovInnmelderType
 import no.nav.syfo.motebehov.MotebehovSvarLegacyDTO
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import java.time.LocalDateTime
@@ -30,7 +31,7 @@ data class MotebehovVeilederDTOv4(
     val virksomhetsnummer: String,
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
-//    val innmelderType: InnmelderType, // ARBEIDSTAKER | ARBEIDSGIVER,
+    val innmelderType: MotebehovInnmelderType,
     val skjemaType: MotebehovSkjemaType? = null, // make not nullable
     val formValues: MotebehovFormValuesOutputDTO,
 )

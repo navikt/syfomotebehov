@@ -1,12 +1,8 @@
 package no.nav.syfo.motebehov.formSnapshot
 
+import no.nav.syfo.motebehov.MotebehovInnmelderType
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import org.springframework.stereotype.Component
-
-enum class MotebehovInnmelderType {
-    ARBEIDSGIVER,
-    ARBEIDSTAKER,
-}
 
 /**
  * Used for creating a FormSnapshot from a stored "legacy" motebehov.

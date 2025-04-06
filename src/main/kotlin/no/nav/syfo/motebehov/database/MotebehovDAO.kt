@@ -1,5 +1,6 @@
 package no.nav.syfo.motebehov.database
 
+import no.nav.syfo.motebehov.MotebehovInnmelderType
 import no.nav.syfo.motebehov.extractFormValuesFromFormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.convertFormSnapshotToJsonString
 import no.nav.syfo.motebehov.formSnapshot.convertJsonStringToFormSnapshot
@@ -162,10 +163,10 @@ class MotebehovDAO(
         val lagreMotebehovSql = """
         INSERT INTO motebehov (motebehov_uuid, opprettet_dato, opprettet_av, aktoer_id, virksomhetsnummer,
             har_motebehov, forklaring, tildelt_enhet, behandlet_tidspunkt, behandlet_veileder_ident, skjematype,
-            sm_fnr, opprettet_av_fnr)
+            innmelder_type, sm_fnr, opprettet_av_fnr)
         VALUES                (:motebehov_uuid, :opprettet_dato, :opprettet_av, :aktoer_id, :virksomhetsnummer,
             :har_motebehov, :forklaring, :tildelt_enhet, :behandlet_tidspunkt, :behandlet_veileder_ident, :skjematype,
-            :sm_fnr, :opprettet_av_fnr)
+            :innmelder_type, :sm_fnr, :opprettet_av_fnr)
         """.trimIndent()
         val mapLagreMotebehovSql = MapSqlParameterSource()
             .addValue("motebehov_uuid", uuid.toString())
@@ -179,6 +180,7 @@ class MotebehovDAO(
             .addValue("behandlet_tidspunkt", convertNullable(motebehov.behandletTidspunkt))
             .addValue("behandlet_veileder_ident", motebehov.behandletVeilederIdent)
             .addValue("skjematype", motebehov.skjemaType?.name)
+            .addValue("innmelder_type", motebehov.innmelderType?.name)
             .addValue("sm_fnr", motebehov.sykmeldtFnr)
             .addValue("opprettet_av_fnr", motebehov.opprettetAvFnr)
         namedParameterJdbcTemplate.update(lagreMotebehovSql, mapLagreMotebehovSql)
@@ -243,6 +245,7 @@ class MotebehovDAO(
                 behandletTidspunkt = convertNullable(rs.getTimestamp("behandlet_tidspunkt")),
                 behandletVeilederIdent = rs.getString("behandlet_veileder_ident"),
                 skjemaType = rs.getString("skjematype")?.let { MotebehovSkjemaType.valueOf(it) },
+                innmelderType = rs.getString("innmelder_type")?.let { MotebehovInnmelderType.valueOf(it) },
                 sykmeldtFnr = rs.getString("sm_fnr"),
                 opprettetAvFnr = rs.getString("opprettet_av_fnr"),
                 formSnapshot = rs.getString("form_snapshot")?.let { convertJsonStringToFormSnapshot(it) },

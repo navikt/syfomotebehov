@@ -41,6 +41,7 @@ class MotebehovGenerator {
         behandletVeilederIdent = VEILEDER_ID,
         behandletTidspunkt = LocalDateTime.now(),
         opprettetAvFnr = LEDER_FNR,
+        innmelderType = MotebehovInnmelderType.ARBEIDSGIVER,
     )
 
     private val nyttMotebehovArbeidsgiverLegacyInput = NyttMotebehovArbeidsgiverLegacyDTO(
