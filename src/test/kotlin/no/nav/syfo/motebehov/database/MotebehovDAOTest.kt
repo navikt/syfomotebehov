@@ -64,6 +64,7 @@ class MotebehovDAOTest : IntegrationTest() {
                 motebehovFraDb.forklaring shouldBe pMotebehov.forklaring
                 motebehovFraDb.tildeltEnhet shouldBe pMotebehov.tildeltEnhet
                 motebehovFraDb.skjemaType shouldBe pMotebehov.skjemaType
+                motebehovFraDb.innmelderType shouldBe pMotebehov.innmelderType
                 motebehovFraDb.formSnapshot shouldBe pMotebehov.formSnapshot
             }
 
