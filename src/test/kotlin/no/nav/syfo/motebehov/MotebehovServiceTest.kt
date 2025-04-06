@@ -123,6 +123,7 @@ class MotebehovServiceTest : IntegrationTest() {
                     ARBEIDSTAKER_FNR,
                     VIRKSOMHETSNUMMER,
                     MotebehovSkjemaType.SVAR_BEHOV,
+                    MotebehovInnmelderType.ARBEIDSGIVER,
                     MotebehovFormSubmissionCombinedDTO(
                         true,
                         null,
@@ -143,6 +144,7 @@ class MotebehovServiceTest : IntegrationTest() {
                 retrievedMotebehov.behandletTidspunkt.shouldBeNull()
                 retrievedMotebehov.behandletVeilederIdent.shouldBeNull()
                 retrievedMotebehov.skjemaType shouldBe MotebehovSkjemaType.SVAR_BEHOV
+                retrievedMotebehov.innmelderType shouldBe MotebehovInnmelderType.ARBEIDSGIVER
 
                 val retrievedformSnapshot = retrievedMotebehov.formSubmission.formSnapshot
                 retrievedformSnapshot shouldBe mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
