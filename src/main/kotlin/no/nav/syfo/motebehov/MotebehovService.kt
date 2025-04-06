@@ -111,7 +111,7 @@ class MotebehovService @Inject constructor(
         innloggetFNR: String,
         arbeidstakerFnr: String,
         virksomhetsnummer: String,
-        skjemaType: MotebehovSkjemaType,
+        skjemaType: MotebehovSkjemaType?,
         motebehovFormSubmission: MotebehovFormSubmissionCombinedDTO,
     ): UUID {
         val innloggetBrukerAktoerId = pdlConsumer.aktorid(innloggetFNR)

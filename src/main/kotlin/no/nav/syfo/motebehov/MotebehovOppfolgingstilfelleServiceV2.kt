@@ -97,7 +97,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
             innloggetFnr,
             arbeidstakerFnr,
             nyttMotebehov.virksomhetsnummer,
-            skjemaType!!,
+            skjemaType,
             motebehovFormSubmission,
         )
 
@@ -150,7 +150,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                         arbeidstakerFnr,
                         arbeidstakerFnr,
                         virksomhetsnummer,
-                        motebehovStatus.skjemaType!!,
+                        motebehovStatus.skjemaType,
                         formSubmission,
                     )
                 }
