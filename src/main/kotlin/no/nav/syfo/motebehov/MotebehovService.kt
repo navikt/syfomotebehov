@@ -6,7 +6,6 @@ import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.database.toMotebehov
-import no.nav.syfo.motebehov.formSnapshot.MotebehovInnmelderType
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseService
 import org.slf4j.LoggerFactory
@@ -69,7 +68,7 @@ class MotebehovService @Inject constructor(
         val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
         return motebehovDAO.hentMotebehovListeForAktoer(arbeidstakerAktoerId)
             .stream()
-            .map { it.toMotebehov(arbeidstakerFnr, null) }
+            .map { it.toMotebehov(arbeidstakerFnr) }
             .collect(Collectors.toList())
     }
 
@@ -111,7 +110,7 @@ class MotebehovService @Inject constructor(
         innloggetFNR: String,
         arbeidstakerFnr: String,
         virksomhetsnummer: String,
-        skjemaType: MotebehovSkjemaType?,
+        skjemaType: MotebehovSkjemaType,
         motebehovFormSubmission: MotebehovFormSubmissionCombinedDTO,
     ): UUID {
         val innloggetBrukerAktoerId = pdlConsumer.aktorid(innloggetFNR)

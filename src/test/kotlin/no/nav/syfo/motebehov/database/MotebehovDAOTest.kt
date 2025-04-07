@@ -1,13 +1,13 @@
 package no.nav.syfo.motebehov.database
 
 import io.kotest.extensions.spring.SpringExtension
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.motebehov.formSnapshot.MOCK_ARBEIDSTAKER_SVAR_SPRAK
-import no.nav.syfo.motebehov.formSnapshot.MOCK_ARRBEIDSTAKER_SVAR_BEGRUNNELSE
+import no.nav.syfo.motebehov.formSnapshot.MOCK_ARBEIDSGIVER_SVAR_ONSKER_SYKMELDER_BEGRUNNELSE
+import no.nav.syfo.motebehov.formSnapshot.MOCK_ARBEIDSGIVER_SVAR_SPRAK
+import no.nav.syfo.motebehov.formSnapshot.MOCK_ARRBEIDSGIVER_SVAR_BEGRUNNELSE
 import no.nav.syfo.motebehov.formSnapshot.convertFormSnapshotToJsonString
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
@@ -69,7 +69,7 @@ class MotebehovDAOTest : IntegrationTest() {
             it("hentMotebehovListeForOgOpprettetAvArbeidstakerIkkeGyldig") {
                 val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
                     opprettetDato = motebehovGenerator.getOpprettetDato(false),
-                    opprettetAv = ARBEIDSTAKER_AKTORID
+                    opprettetAv = ARBEIDSTAKER_AKTORID,
                 )
 
                 val uuid = motebehovDAO.create(pMotebehov)
@@ -82,7 +82,7 @@ class MotebehovDAOTest : IntegrationTest() {
             it("Hent møtebehov liste for og opprettet av arbeidstaker") {
                 val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
                     opprettetDato = motebehovGenerator.getOpprettetDato(true),
-                    opprettetAv = ARBEIDSTAKER_AKTORID
+                    opprettetAv = ARBEIDSTAKER_AKTORID,
                 )
 
                 val uuid = motebehovDAO.create(pMotebehov)
@@ -117,7 +117,7 @@ class MotebehovDAOTest : IntegrationTest() {
             it("hentMotebehovListeForArbeidstakerOpprettetAvLederGyldig") {
                 val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
                     opprettetDato = motebehovGenerator.getOpprettetDato(true),
-                    opprettetAv = LEDER_AKTORID
+                    opprettetAv = LEDER_AKTORID,
                 )
                 val uuid = motebehovDAO.create(pMotebehov)
                 dbUpdateOpprettetDato(uuid.toString(), pMotebehov.opprettetDato)
@@ -139,7 +139,7 @@ class MotebehovDAOTest : IntegrationTest() {
             it("skalHenteAlleMotebehovForAktorDersomEgenLeder") {
                 val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
                     opprettetDato = motebehovGenerator.getOpprettetDato(true),
-                    opprettetAv = ARBEIDSTAKER_AKTORID
+                    opprettetAv = ARBEIDSTAKER_AKTORID,
                 )
                 val uuid = motebehovDAO.create(pMotebehov)
                 dbUpdateOpprettetDato(uuid.toString(), pMotebehov.opprettetDato)
@@ -179,13 +179,15 @@ class MotebehovDAOTest : IntegrationTest() {
                     motebehovToStoreFormSnapshotConvertedToJSON ?: ""
                 ) shouldBe true
 
-                motebehovToStore.formSnapshot?.formIdentifier
-                motebehovFormValuesFromDb.formSemanticVersion shouldBe motebehovToStore.formSnapshot?.formSemanticVersion
-                motebehovFormValuesFromDb.begrunnelse shouldBe MOCK_ARRBEIDSTAKER_SVAR_BEGRUNNELSE
-                motebehovFormValuesFromDb.onskerSykmelderDeltar shouldBe false
-                motebehovFormValuesFromDb.onskerSykmelderDeltarBegrunnelse.shouldBeNull()
+                motebehovFormValuesFromDb.formIdentifier shouldBe motebehovToStore.formSnapshot?.formIdentifier
+                motebehovFormValuesFromDb.formSemanticVersion shouldBe
+                    motebehovToStore.formSnapshot?.formSemanticVersion
+                motebehovFormValuesFromDb.begrunnelse shouldBe MOCK_ARRBEIDSGIVER_SVAR_BEGRUNNELSE
+                motebehovFormValuesFromDb.onskerSykmelderDeltar shouldBe true
+                motebehovFormValuesFromDb.onskerSykmelderDeltarBegrunnelse shouldBe
+                    MOCK_ARBEIDSGIVER_SVAR_ONSKER_SYKMELDER_BEGRUNNELSE
                 motebehovFormValuesFromDb.onskerTolk shouldBe true
-                motebehovFormValuesFromDb.tolkSprak shouldBe MOCK_ARBEIDSTAKER_SVAR_SPRAK
+                motebehovFormValuesFromDb.tolkSprak shouldBe MOCK_ARBEIDSGIVER_SVAR_SPRAK
             }
         }
     }

@@ -21,7 +21,7 @@ data class PMotebehov(
     val tildeltEnhet: String? = null,
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
-    val skjemaType: MotebehovSkjemaType? = null,
+    val skjemaType: MotebehovSkjemaType,
     val sykmeldtFnr: String? = null,
     val opprettetAvFnr: String? = null,
     // For old "legacy motebehov", this field will be null.

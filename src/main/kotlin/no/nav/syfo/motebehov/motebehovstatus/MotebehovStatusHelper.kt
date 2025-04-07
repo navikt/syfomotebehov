@@ -25,7 +25,7 @@ class MotebehovStatusHelper {
         if (hasUpcomingDialogmote || oppfolgingstilfelle == null) {
             return MotebehovStatus(
                 false,
-                null,
+                MotebehovSkjemaType.MELD_BEHOV,
                 null,
             )
         } else if (isDialogmoteKandidat) {

@@ -12,6 +12,7 @@ import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.database.PMotebehov
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfelle
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
@@ -62,7 +63,8 @@ class TestdataResetServiceTest : IntegrationTest() {
                         "meg",
                         ARBEIDSTAKER_AKTORID,
                         VIRKSOMHETSNUMMER,
-                        true
+                        true,
+                        skjemaType = MotebehovSkjemaType.MELD_BEHOV,
                     )
                 )
                 assertThat(motebehovDAO.hentMotebehovListeForAktoer(ARBEIDSTAKER_AKTORID).size).isEqualTo(1)

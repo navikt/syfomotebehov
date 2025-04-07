@@ -181,7 +181,7 @@ class MotebehovDAO(
             .addValue("tildelt_enhet", motebehov.tildeltEnhet)
             .addValue("behandlet_tidspunkt", convertNullable(motebehov.behandletTidspunkt))
             .addValue("behandlet_veileder_ident", motebehov.behandletVeilederIdent)
-            .addValue("skjematype", motebehov.skjemaType?.name)
+            .addValue("skjematype", motebehov.skjemaType.name)
             .addValue("sm_fnr", motebehov.sykmeldtFnr)
             .addValue("opprettet_av_fnr", motebehov.opprettetAvFnr)
 
@@ -259,7 +259,7 @@ class MotebehovDAO(
                 tildeltEnhet = rs.getString("tildelt_enhet"),
                 behandletTidspunkt = convertNullable(rs.getTimestamp("behandlet_tidspunkt")),
                 behandletVeilederIdent = rs.getString("behandlet_veileder_ident"),
-                skjemaType = rs.getString("skjematype")?.let { MotebehovSkjemaType.valueOf(it) },
+                skjemaType = rs.getString("skjematype").let { MotebehovSkjemaType.valueOf(it) },
                 sykmeldtFnr = rs.getString("sm_fnr"),
                 opprettetAvFnr = rs.getString("opprettet_av_fnr"),
                 formSnapshot = rs.getString("form_snapshot")?.let { convertJsonStringToFormSnapshot(it) },
