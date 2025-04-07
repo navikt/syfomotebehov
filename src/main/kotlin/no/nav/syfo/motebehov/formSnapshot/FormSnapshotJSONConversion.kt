@@ -7,16 +7,13 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.slf4j.LoggerFactory
 
 val log = LoggerFactory.getLogger("FormSnapshotJSONConversion")
 
-val objectMapper = jacksonObjectMapper().apply {
-    registerModule(SimpleModule().addDeserializer(FieldSnapshot::class.java, FieldSnapshotDeserializer()))
-}
+val objectMapper = jacksonObjectMapper()
 
 fun convertFormSnapshotToJsonString(formSnapshot: FormSnapshot): String {
     val value = objectMapper.writeValueAsString(formSnapshot)

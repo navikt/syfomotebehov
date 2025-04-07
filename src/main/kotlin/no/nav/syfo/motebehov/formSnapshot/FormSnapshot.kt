@@ -1,6 +1,7 @@
 package no.nav.syfo.motebehov.formSnapshot
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import java.io.Serializable
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
@@ -40,13 +41,16 @@ import javax.validation.constraints.NotNull
 data class FormSnapshot(
     /** An identifier or name identifying which form this is snapshot is for. */
     val formIdentifier: String,
-    /** This version tag can be used to signify which version of a form a form snapshot is for, and how much is
+    /** This version tag can be used to signify which version of a form a FormSnapshot is for, and how much is
      *  changed between two versions. If a label text is changed, it might be denoted with a patch version bump. If the
      *  ordering of the fields are changed, or the set of options for a radioGroup field is changed, it might count as a
      *  minor version bump. If the set of fieldIds for a form is changed, which can happen if new fields are added or
      *  existing fields are removed, or if an existing fieldId is changed, it might count as a major version bump. */
     val formSemanticVersion: String,
     @field:NotEmpty
+    // For info: This configures deserialization both for POST-handlers in controllers and for the object mapper used
+    // when reading from the database in FormSnapshotJSONConversion.kt.
+    @JsonDeserialize(contentUsing = FieldSnapshotDeserializer::class)
     val fieldSnapshots: List<FieldSnapshot>,
 ) {
     @get:JsonIgnore
