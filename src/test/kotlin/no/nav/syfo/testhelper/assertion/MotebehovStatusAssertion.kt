@@ -1,7 +1,7 @@
 package no.nav.syfo.testhelper.assertion
 
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.syfo.motebehov.MotebehovFormValuesOutputDTO
 import no.nav.syfo.motebehov.MotebehovSvarLegacyDTO
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
@@ -10,30 +10,40 @@ import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusWithLegacyMotebehovD
 
 fun MotebehovStatusWithLegacyMotebehovDTO.assertMotebehovStatus(
     expVisMotebehov: Boolean,
-    expSkjemaType: MotebehovSkjemaType?,
-    expLegacyMotebehovSvar: MotebehovSvarLegacyDTO?
+    expSkjemaType: MotebehovSkjemaType? = null,
+    expLegacyMotebehovSvar: MotebehovSvarLegacyDTO? = null
 ) {
-    expVisMotebehov shouldBe this.visMotebehov
-    expSkjemaType shouldBe this.skjemaType
+    this.visMotebehov shouldBe expVisMotebehov
+
+    if (expSkjemaType != null) {
+        this.skjemaType shouldBe expSkjemaType
+    }
+
     if (expLegacyMotebehovSvar != null) {
-        this.motebehov.shouldNotBeNull()
-        expLegacyMotebehovSvar.harMotebehov shouldBe this.motebehov!!.motebehovSvar.harMotebehov
-        expLegacyMotebehovSvar.forklaring shouldBe this.motebehov!!.motebehovSvar.forklaring
-        expSkjemaType shouldBe this.motebehov!!.skjemaType
+        this.motebehov shouldNotBe null
+        this.motebehov!!.motebehovSvar shouldBe expLegacyMotebehovSvar
+        this.motebehov!!.skjemaType shouldBe expSkjemaType
+    } else {
+        this.motebehov shouldBe null
     }
 }
 
 fun MotebehovStatusWithFormValuesDTO.assertMotebehovStatus(
     expVisMotebehov: Boolean,
-    expSkjemaType: MotebehovSkjemaType?,
-    expMotebehovFormValues: MotebehovFormValuesOutputDTO?
+    expSkjemaType: MotebehovSkjemaType? = null,
+    expMotebehovFormValues: MotebehovFormValuesOutputDTO? = null
 ) {
-    expVisMotebehov shouldBe this.visMotebehov
-    expSkjemaType shouldBe this.skjemaType
+    this.visMotebehov shouldBe expVisMotebehov
+
+    if (expSkjemaType != null) {
+        this.skjemaType shouldBe expSkjemaType
+    }
+
     if (expMotebehovFormValues != null) {
-        expMotebehovFormValues shouldBe this.motebehovWithFormValues!!.formValues
-        expSkjemaType shouldBe this.motebehovWithFormValues!!.skjemaType
+        this.motebehovWithFormValues shouldNotBe null
+        this.motebehovWithFormValues!!.formValues shouldBe expMotebehovFormValues
+        this.motebehovWithFormValues!!.skjemaType shouldBe expSkjemaType
     } else {
-        expMotebehovFormValues shouldBe this.motebehovWithFormValues
+        this.motebehovWithFormValues shouldBe null
     }
 }

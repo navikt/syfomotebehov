@@ -1,20 +1,19 @@
 package no.nav.syfo.motebehov.database
 
 import io.kotest.extensions.spring.SpringExtension
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
+import no.nav.syfo.motebehov.MotebehovInnmelderType
 import no.nav.syfo.motebehov.extractFormValuesFromFormSnapshot
-import no.nav.syfo.motebehov.formSnapshot.FORM_IDENTIFIER_ARBEIDSTAKER_SVAR
-import no.nav.syfo.motebehov.formSnapshot.MOCK_ARBEIDSTAKER_SVAR_SPRAK
-import no.nav.syfo.motebehov.formSnapshot.MOCK_ARRBEIDSTAKER_SVAR_BEGRUNNELSE
+import no.nav.syfo.motebehov.formSnapshot.FORM_IDENTIFIER_ARBEIDSGIVER_SVAR
+import no.nav.syfo.motebehov.formSnapshot.MOCK_ARBEIDSGIVER_SVAR_ONSKER_SYKMELDER_BEGRUNNELSE
+import no.nav.syfo.motebehov.formSnapshot.MOCK_ARBEIDSGIVER_SVAR_SPRAK
+import no.nav.syfo.motebehov.formSnapshot.MOCK_ARRBEIDSGIVER_SVAR_BEGRUNNELSE
 import no.nav.syfo.motebehov.formSnapshot.MOCK_SNAPSHOTS_FORM_SEMANTIC_VERSION
 import no.nav.syfo.motebehov.formSnapshot.convertFormSnapshotToJsonString
-import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarJaFormSnapshot
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
-import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.generator.MotebehovGenerator
@@ -71,7 +70,8 @@ class MotebehovDAOTest : IntegrationTest() {
             it("hentMotebehovListeForOgOpprettetAvArbeidstakerIkkeGyldig") {
                 val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
                     opprettetDato = motebehovGenerator.getOpprettetDato(false),
-                    opprettetAv = ARBEIDSTAKER_AKTORID
+                    opprettetAv = ARBEIDSTAKER_AKTORID,
+                    innmelderType = MotebehovInnmelderType.ARBEIDSTAKER
                 )
                 insertPMotebehov(pMotebehov)
                 val motebehovListe = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(ARBEIDSTAKER_AKTORID)
@@ -81,7 +81,8 @@ class MotebehovDAOTest : IntegrationTest() {
             it("Hent møtebehov liste for og opprettet av arbeidstaker") {
                 val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
                     opprettetDato = motebehovGenerator.getOpprettetDato(true),
-                    opprettetAv = ARBEIDSTAKER_AKTORID
+                    opprettetAv = ARBEIDSTAKER_AKTORID,
+                    innmelderType = MotebehovInnmelderType.ARBEIDSTAKER
                 )
                 insertPMotebehov(pMotebehov)
                 val motebehovListe = motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(ARBEIDSTAKER_AKTORID)
@@ -94,6 +95,7 @@ class MotebehovDAOTest : IntegrationTest() {
 
                 motebehovFraDb.opprettetAv shouldBe pMotebehov.opprettetAv
                 motebehovFraDb.aktoerId shouldBe pMotebehov.aktoerId
+                motebehovFraDb.innmelderType shouldBe pMotebehov.innmelderType
             }
 
             it("hentMotebehovListeForOgOpprettetAvLederIkkeGyldig") {
@@ -113,7 +115,7 @@ class MotebehovDAOTest : IntegrationTest() {
             it("hentMotebehovListeForArbeidstakerOpprettetAvLederGyldig") {
                 val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
                     opprettetDato = motebehovGenerator.getOpprettetDato(true),
-                    opprettetAv = LEDER_AKTORID
+                    opprettetAv = LEDER_AKTORID,
                 )
                 insertPMotebehov(pMotebehov)
                 val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
@@ -131,12 +133,14 @@ class MotebehovDAOTest : IntegrationTest() {
                 )
                 motebehovFraDb.opprettetAv shouldBe LEDER_AKTORID
                 motebehovFraDb.aktoerId shouldBe pMotebehov.aktoerId
+                motebehovFraDb.innmelderType shouldBe pMotebehov.innmelderType
             }
 
             it("skalHenteAlleMotebehovForAktorDersomEgenLeder") {
                 val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
                     opprettetDato = motebehovGenerator.getOpprettetDato(true),
-                    opprettetAv = ARBEIDSTAKER_AKTORID
+                    opprettetAv = ARBEIDSTAKER_AKTORID,
+                    innmelderType = MotebehovInnmelderType.ARBEIDSTAKER,
                 )
                 insertPMotebehov(pMotebehov)
                 val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
@@ -152,6 +156,7 @@ class MotebehovDAOTest : IntegrationTest() {
                     )
                 motebehovFraDb.opprettetAv shouldBe ARBEIDSTAKER_AKTORID
                 motebehovFraDb.aktoerId shouldBe pMotebehov.aktoerId
+                motebehovFraDb.innmelderType shouldBe pMotebehov.innmelderType
             }
 
             it("should create møtebehov and retrieve it back with same values") {
@@ -163,12 +168,14 @@ class MotebehovDAOTest : IntegrationTest() {
                 val retrievedMotebehov = motebehovListe[0]
 
                 retrievedMotebehov.uuid shouldBe uuid
-                retrievedMotebehov.harMotebehov shouldBe true
-                retrievedMotebehov.aktoerId shouldBe ARBEIDSTAKER_AKTORID
-                retrievedMotebehov.sykmeldtFnr shouldBe ARBEIDSTAKER_FNR
+                retrievedMotebehov.harMotebehov shouldBe motebehovToStore.harMotebehov
+                retrievedMotebehov.aktoerId shouldBe motebehovToStore.aktoerId
+                retrievedMotebehov.sykmeldtFnr shouldBe motebehovToStore.sykmeldtFnr
+                retrievedMotebehov.innmelderType shouldBe motebehovToStore.innmelderType
+                retrievedMotebehov.skjemaType shouldBe motebehovToStore.skjemaType
 
                 retrievedMotebehov.formSnapshot.shouldNotBeNull()
-                retrievedMotebehov.formSnapshot shouldBe mockArbeidstakerSvarJaFormSnapshot
+                retrievedMotebehov.formSnapshot shouldBe motebehovToStore.formSnapshot
             }
 
             it(
@@ -192,13 +199,14 @@ class MotebehovDAOTest : IntegrationTest() {
                     motebehovToStoreFormSnapshotConvertedToJSON ?: ""
                 ) shouldBe true
 
-                motebehovFormValuesFromDb.formIdentifier shouldBe FORM_IDENTIFIER_ARBEIDSTAKER_SVAR
+                motebehovFormValuesFromDb.formIdentifier shouldBe FORM_IDENTIFIER_ARBEIDSGIVER_SVAR
                 motebehovFormValuesFromDb.formSemanticVersion shouldBe MOCK_SNAPSHOTS_FORM_SEMANTIC_VERSION
-                motebehovFormValuesFromDb.begrunnelse shouldBe MOCK_ARRBEIDSTAKER_SVAR_BEGRUNNELSE
-                motebehovFormValuesFromDb.onskerSykmelderDeltar shouldBe false
-                motebehovFormValuesFromDb.onskerSykmelderDeltarBegrunnelse.shouldBeNull()
+                motebehovFormValuesFromDb.begrunnelse shouldBe MOCK_ARRBEIDSGIVER_SVAR_BEGRUNNELSE
+                motebehovFormValuesFromDb.onskerSykmelderDeltar shouldBe true
+                motebehovFormValuesFromDb.onskerSykmelderDeltarBegrunnelse shouldBe
+                    MOCK_ARBEIDSGIVER_SVAR_ONSKER_SYKMELDER_BEGRUNNELSE
                 motebehovFormValuesFromDb.onskerTolk shouldBe true
-                motebehovFormValuesFromDb.tolkSprak shouldBe MOCK_ARBEIDSTAKER_SVAR_SPRAK
+                motebehovFormValuesFromDb.tolkSprak shouldBe MOCK_ARBEIDSGIVER_SVAR_SPRAK
             }
         }
     }
@@ -209,8 +217,8 @@ class MotebehovDAOTest : IntegrationTest() {
         val sqlMotebehovInsert = """
             INSERT INTO MOTEBEHOV (id, motebehov_uuid, opprettet_dato, opprettet_av, aktoer_id, virksomhetsnummer,
                 har_motebehov, forklaring, tildelt_enhet, behandlet_tidspunkt, behandlet_veileder_ident, skjematype,
-                sm_fnr, opprettet_av_fnr)
-            VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?)
+                innmelder_type, sm_fnr, opprettet_av_fnr)
+            VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?)
         """.trimIndent()
         jdbcTemplate.update(
             sqlMotebehovInsert,
@@ -224,7 +232,8 @@ class MotebehovDAOTest : IntegrationTest() {
             motebehov.tildeltEnhet,
             motebehov.behandletTidspunkt,
             motebehov.behandletVeilederIdent,
-            motebehov.skjemaType,
+            motebehov.skjemaType.name,
+            motebehov.innmelderType?.name,
             motebehov.sykmeldtFnr,
             motebehov.opprettetAvFnr
         )

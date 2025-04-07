@@ -9,6 +9,7 @@ import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovFormSubmissionCombinedDTO
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.MotebehovSvarLegacyDTO
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusWithLegacyMotebehovDTO
@@ -54,7 +55,7 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         // This endpoint is only used by Ditt sykefravær. Should be removed when they stop calling it. Until then, return empty result
         return MotebehovStatus(
             false,
-            null,
+            MotebehovSkjemaType.MELD_BEHOV,
             null,
         )
     }

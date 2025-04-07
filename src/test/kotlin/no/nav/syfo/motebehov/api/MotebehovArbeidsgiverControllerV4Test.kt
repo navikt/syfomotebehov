@@ -12,6 +12,7 @@ import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
 import no.nav.syfo.motebehov.MotebehovFormSubmissionDTO
+import no.nav.syfo.motebehov.MotebehovInnmelderType
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverFormSubmissionDTO
 import no.nav.syfo.motebehov.api.internad.v4.MotebehovVeilederADControllerV4
 import no.nav.syfo.motebehov.database.MotebehovDAO
@@ -151,7 +152,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
             it("getMotebehovStatusWithNoOppfolgingstilfelle") {
                 tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-                    .assertMotebehovStatus(false, null, null)
+                    .assertMotebehovStatus(false)
             }
 
             it("getMotebehovStatusWithTodayOutsideOppfolgingstilfelleStart") {
@@ -165,7 +166,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 )
 
                 motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-                    .assertMotebehovStatus(false, null, null)
+                    .assertMotebehovStatus(false)
             }
 
             it("getMotebehovStatusWithTodayOutsideOppfolgingstilfelleEnd") {
@@ -179,7 +180,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 )
 
                 motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-                    .assertMotebehovStatus(false, null, null)
+                    .assertMotebehovStatus(false)
             }
 
             it(
@@ -207,7 +208,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 )
 
                 motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-                    .assertMotebehovStatus(false, null, null)
+                    .assertMotebehovStatus(false)
             }
 
             it(
@@ -236,7 +237,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 )
 
                 motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
+                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV)
             }
 
             it(
@@ -268,7 +269,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 createKandidatInDB(ARBEIDSTAKER_FNR)
 
                 motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-                    .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
+                    .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV)
             }
 
             it("getMotebehovStatusWithTodayInsideOppfolgingstilfelleMergedBy2Oppfolgingstilfeller") {
@@ -292,7 +293,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 )
 
                 motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
+                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV)
             }
 
             it("getMotebehovStatusWithTodayInsideOppfolgingstilfelleDay1") {
@@ -306,7 +307,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 )
 
                 motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
+                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV)
             }
 
             it("getMotebehovStatusWithTodayInsideOppfolgingstilfelleLastDay") {
@@ -320,7 +321,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 )
 
                 motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
+                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV)
             }
 
             it("getMotebehovStatusWithTodayInsideOppfolgingstilfelleMedBehov") {
@@ -334,7 +335,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 )
 
                 motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
+                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV)
             }
 
             it("getMotebehovStatusWithTodayInsideOppfolgingstilfelleMeldBehovSubmittedAndBehandlet") {
@@ -359,7 +360,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 resetMockRestServers()
                 tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
+                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV)
             }
 
             it(
@@ -402,7 +403,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 )
 
                 motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
+                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV)
             }
 
             it("getMotebehovStatusWithTodayInsideOppfolgingstilfelleAfterSvarBehovEndDate") {
@@ -416,7 +417,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 )
 
                 motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV, null)
+                    .assertMotebehovStatus(true, MotebehovSkjemaType.MELD_BEHOV)
             }
 
             it("getMotebehovStatusWithNoMotebehovInsideSvarBehovUpperLimit") {
@@ -432,7 +433,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 )
 
                 motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-                    .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
+                    .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV)
             }
 
             it("getMotebehovStatusWithSvarBehovAndMoteCreated") {
@@ -479,7 +480,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 )
 
                 motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-                    .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
+                    .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV)
             }
 
             it("getMotebehovStatusWithNoMotebehovAndNoMote") {
@@ -492,7 +493,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 createKandidatInDB(ARBEIDSTAKER_FNR)
 
                 motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)
-                    .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV, null)
+                    .assertMotebehovStatus(true, MotebehovSkjemaType.SVAR_BEHOV)
             }
 
             it("getMotebehovStatusAndSendOversikthendelseWithMotebehovHarBehovTrue") {
@@ -609,6 +610,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
         assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
         assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
         assertThat(motebehov.skjemaType).isEqualTo(motebehovStatus.skjemaType)
+        assertThat(motebehov.innmelderType).isEqualTo(MotebehovInnmelderType.ARBEIDSGIVER)
 
         assertThat(motebehov.formValues).usingRecursiveComparison()
             .isEqualTo(formValuesOutputDTOThatShouldBeCreated)
