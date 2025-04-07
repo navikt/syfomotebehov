@@ -110,7 +110,7 @@ class LegacyMotebehovToFormSnapshotHelper {
         harMotebehov: Boolean,
         skjemaType: MotebehovSkjemaType?,
     ): TextFieldSnapshot = TextFieldSnapshot(
-        fieldID = BEGRUNNELSE_TEXT_FIELD_ID,
+        fieldId = BEGRUNNELSE_TEXT_FIELD_ID,
         fieldLabel = MotebehovLegacyFormLabel.BEGRUNNELSE_TEXT_FIELD.label,
         null,
         textValue = begrunnelseTextValue,
@@ -131,7 +131,7 @@ class LegacyMotebehovToFormSnapshotHelper {
         val selectedOptionLabel = if (harMotebehov) optionLabelYes else optionLabelNo
 
         return RadioGroupFieldSnapshot(
-            fieldID = SVAR_HAR_BEHOV_RADIO_GROUP_FIELD_ID,
+            fieldId = SVAR_HAR_BEHOV_RADIO_GROUP_FIELD_ID,
             fieldLabel = motebehovInnmelderType.let {
                 when (it) {
                     MotebehovInnmelderType.ARBEIDSGIVER ->
@@ -161,7 +161,7 @@ class LegacyMotebehovToFormSnapshotHelper {
     private fun createLegacyMeldOnskerMoteCheckboxField(
         motebehovInnmelderType: MotebehovInnmelderType
     ): SingleCheckboxFieldSnapshot = SingleCheckboxFieldSnapshot(
-        fieldID = MELD_HAR_BEHOV_LEGACY_CHECKBOX_FIELD_ID,
+        fieldId = MELD_HAR_BEHOV_LEGACY_CHECKBOX_FIELD_ID,
         fieldLabel = motebehovInnmelderType.let {
             when (it) {
                 MotebehovInnmelderType.ARBEIDSGIVER ->
@@ -178,7 +178,7 @@ class LegacyMotebehovToFormSnapshotHelper {
         onskerSykmelderDeltar: Boolean,
         motebehovInnmelderType: MotebehovInnmelderType,
     ): SingleCheckboxFieldSnapshot = SingleCheckboxFieldSnapshot(
-        fieldID = ONSKER_SYKMELDER_DELTAR_CHECKBOX_FIELD_ID,
+        fieldId = ONSKER_SYKMELDER_DELTAR_CHECKBOX_FIELD_ID,
         fieldLabel = motebehovInnmelderType.let {
             when (it) {
                 MotebehovInnmelderType.ARBEIDSGIVER ->
