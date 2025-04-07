@@ -47,7 +47,7 @@ class LegacyMotebehovToFormSnapshotHelper {
     fun createFormSnapshotFromLegacyMotebehovValues(
         harMotebehov: Boolean,
         forklaring: String?,
-        skjemaType: MotebehovSkjemaType?,
+        skjemaType: MotebehovSkjemaType,
         motebehovInnmelderType: MotebehovInnmelderType
     ): FormSnapshot {
         val fieldSnapshots = mutableListOf<FieldSnapshot>()
@@ -87,14 +87,12 @@ class LegacyMotebehovToFormSnapshotHelper {
                 when (skjemaType) {
                     MotebehovSkjemaType.SVAR_BEHOV -> FORM_IDENTIFIER_ARBEIDSGIVER_SVAR
                     MotebehovSkjemaType.MELD_BEHOV -> FORM_IDENTIFIER_ARBEIDSGIVER_MELD
-                    else -> FORM_IDENTIFIER_ARBEIDSGIVER_UNKNOWN
                 }
 
             MotebehovInnmelderType.ARBEIDSTAKER ->
                 when (skjemaType) {
                     MotebehovSkjemaType.SVAR_BEHOV -> FORM_IDENTIFIER_ARBEIDSTAKER_SVAR
                     MotebehovSkjemaType.MELD_BEHOV -> FORM_IDENTIFIER_ARBEIDSTAKER_MELD
-                    else -> FORM_IDENTIFIER_ARBEIDSTAKER_UNKNOWN
                 }
         }
 

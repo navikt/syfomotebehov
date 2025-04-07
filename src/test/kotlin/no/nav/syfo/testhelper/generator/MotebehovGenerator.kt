@@ -8,6 +8,7 @@ import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarNeiFormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerMeldSnapshot
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarJaFormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarNeiFormSnapshot
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
@@ -42,6 +43,7 @@ class MotebehovGenerator {
         behandletTidspunkt = LocalDateTime.now(),
         opprettetAvFnr = LEDER_FNR,
         innmelderType = MotebehovInnmelderType.ARBEIDSGIVER,
+        skjemaType = MotebehovSkjemaType.SVAR_BEHOV,
     )
 
     private val nyttMotebehovArbeidsgiverLegacyInput = NyttMotebehovArbeidsgiverLegacyDTO(
@@ -119,7 +121,7 @@ class MotebehovGenerator {
         )
     }
 
-    private val nyttPMotebehovArbeidstaker = PMotebehov(
+    private val nyttPMotebehov = PMotebehov(
         uuid = UUID.randomUUID(),
         opprettetDato = getOpprettetDato(true),
         opprettetAv = LEDER_AKTORID,
@@ -129,7 +131,9 @@ class MotebehovGenerator {
         harMotebehov = true,
         tildeltEnhet = NAV_ENHET,
         sykmeldtFnr = ARBEIDSTAKER_FNR,
-        formSnapshot = mockArbeidstakerSvarJaFormSnapshot,
+        skjemaType = MotebehovSkjemaType.SVAR_BEHOV,
+        innmelderType = MotebehovInnmelderType.ARBEIDSGIVER,
+        formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
     )
 
     fun getOpprettetDato(erGyldig: Boolean): LocalDateTime {
@@ -142,7 +146,7 @@ class MotebehovGenerator {
     }
 
     fun generatePmotebehov(): PMotebehov {
-        return nyttPMotebehovArbeidstaker.copy()
+        return nyttPMotebehov.copy()
     }
 
     fun generateMotebehov(): Motebehov {

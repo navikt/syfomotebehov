@@ -1,7 +1,9 @@
 package no.nav.syfo.motebehov.formSnapshot
 
-const val MOCK_ARRBEIDSTAKER_SVAR_BEGRUNNELSE = "Ønsker å snakke om mine behov for tilrettelegging"
-const val MOCK_ARBEIDSTAKER_SVAR_SPRAK = "tegnspråk"
+const val MOCK_ARRBEIDSGIVER_SVAR_BEGRUNNELSE = "Vi trenger litt hjelp med videre tiltak"
+const val MOCK_ARBEIDSGIVER_SVAR_ONSKER_SYKMELDER_BEGRUNNELSE =
+    "Ønsker å høre leges tanker rundt mulige tiltak for tilrettelegging"
+const val MOCK_ARBEIDSGIVER_SVAR_SPRAK = "Tegnspråk"
 
 const val MOCK_SNAPSHOTS_FORM_SEMANTIC_VERSION = "1.0.0"
 
@@ -26,7 +28,7 @@ val mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot = FormSnapshot(
             "Begrunnelse (må fylles ut)",
             "Hva ønsker du å ta opp i møtet? Hva tenker du at NAV kan bistå med? Ikke skriv sensitiv " +
                 "informasjon, for eksempel detaljerte opplysninger om helse.",
-            "Vi trenger litt hjelp med videre tiltak",
+            MOCK_ARRBEIDSGIVER_SVAR_BEGRUNNELSE,
         ),
         SingleCheckboxFieldSnapshot(
             "onskerSykmelderDeltarCheckbox",
@@ -38,13 +40,19 @@ val mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot = FormSnapshot(
             "onskerSykmelderDeltarBegrunnelseText",
             "Hvorfor ønsker du at lege/behandler deltar i møtet? (Må fylles ut)",
             null,
-            "Ønsker å høre leges tanker rundt mulige tiltak for tilrettelegging",
+            MOCK_ARBEIDSGIVER_SVAR_ONSKER_SYKMELDER_BEGRUNNELSE,
         ),
         SingleCheckboxFieldSnapshot(
             "onskerTolkCheckbox",
             "Vi har behov for tolk.",
             null,
-            false
+            true
+        ),
+        TextFieldSnapshot(
+            "tolkSprakText",
+            "Hva slags tolk har dere behov for? (Må fylles ut)",
+            "Oppgi for eksempel et språk eller tegnspråktolk.",
+            MOCK_ARBEIDSGIVER_SVAR_SPRAK,
         )
     )
 )
@@ -145,7 +153,7 @@ val mockArbeidstakerSvarJaFormSnapshot = FormSnapshot(
             "Begrunnelse (valgfri)",
             "Hva ønsker du å ta opp i møtet? Ikke skriv sensitiv informasjon, for eksempel detaljerte " +
                 "opplysninger om helse.",
-            MOCK_ARRBEIDSTAKER_SVAR_BEGRUNNELSE,
+            "Ønsker å snakke om mine behov for tilrettelegging",
             false
         ),
         SingleCheckboxFieldSnapshot(
@@ -164,7 +172,7 @@ val mockArbeidstakerSvarJaFormSnapshot = FormSnapshot(
             "tolkSprakText",
             "Hva slags tolk har du behov for? (Må fylles ut)",
             "Oppgi for eksempel et språk eller tegnspråktolk.",
-            MOCK_ARBEIDSTAKER_SVAR_SPRAK
+            "tegnspråk"
         )
     )
 )

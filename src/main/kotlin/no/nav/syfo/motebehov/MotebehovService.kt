@@ -110,7 +110,7 @@ class MotebehovService @Inject constructor(
         innloggetFNR: String,
         arbeidstakerFnr: String,
         virksomhetsnummer: String,
-        skjemaType: MotebehovSkjemaType?,
+        skjemaType: MotebehovSkjemaType,
         innmelderType: MotebehovInnmelderType,
         motebehovFormSubmission: MotebehovFormSubmissionCombinedDTO,
     ): UUID {
