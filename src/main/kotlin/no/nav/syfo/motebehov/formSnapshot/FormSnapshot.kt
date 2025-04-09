@@ -6,7 +6,7 @@ import java.io.Serializable
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
 
-// The kdoc comments are written with regards to FormSnapshot being used in a general context,
+// The kdoc comments are written in regard to FormSnapshot being used in a general context,
 // not specifically for the motebehov use case.
 
 /**
@@ -24,8 +24,8 @@ import javax.validation.constraints.NotNull
  * - The users viewing the form response might be interested in seeing all the options that was available to choose from
  *   for a radio buttons field, as opposed to just the selected option.
  *
- * The contents of a form snapshot might be displayed to the "form filling" user themself on a receipt screeen, or to a
- * veileder in Modia.
+ * The contents of a form snapshot might be displayed to the "form filling" user themselves on a receipt screeen,
+ * or to a veileder in Modia.
  *
  * A form snapshot is meant to describe what a form looked like at the time of submission, much like a paper copy of a
  * filled out form. It describes which fields the form consisted of and their types, labels, etc. A stored FormSnapshot
@@ -36,7 +36,7 @@ import javax.validation.constraints.NotNull
  * The type of a field can be one of the following:
  * - TEXT: A field where the user could input text.
  * - CHECKBOX: A checkbox field.
- * - RADIO_OPTIONS: A radio buttons field where the user could select one of multiple options.
+ * - RADIO_GROUP: A radio buttons field where the user could select one of multiple options.
  */
 data class FormSnapshot(
     /** An identifier or name identifying which form this is snapshot is for. */
