@@ -53,8 +53,8 @@ data class FormSnapshot(
     val fieldValues: Map<String, Any>
         get() = fieldSnapshots.associate { fieldSnapshot ->
             fieldSnapshot.fieldId to when (fieldSnapshot) {
-                is TextFieldSnapshot -> fieldSnapshot.textValue
-                is SingleCheckboxFieldSnapshot -> fieldSnapshot.wasChecked
+                is TextFieldSnapshot -> fieldSnapshot.value
+                is SingleCheckboxFieldSnapshot -> fieldSnapshot.value
                 is RadioGroupFieldSnapshot -> fieldSnapshot.selectedOptionId
                 else -> throw IllegalArgumentException("Unknown field type: ${fieldSnapshot.fieldType}")
             }
@@ -79,7 +79,7 @@ data class TextFieldSnapshot(
     override val fieldLabel: String,
     override val description: String? = null,
     @field:NotEmpty
-    val textValue: String,
+    val value: String,
     val wasOptional: Boolean? = false,
 ) : FieldSnapshot(fieldId, fieldLabel, description, FormSnapshotFieldType.TEXT)
 
@@ -88,7 +88,7 @@ data class SingleCheckboxFieldSnapshot(
     override val fieldLabel: String,
     override val description: String? = null,
     @field:NotNull
-    val wasChecked: Boolean,
+    val value: Boolean,
 ) : FieldSnapshot(fieldId, fieldLabel, description = null, FormSnapshotFieldType.CHECKBOX_SINGLE)
 
 data class RadioGroupFieldSnapshot(

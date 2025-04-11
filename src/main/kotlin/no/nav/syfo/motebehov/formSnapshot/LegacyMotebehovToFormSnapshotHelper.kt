@@ -113,7 +113,7 @@ class LegacyMotebehovToFormSnapshotHelper {
         fieldId = BEGRUNNELSE_TEXT_FIELD_ID,
         fieldLabel = MotebehovLegacyFormLabel.BEGRUNNELSE_TEXT_FIELD.label,
         null,
-        textValue = begrunnelseTextValue,
+        value = begrunnelseTextValue,
         wasOptional = skjemaType == MotebehovSkjemaType.MELD_BEHOV || harMotebehov
     )
 
@@ -171,7 +171,7 @@ class LegacyMotebehovToFormSnapshotHelper {
             }
         },
         null,
-        wasChecked = true,
+        value = true,
     )
 
     private fun createLegacyOnskerSykmelderDeltarCheckboxField(
@@ -189,7 +189,7 @@ class LegacyMotebehovToFormSnapshotHelper {
             }
         },
         null,
-        wasChecked = onskerSykmelderDeltar,
+        value = onskerSykmelderDeltar,
     )
 
     // When a user checked the checkbox for onskerSykmelderDeltar in the legacy form, the text in the forklaring field
