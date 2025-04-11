@@ -46,7 +46,7 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest : DescribeSpec({
                     "Begrunnelse",
                     null,
                     begrunnelse,
-                    true
+                    false
                 )
             )
 
@@ -93,7 +93,7 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest : DescribeSpec({
                     "Begrunnelse",
                     null,
                     begrunnelse,
-                    false
+                    true
                 ),
             )
 
@@ -141,7 +141,7 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest : DescribeSpec({
                     "Begrunnelse",
                     null,
                     begrunnelse,
-                    true
+                    false
                 ),
             )
 
@@ -191,7 +191,7 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest : DescribeSpec({
                     "Begrunnelse",
                     null,
                     "Vi trenger å ha et møte med NAV.",
-                    true
+                    false
                 ),
             )
 

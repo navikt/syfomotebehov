@@ -146,7 +146,7 @@ val mockArbeidstakerSvarJaFormSnapshot = FormSnapshot(
             "Hva ønsker du å ta opp i møtet? Ikke skriv sensitiv informasjon, for eksempel detaljerte " +
                 "opplysninger om helse.",
             MOCK_ARRBEIDSTAKER_SVAR_BEGRUNNELSE,
-            wasOptional = true
+            false
         ),
         SingleCheckboxFieldSnapshot(
             "onskerSykmelderDeltarCheckbox",

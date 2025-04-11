@@ -114,7 +114,7 @@ class LegacyMotebehovToFormSnapshotHelper {
         fieldLabel = MotebehovLegacyFormLabel.BEGRUNNELSE_TEXT_FIELD.label,
         null,
         value = begrunnelseTextValue,
-        wasOptional = skjemaType == MotebehovSkjemaType.MELD_BEHOV || harMotebehov
+        wasRequired = skjemaType == MotebehovSkjemaType.SVAR_BEHOV && !harMotebehov
     )
 
     private fun createLegacySvarBehovRadioGroupField(

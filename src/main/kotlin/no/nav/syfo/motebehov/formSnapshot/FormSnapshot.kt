@@ -80,7 +80,7 @@ data class TextFieldSnapshot(
     override val description: String? = null,
     @field:NotEmpty
     val value: String,
-    val wasOptional: Boolean? = false,
+    val wasRequired: Boolean? = true,
 ) : FieldSnapshot(fieldId, fieldLabel, description, FormSnapshotFieldType.TEXT)
 
 data class SingleCheckboxFieldSnapshot(
@@ -101,7 +101,7 @@ data class RadioGroupFieldSnapshot(
     val selectedOptionLabel: String,
     @field:NotEmpty
     val options: List<FormSnapshotFieldOption>,
-    val wasOptional: Boolean? = false,
+    val wasRequired: Boolean? = true,
 ) : FieldSnapshot(fieldId, fieldLabel, description, FormSnapshotFieldType.RADIO_GROUP)
 
 data class FormSnapshotFieldOption(
