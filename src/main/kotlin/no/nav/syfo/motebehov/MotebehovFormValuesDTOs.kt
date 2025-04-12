@@ -49,7 +49,7 @@ fun extractFormValuesFromFormSnapshot(formSnapshot: FormSnapshot): MotebehovForm
     val fieldValues = formSnapshot.fieldValues
 
     return MotebehovFormValuesExtractedFromFormSnapshot(
-        formIdentifier = formSnapshot.formIdentifier,
+        formIdentifier = formSnapshot.formIdentifier.identifier,
         formSemanticVersion = formSnapshot.formSemanticVersion,
         begrunnelse = fieldValues[BEGRUNNELSE_TEXT_FIELD_ID] as? String,
         onskerSykmelderDeltar = fieldValues[ONSKER_SYKMELDER_DELTAR_CHECKBOX_FIELD_ID] as? Boolean ?: false,

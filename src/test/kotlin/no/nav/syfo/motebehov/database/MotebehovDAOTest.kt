@@ -7,11 +7,11 @@ import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.motebehov.MotebehovInnmelderType
 import no.nav.syfo.motebehov.extractFormValuesFromFormSnapshot
-import no.nav.syfo.motebehov.formSnapshot.FORM_IDENTIFIER_ARBEIDSGIVER_SVAR
 import no.nav.syfo.motebehov.formSnapshot.MOCK_ARBEIDSGIVER_SVAR_ONSKER_SYKMELDER_BEGRUNNELSE
 import no.nav.syfo.motebehov.formSnapshot.MOCK_ARBEIDSGIVER_SVAR_SPRAK
 import no.nav.syfo.motebehov.formSnapshot.MOCK_ARRBEIDSGIVER_SVAR_BEGRUNNELSE
 import no.nav.syfo.motebehov.formSnapshot.MOCK_SNAPSHOTS_FORM_SEMANTIC_VERSION
+import no.nav.syfo.motebehov.formSnapshot.MotebehovFormIdentifier
 import no.nav.syfo.motebehov.formSnapshot.convertFormSnapshotToJsonString
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
@@ -199,7 +199,7 @@ class MotebehovDAOTest : IntegrationTest() {
                     motebehovToStoreFormSnapshotConvertedToJSON ?: ""
                 ) shouldBe true
 
-                motebehovFormValuesFromDb.formIdentifier shouldBe FORM_IDENTIFIER_ARBEIDSGIVER_SVAR
+                motebehovFormValuesFromDb.formIdentifier shouldBe MotebehovFormIdentifier.ARBEIDSGIVER_SVAR.identifier
                 motebehovFormValuesFromDb.formSemanticVersion shouldBe MOCK_SNAPSHOTS_FORM_SEMANTIC_VERSION
                 motebehovFormValuesFromDb.begrunnelse shouldBe MOCK_ARRBEIDSGIVER_SVAR_BEGRUNNELSE
                 motebehovFormValuesFromDb.onskerSykmelderDeltar shouldBe true
