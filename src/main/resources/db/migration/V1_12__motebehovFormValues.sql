@@ -1,9 +1,11 @@
--- Create the motebehovFormValues table
+DROP TABLE IF EXISTS MOTEBEHOV_FORM_VALUES;
+
 CREATE TABLE MOTEBEHOV_FORM_VALUES
 (
     motebehov_uuid                      VARCHAR(36) NOT NULL,
     form_snapshot                       JSONB       NOT NULL,
-    -- The fields below are only used for debugging and data monitoring purposes
+    -- The columns below store copies of values inside form_snapshot, and are only used for
+    -- debugging and data monitoring purposes
     form_identifier                     VARCHAR(50) NOT NULL CHECK (form_identifier IN (
         'motebehov-arbeidsgiver-svar',
         'motebehov-arbeidsgiver-meld',
