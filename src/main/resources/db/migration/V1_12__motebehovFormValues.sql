@@ -4,7 +4,12 @@ CREATE TABLE MOTEBEHOV_FORM_VALUES
     motebehov_uuid                      VARCHAR(36) NOT NULL,
     form_snapshot                       JSONB       NOT NULL,
     -- The fields below are only used for debugging and data monitoring purposes
-    form_identifier                     VARCHAR(50) NOT NULL,
+    form_identifier                     VARCHAR(50) NOT NULL CHECK (form_identifier IN (
+        'motebehov-arbeidsgiver-svar',
+        'motebehov-arbeidsgiver-meld',
+        'motebehov-arbeidstaker-svar',
+        'motebehov-arbeidstaker-meld'
+    )),
     form_semantic_version               VARCHAR(20) NOT NULL,
     begrunnelse                         TEXT,
     onsker_sykmelder_deltar             BOOLEAN     NOT NULL,
