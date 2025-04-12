@@ -8,7 +8,7 @@ const val MOCK_ARBEIDSGIVER_SVAR_SPRAK = "Tegnspråk"
 const val MOCK_SNAPSHOTS_FORM_SEMANTIC_VERSION = "1.0.0"
 
 val mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot = FormSnapshot(
-    FORM_IDENTIFIER_ARBEIDSGIVER_SVAR,
+    MotebehovFormIdentifier.ARBEIDSGIVER_SVAR,
     MOCK_SNAPSHOTS_FORM_SEMANTIC_VERSION,
     listOf(
         RadioGroupFieldSnapshot(
@@ -58,7 +58,7 @@ val mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot = FormSnapshot(
 )
 
 val mockArbeidsgiverSvarNeiFormSnapshot = FormSnapshot(
-    FORM_IDENTIFIER_ARBEIDSGIVER_SVAR,
+    MotebehovFormIdentifier.ARBEIDSGIVER_SVAR,
     MOCK_SNAPSHOTS_FORM_SEMANTIC_VERSION,
     listOf(
         RadioGroupFieldSnapshot(
@@ -96,7 +96,7 @@ val mockArbeidsgiverSvarNeiFormSnapshot = FormSnapshot(
 )
 
 val mockArbeidsgiverMeldOnskerSykmelderOgTolkFormSnapshot = FormSnapshot(
-    FORM_IDENTIFIER_ARBEIDSGIVER_MELD,
+    MotebehovFormIdentifier.ARBEIDSGIVER_MELD,
     "1.0.0",
     listOf(
         TextFieldSnapshot(
@@ -134,7 +134,7 @@ val mockArbeidsgiverMeldOnskerSykmelderOgTolkFormSnapshot = FormSnapshot(
 )
 
 val mockArbeidstakerSvarJaFormSnapshot = FormSnapshot(
-    FORM_IDENTIFIER_ARBEIDSTAKER_SVAR,
+    MotebehovFormIdentifier.ARBEIDSTAKER_SVAR,
     "1.0.0",
     listOf(
         RadioGroupFieldSnapshot(
@@ -178,7 +178,7 @@ val mockArbeidstakerSvarJaFormSnapshot = FormSnapshot(
 )
 
 val mockArbeidstakerSvarNeiFormSnapshot = FormSnapshot(
-    FORM_IDENTIFIER_ARBEIDSTAKER_SVAR,
+    MotebehovFormIdentifier.ARBEIDSTAKER_SVAR,
     "1.0.0",
     listOf(
         RadioGroupFieldSnapshot(
@@ -215,7 +215,7 @@ val mockArbeidstakerSvarNeiFormSnapshot = FormSnapshot(
 )
 
 val mockArbeidstakerMeldSnapshot = FormSnapshot(
-    FORM_IDENTIFIER_ARBEIDSGIVER_MELD,
+    MotebehovFormIdentifier.ARBEIDSTAKER_MELD,
     "1.0.0",
     listOf(
         TextFieldSnapshot(

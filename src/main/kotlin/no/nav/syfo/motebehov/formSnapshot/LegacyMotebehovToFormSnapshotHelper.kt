@@ -85,14 +85,14 @@ class LegacyMotebehovToFormSnapshotHelper {
         val formIdentifier = when (motebehovInnmelderType) {
             MotebehovInnmelderType.ARBEIDSGIVER ->
                 when (skjemaType) {
-                    MotebehovSkjemaType.SVAR_BEHOV -> FORM_IDENTIFIER_ARBEIDSGIVER_SVAR
-                    MotebehovSkjemaType.MELD_BEHOV -> FORM_IDENTIFIER_ARBEIDSGIVER_MELD
+                    MotebehovSkjemaType.SVAR_BEHOV -> MotebehovFormIdentifier.ARBEIDSGIVER_SVAR
+                    MotebehovSkjemaType.MELD_BEHOV -> MotebehovFormIdentifier.ARBEIDSGIVER_MELD
                 }
 
             MotebehovInnmelderType.ARBEIDSTAKER ->
                 when (skjemaType) {
-                    MotebehovSkjemaType.SVAR_BEHOV -> FORM_IDENTIFIER_ARBEIDSTAKER_SVAR
-                    MotebehovSkjemaType.MELD_BEHOV -> FORM_IDENTIFIER_ARBEIDSTAKER_MELD
+                    MotebehovSkjemaType.SVAR_BEHOV -> MotebehovFormIdentifier.ARBEIDSTAKER_SVAR
+                    MotebehovSkjemaType.MELD_BEHOV -> MotebehovFormIdentifier.ARBEIDSTAKER_MELD
                 }
         }
 
