@@ -188,18 +188,20 @@ class MotebehovDAO(
             val formValues = extractFormValuesFromFormSnapshot(motebehov.formSnapshot)
 
             val lagreMotebehovFormValuesSql = """
-            INSERT INTO motebehov_form_values (motebehov_uuid, form_identifier, form_semantic_version,
-                form_snapshot, begrunnelse, onsker_sykmelder_deltar, onsker_sykmelder_deltar_begrunnelse,
+            INSERT INTO motebehov_form_values (motebehov_uuid, form_snapshot, form_identifier, form_semantic_version,
+                begrunnelse, onsker_sykmelder_deltar, onsker_sykmelder_deltar_begrunnelse,
                 onsker_tolk, tolk_sprak)
-            VALUES                            (:motebehov_uuid, :form_identifier, :form_semantic_version,
-                :form_snapshot, :begrunnelse, :onsker_sykmelder_deltar, :onsker_sykmelder_deltar_begrunnelse,
+            VALUES                           (:motebehov_uuid, :form_snapshot, :form_identifier, :form_semantic_version,
+                :begrunnelse, :onsker_sykmelder_deltar, :onsker_sykmelder_deltar_begrunnelse,
                 :onsker_tolk, :tolk_sprak)
             """.trimIndent()
             val mapLagreMotebehovFormValuesSql = MapSqlParameterSource()
                 .addValue("motebehov_uuid", uuid.toString())
+                .addValue("form_snapshot", formSnapshotJSON, Types.OTHER)
+                // The columns below store copies of values inside form_snapshot, and are only used for
+                // debugging and data monitoring purposes. They are not read out again in this application.
                 .addValue("form_identifier", formValues.formIdentifier)
                 .addValue("form_semantic_version", formValues.formSemanticVersion)
-                .addValue("form_snapshot", formSnapshotJSON, Types.OTHER)
                 .addValue("begrunnelse", formValues.begrunnelse)
                 .addValue("onsker_sykmelder_deltar", formValues.onskerSykmelderDeltar)
                 .addValue("onsker_sykmelder_deltar_begrunnelse", formValues.onskerSykmelderDeltarBegrunnelse)
