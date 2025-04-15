@@ -89,7 +89,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
         arbeidstakerFnr: String,
         nyttMotebehov: NyttMotebehovArbeidsgiverDTO,
         innloggetFnr: String,
-        skjemaType: MotebehovSkjemaType?,
+        skjemaType: MotebehovSkjemaType,
     ): MotebehovFormSubmissionCombinedDTO {
         val motebehovFormSubmission = nyttMotebehov.formSubmission
 
@@ -98,6 +98,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
             arbeidstakerFnr,
             nyttMotebehov.virksomhetsnummer,
             skjemaType,
+            MotebehovInnmelderType.ARBEIDSGIVER,
             motebehovFormSubmission,
         )
 
@@ -151,6 +152,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                         arbeidstakerFnr,
                         virksomhetsnummer,
                         motebehovStatus.skjemaType,
+                        MotebehovInnmelderType.ARBEIDSTAKER,
                         formSubmission,
                     )
                 }

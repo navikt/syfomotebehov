@@ -3,6 +3,7 @@ package no.nav.syfo.motebehov.formSnapshot
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import no.nav.syfo.motebehov.MotebehovInnmelderType
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 
 class ConvertLegacyMotebehovSvarFieldsHelperTest : DescribeSpec({
