@@ -45,7 +45,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
         )
 
         if (activeOppfolgingstilfelleExists && motebehovStatus.isMotebehovAvailableForAnswer()) {
-            val storedMotebehovSvar = storeNyttMotebehovForArbeidsgiver(
+            val storedMotebehovFormSubmission = storeNyttMotebehovForArbeidsgiver(
                 arbeidstakerFnr,
                 nyttMotebehov,
                 innloggetFnr,
@@ -55,7 +55,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
             metric.tellBesvarMotebehov(
                 activeOppfolgingstilfelle!!,
                 motebehovStatus.skjemaType,
-                storedMotebehovSvar,
+                storedMotebehovFormSubmission,
                 false,
             )
 
@@ -90,22 +90,18 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
         nyttMotebehov: NyttMotebehovArbeidsgiverDTO,
         innloggetFnr: String,
         skjemaType: MotebehovSkjemaType?,
-    ): MotebehovSvar {
-        val motebehovSvarToStore = MotebehovSvar(
-            harMotebehov = nyttMotebehov.motebehovSvarInputDTO.harMotebehov,
-            forklaring = nyttMotebehov.motebehovSvarInputDTO.forklaring,
-            formFillout = nyttMotebehov.motebehovSvarInputDTO.formFillout
-        )
+    ): MotebehovFormSubmissionCombinedDTO {
+        val motebehovFormSubmission = nyttMotebehov.formSubmission
 
         motebehovService.lagreMotebehov(
             innloggetFnr,
             arbeidstakerFnr,
             nyttMotebehov.virksomhetsnummer,
-            skjemaType!!,
-            motebehovSvarToStore,
+            skjemaType,
+            motebehovFormSubmission,
         )
 
-        return motebehovSvarToStore
+        return motebehovFormSubmission
     }
 
     private fun ferdigstillVarselForSvarMotebehovForArbeidsgiver(
@@ -127,7 +123,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
     @Transactional
     fun createMotebehovForArbeidstaker(
         arbeidstakerFnr: String,
-        nyttMotebehovSvar: TemporaryCombinedNyttMotebehovSvar
+        formSubmission: MotebehovFormSubmissionCombinedDTO
     ) {
         val activeOppolgingstilfelle =
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)
@@ -148,26 +144,20 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                 emptyList()
             }
 
-            val motebehovSvar = MotebehovSvar(
-                harMotebehov = nyttMotebehovSvar.harMotebehov,
-                forklaring = nyttMotebehovSvar.forklaring,
-                formFillout = nyttMotebehovSvar.formFillout
-            )
-
             if (virksomhetsnummerList.isNotEmpty()) {
                 for (virksomhetsnummer in virksomhetsnummerList) {
                     motebehovService.lagreMotebehov(
                         arbeidstakerFnr,
                         arbeidstakerFnr,
                         virksomhetsnummer,
-                        motebehovStatus.skjemaType!!,
-                        motebehovSvar,
+                        motebehovStatus.skjemaType,
+                        formSubmission,
                     )
                 }
                 metric.tellBesvarMotebehov(
                     activeOppolgingstilfelle,
                     motebehovStatus.skjemaType,
-                    motebehovSvar,
+                    formSubmission,
                     true,
                 )
                 if (motebehovStatus.skjemaType == MotebehovSkjemaType.SVAR_BEHOV) {

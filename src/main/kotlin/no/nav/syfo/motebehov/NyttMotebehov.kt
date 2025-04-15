@@ -6,6 +6,6 @@ import javax.validation.constraints.NotEmpty
 data class NyttMotebehov(
     val arbeidstakerFnr: String? = null,
     val virksomhetsnummer: @NotEmpty String,
-    val motebehovSvar: MotebehovSvarInputDTO,
+    val motebehovSvar: MotebehovSvarLegacyDTO,
     val tildeltEnhet: String? = null
 ) : Serializable

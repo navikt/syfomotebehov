@@ -2,7 +2,7 @@ package no.nav.syfo.metric
 
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tags
-import no.nav.syfo.motebehov.MotebehovSvar
+import no.nav.syfo.motebehov.MotebehovFormSubmissionCombinedDTO
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import org.springframework.stereotype.Controller
@@ -150,28 +150,32 @@ class Metric @Inject constructor(
     fun tellBesvarMotebehov(
         activeOppfolgingstilfelle: PersonOppfolgingstilfelle,
         motebehovSkjemaType: MotebehovSkjemaType?,
-        motebehovSvar: MotebehovSvar,
+        formSubmission: MotebehovFormSubmissionCombinedDTO,
         erInnloggetBrukerArbeidstaker: Boolean
     ) {
-        val harForklaring = motebehovSvar.forklaring?.isNotBlank() ?: false
+        val harForklaring = formSubmission.forklaring?.isNotBlank() ?: false
 
         tellMotebehovBesvart(
             activeOppfolgingstilfelle,
             motebehovSkjemaType,
-            motebehovSvar.harMotebehov,
+            formSubmission.harMotebehov,
             erInnloggetBrukerArbeidstaker
         )
         countDayInOppfolgingstilfelleMotebehovCreated(
             activeOppfolgingstilfelle,
             motebehovSkjemaType,
-            motebehovSvar.harMotebehov,
+            formSubmission.harMotebehov,
             harForklaring,
             erInnloggetBrukerArbeidstaker
         )
-        if (!motebehovSvar.harMotebehov) {
-            tellMotebehovBesvartNeiAntallTegn(motebehovSvar.forklaring!!.length, erInnloggetBrukerArbeidstaker)
+
+        if (!formSubmission.harMotebehov && formSubmission.forklaring !== null) {
+            tellMotebehovBesvartNeiAntallTegn(formSubmission.forklaring.length, erInnloggetBrukerArbeidstaker)
         } else if (harForklaring) {
-            tellMotebehovBesvartJaMedForklaringTegn(motebehovSvar.forklaring!!.length, erInnloggetBrukerArbeidstaker)
+            tellMotebehovBesvartJaMedForklaringTegn(
+                formSubmission.forklaring!!.length,
+                erInnloggetBrukerArbeidstaker
+            )
             tellMotebehovBesvartJaMedForklaringAntall(erInnloggetBrukerArbeidstaker)
         }
     }

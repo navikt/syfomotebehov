@@ -1,6 +1,8 @@
 package no.nav.syfo.motebehov
 
-import no.nav.syfo.motebehov.api.internad.dto.MotebehovVeilederDTO
+import no.nav.syfo.motebehov.api.internad.dto.MotebehovVeilederDTOv3
+import no.nav.syfo.motebehov.api.internad.dto.MotebehovVeilederDTOv4
+import no.nav.syfo.motebehov.database.PMotebehov
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
@@ -17,14 +19,14 @@ data class Motebehov(
     val opprettetAvFnr: String,
     val arbeidstakerFnr: String,
     val virksomhetsnummer: String,
-    val motebehovSvar: MotebehovSvar,
+    val formSubmission: MotebehovFormSubmissionCombinedDTO,
     val tildeltEnhet: String? = null,
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
     val skjemaType: MotebehovSkjemaType? = null,
 ) : Serializable
 
-data class MotebehovOutputDTO(
+data class MotebehovWithLegacyMotebehovSvarOutputDTO(
     val id: UUID,
     val opprettetDato: LocalDateTime,
     val aktorId: String,
@@ -32,18 +34,33 @@ data class MotebehovOutputDTO(
     val opprettetAvFnr: String,
     val arbeidstakerFnr: String,
     val virksomhetsnummer: String,
-    val motebehovSvar: MotebehovSvarOutputDTO,
     val tildeltEnhet: String? = null,
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
-    val skjemaType: MotebehovSkjemaType? = null,
+    val skjemaType: MotebehovSkjemaType? = null, // make not nullable
+    val motebehovSvar: MotebehovSvarLegacyDTO,
+)
+
+data class MotebehovWithFormValuesOutputDTO(
+    val id: UUID,
+    val opprettetDato: LocalDateTime,
+    val aktorId: String,
+    val opprettetAv: String,
+    val opprettetAvFnr: String,
+    val arbeidstakerFnr: String,
+    val virksomhetsnummer: String,
+    val tildeltEnhet: String? = null,
+    val behandletTidspunkt: LocalDateTime? = null,
+    val behandletVeilederIdent: String? = null,
+    val skjemaType: MotebehovSkjemaType? = null, // make not nullable
+    val formValues: MotebehovFormValuesOutputDTO,
 )
 
 fun List<Motebehov>.toMotebehovVeilederDTOList() =
     this.map { it.toMotebehovVeilederDTO() }
 
-fun Motebehov.toMotebehovVeilederDTO(): MotebehovVeilederDTO {
-    return MotebehovVeilederDTO(
+fun Motebehov.toMotebehovVeilederDTO(): MotebehovVeilederDTOv3 {
+    return MotebehovVeilederDTOv3(
         id = this.id,
         opprettetDato = this.opprettetDato,
         aktorId = this.aktorId,
@@ -51,15 +68,34 @@ fun Motebehov.toMotebehovVeilederDTO(): MotebehovVeilederDTO {
         opprettetAvNavn = null,
         arbeidstakerFnr = this.arbeidstakerFnr,
         virksomhetsnummer = this.virksomhetsnummer,
-        motebehovSvar = this.motebehovSvar.toMotebehovSvarOutputDTO(),
+        motebehovSvar = MotebehovSvarLegacyDTO(this.formSubmission.harMotebehov, this.formSubmission.forklaring),
         tildeltEnhet = this.tildeltEnhet,
         behandletTidspunkt = this.behandletTidspunkt,
-        behandletVeilederIdent = this.behandletVeilederIdent, skjemaType = this.skjemaType,
+        behandletVeilederIdent = this.behandletVeilederIdent,
+        skjemaType = this.skjemaType,
+    )
+}
+
+fun List<Motebehov>.toMotebehovVeilederDTOv4List() =
+    this.map { it.toMotebehovVeilederDTOv4() }
+
+fun Motebehov.toMotebehovVeilederDTOv4(): MotebehovVeilederDTOv4 {
+    return MotebehovVeilederDTOv4(
+        id = this.id,
+        opprettetDato = this.opprettetDato,
+        opprettetAv = this.opprettetAv,
+        opprettetAvNavn = null,
+        arbeidstakerFnr = this.arbeidstakerFnr,
+        virksomhetsnummer = this.virksomhetsnummer,
+        behandletTidspunkt = this.behandletTidspunkt,
+        behandletVeilederIdent = this.behandletVeilederIdent,
+        skjemaType = this.skjemaType,
+        formValues = this.formSubmission.toMotebehovFormValuesOutputDTO(),
     )
 }
 
 fun Motebehov.isUbehandlet(): Boolean {
-    return this.motebehovSvar.harMotebehov && this.behandletVeilederIdent.isNullOrEmpty()
+    return this.formSubmission.harMotebehov && this.behandletVeilederIdent.isNullOrEmpty()
 }
 
 fun Motebehov.isCreatedInOppfolgingstilfelle(oppfolgingstilfelle: PersonOppfolgingstilfelle): Boolean {
@@ -76,8 +112,26 @@ fun Motebehov.isSvarBehovForOppfolgingstilfelle(oppfolgingstilfelle: PersonOppfo
         createdDate.isBefore(lastDateSvarBehovAvailability.plusDays(1))
 }
 
-fun Motebehov.toMotebehovOutputDTO(): MotebehovOutputDTO {
-    return MotebehovOutputDTO(
+fun Motebehov.toPMotebehov(): PMotebehov =
+    PMotebehov(
+        uuid = this.id,
+        opprettetDato = this.opprettetDato,
+        opprettetAv = this.opprettetAv,
+        aktoerId = this.aktorId,
+        virksomhetsnummer = this.virksomhetsnummer,
+        harMotebehov = this.formSubmission.harMotebehov,
+        forklaring = this.formSubmission.forklaring,
+        tildeltEnhet = this.tildeltEnhet,
+        behandletVeilederIdent = this.behandletVeilederIdent,
+        behandletTidspunkt = this.behandletTidspunkt,
+        skjemaType = this.skjemaType,
+        sykmeldtFnr = this.arbeidstakerFnr,
+        opprettetAvFnr = this.opprettetAvFnr,
+        formSnapshot = this.formSubmission.formSnapshot,
+    )
+
+fun Motebehov.toMotebehovWithFormValuesOutputDTO(): MotebehovWithFormValuesOutputDTO =
+    MotebehovWithFormValuesOutputDTO(
         id = this.id,
         opprettetDato = this.opprettetDato,
         aktorId = this.aktorId,
@@ -85,10 +139,25 @@ fun Motebehov.toMotebehovOutputDTO(): MotebehovOutputDTO {
         opprettetAvFnr = this.opprettetAvFnr,
         arbeidstakerFnr = this.arbeidstakerFnr,
         virksomhetsnummer = this.virksomhetsnummer,
-        motebehovSvar = this.motebehovSvar.toMotebehovSvarOutputDTO(),
         tildeltEnhet = this.tildeltEnhet,
         behandletTidspunkt = this.behandletTidspunkt,
         behandletVeilederIdent = this.behandletVeilederIdent,
         skjemaType = this.skjemaType,
+        formValues = this.formSubmission.toMotebehovFormValuesOutputDTO(),
     )
-}
+
+fun Motebehov.toMotebehovWithLegacyMotebehovSvarOutputDTO(): MotebehovWithLegacyMotebehovSvarOutputDTO =
+    MotebehovWithLegacyMotebehovSvarOutputDTO(
+        id = this.id,
+        opprettetDato = this.opprettetDato,
+        aktorId = this.aktorId,
+        opprettetAv = this.opprettetAv,
+        opprettetAvFnr = this.opprettetAvFnr,
+        arbeidstakerFnr = this.arbeidstakerFnr,
+        virksomhetsnummer = this.virksomhetsnummer,
+        tildeltEnhet = this.tildeltEnhet,
+        behandletTidspunkt = this.behandletTidspunkt,
+        behandletVeilederIdent = this.behandletVeilederIdent,
+        skjemaType = this.skjemaType,
+        motebehovSvar = this.formSubmission.toMotebehovSvarLegacyDTO()
+    )

@@ -4,7 +4,6 @@ import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.motebehov.isCreatedInOppfolgingstilfelle
 import no.nav.syfo.motebehov.isSvarBehovForOppfolgingstilfelle
 import no.nav.syfo.motebehov.isUbehandlet
-import no.nav.syfo.motebehov.toMotebehovOutputDTO
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import no.nav.syfo.oppfolgingstilfelle.database.isSykmeldtNow
 import org.springframework.stereotype.Component
@@ -36,7 +35,7 @@ class MotebehovStatusHelper {
             return MotebehovStatus(
                 true,
                 MotebehovSkjemaType.SVAR_BEHOV,
-                newestSvarBehovInOppfolgingstilfelle?.toMotebehovOutputDTO(),
+                newestSvarBehovInOppfolgingstilfelle,
             )
         } else {
             val newestMeldBehovInOppfolgingstilfelle =
@@ -45,7 +44,7 @@ class MotebehovStatusHelper {
             return MotebehovStatus(
                 true,
                 MotebehovSkjemaType.MELD_BEHOV,
-                newestMeldBehovInOppfolgingstilfelle?.toMotebehovOutputDTO(),
+                newestMeldBehovInOppfolgingstilfelle,
             )
         }
     }

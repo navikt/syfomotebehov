@@ -7,16 +7,21 @@ import no.nav.syfo.api.auth.tokenX.TokenXUtil.TokenXIssuer
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.MotebehovFormSubmissionCombinedDTO
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverLegacyDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverFormSubmissionDTO
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
-import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusWithLegacyMotebehovDTO
-import no.nav.syfo.motebehov.motebehovstatus.toMotebehovStatusWithLegacyMotebehovDTO
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusWithFormValuesDTO
+import no.nav.syfo.motebehov.motebehovstatus.toMotebehovStatusWithFormValuesDTO
+import no.nav.syfo.motebehov.toMotebehovFormSubmissionCombinedDTO
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import javax.inject.Inject
 import javax.validation.Valid
 import javax.validation.constraints.Pattern
@@ -27,8 +32,8 @@ import javax.validation.constraints.Pattern
     claimMap = ["acr=Level4", "acr=idporten-loa-high"],
     combineWithOr = true
 )
-@RequestMapping(value = ["/api/v3"])
-class MotebehovArbeidsgiverControllerV3 @Inject constructor(
+@RequestMapping(value = ["/api/v4"])
+class MotebehovArbeidsgiverControllerV4 @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
     private val metric: Metric,
     private val motebehovOppfolgingstilfelleServiceV2: MotebehovOppfolgingstilfelleServiceV2,
@@ -42,9 +47,11 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun motebehovStatusArbeidsgiver(
-        @RequestParam(name = "fnr") arbeidstakerFnr: @Pattern(regexp = "^[0-9]{11}$") String,
+        @RequestParam(name = "fnr") arbeidstakerFnr:
+        @Pattern(regexp = "^[0-9]{11}$")
+        String,
         @RequestParam(name = "virksomhetsnummer") virksomhetsnummer: String,
-    ): MotebehovStatusWithLegacyMotebehovDTO {
+    ): MotebehovStatusWithFormValuesDTO {
         metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver")
         TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)
         brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(arbeidstakerFnr)
@@ -52,18 +59,20 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
         val isOwnLeader = arbeidsgiverFnr == arbeidstakerFnr
 
-        return motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(arbeidstakerFnr, isOwnLeader, virksomhetsnummer)
-            .toMotebehovStatusWithLegacyMotebehovDTO()
+        return motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(
+            arbeidstakerFnr,
+            isOwnLeader,
+            virksomhetsnummer
+        ).toMotebehovStatusWithFormValuesDTO()
     }
 
-    // Currently used POST-endpoint to phase out
     @PostMapping(
         value = ["/motebehov"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun lagreMotebehovArbeidsgiver(
-        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverLegacyDTO,
+        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverFormSubmissionDTO,
     ) {
         metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
         val innloggetFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)
@@ -77,11 +86,7 @@ class MotebehovArbeidsgiverControllerV3 @Inject constructor(
         val nyttMotebehovArbeidsgiverDTO = NyttMotebehovArbeidsgiverDTO(
             arbeidstakerFnr = nyttMotebehovDTO.arbeidstakerFnr,
             virksomhetsnummer = nyttMotebehovDTO.virksomhetsnummer,
-            formSubmission = MotebehovFormSubmissionCombinedDTO(
-                harMotebehov = nyttMotebehovDTO.motebehovSvar.harMotebehov,
-                forklaring = nyttMotebehovDTO.motebehovSvar.forklaring,
-                formSnapshot = null,
-            ),
+            formSubmission = nyttMotebehovDTO.formSubmission.toMotebehovFormSubmissionCombinedDTO(),
         )
 
         motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidgiver(

@@ -2,7 +2,12 @@ package no.nav.syfo.testhelper.generator
 
 import no.nav.syfo.motebehov.*
 import no.nav.syfo.motebehov.database.PMotebehov
-import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverMeldOnskerSykmelderOgTolkFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarNeiFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerMeldSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarJaFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarNeiFormSnapshot
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
@@ -15,7 +20,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class MotebehovGenerator {
-    private val motebehovSvarInputDTO = MotebehovSvarInputDTO(
+    private val motebehovSvarLegacyInputDTO = MotebehovSvarLegacyDTO(
         harMotebehov = true,
         forklaring = "",
     )
@@ -27,10 +32,10 @@ class MotebehovGenerator {
         virksomhetsnummer = VIRKSOMHETSNUMMER,
         opprettetAv = LEDER_AKTORID,
         opprettetDato = LocalDateTime.now().minusMinutes(2L),
-        motebehovSvar = lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
-            motebehovSvarInputDTO,
-            MotebehovSkjemaType.SVAR_BEHOV,
-            MotebehovInnmelderType.ARBEIDSGIVER
+        formSubmission = MotebehovFormSubmissionCombinedDTO(
+            harMotebehov = true,
+            forklaring = "",
+            formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
         ),
         tildeltEnhet = NAV_ENHET,
         behandletVeilederIdent = VEILEDER_ID,
@@ -38,59 +43,79 @@ class MotebehovGenerator {
         opprettetAvFnr = LEDER_FNR,
     )
 
-    private val nyttMotebehovArbeidsgiverInput = NyttMotebehovArbeidsgiverInputDTO(
+    private val nyttMotebehovArbeidsgiverLegacyInput = NyttMotebehovArbeidsgiverLegacyDTO(
         arbeidstakerFnr = ARBEIDSTAKER_FNR,
         virksomhetsnummer = VIRKSOMHETSNUMMER,
-        motebehovSvar = motebehovSvarInputDTO,
+        motebehovSvar = motebehovSvarLegacyInputDTO,
         tildeltEnhet = NAV_ENHET,
     )
 
-    fun lagMotebehovSvarInputDTO(harBehov: Boolean): MotebehovSvarInputDTO {
-        return motebehovSvarInputDTO.copy(
+    private val nyttMotebehovArbeidsgiverFormSubmissionInput = NyttMotebehovArbeidsgiverFormSubmissionDTO(
+        arbeidstakerFnr = ARBEIDSTAKER_FNR,
+        virksomhetsnummer = VIRKSOMHETSNUMMER,
+        formSubmission = MotebehovFormSubmissionDTO(
+            harMotebehov = true,
+            formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
+        ),
+        tildeltEnhet = NAV_ENHET,
+    )
+
+    fun lagMotebehovSvarLegacyDTO(harBehov: Boolean): MotebehovSvarLegacyDTO {
+        return motebehovSvarLegacyInputDTO.copy(
             harMotebehov = harBehov,
         )
     }
 
-    fun lagNyttMotebehovArbeidsgiverInput(): NyttMotebehovArbeidsgiverInputDTO {
-        return nyttMotebehovArbeidsgiverInput.copy()
+    fun lagFormSubmissionArbeidstakerSvarJaDTO(): MotebehovFormSubmissionDTO {
+        return MotebehovFormSubmissionDTO(
+            harMotebehov = true,
+            formSnapshot = mockArbeidstakerSvarJaFormSnapshot,
+        )
     }
 
-    fun lagMotebehovSvarThatShouldBeCreatedFromInputDTO(
-        inputDTO: MotebehovSvarInputDTO,
-        skjemaType: MotebehovSkjemaType,
-        innmelderType: MotebehovInnmelderType
-    ): MotebehovSvar {
-        val legacyFieldsToFormFilloutHelper = ConvertLegacyMotebehovSvarFieldsHelper()
+    fun lagFormSubmissionArbeidstakerSvarNeiDTO(): MotebehovFormSubmissionDTO {
+        return MotebehovFormSubmissionDTO(
+            harMotebehov = false,
+            formSnapshot = mockArbeidstakerSvarNeiFormSnapshot,
+        )
+    }
 
-        return MotebehovSvar(
-            harMotebehov = inputDTO.harMotebehov,
-            forklaring = inputDTO.forklaring,
-            formFillout = legacyFieldsToFormFilloutHelper.convertLegacyMotebehovSvarToFormFillout(
-                inputDTO.harMotebehov,
-                inputDTO.forklaring,
-                skjemaType,
-                innmelderType
+    fun lagFormSubmissionArbeidstakerMeldDTO(): MotebehovFormSubmissionDTO {
+        return MotebehovFormSubmissionDTO(
+            harMotebehov = true,
+            formSnapshot = mockArbeidstakerMeldSnapshot,
+        )
+    }
+
+    fun lagNyttMotebehovArbeidsgiverLegacyInput(): NyttMotebehovArbeidsgiverLegacyDTO {
+        return nyttMotebehovArbeidsgiverLegacyInput.copy()
+    }
+
+    fun lagNyArbeidsgiverFormSubmissionSvarJa(): NyttMotebehovArbeidsgiverFormSubmissionDTO {
+        return nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
+            formSubmission = MotebehovFormSubmissionDTO(
+                harMotebehov = true,
+                formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
             )
         )
     }
 
-    fun lagMotebehovSvarOutputDTOThatShouldBeCreatedFromInputDTO(
-        inputDTO: MotebehovSvarInputDTO,
-        skjemaType: MotebehovSkjemaType,
-        innmelderType: MotebehovInnmelderType
-    ): MotebehovSvarOutputDTO {
-        val legacyFieldsToFormFilloutHelper = ConvertLegacyMotebehovSvarFieldsHelper()
-
-        return MotebehovSvar(
-            harMotebehov = inputDTO.harMotebehov,
-            forklaring = inputDTO.forklaring,
-            formFillout = legacyFieldsToFormFilloutHelper.convertLegacyMotebehovSvarToFormFillout(
-                inputDTO.harMotebehov,
-                inputDTO.forklaring,
-                skjemaType,
-                innmelderType
+    fun lagNyArbeidsgiverFormSubmissionSvarNei(): NyttMotebehovArbeidsgiverFormSubmissionDTO {
+        return nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
+            formSubmission = MotebehovFormSubmissionDTO(
+                harMotebehov = false,
+                formSnapshot = mockArbeidsgiverSvarNeiFormSnapshot,
             )
-        ).toMotebehovSvarOutputDTO()
+        )
+    }
+
+    fun lagNyArbeidsgiverFormSubmissionMeld(): NyttMotebehovArbeidsgiverFormSubmissionDTO {
+        return nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
+            formSubmission = MotebehovFormSubmissionDTO(
+                harMotebehov = true,
+                formSnapshot = mockArbeidsgiverMeldOnskerSykmelderOgTolkFormSnapshot,
+            )
+        )
     }
 
     private val nyttPMotebehovArbeidstaker = PMotebehov(
@@ -99,10 +124,11 @@ class MotebehovGenerator {
         opprettetAv = LEDER_AKTORID,
         aktoerId = ARBEIDSTAKER_AKTORID,
         virksomhetsnummer = VIRKSOMHETSNUMMER,
-        forklaring = "Megling",
+        forklaring = null,
         harMotebehov = true,
         tildeltEnhet = NAV_ENHET,
         sykmeldtFnr = ARBEIDSTAKER_FNR,
+        formSnapshot = mockArbeidstakerSvarJaFormSnapshot,
     )
 
     fun getOpprettetDato(erGyldig: Boolean): LocalDateTime {
@@ -122,7 +148,7 @@ class MotebehovGenerator {
         return motebehov.copy()
     }
 
-    fun generateMotebehovOutputDTO(): MotebehovOutputDTO {
-        return motebehov.toMotebehovOutputDTO()
+    fun generateMotebehovOutputDTO(): MotebehovWithFormValuesOutputDTO {
+        return motebehov.toMotebehovWithFormValuesOutputDTO()
     }
 }

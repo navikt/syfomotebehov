@@ -1,12 +1,12 @@
 package no.nav.syfo.motebehov.api.internad.dto
 
-import no.nav.syfo.motebehov.MotebehovSvarOutputDTO
-import no.nav.syfo.motebehov.motebehovstatus.*
-import java.io.Serializable
+import no.nav.syfo.motebehov.MotebehovFormValuesOutputDTO
+import no.nav.syfo.motebehov.MotebehovSvarLegacyDTO
+import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import java.time.LocalDateTime
 import java.util.*
 
-data class MotebehovVeilederDTO(
+data class MotebehovVeilederDTOv3(
     val id: UUID,
     val opprettetDato: LocalDateTime,
     val aktorId: String,
@@ -14,9 +14,23 @@ data class MotebehovVeilederDTO(
     val opprettetAvNavn: String?,
     val arbeidstakerFnr: String,
     val virksomhetsnummer: String,
-    val motebehovSvar: MotebehovSvarOutputDTO,
     val tildeltEnhet: String? = null,
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
-    val skjemaType: MotebehovSkjemaType? = null
-) : Serializable
+    val skjemaType: MotebehovSkjemaType? = null,
+    val motebehovSvar: MotebehovSvarLegacyDTO,
+)
+
+data class MotebehovVeilederDTOv4(
+    val id: UUID,
+    val opprettetDato: LocalDateTime,
+    val opprettetAv: String,
+    val opprettetAvNavn: String?,
+    val arbeidstakerFnr: String,
+    val virksomhetsnummer: String,
+    val behandletTidspunkt: LocalDateTime? = null,
+    val behandletVeilederIdent: String? = null,
+//    val innmelderType: InnmelderType, // ARBEIDSTAKER | ARBEIDSGIVER,
+    val skjemaType: MotebehovSkjemaType? = null, // make not nullable
+    val formValues: MotebehovFormValuesOutputDTO,
+)
