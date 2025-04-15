@@ -40,7 +40,7 @@ import javax.validation.constraints.NotNull
  */
 data class FormSnapshot(
     /** An identifier or name identifying which form this is snapshot is for. */
-    val formIdentifier: String,
+    val formIdentifier: MotebehovFormIdentifier,
     /** This version tag can be used to signify which version of a form a FormSnapshot is for, and how much is
      *  changed between two versions. If a label text is changed, it might be denoted with a patch version bump. If the
      *  ordering of the fields are changed, or the set of options for a radioGroup field is changed, it might count as a

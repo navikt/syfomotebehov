@@ -27,7 +27,7 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest : DescribeSpec({
                 motebehovInnmelderType
             )
 
-            formSnapshot.formIdentifier shouldBe "motebehov-arbeidstaker-svar"
+            formSnapshot.formIdentifier shouldBe MotebehovFormIdentifier.ARBEIDSTAKER_SVAR
             formSnapshot.formSemanticVersion shouldBe "0.1.0"
 
             formSnapshot.fieldSnapshots shouldContainExactly listOf(
@@ -74,7 +74,7 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest : DescribeSpec({
                 motebehovInnmelderType
             )
 
-            formSnapshot.formIdentifier shouldBe "motebehov-arbeidsgiver-svar"
+            formSnapshot.formIdentifier shouldBe MotebehovFormIdentifier.ARBEIDSGIVER_SVAR
             formSnapshot.formSemanticVersion shouldBe "0.1.0"
 
             formSnapshot.fieldSnapshots shouldContainExactly listOf(
@@ -121,7 +121,7 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest : DescribeSpec({
                 motebehovInnmelderType
             )
 
-            formSnapshot.formIdentifier shouldBe "motebehov-arbeidstaker-meld"
+            formSnapshot.formIdentifier shouldBe MotebehovFormIdentifier.ARBEIDSTAKER_MELD
             formSnapshot.formSemanticVersion shouldBe "0.1.0"
 
             formSnapshot.fieldSnapshots shouldContainExactly listOf(
@@ -171,7 +171,7 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest : DescribeSpec({
                 motebehovInnmelderType
             )
 
-            formSnapshot.formIdentifier shouldBe "motebehov-arbeidsgiver-meld"
+            formSnapshot.formIdentifier shouldBe MotebehovFormIdentifier.ARBEIDSGIVER_MELD
             formSnapshot.formSemanticVersion shouldBe "0.1.0"
 
             formSnapshot.fieldSnapshots shouldContainExactly listOf(
