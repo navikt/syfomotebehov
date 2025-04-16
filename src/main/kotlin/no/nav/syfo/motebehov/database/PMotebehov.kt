@@ -2,9 +2,9 @@ package no.nav.syfo.motebehov.database
 
 import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.motebehov.MotebehovFormSubmissionCombinedDTO
+import no.nav.syfo.motebehov.MotebehovInnmelderType
 import no.nav.syfo.motebehov.formSnapshot.FormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.LegacyMotebehovToFormSnapshotHelper
-import no.nav.syfo.motebehov.formSnapshot.MotebehovInnmelderType
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import java.io.Serializable
 import java.time.LocalDateTime
