@@ -203,17 +203,20 @@ class MotebehovDAOTest : IntegrationTest() {
     }
 
     private fun insertPMotebehov(motebehov: PMotebehov) {
-        val motebehovId = "bae778f2-a085-11e8-98d0-529269fb1459"
+        val motebehovUUID = "bae778f2-a085-11e8-98d0-529269fb1459"
 
         val sqlMotebehovInsert = """
             INSERT INTO MOTEBEHOV (id, motebehov_uuid, opprettet_dato, opprettet_av, aktoer_id, virksomhetsnummer,
                 har_motebehov, forklaring, tildelt_enhet, behandlet_tidspunkt, behandlet_veileder_ident, skjematype,
                 sm_fnr, opprettet_av_fnr)
             VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?)
+            RETURNING id
         """.trimIndent()
-        jdbcTemplate.update(
+
+        val motebehovRowId = jdbcTemplate.queryForObject(
             sqlMotebehovInsert,
-            motebehovId,
+            Long::class.java,
+            motebehovUUID,
             motebehov.opprettetDato,
             motebehov.opprettetAv,
             motebehov.aktoerId,
@@ -225,7 +228,7 @@ class MotebehovDAOTest : IntegrationTest() {
             motebehov.behandletVeilederIdent,
             motebehov.skjemaType,
             motebehov.sykmeldtFnr,
-            motebehov.opprettetAvFnr
+            motebehov.opprettetAvFnr,
         )
 
         val formSnapshot = motebehov.formSnapshot
@@ -235,14 +238,14 @@ class MotebehovDAOTest : IntegrationTest() {
             val formValues = extractFormValuesFromFormSnapshot(formSnapshot)
 
             val sqlFormValuesInsert = """
-                INSERT INTO motebehov_form_values (motebehov_uuid, form_identifier, form_semantic_version,
+                INSERT INTO motebehov_form_values (motebehov_row_id, form_identifier, form_semantic_version,
                     form_snapshot, begrunnelse, onsker_sykmelder_deltar, onsker_sykmelder_deltar_begrunnelse,
                     onsker_tolk, tolk_sprak)
                 VALUES (?, ?, ?, ?::jsonb, ?, ?, ?, ?, ?)
             """.trimIndent()
             jdbcTemplate.update(
                 sqlFormValuesInsert,
-                motebehovId,
+                motebehovRowId,
                 formValues.formIdentifier,
                 formValues.formSemanticVersion,
                 formSnapshotJSON,
@@ -256,6 +259,9 @@ class MotebehovDAOTest : IntegrationTest() {
     }
 
     private fun readMotebehovFormValuesFromDb(motebehovId: String): PMotebehovFormValues? {
+        val getRowIdFromMotebehovSql = "SELECT id FROM motebehov WHERE motebehov_uuid = ?"
+        val motebehovRowId = jdbcTemplate.queryForObject(getRowIdFromMotebehovSql, Long::class.java, motebehovId)
+
         val motebehovFormValuesRowMapper: RowMapper<PMotebehovFormValues> = RowMapper { rs: ResultSet, _: Int ->
             PMotebehovFormValues(
                 formIdentifier = rs.getString("form_identifier"),
@@ -271,8 +277,8 @@ class MotebehovDAOTest : IntegrationTest() {
             )
         }
 
-        val sql = "SELECT * FROM motebehov_form_values WHERE motebehov_uuid = ?"
-        return jdbcTemplate.queryForObject(sql, motebehovFormValuesRowMapper, motebehovId)
+        val motebehovFormValuesSql = "SELECT * FROM motebehov_form_values WHERE motebehov_row_id = ?"
+        return jdbcTemplate.queryForObject(motebehovFormValuesSql, motebehovFormValuesRowMapper, motebehovRowId)
     }
 
     fun areStringsEqualAsSqlJsonbValues(jsonb1: String, jsonb2: String): Boolean {
