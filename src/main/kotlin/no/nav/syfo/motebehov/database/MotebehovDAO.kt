@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.core.support.SqlLobValue
+import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.stereotype.Repository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -133,7 +134,7 @@ class MotebehovDAO(
         ).orElse(emptyList())
     }
 
-    fun hentMotebehov(motebehovId: String): List<PMotebehov> {
+    fun hentMotebehov(motebehovUUID: String): List<PMotebehov> {
         return Optional.ofNullable(
             jdbcTemplate.query(
                 """
@@ -142,7 +143,7 @@ class MotebehovDAO(
                 WHERE m.motebehov_uuid = ?
                 """,
                 motebehovRowMapper,
-                motebehovId
+                motebehovUUID
             )
         ).orElse(emptyList())
     }
@@ -167,7 +168,6 @@ class MotebehovDAO(
         VALUES                (:motebehov_uuid, :opprettet_dato, :opprettet_av, :aktoer_id, :virksomhetsnummer,
             :har_motebehov, :forklaring, :tildelt_enhet, :behandlet_tidspunkt, :behandlet_veileder_ident, :skjematype,
             :sm_fnr, :opprettet_av_fnr)
-        RETURNING id
         """.trimIndent()
 
         val mapLagreMotebehovSql = MapSqlParameterSource()
@@ -185,13 +185,18 @@ class MotebehovDAO(
             .addValue("sm_fnr", motebehov.sykmeldtFnr)
             .addValue("opprettet_av_fnr", motebehov.opprettetAvFnr)
 
-        val motebehovRowId = namedParameterJdbcTemplate.queryForObject(
+        val keyHolder = GeneratedKeyHolder()
+
+        namedParameterJdbcTemplate.update(
             lagreMotebehovSql,
             mapLagreMotebehovSql,
-            Long::class.java
+            keyHolder,
+            arrayOf("id")
         )
 
-        motebehov.formSnapshot?.let {
+        if (motebehov.formSnapshot != null) {
+            val motebehovRowId = keyHolder.key?.toLong() ?: error("Failed to retrieve generated key for motebehov")
+
             insertIntoMotebehovFormValues(motebehov.formSnapshot, motebehovRowId)
         }
 
