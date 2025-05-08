@@ -9,7 +9,6 @@ import no.nav.syfo.motebehov.database.toMotebehov
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseService
 import org.slf4j.LoggerFactory
-import org.springframework.dao.DataAccessException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -136,34 +135,7 @@ class MotebehovService @Inject constructor(
 
         val pMotebehov = motebehov.toPMotebehov()
 
-        val uuid: UUID
-
-        try {
-            uuid = motebehovDAO.create(pMotebehov)
-        } catch (ex: DataAccessException) {
-            metric.tellHendelse("feil_lagre_motebehov")
-
-            log.error(
-                "DataAccessException ved lagring av motebehov med skjemaType {} og innmelderType {}: {}",
-                skjemaType.name,
-                innmelderType.name,
-                ex.message,
-            )
-
-            throw ex
-        } catch (ex: IllegalStateException) {
-            metric.tellHendelse("feil_lagre_motebehov")
-
-            log.error(
-                "IllegalStateException ved lagring av motebehov med skjemaType {} og innmelderType {}: {}",
-                skjemaType.name,
-                innmelderType.name,
-                ex.message,
-            )
-
-            throw ex
-        }
-
+        val uuid = motebehovDAO.create(pMotebehov)
         if (motebehovFormSubmission.harMotebehov) {
             personoppgavehendelseService.sendPersonoppgaveHendelseMottatt(uuid, arbeidstakerFnr)
         }
