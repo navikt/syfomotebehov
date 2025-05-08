@@ -22,7 +22,6 @@ data class PMotebehov(
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
     val skjemaType: MotebehovSkjemaType,
-    val innmelderType: MotebehovInnmelderType,
     val sykmeldtFnr: String? = null,
     val opprettetAvFnr: String? = null,
     // For old "legacy motebehov", this field will be null.
@@ -31,6 +30,7 @@ data class PMotebehov(
 
 fun PMotebehov.toMotebehov(
     arbeidstakerFnr: String? = null,
+    knownInnmelderType: MotebehovInnmelderType? = null
 ): Motebehov {
     return Motebehov(
         id = this.uuid,
@@ -44,15 +44,23 @@ fun PMotebehov.toMotebehov(
         behandletTidspunkt = this.behandletTidspunkt,
         behandletVeilederIdent = this.behandletVeilederIdent,
         skjemaType = this.skjemaType,
-        innmelderType = this.innmelderType,
-        formSubmission = createMotebehovFormSubmissionFromPMotebehov(this, this.innmelderType),
+        formSubmission = createMotebehovFormSubmissionFromPMotebehov(this, knownInnmelderType),
     )
 }
 
 private fun createMotebehovFormSubmissionFromPMotebehov(
     pMotebehov: PMotebehov,
-    innmelderType: MotebehovInnmelderType,
+    knownInnmelderType: MotebehovInnmelderType?
 ): MotebehovFormSubmissionCombinedDTO {
+    val motebehovInnmelderType = knownInnmelderType
+        ?: if (pMotebehov.opprettetAv == pMotebehov.aktoerId ||
+            pMotebehov.opprettetAvFnr == pMotebehov.sykmeldtFnr
+        ) {
+            MotebehovInnmelderType.ARBEIDSTAKER
+        } else {
+            MotebehovInnmelderType.ARBEIDSGIVER
+        }
+
     val isLegacyMotebehov = pMotebehov.formSnapshot == null
 
     val formSnapshot = if (isLegacyMotebehov) {
@@ -61,7 +69,7 @@ private fun createMotebehovFormSubmissionFromPMotebehov(
             pMotebehov.harMotebehov,
             pMotebehov.forklaring,
             pMotebehov.skjemaType,
-            innmelderType,
+            motebehovInnmelderType,
         )
     } else {
         pMotebehov.formSnapshot

@@ -23,7 +23,6 @@ data class Motebehov(
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
     val skjemaType: MotebehovSkjemaType,
-    val innmelderType: MotebehovInnmelderType,
     val formSubmission: MotebehovFormSubmissionCombinedDTO,
 ) : Serializable
 
@@ -54,7 +53,6 @@ data class MotebehovWithFormValuesOutputDTO(
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
     val skjemaType: MotebehovSkjemaType,
-    val innmelderType: MotebehovInnmelderType,
     val formValues: MotebehovFormValuesOutputDTO,
 )
 
@@ -92,7 +90,6 @@ fun Motebehov.toMotebehovVeilederDTOv4(): MotebehovVeilederDTOv4 {
         behandletTidspunkt = this.behandletTidspunkt,
         behandletVeilederIdent = this.behandletVeilederIdent,
         skjemaType = this.skjemaType,
-        innmelderType = this.innmelderType,
         formValues = this.formSubmission.toMotebehovFormValuesOutputDTO(),
     )
 }
@@ -128,7 +125,6 @@ fun Motebehov.toPMotebehov(): PMotebehov =
         behandletVeilederIdent = this.behandletVeilederIdent,
         behandletTidspunkt = this.behandletTidspunkt,
         skjemaType = this.skjemaType,
-        innmelderType = this.innmelderType,
         sykmeldtFnr = this.arbeidstakerFnr,
         opprettetAvFnr = this.opprettetAvFnr,
         formSnapshot = this.formSubmission.formSnapshot,
@@ -147,7 +143,6 @@ fun Motebehov.toMotebehovWithFormValuesOutputDTO(): MotebehovWithFormValuesOutpu
         behandletTidspunkt = this.behandletTidspunkt,
         behandletVeilederIdent = this.behandletVeilederIdent,
         skjemaType = this.skjemaType,
-        innmelderType = this.innmelderType,
         formValues = this.formSubmission.toMotebehovFormValuesOutputDTO(),
     )
 

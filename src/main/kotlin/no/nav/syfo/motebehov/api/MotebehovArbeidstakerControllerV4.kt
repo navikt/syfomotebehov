@@ -42,7 +42,7 @@ class MotebehovArbeidstakerControllerV4 @Inject constructor(
     val esyfoProxyClientId: String,
 ) {
     @GetMapping(
-        value = ["/motebehov"],
+        value = ["/motebehov/all"],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun motebehovStatusArbeidstakerWithCodeSixUsers(): MotebehovStatusWithFormValuesDTO {

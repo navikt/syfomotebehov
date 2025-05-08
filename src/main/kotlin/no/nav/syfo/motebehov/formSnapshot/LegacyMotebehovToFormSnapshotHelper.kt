@@ -85,14 +85,14 @@ class LegacyMotebehovToFormSnapshotHelper {
         val formIdentifier = when (motebehovInnmelderType) {
             MotebehovInnmelderType.ARBEIDSGIVER ->
                 when (skjemaType) {
-                    MotebehovSkjemaType.SVAR_BEHOV -> MotebehovFormIdentifier.ARBEIDSGIVER_SVAR
-                    MotebehovSkjemaType.MELD_BEHOV -> MotebehovFormIdentifier.ARBEIDSGIVER_MELD
+                    MotebehovSkjemaType.SVAR_BEHOV -> FORM_IDENTIFIER_ARBEIDSGIVER_SVAR
+                    MotebehovSkjemaType.MELD_BEHOV -> FORM_IDENTIFIER_ARBEIDSGIVER_MELD
                 }
 
             MotebehovInnmelderType.ARBEIDSTAKER ->
                 when (skjemaType) {
-                    MotebehovSkjemaType.SVAR_BEHOV -> MotebehovFormIdentifier.ARBEIDSTAKER_SVAR
-                    MotebehovSkjemaType.MELD_BEHOV -> MotebehovFormIdentifier.ARBEIDSTAKER_MELD
+                    MotebehovSkjemaType.SVAR_BEHOV -> FORM_IDENTIFIER_ARBEIDSTAKER_SVAR
+                    MotebehovSkjemaType.MELD_BEHOV -> FORM_IDENTIFIER_ARBEIDSTAKER_MELD
                 }
         }
 
@@ -105,7 +105,7 @@ class LegacyMotebehovToFormSnapshotHelper {
         skjemaType: MotebehovSkjemaType?,
     ): TextFieldSnapshot = TextFieldSnapshot(
         fieldId = BEGRUNNELSE_TEXT_FIELD_ID,
-        label = MotebehovLegacyFormLabel.BEGRUNNELSE_TEXT_FIELD.label,
+        fieldLabel = MotebehovLegacyFormLabel.BEGRUNNELSE_TEXT_FIELD.label,
         null,
         value = begrunnelseTextValue,
         wasRequired = skjemaType == MotebehovSkjemaType.SVAR_BEHOV && !harMotebehov
@@ -126,7 +126,7 @@ class LegacyMotebehovToFormSnapshotHelper {
 
         return RadioGroupFieldSnapshot(
             fieldId = SVAR_HAR_BEHOV_RADIO_GROUP_FIELD_ID,
-            label = motebehovInnmelderType.let {
+            fieldLabel = motebehovInnmelderType.let {
                 when (it) {
                     MotebehovInnmelderType.ARBEIDSGIVER ->
                         MotebehovLegacyFormLabel.SVAR_ARBEIDSGIVER_HAR_BEHOV_FIELD.label
@@ -156,7 +156,7 @@ class LegacyMotebehovToFormSnapshotHelper {
         motebehovInnmelderType: MotebehovInnmelderType
     ): SingleCheckboxFieldSnapshot = SingleCheckboxFieldSnapshot(
         fieldId = MELD_HAR_BEHOV_LEGACY_CHECKBOX_FIELD_ID,
-        label = motebehovInnmelderType.let {
+        fieldLabel = motebehovInnmelderType.let {
             when (it) {
                 MotebehovInnmelderType.ARBEIDSGIVER ->
                     MotebehovLegacyFormLabel.MELD_ARBEIDSGIVER_ONSKER_MOTE_CHECKBOX.label
@@ -173,7 +173,7 @@ class LegacyMotebehovToFormSnapshotHelper {
         motebehovInnmelderType: MotebehovInnmelderType,
     ): SingleCheckboxFieldSnapshot = SingleCheckboxFieldSnapshot(
         fieldId = ONSKER_SYKMELDER_DELTAR_CHECKBOX_FIELD_ID,
-        label = motebehovInnmelderType.let {
+        fieldLabel = motebehovInnmelderType.let {
             when (it) {
                 MotebehovInnmelderType.ARBEIDSGIVER ->
                     MotebehovLegacyFormLabel.MELD_ARBEIDSGIVER_ONSKER_SYKMELDER_DELTAR_CHECKBOX.label
