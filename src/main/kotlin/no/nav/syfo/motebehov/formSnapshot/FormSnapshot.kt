@@ -69,10 +69,9 @@ abstract class FieldSnapshot(
     @field:NotEmpty
     open val fieldId: String,
     @field:NotEmpty
-    open val fieldType: FormSnapshotFieldType,
-    @field:NotEmpty
-    open val label: String,
+    open val fieldLabel: String,
     open val description: String? = null,
+    open val fieldType: FormSnapshotFieldType
 ) : Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
@@ -81,24 +80,24 @@ abstract class FieldSnapshot(
 
 data class TextFieldSnapshot(
     override val fieldId: String,
-    override val label: String,
+    override val fieldLabel: String,
     override val description: String? = null,
     @field:NotEmpty
     val value: String,
     val wasRequired: Boolean? = true,
-) : FieldSnapshot(fieldId, fieldType = FormSnapshotFieldType.TEXT, label, description)
+) : FieldSnapshot(fieldId, fieldLabel, description, FormSnapshotFieldType.TEXT)
 
 data class SingleCheckboxFieldSnapshot(
     override val fieldId: String,
-    override val label: String,
+    override val fieldLabel: String,
     override val description: String? = null,
     @field:NotNull
     val value: Boolean,
-) : FieldSnapshot(fieldId, fieldType = FormSnapshotFieldType.CHECKBOX_SINGLE, label, description)
+) : FieldSnapshot(fieldId, fieldLabel, description = null, FormSnapshotFieldType.CHECKBOX_SINGLE)
 
 data class RadioGroupFieldSnapshot(
     override val fieldId: String,
-    override val label: String,
+    override val fieldLabel: String,
     @field:NotEmpty
     override val description: String? = null,
     val selectedOptionId: String,
@@ -107,7 +106,7 @@ data class RadioGroupFieldSnapshot(
     @field:NotEmpty
     val options: List<FormSnapshotFieldOption>,
     val wasRequired: Boolean? = true,
-) : FieldSnapshot(fieldId, fieldType = FormSnapshotFieldType.RADIO_GROUP, label, description)
+) : FieldSnapshot(fieldId, fieldLabel, description, FormSnapshotFieldType.RADIO_GROUP)
 
 data class FormSnapshotFieldOption(
     @field:NotEmpty
