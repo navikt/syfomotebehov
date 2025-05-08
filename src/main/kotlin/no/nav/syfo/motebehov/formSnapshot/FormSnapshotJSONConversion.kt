@@ -25,14 +25,11 @@ fun convertJsonStringToFormSnapshot(json: String): FormSnapshot? {
     return try {
         objectMapper.readValue(json)
     } catch (e: JsonParseException) {
-        log.error("Failed to parse JSON: ${e.message}")
-        null
+        error("Failed to parse FormSnapshot JSON: ${e.message}")
     } catch (e: JsonMappingException) {
-        log.error("Failed to map JSON to FormSnapshot: ${e.message}")
-        null
+        error("Failed to map JSON to FormSnapshot: ${e.message}")
     } catch (e: JsonProcessingException) {
-        log.error("Something went wrong with processing JSON and mapping to FormSnapshot: ${e.message}")
-        null
+        error("Something went wrong with processing JSON and mapping to FormSnapshot: ${e.message}")
     }
 }
 
