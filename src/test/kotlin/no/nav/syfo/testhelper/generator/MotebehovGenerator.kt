@@ -43,7 +43,6 @@ class MotebehovGenerator {
         behandletTidspunkt = LocalDateTime.now(),
         opprettetAvFnr = LEDER_FNR,
         skjemaType = MotebehovSkjemaType.SVAR_BEHOV,
-        innmelderType = MotebehovInnmelderType.ARBEIDSGIVER,
     )
 
     private val nyttMotebehovArbeidsgiverLegacyInput = NyttMotebehovArbeidsgiverLegacyDTO(
@@ -132,7 +131,6 @@ class MotebehovGenerator {
         tildeltEnhet = NAV_ENHET,
         sykmeldtFnr = ARBEIDSTAKER_FNR,
         skjemaType = MotebehovSkjemaType.SVAR_BEHOV,
-        innmelderType = MotebehovInnmelderType.ARBEIDSGIVER,
         formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
     )
 

@@ -85,7 +85,7 @@ class MotebehovService @Inject constructor(
         val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
         return motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktoerId)
             .stream()
-            .map { it.toMotebehov(arbeidstakerFnr) }
+            .map { it.toMotebehov(arbeidstakerFnr, MotebehovInnmelderType.ARBEIDSTAKER) }
             .collect(Collectors.toList())
     }
 
@@ -101,7 +101,7 @@ class MotebehovService @Inject constructor(
             virksomhetsnummer,
         )
             .stream()
-            .map { it.toMotebehov(arbeidstakerFnr) }
+            .map { it.toMotebehov(arbeidstakerFnr, MotebehovInnmelderType.ARBEIDSGIVER) }
             .collect(Collectors.toList())
     }
 
@@ -111,7 +111,6 @@ class MotebehovService @Inject constructor(
         arbeidstakerFnr: String,
         virksomhetsnummer: String,
         skjemaType: MotebehovSkjemaType,
-        innmelderType: MotebehovInnmelderType,
         motebehovFormSubmission: MotebehovFormSubmissionCombinedDTO,
     ): UUID {
         val innloggetBrukerAktoerId = pdlConsumer.aktorid(innloggetFNR)
@@ -130,7 +129,6 @@ class MotebehovService @Inject constructor(
             formSubmission = motebehovFormSubmission,
             tildeltEnhet = arbeidstakerBehandlendeEnhet,
             skjemaType = skjemaType,
-            innmelderType = innmelderType,
         )
 
         val pMotebehov = motebehov.toPMotebehov()
