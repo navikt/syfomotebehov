@@ -30,7 +30,6 @@ data class MotebehovVeilederDTOv4(
     val virksomhetsnummer: String,
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
-//    val innmelderType: InnmelderType, // ARBEIDSTAKER | ARBEIDSGIVER,
-    val skjemaType: MotebehovSkjemaType? = null, // make not nullable
+    val skjemaType: MotebehovSkjemaType,
     val formValues: MotebehovFormValuesOutputDTO,
 )

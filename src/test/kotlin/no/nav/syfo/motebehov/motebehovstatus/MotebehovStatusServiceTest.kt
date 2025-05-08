@@ -58,6 +58,7 @@ class MotebehovStatusServiceTest : DescribeSpec({
                 motebehovStatusServiceV2.motebehovStatusForArbeidstaker(userFnr)
 
             assertThat(motebehovStatusForArbeidstaker.skjemaType).isEqualTo(MotebehovSkjemaType.SVAR_BEHOV)
+            assertThat(motebehovStatusForArbeidstaker.visMotebehov).isTrue()
         }
 
         it("kandidatWithDialogmoteGivesNoMotebehov") {
@@ -69,7 +70,7 @@ class MotebehovStatusServiceTest : DescribeSpec({
             val motebehovStatusForArbeidstaker =
                 motebehovStatusServiceV2.motebehovStatusForArbeidstaker(userFnr)
 
-            assertThat(motebehovStatusForArbeidstaker.skjemaType).isNull()
+            assertThat(motebehovStatusForArbeidstaker.visMotebehov).isFalse()
         }
 
         it("noDialogmoteAndNoKandidatGivesMeldBehov") {
@@ -82,6 +83,7 @@ class MotebehovStatusServiceTest : DescribeSpec({
                 motebehovStatusServiceV2.motebehovStatusForArbeidstaker(userFnr)
 
             assertThat(motebehovStatusForArbeidstaker.skjemaType).isEqualTo(MotebehovSkjemaType.MELD_BEHOV)
+            assertThat(motebehovStatusForArbeidstaker.visMotebehov).isTrue()
         }
     }
 })

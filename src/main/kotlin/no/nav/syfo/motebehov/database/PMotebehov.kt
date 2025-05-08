@@ -2,9 +2,9 @@ package no.nav.syfo.motebehov.database
 
 import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.motebehov.MotebehovFormSubmissionCombinedDTO
+import no.nav.syfo.motebehov.MotebehovInnmelderType
 import no.nav.syfo.motebehov.formSnapshot.FormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.LegacyMotebehovToFormSnapshotHelper
-import no.nav.syfo.motebehov.formSnapshot.MotebehovInnmelderType
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import java.io.Serializable
 import java.time.LocalDateTime
@@ -21,7 +21,7 @@ data class PMotebehov(
     val tildeltEnhet: String? = null,
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
-    val skjemaType: MotebehovSkjemaType? = null,
+    val skjemaType: MotebehovSkjemaType,
     val sykmeldtFnr: String? = null,
     val opprettetAvFnr: String? = null,
     // For old "legacy motebehov", this field will be null.

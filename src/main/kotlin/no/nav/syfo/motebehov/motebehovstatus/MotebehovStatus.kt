@@ -10,7 +10,7 @@ import java.io.Serializable
 
 data class MotebehovStatus(
     val visMotebehov: Boolean,
-    val skjemaType: MotebehovSkjemaType? = null,
+    val skjemaType: MotebehovSkjemaType,
     val motebehov: Motebehov? = null
 ) : Serializable
 
@@ -29,7 +29,6 @@ fun MotebehovStatus.isSvarBehovVarselAvailable(newestMotebehov: Motebehov): Bool
 
 fun MotebehovStatus.isMotebehovAvailableForAnswer(): Boolean {
     return this.visMotebehov &&
-        this.skjemaType != null &&
         this.motebehov == null
 }
 
