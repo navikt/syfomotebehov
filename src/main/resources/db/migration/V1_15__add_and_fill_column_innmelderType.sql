@@ -11,6 +11,3 @@ SET innmelder_type =
             THEN 'ARBEIDSTAKER'
         ELSE 'ARBEIDSGIVER'
         END;
-
-ALTER TABLE MOTEBEHOV
-    ALTER COLUMN innmelder_type SET NOT NULL;
