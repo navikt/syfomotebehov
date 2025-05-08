@@ -1,6 +1,7 @@
 package no.nav.syfo.motebehov.database
 
 import no.nav.syfo.motebehov.extractFormValuesFromFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.FormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.convertFormSnapshotToJsonString
 import no.nav.syfo.motebehov.formSnapshot.convertJsonStringToFormSnapshot
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
@@ -13,6 +14,7 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.core.support.SqlLobValue
+import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.stereotype.Repository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -35,7 +37,7 @@ class MotebehovDAO(
             jdbcTemplate.query(
                 """
                 SELECT m.*, f.* FROM motebehov m
-                LEFT JOIN motebehov_form_values f ON m.motebehov_uuid = f.motebehov_uuid
+                LEFT JOIN motebehov_form_values f ON m.id = f.motebehov_row_id
                 WHERE m.aktoer_id = ? ORDER BY m.opprettet_dato ASC
                 """,
                 motebehovRowMapper,
@@ -49,7 +51,7 @@ class MotebehovDAO(
             jdbcTemplate.query(
                 """
                 SELECT m.*, f.* FROM motebehov m
-                LEFT JOIN motebehov_form_values f ON m.motebehov_uuid = f.motebehov_uuid
+                LEFT JOIN motebehov_form_values f ON m.id = f.motebehov_row_id
                 WHERE m.aktoer_id = ? AND m.opprettet_av = ? AND m.opprettet_dato >= ?
                 ORDER BY m.opprettet_dato DESC
                 """,
@@ -70,7 +72,7 @@ class MotebehovDAO(
             val query =
                 """
                 SELECT m.*, f.* FROM motebehov m
-                LEFT JOIN motebehov_form_values f ON m.motebehov_uuid = f.motebehov_uuid
+                LEFT JOIN motebehov_form_values f ON m.id = f.motebehov_row_id
                 WHERE m.aktoer_id = ? AND m.virksomhetsnummer = ? AND m.opprettet_dato >= ?
                 ORDER BY m.opprettet_dato DESC
                 """
@@ -87,7 +89,7 @@ class MotebehovDAO(
             val query =
                 """
                 SELECT m.*, f.* FROM motebehov m
-                LEFT JOIN motebehov_form_values f ON m.motebehov_uuid = f.motebehov_uuid
+                LEFT JOIN motebehov_form_values f ON m.id = f.motebehov_row_id
                 WHERE m.aktoer_id = ? AND m.opprettet_av != ? AND m.virksomhetsnummer = ? AND m.opprettet_dato >= ?
                 ORDER BY m.opprettet_dato DESC
                 """
@@ -109,7 +111,7 @@ class MotebehovDAO(
             jdbcTemplate.query(
                 """
                 SELECT m.*, f.* FROM motebehov m
-                LEFT JOIN motebehov_form_values f ON m.motebehov_uuid = f.motebehov_uuid
+                LEFT JOIN motebehov_form_values f ON m.id = f.motebehov_row_id
                 WHERE m.aktoer_id = ? AND m.har_motebehov AND m.behandlet_veileder_ident IS NULL
                 """,
                 motebehovRowMapper,
@@ -123,7 +125,7 @@ class MotebehovDAO(
             jdbcTemplate.query(
                 """
                 SELECT m.*, f.* FROM motebehov m
-                LEFT JOIN motebehov_form_values f ON m.motebehov_uuid = f.motebehov_uuid
+                LEFT JOIN motebehov_form_values f ON m.id = f.motebehov_row_id
                 WHERE m.opprettet_dato < ? AND m.har_motebehov AND m.behandlet_veileder_ident IS NULL
                 """,
                 motebehovRowMapper,
@@ -132,16 +134,16 @@ class MotebehovDAO(
         ).orElse(emptyList())
     }
 
-    fun hentMotebehov(motebehovId: String): List<PMotebehov> {
+    fun hentMotebehov(motebehovUUID: String): List<PMotebehov> {
         return Optional.ofNullable(
             jdbcTemplate.query(
                 """
                 SELECT m.*, f.* FROM motebehov m
-                LEFT JOIN motebehov_form_values f ON m.motebehov_uuid = f.motebehov_uuid
+                LEFT JOIN motebehov_form_values f ON m.id = f.motebehov_row_id
                 WHERE m.motebehov_uuid = ?
                 """,
                 motebehovRowMapper,
-                motebehovId
+                motebehovUUID
             )
         ).orElse(emptyList())
     }
@@ -167,6 +169,7 @@ class MotebehovDAO(
             :har_motebehov, :forklaring, :tildelt_enhet, :behandlet_tidspunkt, :behandlet_veileder_ident, :skjematype,
             :sm_fnr, :opprettet_av_fnr)
         """.trimIndent()
+
         val mapLagreMotebehovSql = MapSqlParameterSource()
             .addValue("motebehov_uuid", uuid.toString())
             .addValue("opprettet_av", motebehov.opprettetAv)
@@ -181,36 +184,50 @@ class MotebehovDAO(
             .addValue("skjematype", motebehov.skjemaType?.name)
             .addValue("sm_fnr", motebehov.sykmeldtFnr)
             .addValue("opprettet_av_fnr", motebehov.opprettetAvFnr)
-        namedParameterJdbcTemplate.update(lagreMotebehovSql, mapLagreMotebehovSql)
 
-        motebehov.formSnapshot?.let {
-            val formSnapshotJSON = convertFormSnapshotToJsonString(motebehov.formSnapshot)
-            val formValues = extractFormValuesFromFormSnapshot(motebehov.formSnapshot)
+        val keyHolder = GeneratedKeyHolder()
 
-            val lagreMotebehovFormValuesSql = """
-            INSERT INTO motebehov_form_values (motebehov_uuid, form_snapshot, form_identifier, form_semantic_version,
-                begrunnelse, onsker_sykmelder_deltar, onsker_sykmelder_deltar_begrunnelse,
-                onsker_tolk, tolk_sprak)
-            VALUES                           (:motebehov_uuid, :form_snapshot, :form_identifier, :form_semantic_version,
-                :begrunnelse, :onsker_sykmelder_deltar, :onsker_sykmelder_deltar_begrunnelse,
-                :onsker_tolk, :tolk_sprak)
-            """.trimIndent()
-            val mapLagreMotebehovFormValuesSql = MapSqlParameterSource()
-                .addValue("motebehov_uuid", uuid.toString())
-                .addValue("form_snapshot", formSnapshotJSON, Types.OTHER)
-                // The columns below store copies of values inside form_snapshot, and are only used for
-                // debugging and data monitoring purposes. They are not read out again in this application.
-                .addValue("form_identifier", formValues.formIdentifier)
-                .addValue("form_semantic_version", formValues.formSemanticVersion)
-                .addValue("begrunnelse", formValues.begrunnelse)
-                .addValue("onsker_sykmelder_deltar", formValues.onskerSykmelderDeltar)
-                .addValue("onsker_sykmelder_deltar_begrunnelse", formValues.onskerSykmelderDeltarBegrunnelse)
-                .addValue("onsker_tolk", formValues.onskerTolk)
-                .addValue("tolk_sprak", formValues.tolkSprak)
-            namedParameterJdbcTemplate.update(lagreMotebehovFormValuesSql, mapLagreMotebehovFormValuesSql)
+        namedParameterJdbcTemplate.update(
+            lagreMotebehovSql,
+            mapLagreMotebehovSql,
+            keyHolder,
+            arrayOf("id")
+        )
+
+        if (motebehov.formSnapshot != null) {
+            val motebehovRowId = keyHolder.key?.toLong() ?: error("Failed to retrieve generated key for motebehov")
+
+            insertIntoMotebehovFormValues(motebehov.formSnapshot, motebehovRowId)
         }
 
         return uuid
+    }
+
+    fun insertIntoMotebehovFormValues(formSnapshot: FormSnapshot, motebehovRowId: Long) {
+        val formSnapshotJSON = convertFormSnapshotToJsonString(formSnapshot)
+        val formValues = extractFormValuesFromFormSnapshot(formSnapshot)
+
+        val lagreMotebehovFormValuesSql = """
+            INSERT INTO motebehov_form_values (motebehov_row_id, form_snapshot, form_identifier, form_semantic_version,
+                begrunnelse, onsker_sykmelder_deltar, onsker_sykmelder_deltar_begrunnelse,
+                onsker_tolk, tolk_sprak)
+            VALUES                         (:motebehov_row_id, :form_snapshot, :form_identifier, :form_semantic_version,
+                :begrunnelse, :onsker_sykmelder_deltar, :onsker_sykmelder_deltar_begrunnelse,
+                :onsker_tolk, :tolk_sprak)
+        """.trimIndent()
+        val mapLagreMotebehovFormValuesSql = MapSqlParameterSource()
+            .addValue("motebehov_row_id", motebehovRowId)
+            .addValue("form_snapshot", formSnapshotJSON, Types.OTHER)
+            // The columns below store copies of values inside form_snapshot, and are only used for
+            // debugging and data monitoring purposes. They are not read out again in this application.
+            .addValue("form_identifier", formValues.formIdentifier)
+            .addValue("form_semantic_version", formValues.formSemanticVersion)
+            .addValue("begrunnelse", formValues.begrunnelse)
+            .addValue("onsker_sykmelder_deltar", formValues.onskerSykmelderDeltar)
+            .addValue("onsker_sykmelder_deltar_begrunnelse", formValues.onskerSykmelderDeltarBegrunnelse)
+            .addValue("onsker_tolk", formValues.onskerTolk)
+            .addValue("tolk_sprak", formValues.tolkSprak)
+        namedParameterJdbcTemplate.update(lagreMotebehovFormValuesSql, mapLagreMotebehovFormValuesSql)
     }
 
     fun nullstillMotebehov(aktoerId: String): Int {
