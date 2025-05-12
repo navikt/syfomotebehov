@@ -23,7 +23,7 @@ fun mockAndExpectBehandlendeEnhetRequest(
     behandlendeenhetUrl: String,
     fnr: String,
 ) {
-    val uriString = UriComponentsBuilder.fromHttpUrl(behandlendeenhetUrl)
+    val uriString = UriComponentsBuilder.fromUriString(behandlendeenhetUrl)
         .path(BEHANDLENDEENHET_PATH)
         .toUriString()
     val behandlendeEnhet = BehandlendeEnhet(
@@ -56,7 +56,7 @@ fun mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll(
     tilgangskontrollUrl: String,
     fnr: String,
 ) {
-    val uriString = UriComponentsBuilder.fromHttpUrl(behandlendeenhetUrl)
+    val uriString = UriComponentsBuilder.fromUriString(behandlendeenhetUrl)
         .path(BEHANDLENDEENHET_PATH)
         .toUriString()
     val behandlendeEnhet = BehandlendeEnhet(
