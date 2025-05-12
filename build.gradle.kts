@@ -5,6 +5,7 @@ val kotlinJacksonVersion = "2.17.2"
 val flywayVersion = "9.22.3"
 val tokenSupportVersion = "3.2.0"
 val mockkVersion = "1.13.12"
+val nimbusVersion = "9.37.2"
 val kotestTestContainersExtensionVersion = "2.0.2"
 val wiremockKotestExtensionVersion = "3.1.0"
 val springMockkVersion = "4.0.2"
@@ -15,6 +16,7 @@ val logstashVersion = "4.10"
 val javaxInjectVersion = "1"
 val owaspSanitizerVersion = "20240325.1"
 val apacheCommonsTextVersion = "1.12.0"
+val apacheMinaVersion = "2.2.4"
 val jakartaRsApiVersion = "4.0.0"
 val hikari = "5.1.0"
 val postgres = "42.7.3"
@@ -81,6 +83,8 @@ dependencies {
     implementation("javax.inject:javax.inject:$javaxInjectVersion")
 
     implementation("org.apache.commons:commons-text:$apacheCommonsTextVersion")
+    implementation("org.apache.mina:mina-core:$apacheMinaVersion")
+    implementation("com.nimbusds:nimbus-jose-jwt:$nimbusVersion")
     implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:$owaspSanitizerVersion")
     implementation("org.jsoup:jsoup:$jsoupVersion")
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:$jakartaRsApiVersion")
