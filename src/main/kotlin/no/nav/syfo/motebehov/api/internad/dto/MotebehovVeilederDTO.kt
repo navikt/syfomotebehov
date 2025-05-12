@@ -32,6 +32,6 @@ data class MotebehovVeilederDTOv4(
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
     val skjemaType: MotebehovSkjemaType,
-    val innmelderType: MotebehovInnmelderType,
+    val innmelderType: MotebehovInnmelderType?,
     val formValues: MotebehovFormValuesOutputDTO,
 )
