@@ -1,37 +1,37 @@
 group = "no.nav.syfo"
 
-val apacheHttpClientVersion = "5.3.1"
 val junitJupiterVersion = "5.10.3"
 val kotlinJacksonVersion = "2.17.2"
 val flywayVersion = "9.22.3"
 val tokenSupportVersion = "3.2.0"
 val mockkVersion = "1.13.12"
+val nimbusVersion = "9.37.2"
 val kotestTestContainersExtensionVersion = "2.0.2"
 val wiremockKotestExtensionVersion = "3.1.0"
 val springMockkVersion = "4.0.2"
-val confluent = "7.7.0"
+val confluent = "7.9.0"
 val isdialogmoteSchema = "1.0.5"
 val jsoupVersion = "1.18.1"
 val logstashVersion = "4.10"
-val logbackVersion = "1.5.6"
 val javaxInjectVersion = "1"
 val owaspSanitizerVersion = "20240325.1"
 val apacheCommonsTextVersion = "1.12.0"
+val apacheMinaVersion = "2.2.4"
 val jakartaRsApiVersion = "4.0.0"
 val hikari = "5.1.0"
 val postgres = "42.7.3"
-val detektVersion = "1.23.6"
+val detektVersion = "1.23.8"
 val testcontainersVersion = "1.20.4"
 val kotestVersion = "5.9.1"
 val springKotestExtensionVersion = "1.3.0"
 
 plugins {
     id("java")
-    id("org.springframework.boot") version "3.3.6"
+    id("org.springframework.boot") version "3.4.5"
     id("io.spring.dependency-management") version "1.1.6"
-    id("io.gitlab.arturbosch.detekt") version "1.23.6"
-    kotlin("jvm") version "1.9.23"
-    kotlin("plugin.spring") version "1.9.23"
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    kotlin("jvm") version "2.0.21"
+    kotlin("plugin.spring") version "2.0.21"
 }
 
 repositories {
@@ -59,7 +59,7 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$kotlinJacksonVersion")
 
-    implementation("org.apache.httpcomponents.client5:httpclient5:$apacheHttpClientVersion")
+    implementation("org.apache.httpcomponents.client5:httpclient5")
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -75,7 +75,7 @@ dependencies {
     }
 
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    implementation("ch.qos.logback:logback-classic")
 
     implementation("io.confluent:kafka-avro-serializer:$confluent")
     implementation("io.confluent:kafka-schema-registry:$confluent")
@@ -83,6 +83,8 @@ dependencies {
     implementation("javax.inject:javax.inject:$javaxInjectVersion")
 
     implementation("org.apache.commons:commons-text:$apacheCommonsTextVersion")
+    implementation("org.apache.mina:mina-core:$apacheMinaVersion")
+    implementation("com.nimbusds:nimbus-jose-jwt:$nimbusVersion")
     implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:$owaspSanitizerVersion")
     implementation("org.jsoup:jsoup:$jsoupVersion")
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:$jakartaRsApiVersion")
