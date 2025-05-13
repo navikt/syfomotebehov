@@ -187,8 +187,7 @@ class MotebehovDAOTest : IntegrationTest() {
                     motebehovToStoreFormSnapshotConvertedToJSON ?: ""
                 ) shouldBe true
 
-                motebehovFormValuesFromDb.formIdentifier shouldBe
-                    motebehovToStore.formSnapshot?.formIdentifier?.identifier
+                motebehovFormValuesFromDb.formIdentifier shouldBe motebehovToStore.formSnapshot?.formIdentifier
                 motebehovFormValuesFromDb.formSemanticVersion shouldBe
                     motebehovToStore.formSnapshot?.formSemanticVersion
                 motebehovFormValuesFromDb.begrunnelse shouldBe MOCK_ARRBEIDSGIVER_SVAR_BEGRUNNELSE
