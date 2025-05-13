@@ -1,5 +1,6 @@
 package no.nav.syfo.motebehov.database
 
+import no.nav.syfo.motebehov.MotebehovInnmelderType
 import no.nav.syfo.motebehov.extractFormValuesFromFormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.FormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.convertFormSnapshotToJsonString
@@ -48,7 +49,9 @@ class MotebehovDAO(
             """
                 SELECT m.*, f.* FROM motebehov m
                 LEFT JOIN motebehov_form_values f ON m.id = f.motebehov_row_id
-                WHERE m.aktoer_id = ? AND m.opprettet_av = ? AND m.opprettet_dato >= ?
+                WHERE m.aktoer_id = ?
+                AND m.opprettet_av = ?
+                AND m.opprettet_dato >= ?
                 ORDER BY m.opprettet_dato DESC
                 """,
             motebehovRowMapper,
@@ -58,6 +61,10 @@ class MotebehovDAO(
         ) ?: emptyList()
     }
 
+    /**
+     * isOwnLeader is true if the leader making the request is the same person as the arbeidstaker identified by
+     * arbeidstakerAktorId.
+     */
     fun hentMotebehovListeForArbeidstakerOpprettetAvLeder(
         arbeidstakerAktorId: String,
         isOwnLeader: Boolean,
@@ -68,7 +75,9 @@ class MotebehovDAO(
                 """
                 SELECT m.*, f.* FROM motebehov m
                 LEFT JOIN motebehov_form_values f ON m.id = f.motebehov_row_id
-                WHERE m.aktoer_id = ? AND m.virksomhetsnummer = ? AND m.opprettet_dato >= ?
+                WHERE m.aktoer_id = ?
+                AND m.virksomhetsnummer = ?
+                AND m.opprettet_dato >= ?
                 ORDER BY m.opprettet_dato DESC
                 """
             return jdbcTemplate.query(
@@ -79,11 +88,17 @@ class MotebehovDAO(
                 hentTidligsteDatoForGyldigMotebehovSvar()
             ) ?: emptyList()
         } else {
+            // If isOwnLeader is false, the leader making the request is a different person from the arbeidstaker, and
+            // motebehov innmeldt by the arbeidstaker must not be included in the result. This is ensured by the
+            // WHERE opprettet_av != arbeidstakerAktorId filter.
             val query =
                 """
                 SELECT m.*, f.* FROM motebehov m
                 LEFT JOIN motebehov_form_values f ON m.id = f.motebehov_row_id
-                WHERE m.aktoer_id = ? AND m.opprettet_av != ? AND m.virksomhetsnummer = ? AND m.opprettet_dato >= ?
+                WHERE m.aktoer_id = ?
+                AND m.opprettet_av != ?
+                AND m.virksomhetsnummer = ?
+                AND m.opprettet_dato >= ?
                 ORDER BY m.opprettet_dato DESC
                 """
             return jdbcTemplate.query(
@@ -149,10 +164,10 @@ class MotebehovDAO(
         val lagreMotebehovSql = """
         INSERT INTO motebehov (motebehov_uuid, opprettet_dato, opprettet_av, aktoer_id, virksomhetsnummer,
             har_motebehov, forklaring, tildelt_enhet, behandlet_tidspunkt, behandlet_veileder_ident, skjematype,
-            sm_fnr, opprettet_av_fnr)
+            innmelder_type, sm_fnr, opprettet_av_fnr)
         VALUES                (:motebehov_uuid, :opprettet_dato, :opprettet_av, :aktoer_id, :virksomhetsnummer,
             :har_motebehov, :forklaring, :tildelt_enhet, :behandlet_tidspunkt, :behandlet_veileder_ident, :skjematype,
-            :sm_fnr, :opprettet_av_fnr)
+            :innmelder_type, :sm_fnr, :opprettet_av_fnr)
         """.trimIndent()
 
         val mapLagreMotebehovSql = MapSqlParameterSource()
@@ -167,6 +182,7 @@ class MotebehovDAO(
             .addValue("behandlet_tidspunkt", convertNullable(motebehov.behandletTidspunkt))
             .addValue("behandlet_veileder_ident", motebehov.behandletVeilederIdent)
             .addValue("skjematype", motebehov.skjemaType.name)
+            .addValue("innmelder_type", motebehov.innmelderType.name)
             .addValue("sm_fnr", motebehov.sykmeldtFnr)
             .addValue("opprettet_av_fnr", motebehov.opprettetAvFnr)
 
@@ -245,6 +261,7 @@ class MotebehovDAO(
                 behandletTidspunkt = convertNullable(rs.getTimestamp("behandlet_tidspunkt")),
                 behandletVeilederIdent = rs.getString("behandlet_veileder_ident"),
                 skjemaType = rs.getString("skjematype").let { MotebehovSkjemaType.valueOf(it) },
+                innmelderType = rs.getString("innmelder_type").let { MotebehovInnmelderType.valueOf(it) },
                 sykmeldtFnr = rs.getString("sm_fnr"),
                 opprettetAvFnr = rs.getString("opprettet_av_fnr"),
                 formSnapshot = rs.getString("form_snapshot")?.let { convertJsonStringToFormSnapshot(it) },

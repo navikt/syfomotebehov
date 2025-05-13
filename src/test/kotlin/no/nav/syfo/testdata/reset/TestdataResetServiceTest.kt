@@ -10,6 +10,7 @@ import no.nav.syfo.dialogmote.database.DialogmoteDAO
 import no.nav.syfo.dialogmote.database.DialogmoteStatusEndringType
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
+import no.nav.syfo.motebehov.MotebehovInnmelderType
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.database.PMotebehov
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
@@ -65,6 +66,7 @@ class TestdataResetServiceTest : IntegrationTest() {
                         VIRKSOMHETSNUMMER,
                         true,
                         skjemaType = MotebehovSkjemaType.MELD_BEHOV,
+                        innmelderType = MotebehovInnmelderType.ARBEIDSGIVER,
                     )
                 )
                 assertThat(motebehovDAO.hentMotebehovListeForAktoer(ARBEIDSTAKER_AKTORID).size).isEqualTo(1)

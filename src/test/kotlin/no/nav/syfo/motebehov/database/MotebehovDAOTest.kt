@@ -5,6 +5,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
+import no.nav.syfo.motebehov.MotebehovInnmelderType
 import no.nav.syfo.motebehov.formSnapshot.MOCK_ARBEIDSGIVER_SVAR_ONSKER_SYKMELDER_BEGRUNNELSE
 import no.nav.syfo.motebehov.formSnapshot.MOCK_ARBEIDSGIVER_SVAR_SPRAK
 import no.nav.syfo.motebehov.formSnapshot.MOCK_ARRBEIDSGIVER_SVAR_BEGRUNNELSE
@@ -63,6 +64,7 @@ class MotebehovDAOTest : IntegrationTest() {
                 // though.
                 motebehovFraDb.tildeltEnhet shouldBe pMotebehov.tildeltEnhet
                 motebehovFraDb.skjemaType shouldBe pMotebehov.skjemaType
+                motebehovFraDb.innmelderType shouldBe pMotebehov.innmelderType
                 motebehovFraDb.formSnapshot shouldBe pMotebehov.formSnapshot
             }
 
@@ -70,6 +72,7 @@ class MotebehovDAOTest : IntegrationTest() {
                 val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
                     opprettetDato = motebehovGenerator.getOpprettetDato(false),
                     opprettetAv = ARBEIDSTAKER_AKTORID,
+                    innmelderType = MotebehovInnmelderType.ARBEIDSTAKER
                 )
 
                 val uuid = motebehovDAO.create(pMotebehov)
@@ -83,6 +86,7 @@ class MotebehovDAOTest : IntegrationTest() {
                 val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
                     opprettetDato = motebehovGenerator.getOpprettetDato(true),
                     opprettetAv = ARBEIDSTAKER_AKTORID,
+                    innmelderType = MotebehovInnmelderType.ARBEIDSTAKER
                 )
 
                 val uuid = motebehovDAO.create(pMotebehov)
@@ -96,6 +100,7 @@ class MotebehovDAOTest : IntegrationTest() {
                     pMotebehov.opprettetDato.truncatedTo(ChronoUnit.SECONDS)
                 motebehovFraDb.opprettetAv shouldBe pMotebehov.opprettetAv
                 motebehovFraDb.aktoerId shouldBe pMotebehov.aktoerId
+                motebehovFraDb.innmelderType shouldBe pMotebehov.innmelderType
             }
 
             it("hentMotebehovListeForOgOpprettetAvLederIkkeGyldig") {
@@ -134,12 +139,14 @@ class MotebehovDAOTest : IntegrationTest() {
                     pMotebehov.opprettetDato.truncatedTo(ChronoUnit.SECONDS)
                 motebehovFraDb.opprettetAv shouldBe LEDER_AKTORID
                 motebehovFraDb.aktoerId shouldBe pMotebehov.aktoerId
+                motebehovFraDb.innmelderType shouldBe pMotebehov.innmelderType
             }
 
             it("skalHenteAlleMotebehovForAktorDersomEgenLeder") {
                 val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
                     opprettetDato = motebehovGenerator.getOpprettetDato(true),
                     opprettetAv = ARBEIDSTAKER_AKTORID,
+                    innmelderType = MotebehovInnmelderType.ARBEIDSTAKER,
                 )
                 val uuid = motebehovDAO.create(pMotebehov)
                 dbUpdateOpprettetDato(uuid.toString(), pMotebehov.opprettetDato)
@@ -156,6 +163,7 @@ class MotebehovDAOTest : IntegrationTest() {
                     pMotebehov.opprettetDato.truncatedTo(ChronoUnit.SECONDS)
                 motebehovFraDb.opprettetAv shouldBe ARBEIDSTAKER_AKTORID
                 motebehovFraDb.aktoerId shouldBe pMotebehov.aktoerId
+                motebehovFraDb.innmelderType shouldBe pMotebehov.innmelderType
             }
 
             it(
@@ -179,7 +187,8 @@ class MotebehovDAOTest : IntegrationTest() {
                     motebehovToStoreFormSnapshotConvertedToJSON ?: ""
                 ) shouldBe true
 
-                motebehovFormValuesFromDb.formIdentifier shouldBe motebehovToStore.formSnapshot?.formIdentifier
+                motebehovFormValuesFromDb.formIdentifier shouldBe
+                    motebehovToStore.formSnapshot?.formIdentifier?.identifier
                 motebehovFormValuesFromDb.formSemanticVersion shouldBe
                     motebehovToStore.formSnapshot?.formSemanticVersion
                 motebehovFormValuesFromDb.begrunnelse shouldBe MOCK_ARRBEIDSGIVER_SVAR_BEGRUNNELSE
