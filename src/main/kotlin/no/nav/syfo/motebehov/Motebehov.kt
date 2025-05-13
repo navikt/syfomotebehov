@@ -23,7 +23,7 @@ data class Motebehov(
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
     val skjemaType: MotebehovSkjemaType,
-    val innmelderType: MotebehovInnmelderType? = null,
+    val innmelderType: MotebehovInnmelderType,
     val formSubmission: MotebehovFormSubmissionCombinedDTO,
 ) : Serializable
 
@@ -54,7 +54,7 @@ data class MotebehovWithFormValuesOutputDTO(
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
     val skjemaType: MotebehovSkjemaType,
-    val innmelderType: MotebehovInnmelderType?,
+    val innmelderType: MotebehovInnmelderType,
     val formValues: MotebehovFormValuesOutputDTO,
 )
 
