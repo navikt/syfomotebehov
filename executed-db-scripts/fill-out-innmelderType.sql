@@ -1,4 +1,4 @@
--- This update to 1M+ rows was run manually in smaller chunks to not run out of memory
+-- This update to 1M+ rows was run manually on a limited number of rows at a time to not run out of memory
 UPDATE MOTEBEHOV
 SET innmelder_type =
     CASE
@@ -6,4 +6,5 @@ SET innmelder_type =
             THEN 'ARBEIDSTAKER'
         ELSE 'ARBEIDSGIVER'
         END
-WHERE id BETWEEN 0 AND 10000;
+WHERE innmelder_type IS NULL
+--   AND id BETWEEN 0 AND 100000;
