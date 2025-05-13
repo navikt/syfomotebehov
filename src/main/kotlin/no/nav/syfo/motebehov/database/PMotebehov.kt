@@ -22,6 +22,7 @@ data class PMotebehov(
     val behandletTidspunkt: LocalDateTime? = null,
     val behandletVeilederIdent: String? = null,
     val skjemaType: MotebehovSkjemaType,
+    val innmelderType: MotebehovInnmelderType? = null,
     val sykmeldtFnr: String? = null,
     val opprettetAvFnr: String? = null,
     // For old "legacy motebehov", this field will be null.
@@ -30,7 +31,6 @@ data class PMotebehov(
 
 fun PMotebehov.toMotebehov(
     arbeidstakerFnr: String? = null,
-    knownInnmelderType: MotebehovInnmelderType? = null
 ): Motebehov {
     return Motebehov(
         id = this.uuid,
@@ -44,27 +44,29 @@ fun PMotebehov.toMotebehov(
         behandletTidspunkt = this.behandletTidspunkt,
         behandletVeilederIdent = this.behandletVeilederIdent,
         skjemaType = this.skjemaType,
-        formSubmission = createMotebehovFormSubmissionFromPMotebehov(this, knownInnmelderType),
+        innmelderType = this.innmelderType,
+        formSubmission = createMotebehovFormSubmissionFromPMotebehov(this, this.innmelderType),
     )
 }
 
 private fun createMotebehovFormSubmissionFromPMotebehov(
     pMotebehov: PMotebehov,
-    knownInnmelderType: MotebehovInnmelderType?
+    innmelderTypeFromDb: MotebehovInnmelderType?,
 ): MotebehovFormSubmissionCombinedDTO {
-    val motebehovInnmelderType = knownInnmelderType
-        ?: if (pMotebehov.opprettetAv == pMotebehov.aktoerId ||
-            pMotebehov.opprettetAvFnr == pMotebehov.sykmeldtFnr
-        ) {
-            MotebehovInnmelderType.ARBEIDSTAKER
-        } else {
-            MotebehovInnmelderType.ARBEIDSGIVER
-        }
-
     val isLegacyMotebehov = pMotebehov.formSnapshot == null
 
     val formSnapshot = if (isLegacyMotebehov) {
+        val motebehovInnmelderType = innmelderTypeFromDb
+            ?: if (pMotebehov.opprettetAv == pMotebehov.aktoerId ||
+                pMotebehov.opprettetAvFnr == pMotebehov.sykmeldtFnr
+            ) {
+                MotebehovInnmelderType.ARBEIDSTAKER
+            } else {
+                MotebehovInnmelderType.ARBEIDSGIVER
+            }
+
         val helper = LegacyMotebehovToFormSnapshotHelper()
+
         helper.createFormSnapshotFromLegacyMotebehovValues(
             pMotebehov.harMotebehov,
             pMotebehov.forklaring,
