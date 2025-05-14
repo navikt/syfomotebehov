@@ -28,7 +28,7 @@ fun mockSvarFraIstilgangskontrollTilgangTilBruker(
 
     val oboToken = generateAzureAdV2TokenResponse().access_token
 
-    val uriString = UriComponentsBuilder.fromHttpUrl(tilgangskontrollUrl)
+    val uriString = UriComponentsBuilder.fromUriString(tilgangskontrollUrl)
         .path(VeilederTilgangConsumer.TILGANGSKONTROLL_PERSON_PATH)
         .toUriString()
     mockRestServiceServer.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(uriString))

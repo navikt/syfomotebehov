@@ -23,7 +23,6 @@ import java.sql.ResultSet
 import java.sql.Types
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
 import java.util.UUID
 
 @Service
@@ -34,23 +33,20 @@ class MotebehovDAO(
     private val jdbcTemplate: JdbcTemplate
 ) {
     fun hentMotebehovListeForAktoer(aktoerId: String): List<PMotebehov> {
-        return Optional.ofNullable(
-            jdbcTemplate.query(
-                """
+        return jdbcTemplate.query(
+            """
                 SELECT m.*, f.* FROM motebehov m
                 LEFT JOIN motebehov_form_values f ON m.id = f.motebehov_row_id
                 WHERE m.aktoer_id = ? ORDER BY m.opprettet_dato ASC
                 """,
-                motebehovRowMapper,
-                aktoerId
-            )
-        ).orElse(emptyList())
+            motebehovRowMapper,
+            aktoerId
+        ) ?: emptyList()
     }
 
     fun hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktorId: String): List<PMotebehov> {
-        return Optional.ofNullable(
-            jdbcTemplate.query(
-                """
+        return jdbcTemplate.query(
+            """
                 SELECT m.*, f.* FROM motebehov m
                 LEFT JOIN motebehov_form_values f ON m.id = f.motebehov_row_id
                 WHERE m.aktoer_id = ?
@@ -58,12 +54,11 @@ class MotebehovDAO(
                 AND m.opprettet_dato >= ?
                 ORDER BY m.opprettet_dato DESC
                 """,
-                motebehovRowMapper,
-                arbeidstakerAktorId,
-                arbeidstakerAktorId,
-                hentTidligsteDatoForGyldigMotebehovSvar()
-            )
-        ).orElse(emptyList())
+            motebehovRowMapper,
+            arbeidstakerAktorId,
+            arbeidstakerAktorId,
+            hentTidligsteDatoForGyldigMotebehovSvar()
+        ) ?: emptyList()
     }
 
     /**
@@ -85,15 +80,13 @@ class MotebehovDAO(
                 AND m.opprettet_dato >= ?
                 ORDER BY m.opprettet_dato DESC
                 """
-            return Optional.ofNullable(
-                jdbcTemplate.query(
-                    query,
-                    motebehovRowMapper,
-                    arbeidstakerAktorId,
-                    virksomhetsnummer,
-                    hentTidligsteDatoForGyldigMotebehovSvar()
-                )
-            ).orElse(emptyList())
+            return jdbcTemplate.query(
+                query,
+                motebehovRowMapper,
+                arbeidstakerAktorId,
+                virksomhetsnummer,
+                hentTidligsteDatoForGyldigMotebehovSvar()
+            ) ?: emptyList()
         } else {
             // If isOwnLeader is false, the leader making the request is a different person from the arbeidstaker, and
             // motebehov innmeldt by the arbeidstaker must not be included in the result. This is ensured by the
@@ -108,59 +101,51 @@ class MotebehovDAO(
                 AND m.opprettet_dato >= ?
                 ORDER BY m.opprettet_dato DESC
                 """
-            return Optional.ofNullable(
-                jdbcTemplate.query(
-                    query,
-                    motebehovRowMapper,
-                    arbeidstakerAktorId,
-                    arbeidstakerAktorId,
-                    virksomhetsnummer,
-                    hentTidligsteDatoForGyldigMotebehovSvar()
-                )
-            ).orElse(emptyList())
+            return jdbcTemplate.query(
+                query,
+                motebehovRowMapper,
+                arbeidstakerAktorId,
+                arbeidstakerAktorId,
+                virksomhetsnummer,
+                hentTidligsteDatoForGyldigMotebehovSvar()
+            ) ?: emptyList()
         }
     }
 
     fun hentUbehandledeMotebehov(aktoerId: String): List<PMotebehov> {
-        return Optional.ofNullable(
-            jdbcTemplate.query(
-                """
+        return jdbcTemplate.query(
+            """
                 SELECT m.*, f.* FROM motebehov m
                 LEFT JOIN motebehov_form_values f ON m.id = f.motebehov_row_id
                 WHERE m.aktoer_id = ? AND m.har_motebehov AND m.behandlet_veileder_ident IS NULL
                 """,
-                motebehovRowMapper,
-                aktoerId
-            )
-        ).orElse(emptyList())
+            motebehovRowMapper,
+            aktoerId
+        ) ?: emptyList()
     }
 
     fun hentUbehandledeMotebehovEldreEnnDato(date: LocalDate): List<PMotebehov> {
-        return Optional.ofNullable(
-            jdbcTemplate.query(
-                """
+        return jdbcTemplate.query(
+            """
                 SELECT m.*, f.* FROM motebehov m
                 LEFT JOIN motebehov_form_values f ON m.id = f.motebehov_row_id
                 WHERE m.opprettet_dato < ? AND m.har_motebehov AND m.behandlet_veileder_ident IS NULL
                 """,
-                motebehovRowMapper,
-                convert(date)
-            )
-        ).orElse(emptyList())
+            motebehovRowMapper,
+            convert(date)
+        ) ?: emptyList()
     }
 
     fun hentMotebehov(motebehovUUID: String): List<PMotebehov> {
-        return Optional.ofNullable(
-            jdbcTemplate.query(
-                """
+        return jdbcTemplate.query(
+            """
                 SELECT m.*, f.* FROM motebehov m
                 LEFT JOIN motebehov_form_values f ON m.id = f.motebehov_row_id
                 WHERE m.motebehov_uuid = ?
                 """,
-                motebehovRowMapper,
-                motebehovUUID
-            )
-        ).orElse(emptyList())
+            motebehovRowMapper,
+            motebehovUUID
+        ) ?: emptyList()
     }
 
     fun oppdaterUbehandledeMotebehovTilBehandlet(
