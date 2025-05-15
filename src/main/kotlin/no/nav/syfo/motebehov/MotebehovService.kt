@@ -2,6 +2,7 @@ package no.nav.syfo.motebehov
 
 import no.nav.syfo.api.exception.ConflictException
 import no.nav.syfo.consumer.behandlendeenhet.BehandlendeEnhetConsumer
+import no.nav.syfo.consumer.behandlendeenhet.getEnhetId
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.database.MotebehovDAO
@@ -118,7 +119,7 @@ class MotebehovService @Inject constructor(
         val innloggetBrukerAktoerId = pdlConsumer.aktorid(innloggetFNR)
         val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
         val arbeidstakerBehandlendeEnhet =
-            behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr, null).enhetId
+            behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr, null).getEnhetId()
 
         val motebehov = Motebehov(
             id = UUID.randomUUID(),
