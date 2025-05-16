@@ -183,7 +183,7 @@ class MotebehovDAO(
             .addValue("behandlet_veileder_ident", motebehov.behandletVeilederIdent)
             .addValue("skjematype", motebehov.skjemaType.name)
             .addValue("innmelder_type", motebehov.innmelderType.name)
-            .addValue("sm_fnr", motebehov.sykmeldtFnr?.toInt())
+            .addValue("sm_fnr", motebehov.sykmeldtFnr?.toLong())
             .addValue("opprettet_av_fnr", listOf(motebehov.opprettetAvFnr, "not", "string"))
 
         val keyHolder = GeneratedKeyHolder()
