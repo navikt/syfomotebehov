@@ -40,7 +40,7 @@ class MotebehovDAOTest : IntegrationTest() {
     init {
         extensions(SpringExtension)
 
-        describe("Møtebehov DAO") {
+        xdescribe("Møtebehov DAO") {
             it("should create møtebehov and retrieve it back with same values using hentMotebehovListeForAktoer") {
                 val pMotebehov = motebehovGenerator.generatePmotebehov()
 

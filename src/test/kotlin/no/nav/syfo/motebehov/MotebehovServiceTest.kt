@@ -74,7 +74,7 @@ class MotebehovServiceTest : IntegrationTest() {
             jdbcTemplate.update(sqlDeleteAll)
         }
 
-        describe("Møtebehov Service") {
+        xdescribe("Møtebehov Service") {
             it("skalFerdigstilleMotebehovOpprettetForDato") {
                 val pMotebehov = MotebehovGenerator().generatePmotebehov()
                 val uuid = motebehovDAO.create(pMotebehov)

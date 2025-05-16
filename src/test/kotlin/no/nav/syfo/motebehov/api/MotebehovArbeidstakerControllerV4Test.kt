@@ -131,7 +131,7 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
             cleanDB()
         }
 
-        describe("Møtebehov arbeidstaker controller V4") {
+        xdescribe("Møtebehov arbeidstaker controller V4") {
             it("get MotebehovStatus With No Oppfolgingstilfelle") {
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
                 motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()

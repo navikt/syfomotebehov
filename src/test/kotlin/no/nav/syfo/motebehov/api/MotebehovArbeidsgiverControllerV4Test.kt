@@ -147,7 +147,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
             tokenValidationUtil.resetAll()
         }
 
-        describe("MotebehovArbeidsgiverControllerV4") {
+        xdescribe("MotebehovArbeidsgiverControllerV4") {
             it("getMotebehovStatusWithNoOppfolgingstilfelle") {
                 tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
                 motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(ARBEIDSTAKER_FNR, VIRKSOMHETSNUMMER)

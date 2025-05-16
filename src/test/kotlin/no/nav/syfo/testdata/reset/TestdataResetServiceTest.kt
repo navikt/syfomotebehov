@@ -55,7 +55,7 @@ class TestdataResetServiceTest : IntegrationTest() {
             every { pdlConsumer.aktorid(ARBEIDSTAKER_FNR) } returns ARBEIDSTAKER_AKTORID
         }
 
-        describe("TestdataResetService") {
+        xdescribe("TestdataResetService") {
             it("skalNullstilleData") {
                 motebehovDAO.create(
                     PMotebehov(

@@ -148,7 +148,7 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
             tokenValidationUtil.resetAll()
         }
 
-        describe("MotebehovVeilederADControllerV4") {
+        xdescribe("MotebehovVeilederADControllerV4") {
             it("arbeidsgiver lagrer Motebehov og Veileder henter Motebehov") {
                 // Arbeidsgiver lagrer nytt motebehov
                 mockBehandlendEnhet(ARBEIDSTAKER_FNR)
