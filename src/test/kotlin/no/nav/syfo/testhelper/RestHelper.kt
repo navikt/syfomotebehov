@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.syfo.consumer.behandlendeenhet.BehandlendeEnhet
 import no.nav.syfo.consumer.behandlendeenhet.BehandlendeEnhetConsumer.Companion.BEHANDLENDEENHET_PATH
+import no.nav.syfo.consumer.behandlendeenhet.EnhetDTO
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.util.bearerCredentials
 import org.springframework.http.HttpHeaders
@@ -27,8 +28,8 @@ fun mockAndExpectBehandlendeEnhetRequest(
         .path(BEHANDLENDEENHET_PATH)
         .toUriString()
     val behandlendeEnhet = BehandlendeEnhet(
-        UserConstants.NAV_ENHET,
-        UserConstants.NAV_ENHET_NAVN,
+        geografiskEnhet = EnhetDTO(UserConstants.NAV_ENHET, UserConstants.NAV_ENHET_NAVN),
+        oppfolgingsenhetDTO = null,
     )
 
     val systemToken = generateAzureAdV2TokenResponse()
@@ -60,8 +61,8 @@ fun mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll(
         .path(BEHANDLENDEENHET_PATH)
         .toUriString()
     val behandlendeEnhet = BehandlendeEnhet(
-        UserConstants.NAV_ENHET,
-        UserConstants.NAV_ENHET_NAVN,
+        geografiskEnhet = EnhetDTO(UserConstants.NAV_ENHET, UserConstants.NAV_ENHET_NAVN),
+        oppfolgingsenhetDTO = null,
     )
 
     val systemToken = generateAzureAdV2TokenResponse()
