@@ -5,7 +5,7 @@ on:
 
 jobs:
   jar-app:
-    uses: navikt/teamesyfo-github-actions-workflows/.github/workflows/boot-jar-app-21.yaml@main
+    uses: navikt/teamesyfo-github-actions-workflows/.github/workflows/boot-jar-app.yaml@main
     permissions:
       actions: read
       contents: write
@@ -15,3 +15,4 @@ jobs:
     secrets: inherit
     with:
       app: syfomotebehov
+      java-version: '21'
