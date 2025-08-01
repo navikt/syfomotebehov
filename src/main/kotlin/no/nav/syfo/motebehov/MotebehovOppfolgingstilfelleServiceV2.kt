@@ -76,6 +76,13 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                 )
             }
             if (!motebehovStatus.isMotebehovAvailableForAnswer()) {
+                log.info(
+                    """MotebehovStatus for conflicted requests:
+                       motebehov-id: ${motebehovStatus.motebehov?.id},
+                       skjemaType: ${motebehovStatus.skjemaType},
+                       visMotebehov: ${motebehovStatus.visMotebehov}
+                    """.trimMargin()
+                )
                 metric.tellHendelse(METRIC_CREATE_FAILED_ARBEIDSGIVER)
                 throwCreateMotebehovConflict(
                     "Failed to create Motebehov for Arbeidsgiver:" +
