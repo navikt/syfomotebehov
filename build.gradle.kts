@@ -99,9 +99,9 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "junit")
     }
-    testImplementation("io.kotest:kotest-runner-junit5:5.9.1")
+    testImplementation("io.kotest:kotest-runner-junit5:6.0.0")
 
-    testImplementation("io.kotest:kotest-framework-datatest:5.9.1")
+    testImplementation("io.kotest:kotest-framework-datatest:6.0.0")
     testImplementation("io.kotest.extensions:kotest-extensions-spring:$springKotestExtensionVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
