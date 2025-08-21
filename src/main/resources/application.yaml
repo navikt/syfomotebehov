@@ -14,11 +14,13 @@ no.nav.security:
 logging.config: classpath:logback-spring.xml
 
 management:
-  endpoint.prometheus.enabled: true
   endpoints.web:
     base-path: /internal
     exposure.include: prometheus
     path-mapping.prometheus: /prometheus
+  endpoint:
+    prometheus:
+      access: read_only
 
 server:
   servlet:
