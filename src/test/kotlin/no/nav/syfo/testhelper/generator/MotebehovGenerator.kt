@@ -2,12 +2,7 @@ package no.nav.syfo.testhelper.generator
 
 import no.nav.syfo.motebehov.*
 import no.nav.syfo.motebehov.database.PMotebehov
-import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverMeldOnskerSykmelderOgTolkFormSnapshot
-import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
-import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarNeiFormSnapshot
-import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerMeldSnapshot
-import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarJaFormSnapshot
-import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarNeiFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.*
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
@@ -63,12 +58,6 @@ class MotebehovGenerator {
         tildeltEnhet = NAV_ENHET,
     )
 
-    fun lagMotebehovSvarLegacyDTO(harBehov: Boolean): MotebehovSvarLegacyDTO {
-        return motebehovSvarLegacyInputDTO.copy(
-            harMotebehov = harBehov,
-        )
-    }
-
     fun lagFormSubmissionArbeidstakerSvarJaDTO(): MotebehovFormSubmissionDTO {
         return MotebehovFormSubmissionDTO(
             harMotebehov = true,
@@ -88,10 +77,6 @@ class MotebehovGenerator {
             harMotebehov = true,
             formSnapshot = mockArbeidstakerMeldSnapshot,
         )
-    }
-
-    fun lagNyttMotebehovArbeidsgiverLegacyInput(): NyttMotebehovArbeidsgiverLegacyDTO {
-        return nyttMotebehovArbeidsgiverLegacyInput.copy()
     }
 
     fun lagNyArbeidsgiverFormSubmissionSvarJa(): NyttMotebehovArbeidsgiverFormSubmissionDTO {
@@ -151,9 +136,5 @@ class MotebehovGenerator {
 
     fun generateMotebehov(): Motebehov {
         return motebehov.copy()
-    }
-
-    fun generateMotebehovOutputDTO(): MotebehovWithFormValuesOutputDTO {
-        return motebehov.toMotebehovWithFormValuesOutputDTO()
     }
 }
