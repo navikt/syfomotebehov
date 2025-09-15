@@ -16,11 +16,6 @@ import java.time.LocalDateTime
 import java.util.*
 
 class MotebehovGenerator {
-    private val motebehovSvarLegacyInputDTO = MotebehovSvarLegacyDTO(
-        harMotebehov = true,
-        forklaring = "",
-    )
-
     private val motebehov = Motebehov(
         id = UUID.randomUUID(),
         arbeidstakerFnr = ARBEIDSTAKER_FNR,
@@ -39,13 +34,6 @@ class MotebehovGenerator {
         opprettetAvFnr = LEDER_FNR,
         skjemaType = MotebehovSkjemaType.SVAR_BEHOV,
         innmelderType = MotebehovInnmelderType.ARBEIDSGIVER,
-    )
-
-    private val nyttMotebehovArbeidsgiverLegacyInput = NyttMotebehovArbeidsgiverLegacyDTO(
-        arbeidstakerFnr = ARBEIDSTAKER_FNR,
-        virksomhetsnummer = VIRKSOMHETSNUMMER,
-        motebehovSvar = motebehovSvarLegacyInputDTO,
-        tildeltEnhet = NAV_ENHET,
     )
 
     private val nyttMotebehovArbeidsgiverFormSubmissionInput = NyttMotebehovArbeidsgiverFormSubmissionDTO(
