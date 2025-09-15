@@ -11,15 +11,15 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping(value = ["/api/v3/arbeidstaker"])
 class MotebehovArbeidstakerControllerV3 {
     @GetMapping("/motebehov")
-    fun motebehovStatusArbeidstaker() = ResponseEntity<Unit>(HttpStatus.MOVED_PERMANENTLY)
+    fun motebehovStatusArbeidstaker() = ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).build<Void>()
 
     @GetMapping("/motebehov/all")
-    fun motebehovStatusArbeidstakerWithCodeSixUsers() = ResponseEntity<Unit>(HttpStatus.MOVED_PERMANENTLY)
+    fun motebehovStatusArbeidstakerWithCodeSixUsers() = ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).build<Void>()
 
     @PostMapping("/motebehov")
     fun submitMotebehovArbeidstaker(
-    ) = ResponseEntity<Unit>(HttpStatus.MOVED_PERMANENTLY)
+    ) = ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).build<Void>()
 
     @PostMapping("/motebehov/ferdigstill")
-    fun ferdigstillMotebehovArbeidstaker() = ResponseEntity<Unit>(HttpStatus.MOVED_PERMANENTLY)
+    fun ferdigstillMotebehovArbeidstaker() = ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).build<Void>()
 }

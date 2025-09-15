@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping(value = ["/api/v3"])
 class MotebehovArbeidsgiverControllerV3 {
     @GetMapping("/motebehov")
-    fun motebehovStatusArbeidsgiver() = ResponseEntity<Unit>(HttpStatus.MOVED_PERMANENTLY)
+    fun motebehovStatusArbeidsgiver() = ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).build<Void>()
 
     @PostMapping("/motebehov")
-    fun lagreMotebehovArbeidsgiver() = ResponseEntity<Unit>(HttpStatus.MOVED_PERMANENTLY)
+    fun lagreMotebehovArbeidsgiver() = ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).build<Void>()
 }

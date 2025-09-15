@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping(value = ["/api/internad/v3/veileder"])
 class MotebehovVeilederADControllerV3 {
     @GetMapping("/motebehov")
-    fun hentMotebehovListe() = ResponseEntity<Unit>(HttpStatus.MOVED_PERMANENTLY)
+    fun hentMotebehovListe() = ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).build<Void>()
 
     @GetMapping("/historikk")
-    fun hentMotebehovHistorikk() = ResponseEntity<Unit>(HttpStatus.MOVED_PERMANENTLY)
+    fun hentMotebehovHistorikk() = ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).build<Void>()
 
     @PostMapping("/motebehov/tilbakemelding")
-    fun sendTilbakemelding() = ResponseEntity<Unit>(HttpStatus.MOVED_PERMANENTLY)
+    fun sendTilbakemelding() = ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).build<Void>()
 
     @PostMapping("/motebehov/behandle")
-    fun behandleMotebehov() = ResponseEntity<Unit>(HttpStatus.MOVED_PERMANENTLY)
+    fun behandleMotebehov() = ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).build<Void>()
 }
