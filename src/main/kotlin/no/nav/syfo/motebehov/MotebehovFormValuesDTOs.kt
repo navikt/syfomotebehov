@@ -2,13 +2,6 @@ package no.nav.syfo.motebehov
 
 import no.nav.syfo.motebehov.formSnapshot.*
 
-// Temporary class used in services to contain values of both legacy and new form submission DTOs below.
-data class MotebehovFormSubmissionCombinedDTO(
-    val harMotebehov: Boolean,
-    val forklaring: String? = null,
-    val formSnapshot: FormSnapshot?
-)
-
 data class MotebehovFormSubmissionDTO(
     val harMotebehov: Boolean,
     val formSnapshot: FormSnapshot,
@@ -48,24 +41,16 @@ fun extractFormValuesFromFormSnapshot(formSnapshot: FormSnapshot): MotebehovForm
     )
 }
 
-fun MotebehovFormSubmissionDTO.toMotebehovFormSubmissionCombinedDTO(): MotebehovFormSubmissionCombinedDTO {
-    return MotebehovFormSubmissionCombinedDTO(
-        harMotebehov = this.harMotebehov,
-        forklaring = null,
-        formSnapshot = this.formSnapshot,
-    )
-}
-
-fun MotebehovFormSubmissionCombinedDTO.toMotebehovFormValuesOutputDTO(): MotebehovFormValuesOutputDTO {
-    val valuesFromFormSnapshot = this.formSnapshot?.let { extractFormValuesFromFormSnapshot(it) }
+fun MotebehovFormSubmissionDTO.toMotebehovFormValuesOutputDTO(): MotebehovFormValuesOutputDTO {
+    val valuesFromFormSnapshot =  extractFormValuesFromFormSnapshot(this.formSnapshot)
 
     return MotebehovFormValuesOutputDTO(
         harMotebehov = this.harMotebehov,
         formSnapshot = this.formSnapshot,
-        begrunnelse = valuesFromFormSnapshot?.begrunnelse,
-        onskerSykmelderDeltar = valuesFromFormSnapshot?.onskerSykmelderDeltar,
-        onskerSykmelderDeltarBegrunnelse = valuesFromFormSnapshot?.onskerSykmelderDeltarBegrunnelse,
-        onskerTolk = valuesFromFormSnapshot?.onskerTolk,
-        tolkSprak = valuesFromFormSnapshot?.tolkSprak,
+        begrunnelse = valuesFromFormSnapshot.begrunnelse,
+        onskerSykmelderDeltar = valuesFromFormSnapshot.onskerSykmelderDeltar,
+        onskerSykmelderDeltarBegrunnelse = valuesFromFormSnapshot.onskerSykmelderDeltarBegrunnelse,
+        onskerTolk = valuesFromFormSnapshot.onskerTolk,
+        tolkSprak = valuesFromFormSnapshot.tolkSprak,
     )
 }

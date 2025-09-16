@@ -23,7 +23,7 @@ data class Motebehov(
     val behandletVeilederIdent: String? = null,
     val skjemaType: MotebehovSkjemaType,
     val innmelderType: MotebehovInnmelderType,
-    val formSubmission: MotebehovFormSubmissionCombinedDTO,
+    val formSubmission: MotebehovFormSubmissionDTO,
 ) : Serializable
 
 data class MotebehovWithFormValuesOutputDTO(
@@ -87,7 +87,6 @@ fun Motebehov.toPMotebehov(): PMotebehov =
         aktoerId = this.aktorId,
         virksomhetsnummer = this.virksomhetsnummer,
         harMotebehov = this.formSubmission.harMotebehov,
-        forklaring = this.formSubmission.forklaring,
         tildeltEnhet = this.tildeltEnhet,
         behandletVeilederIdent = this.behandletVeilederIdent,
         behandletTidspunkt = this.behandletTidspunkt,

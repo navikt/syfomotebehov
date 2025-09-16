@@ -8,12 +8,10 @@ import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverFormSubmissionDTO
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusWithFormValuesDTO
 import no.nav.syfo.motebehov.motebehovstatus.toMotebehovStatusWithFormValuesDTO
-import no.nav.syfo.motebehov.toMotebehovFormSubmissionCombinedDTO
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
@@ -83,17 +81,11 @@ class MotebehovArbeidsgiverControllerV4 @Inject constructor(
         val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
         val isOwnLeader = arbeidsgiverFnr == ansattFnr
 
-        val nyttMotebehovArbeidsgiverDTO = NyttMotebehovArbeidsgiverDTO(
-            arbeidstakerFnr = nyttMotebehovDTO.arbeidstakerFnr,
-            virksomhetsnummer = nyttMotebehovDTO.virksomhetsnummer,
-            formSubmission = nyttMotebehovDTO.formSubmission.toMotebehovFormSubmissionCombinedDTO(),
-        )
-
         motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidgiver(
             innloggetFnr,
             ansattFnr,
             isOwnLeader,
-            nyttMotebehovArbeidsgiverDTO,
+            nyttMotebehovDTO,
         )
     }
 }

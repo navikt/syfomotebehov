@@ -21,7 +21,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
     private val varselServiceV2: VarselServiceV2,
 ) {
     /**
-     * Creates a arbeidsgiver-motebehov if there is an active oppfolgingstilfelle for the arbeidstaker and if the
+     * Creates an arbeidsgiver-motebehov if there is an active oppfolgingstilfelle for the arbeidstaker and if the
      * calculated motebehovStatus indicates that the arbeidsgiver can submit a motebehov for the arbeidstaker at this
      * time. If this is a "svar behov" (not "meld behov"), the related varsel or varsler will be ferdigstilt.
      */
@@ -29,7 +29,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
         innloggetFnr: String,
         arbeidstakerFnr: String,
         isOwnLeader: Boolean,
-        nyttMotebehov: NyttMotebehovArbeidsgiverDTO,
+        nyttMotebehov: NyttMotebehovArbeidsgiverFormSubmissionDTO,
     ) {
         val activeOppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
             arbeidstakerFnr,
@@ -53,7 +53,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
             )
 
             metric.tellBesvarMotebehov(
-                activeOppfolgingstilfelle!!,
+                activeOppfolgingstilfelle,
                 motebehovStatus.skjemaType,
                 storedMotebehovFormSubmission,
                 false,
@@ -87,10 +87,10 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
 
     private fun storeNyttMotebehovForArbeidsgiver(
         arbeidstakerFnr: String,
-        nyttMotebehov: NyttMotebehovArbeidsgiverDTO,
+        nyttMotebehov: NyttMotebehovArbeidsgiverFormSubmissionDTO,
         innloggetFnr: String,
         skjemaType: MotebehovSkjemaType,
-    ): MotebehovFormSubmissionCombinedDTO {
+    ): MotebehovFormSubmissionDTO {
         val motebehovFormSubmission = nyttMotebehov.formSubmission
 
         motebehovService.lagreMotebehov(
@@ -108,7 +108,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
     private fun ferdigstillVarselForSvarMotebehovForArbeidsgiver(
         arbeidstakerFnr: String,
         innloggetFnr: String,
-        nyttMotebehov: NyttMotebehovArbeidsgiverDTO,
+        nyttMotebehov: NyttMotebehovArbeidsgiverFormSubmissionDTO,
         isOwnLeader: Boolean
     ) {
         varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLeder(
@@ -124,7 +124,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
     @Transactional
     fun createMotebehovForArbeidstaker(
         arbeidstakerFnr: String,
-        formSubmission: MotebehovFormSubmissionCombinedDTO
+        formSubmission: MotebehovFormSubmissionDTO,
     ) {
         val activeOppolgingstilfelle =
             oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(arbeidstakerFnr)

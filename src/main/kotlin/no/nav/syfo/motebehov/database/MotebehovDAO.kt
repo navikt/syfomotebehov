@@ -16,6 +16,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.core.support.SqlLobValue
 import org.springframework.jdbc.support.GeneratedKeyHolder
+import org.springframework.jdbc.support.SqlValue
 import org.springframework.stereotype.Repository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -177,7 +178,9 @@ class MotebehovDAO(
             .addValue("aktoer_id", motebehov.aktoerId)
             .addValue("virksomhetsnummer", motebehov.virksomhetsnummer)
             .addValue("har_motebehov", motebehov.harMotebehov)
-            .addValue("forklaring", SqlLobValue(sanitizeUserInput(motebehov.forklaring)), Types.CLOB)
+            // This was used for old entries before FormSnapshot. When no value was passed,
+            // an empty string was stored in the db.
+            .addValue("forklaring", null)
             .addValue("tildelt_enhet", motebehov.tildeltEnhet)
             .addValue("behandlet_tidspunkt", convertNullable(motebehov.behandletTidspunkt))
             .addValue("behandlet_veileder_ident", motebehov.behandletVeilederIdent)

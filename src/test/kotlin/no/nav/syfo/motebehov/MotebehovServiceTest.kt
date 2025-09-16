@@ -124,9 +124,8 @@ class MotebehovServiceTest : IntegrationTest() {
                     VIRKSOMHETSNUMMER,
                     MotebehovSkjemaType.SVAR_BEHOV,
                     MotebehovInnmelderType.ARBEIDSGIVER,
-                    MotebehovFormSubmissionCombinedDTO(
+                    MotebehovFormSubmissionDTO(
                         true,
-                        null,
                         mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
                     )
                 )

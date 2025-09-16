@@ -25,7 +25,6 @@ import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarJaFormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarNeiFormSnapshot
 import no.nav.syfo.motebehov.historikk.Historikk
 import no.nav.syfo.motebehov.historikk.HistorikkService
-import no.nav.syfo.motebehov.toMotebehovFormSubmissionCombinedDTO
 import no.nav.syfo.motebehov.toMotebehovFormValuesOutputDTO
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseProducer
@@ -166,7 +165,6 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
 
                 motebehov.formValues.harMotebehov shouldBe submitted.formSubmission.harMotebehov
                 motebehov.formValues shouldBe submitted.formSubmission
-                    .toMotebehovFormSubmissionCombinedDTO()
                     .toMotebehovFormValuesOutputDTO()
             }
 
@@ -187,7 +185,6 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
 
                 motebehov.formValues.harMotebehov shouldBe submitted.harMotebehov
                 motebehov.formValues shouldBe submitted
-                    .toMotebehovFormSubmissionCombinedDTO()
                     .toMotebehovFormValuesOutputDTO()
             }
 

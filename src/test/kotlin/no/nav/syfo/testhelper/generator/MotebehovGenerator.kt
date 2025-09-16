@@ -23,9 +23,8 @@ class MotebehovGenerator {
         virksomhetsnummer = VIRKSOMHETSNUMMER,
         opprettetAv = LEDER_AKTORID,
         opprettetDato = LocalDateTime.now().minusMinutes(2L),
-        formSubmission = MotebehovFormSubmissionCombinedDTO(
+        formSubmission = MotebehovFormSubmissionDTO(
             harMotebehov = true,
-            forklaring = "",
             formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
         ),
         tildeltEnhet = NAV_ENHET,

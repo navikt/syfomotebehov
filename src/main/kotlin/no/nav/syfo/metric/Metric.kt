@@ -2,7 +2,7 @@ package no.nav.syfo.metric
 
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tags
-import no.nav.syfo.motebehov.MotebehovFormSubmissionCombinedDTO
+import no.nav.syfo.motebehov.MotebehovFormSubmissionDTO
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import org.springframework.stereotype.Controller
@@ -86,7 +86,7 @@ class Metric @Inject constructor(
             Tags.of(
                 "type", "info",
                 "motebehov", if (harMotebehov) "ja" else "nei",
-                "forklaring", if (harForklaring) "ja" else "nei",
+                "forklaring", if (harForklaring) "ja" else "nei", // TODO: Trenger kanskje ikke å telle denne lenger
                 "dag", dayInOppfolgingstilfelleMotebehovCreated.toString(),
                 "skjematype",
                 when (motebehovSkjemaType) {
@@ -98,6 +98,7 @@ class Metric @Inject constructor(
         ).increment(dayInOppfolgingstilfelleMotebehovCreated.toDouble())
     }
 
+    // TODO: Skal vi slette denne?
     fun tellMotebehovBesvartNeiAntallTegn(antallTegnIForklaring: Int, erInnloggetBrukerArbeidstaker: Boolean) {
         val navn =
             if (erInnloggetBrukerArbeidstaker) {
@@ -111,6 +112,7 @@ class Metric @Inject constructor(
         ).increment(antallTegnIForklaring.toDouble())
     }
 
+    // TODO: Skal denne slettes?
     fun tellMotebehovBesvartJaMedForklaringTegn(antallTegnIForklaring: Int, erInnloggetBrukerArbeidstaker: Boolean) {
         val navn =
             if (erInnloggetBrukerArbeidstaker) {
@@ -150,10 +152,10 @@ class Metric @Inject constructor(
     fun tellBesvarMotebehov(
         activeOppfolgingstilfelle: PersonOppfolgingstilfelle,
         motebehovSkjemaType: MotebehovSkjemaType?,
-        formSubmission: MotebehovFormSubmissionCombinedDTO,
+        formSubmission: MotebehovFormSubmissionDTO,
         erInnloggetBrukerArbeidstaker: Boolean
     ) {
-        val harForklaring = formSubmission.forklaring?.isNotBlank() ?: false
+      //  val harForklaring = formSubmission.forklaring?.isNotBlank() ?: false
 
         tellMotebehovBesvart(
             activeOppfolgingstilfelle,
@@ -165,19 +167,21 @@ class Metric @Inject constructor(
             activeOppfolgingstilfelle,
             motebehovSkjemaType,
             formSubmission.harMotebehov,
-            harForklaring,
+            true,
+            // harForklaring, TODO: Trenger kanskje ikke denne lenger
             erInnloggetBrukerArbeidstaker
         )
 
-        if (!formSubmission.harMotebehov && formSubmission.forklaring !== null) {
-            tellMotebehovBesvartNeiAntallTegn(formSubmission.forklaring.length, erInnloggetBrukerArbeidstaker)
-        } else if (harForklaring) {
-            tellMotebehovBesvartJaMedForklaringTegn(
-                formSubmission.forklaring!!.length,
-                erInnloggetBrukerArbeidstaker
-            )
-            tellMotebehovBesvartJaMedForklaringAntall(erInnloggetBrukerArbeidstaker)
-        }
+        // TODO:
+//        if (!formSubmission.harMotebehov && formSubmission.forklaring !== null) {
+//            tellMotebehovBesvartNeiAntallTegn(formSubmission.forklaring.length, erInnloggetBrukerArbeidstaker)
+//        } else if (harForklaring) {
+//            tellMotebehovBesvartJaMedForklaringTegn(
+//                formSubmission.forklaring!!.length,
+//                erInnloggetBrukerArbeidstaker
+//            )
+//            tellMotebehovBesvartJaMedForklaringAntall(erInnloggetBrukerArbeidstaker)
+//        }
     }
 
     private fun addPrefix(navn: String): String {
