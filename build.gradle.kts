@@ -27,7 +27,7 @@ val springKotestExtensionVersion = "1.3.0"
 
 plugins {
     id("java")
-    id("org.springframework.boot") version "3.5.4"
+    id("org.springframework.boot") version "3.4.6"
     id("io.spring.dependency-management") version "1.1.7"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
     kotlin("jvm") version "2.0.21"
@@ -68,7 +68,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
-    implementation("io.micrometer:micrometer-registry-prometheus")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.12.8")
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
     implementation("org.springframework.kafka:spring-kafka") {
         exclude(group = "log4j", module = "log4j")
