@@ -11,7 +11,6 @@ import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusWithFormValuesDTO
 import no.nav.syfo.motebehov.motebehovstatus.toMotebehovStatusWithFormValuesDTO
-import no.nav.syfo.motebehov.toMotebehovFormSubmissionCombinedDTO
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
@@ -78,7 +77,7 @@ class MotebehovArbeidstakerControllerV4 @Inject constructor(
 
         motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidstaker(
             arbeidstakerFnr,
-            nyttMotebehovFormSubmission.toMotebehovFormSubmissionCombinedDTO(),
+            nyttMotebehovFormSubmission,
         )
     }
 }

@@ -19,7 +19,6 @@ import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarJaOnskerSykmelderF
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
-import no.nav.syfo.motebehov.toMotebehovFormSubmissionCombinedDTO
 import no.nav.syfo.motebehov.toMotebehovFormValuesOutputDTO
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseProducer
@@ -376,7 +375,6 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
 
                 val arbeidsgiverFormSubmissionMeld = motebehovGenerator.lagNyArbeidsgiverFormSubmissionMeld()
                 val formValuesOutputDTOThatShouldBeCreated = arbeidsgiverFormSubmissionMeld.formSubmission
-                    .toMotebehovFormSubmissionCombinedDTO()
                     .toMotebehovFormValuesOutputDTO()
 
                 submitMotebehovAndSendOversikthendelse(arbeidsgiverFormSubmissionMeld)
@@ -449,7 +447,6 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
 
                 val arbeidsgiverFormSubmissionSvarJa = motebehovGenerator.lagNyArbeidsgiverFormSubmissionSvarJa()
                 val formValuesOutputDTOThatShouldBeCreated = arbeidsgiverFormSubmissionSvarJa.formSubmission
-                    .toMotebehovFormSubmissionCombinedDTO()
                     .toMotebehovFormValuesOutputDTO()
 
                 submitMotebehovAndSendOversikthendelse(arbeidsgiverFormSubmissionSvarJa)
@@ -598,7 +595,6 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
             VIRKSOMHETSNUMMER,
         )
         val formValuesOutputDTOThatShouldBeCreated = innsendtFormSubmission
-            .toMotebehovFormSubmissionCombinedDTO()
             .toMotebehovFormValuesOutputDTO()
 
         assertTrue(motebehovStatus.visMotebehov)
