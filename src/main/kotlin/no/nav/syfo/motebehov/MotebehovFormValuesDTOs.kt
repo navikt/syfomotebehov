@@ -1,6 +1,11 @@
 package no.nav.syfo.motebehov
 
-import no.nav.syfo.motebehov.formSnapshot.*
+import no.nav.syfo.motebehov.formSnapshot.BEGRUNNELSE_TEXT_FIELD_ID
+import no.nav.syfo.motebehov.formSnapshot.FormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.ONSKER_SYKMELDER_DELTAR_BEGRUNNELSE_TEXT_FIELD_ID
+import no.nav.syfo.motebehov.formSnapshot.ONSKER_SYKMELDER_DELTAR_CHECKBOX_FIELD_ID
+import no.nav.syfo.motebehov.formSnapshot.ONSKER_TOLK_CHECKBOX_FIELD_ID
+import no.nav.syfo.motebehov.formSnapshot.TOLK_SPRAK_TEXT_FIELD_ID
 
 data class MotebehovFormSubmissionDTO(
     val harMotebehov: Boolean,
@@ -42,7 +47,7 @@ fun extractFormValuesFromFormSnapshot(formSnapshot: FormSnapshot): MotebehovForm
 }
 
 fun MotebehovFormSubmissionDTO.toMotebehovFormValuesOutputDTO(): MotebehovFormValuesOutputDTO {
-    val valuesFromFormSnapshot =  extractFormValuesFromFormSnapshot(this.formSnapshot)
+    val valuesFromFormSnapshot = extractFormValuesFromFormSnapshot(this.formSnapshot)
 
     return MotebehovFormValuesOutputDTO(
         harMotebehov = this.harMotebehov,

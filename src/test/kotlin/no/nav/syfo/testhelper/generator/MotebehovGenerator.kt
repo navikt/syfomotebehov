@@ -1,8 +1,18 @@
 package no.nav.syfo.testhelper.generator
 
-import no.nav.syfo.motebehov.*
+import java.time.LocalDateTime
+import java.util.*
+import no.nav.syfo.motebehov.Motebehov
+import no.nav.syfo.motebehov.MotebehovFormSubmissionDTO
+import no.nav.syfo.motebehov.MotebehovInnmelderType
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverFormSubmissionDTO
 import no.nav.syfo.motebehov.database.PMotebehov
-import no.nav.syfo.motebehov.formSnapshot.*
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverMeldOnskerSykmelderOgTolkFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarNeiFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerMeldSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarJaFormSnapshot
+import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarNeiFormSnapshot
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
@@ -12,8 +22,6 @@ import no.nav.syfo.testhelper.UserConstants.NAV_ENHET
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.util.MOTEBEHOVSVAR_GYLDIGHET_DAGER
-import java.time.LocalDateTime
-import java.util.*
 
 class MotebehovGenerator {
     private val motebehov = Motebehov(

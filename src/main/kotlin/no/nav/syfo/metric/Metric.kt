@@ -86,7 +86,7 @@ class Metric @Inject constructor(
             Tags.of(
                 "type", "info",
                 "motebehov", if (harMotebehov) "ja" else "nei",
-                "forklaring", if (harForklaring) "ja" else "nei", // TODO: Trenger kanskje ikke å telle denne lenger
+                "forklaring", if (harForklaring) "ja" else "nei",
                 "dag", dayInOppfolgingstilfelleMotebehovCreated.toString(),
                 "skjematype",
                 when (motebehovSkjemaType) {
@@ -96,47 +96,6 @@ class Metric @Inject constructor(
                 }
             )
         ).increment(dayInOppfolgingstilfelleMotebehovCreated.toDouble())
-    }
-
-    // TODO: Skal vi slette denne?
-    fun tellMotebehovBesvartNeiAntallTegn(antallTegnIForklaring: Int, erInnloggetBrukerArbeidstaker: Boolean) {
-        val navn =
-            if (erInnloggetBrukerArbeidstaker) {
-                "syfomotebehov_motebehov_besvart_nei_forklaring_lengde_at"
-            } else {
-                "syfomotebehov_motebehov_besvart_nei_forklaring_lengde"
-            }
-        registry.counter(
-            navn,
-            Tags.of("type", "info")
-        ).increment(antallTegnIForklaring.toDouble())
-    }
-
-    // TODO: Skal denne slettes?
-    fun tellMotebehovBesvartJaMedForklaringTegn(antallTegnIForklaring: Int, erInnloggetBrukerArbeidstaker: Boolean) {
-        val navn =
-            if (erInnloggetBrukerArbeidstaker) {
-                "syfomotebehov_motebehov_besvart_ja_forklaring_lengde_at"
-            } else {
-                "syfomotebehov_motebehov_besvart_ja_forklaring_lengde_ag"
-            }
-        registry.counter(
-            navn,
-            Tags.of("type", "info")
-        ).increment(antallTegnIForklaring.toDouble())
-    }
-
-    fun tellMotebehovBesvartJaMedForklaringAntall(erInnloggetBrukerArbeidstaker: Boolean) {
-        val navn =
-            if (erInnloggetBrukerArbeidstaker) {
-                "syfomotebehov_motebehov_besvart_ja_forklaring_at"
-            } else {
-                "syfomotebehov_motebehov_besvart_ja_forklaring_ag"
-            }
-        registry.counter(
-            navn,
-            Tags.of("type", "info")
-        ).increment()
     }
 
     fun tellHttpKall(kode: Int) {
@@ -155,8 +114,6 @@ class Metric @Inject constructor(
         formSubmission: MotebehovFormSubmissionDTO,
         erInnloggetBrukerArbeidstaker: Boolean
     ) {
-      //  val harForklaring = formSubmission.forklaring?.isNotBlank() ?: false
-
         tellMotebehovBesvart(
             activeOppfolgingstilfelle,
             motebehovSkjemaType,
@@ -168,20 +125,8 @@ class Metric @Inject constructor(
             motebehovSkjemaType,
             formSubmission.harMotebehov,
             true,
-            // harForklaring, TODO: Trenger kanskje ikke denne lenger
             erInnloggetBrukerArbeidstaker
         )
-
-        // TODO:
-//        if (!formSubmission.harMotebehov && formSubmission.forklaring !== null) {
-//            tellMotebehovBesvartNeiAntallTegn(formSubmission.forklaring.length, erInnloggetBrukerArbeidstaker)
-//        } else if (harForklaring) {
-//            tellMotebehovBesvartJaMedForklaringTegn(
-//                formSubmission.forklaring!!.length,
-//                erInnloggetBrukerArbeidstaker
-//            )
-//            tellMotebehovBesvartJaMedForklaringAntall(erInnloggetBrukerArbeidstaker)
-//        }
     }
 
     private fun addPrefix(navn: String): String {
