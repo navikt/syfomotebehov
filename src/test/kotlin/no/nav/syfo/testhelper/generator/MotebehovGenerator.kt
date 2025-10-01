@@ -1,11 +1,9 @@
 package no.nav.syfo.testhelper.generator
 
-import java.time.LocalDateTime
-import java.util.*
 import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.motebehov.MotebehovFormSubmissionDTO
 import no.nav.syfo.motebehov.MotebehovInnmelderType
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverFormSubmissionDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
 import no.nav.syfo.motebehov.database.PMotebehov
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverMeldOnskerSykmelderOgTolkFormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
@@ -22,6 +20,8 @@ import no.nav.syfo.testhelper.UserConstants.NAV_ENHET
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.util.MOTEBEHOVSVAR_GYLDIGHET_DAGER
+import java.time.LocalDateTime
+import java.util.*
 
 class MotebehovGenerator {
     private val motebehov = Motebehov(
@@ -43,7 +43,7 @@ class MotebehovGenerator {
         innmelderType = MotebehovInnmelderType.ARBEIDSGIVER,
     )
 
-    private val nyttMotebehovArbeidsgiverFormSubmissionInput = NyttMotebehovArbeidsgiverFormSubmissionDTO(
+    private val nyttMotebehovArbeidsgiverFormSubmissionInput = NyttMotebehovArbeidsgiverDTO(
         arbeidstakerFnr = ARBEIDSTAKER_FNR,
         virksomhetsnummer = VIRKSOMHETSNUMMER,
         formSubmission = MotebehovFormSubmissionDTO(
@@ -74,7 +74,7 @@ class MotebehovGenerator {
         )
     }
 
-    fun lagNyArbeidsgiverFormSubmissionSvarJa(): NyttMotebehovArbeidsgiverFormSubmissionDTO {
+    fun lagNyArbeidsgiverFormSubmissionSvarJa(): NyttMotebehovArbeidsgiverDTO {
         return nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
             formSubmission = MotebehovFormSubmissionDTO(
                 harMotebehov = true,
@@ -83,7 +83,7 @@ class MotebehovGenerator {
         )
     }
 
-    fun lagNyArbeidsgiverFormSubmissionSvarNei(): NyttMotebehovArbeidsgiverFormSubmissionDTO {
+    fun lagNyArbeidsgiverFormSubmissionSvarNei(): NyttMotebehovArbeidsgiverDTO {
         return nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
             formSubmission = MotebehovFormSubmissionDTO(
                 harMotebehov = false,
@@ -92,7 +92,7 @@ class MotebehovGenerator {
         )
     }
 
-    fun lagNyArbeidsgiverFormSubmissionMeld(): NyttMotebehovArbeidsgiverFormSubmissionDTO {
+    fun lagNyArbeidsgiverFormSubmissionMeld(): NyttMotebehovArbeidsgiverDTO {
         return nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
             formSubmission = MotebehovFormSubmissionDTO(
                 harMotebehov = true,

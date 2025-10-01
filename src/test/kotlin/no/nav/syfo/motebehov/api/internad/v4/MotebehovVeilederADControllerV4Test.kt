@@ -14,11 +14,11 @@ import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.motebehov.MotebehovFormSubmissionDTO
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverFormSubmissionDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
 import no.nav.syfo.motebehov.api.MotebehovArbeidsgiverControllerV4
 import no.nav.syfo.motebehov.api.MotebehovArbeidstakerControllerV4
 import no.nav.syfo.motebehov.api.dbCreateOppfolgingstilfelle
-import no.nav.syfo.motebehov.api.internad.dto.MotebehovVeilederDTOv4
+import no.nav.syfo.motebehov.api.internad.dto.MotebehovVeilederDTO
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidstakerSvarJaFormSnapshot
@@ -291,12 +291,12 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
         }
     }
 
-    private fun arbeidsgiverLoggerInnOgLagrerMotebehov(): NyttMotebehovArbeidsgiverFormSubmissionDTO {
+    private fun arbeidsgiverLoggerInnOgLagrerMotebehov(): NyttMotebehovArbeidsgiverDTO {
         val formSubmission = MotebehovFormSubmissionDTO(
             harMotebehov = true,
             formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
         )
-        val arbeidsgiverFormSubmission = NyttMotebehovArbeidsgiverFormSubmissionDTO(
+        val arbeidsgiverFormSubmission = NyttMotebehovArbeidsgiverDTO(
             arbeidstakerFnr = ARBEIDSTAKER_FNR,
             virksomhetsnummer = VIRKSOMHETSNUMMER,
             formSubmission,
@@ -336,7 +336,7 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
         motebehovVeilederController.behandleMotebehov(fnr)
     }
 
-    private fun loggInnOgKallHentMotebehovListe(fnr: String, veileder: String): List<MotebehovVeilederDTOv4> {
+    private fun loggInnOgKallHentMotebehovListe(fnr: String, veileder: String): List<MotebehovVeilederDTO> {
         tokenValidationUtil.logInAsNavCounselor(veileder)
         return motebehovVeilederController.hentMotebehovListe(fnr)
     }

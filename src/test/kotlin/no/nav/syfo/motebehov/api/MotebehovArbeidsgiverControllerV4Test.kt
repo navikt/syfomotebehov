@@ -12,7 +12,7 @@ import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
 import no.nav.syfo.motebehov.MotebehovFormSubmissionDTO
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverFormSubmissionDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
 import no.nav.syfo.motebehov.api.internad.v4.MotebehovVeilederADControllerV4
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
@@ -526,7 +526,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                         personIdentNumber = LEDER_FNR,
                     ),
                 )
-                val motebehov = NyttMotebehovArbeidsgiverFormSubmissionDTO(
+                val motebehov = NyttMotebehovArbeidsgiverDTO(
                     arbeidstakerFnr = LEDER_FNR,
                     virksomhetsnummer = VIRKSOMHETSNUMMER,
                     formSubmission = MotebehovFormSubmissionDTO(
@@ -551,7 +551,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
     }
 
     private fun submitMotebehovAndSendOversikthendelse(
-        arbeidsgiverFormSubmissionInputDTO: NyttMotebehovArbeidsgiverFormSubmissionDTO
+        arbeidsgiverFormSubmissionInputDTO: NyttMotebehovArbeidsgiverDTO
     ) {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
@@ -569,7 +569,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
         }
     }
 
-    private fun lagreMotebehov(innsendtMotebehov: NyttMotebehovArbeidsgiverFormSubmissionDTO) {
+    private fun lagreMotebehov(innsendtMotebehov: NyttMotebehovArbeidsgiverDTO) {
         mockAndExpectBehandlendeEnhetRequest(
             azureTokenEndpoint,
             mockRestServiceServerAzureAD,

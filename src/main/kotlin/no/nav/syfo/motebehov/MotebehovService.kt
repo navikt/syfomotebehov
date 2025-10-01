@@ -107,6 +107,7 @@ class MotebehovService @Inject constructor(
             .collect(Collectors.toList())
     }
 
+    @Suppress("LongParameterList")
     @Transactional
     fun lagreMotebehov(
         innloggetFNR: String,

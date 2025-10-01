@@ -6,7 +6,7 @@ import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import java.time.LocalDateTime
 import java.util.*
 
-data class MotebehovVeilederDTOv4(
+data class MotebehovVeilederDTO(
     val id: UUID,
     val opprettetDato: LocalDateTime,
     val opprettetAv: String,

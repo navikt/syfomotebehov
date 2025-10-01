@@ -1,6 +1,6 @@
 package no.nav.syfo.motebehov
 
-import no.nav.syfo.motebehov.api.internad.dto.MotebehovVeilederDTOv4
+import no.nav.syfo.motebehov.api.internad.dto.MotebehovVeilederDTO
 import no.nav.syfo.motebehov.database.PMotebehov
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_SVAR_BEHOV
@@ -45,8 +45,8 @@ data class MotebehovWithFormValuesOutputDTO(
 fun List<Motebehov>.toMotebehovVeilederDTOv4List() =
     this.map { it.toMotebehovVeilederDTOv4() }
 
-fun Motebehov.toMotebehovVeilederDTOv4(): MotebehovVeilederDTOv4 {
-    return MotebehovVeilederDTOv4(
+fun Motebehov.toMotebehovVeilederDTOv4(): MotebehovVeilederDTO {
+    return MotebehovVeilederDTO(
         id = this.id,
         opprettetDato = this.opprettetDato,
         opprettetAv = this.opprettetAv,

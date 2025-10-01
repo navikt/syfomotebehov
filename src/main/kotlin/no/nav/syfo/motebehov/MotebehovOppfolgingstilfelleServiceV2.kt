@@ -29,7 +29,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
         innloggetFnr: String,
         arbeidstakerFnr: String,
         isOwnLeader: Boolean,
-        nyttMotebehov: NyttMotebehovArbeidsgiverFormSubmissionDTO,
+        nyttMotebehov: NyttMotebehovArbeidsgiverDTO,
     ) {
         val activeOppfolgingstilfelle = oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
             arbeidstakerFnr,
@@ -87,7 +87,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
 
     private fun storeNyttMotebehovForArbeidsgiver(
         arbeidstakerFnr: String,
-        nyttMotebehov: NyttMotebehovArbeidsgiverFormSubmissionDTO,
+        nyttMotebehov: NyttMotebehovArbeidsgiverDTO,
         innloggetFnr: String,
         skjemaType: MotebehovSkjemaType,
     ): MotebehovFormSubmissionDTO {
@@ -108,7 +108,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
     private fun ferdigstillVarselForSvarMotebehovForArbeidsgiver(
         arbeidstakerFnr: String,
         innloggetFnr: String,
-        nyttMotebehov: NyttMotebehovArbeidsgiverFormSubmissionDTO,
+        nyttMotebehov: NyttMotebehovArbeidsgiverDTO,
         isOwnLeader: Boolean
     ) {
         varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLeder(

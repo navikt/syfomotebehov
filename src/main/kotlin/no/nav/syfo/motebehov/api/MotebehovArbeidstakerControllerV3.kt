@@ -1,6 +1,5 @@
 package no.nav.syfo.motebehov.api
 
-import javax.inject.Inject
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.tokenX.TokenXUtil
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import javax.inject.Inject
 
 @RestController
 @ProtectedWithClaims(
@@ -56,21 +56,18 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
     @GetMapping("/motebehov/all")
     fun motebehovStatusArbeidstakerWithCodeSixUsers() = ResponseEntity
         .status(HttpStatus.MOVED_PERMANENTLY).build<Void>().also {
-        metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker_all_v3")
-    }
+            metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker_all_v3")
+        }
 
     @PostMapping("/motebehov")
-    fun submitMotebehovArbeidstaker(
-    ) = ResponseEntity
+    fun submitMotebehovArbeidstaker() = ResponseEntity
         .status(HttpStatus.MOVED_PERMANENTLY).build<Void>().also {
-        metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker_v3")
-    }
-
-
+            metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker_v3")
+        }
 
     @PostMapping("/motebehov/ferdigstill")
     fun ferdigstillMotebehovArbeidstaker(): ResponseEntity<Void> = ResponseEntity
         .status(HttpStatus.MOVED_PERMANENTLY).build<Void>().also {
-        metric.tellEndepunktKall("call_endpoint_ferdigstill_motebehov_arbeidstaker_v3")
-    }
+            metric.tellEndepunktKall("call_endpoint_ferdigstill_motebehov_arbeidstaker_v3")
+        }
 }
