@@ -7,7 +7,9 @@ import no.nav.syfo.motebehov.toMotebehovWithFormValuesOutputDTO
 import java.io.Serializable
 
 data class MotebehovStatus(
+    // Indikerer om bruker skal ha tilgang til å svare/melde motebehov, eller se sitt svar.
     val visMotebehov: Boolean,
+    // Indikerer hvilket skjema bruker skal få opp når visMotebehov er true og motebehov er null.
     val skjemaType: MotebehovSkjemaType,
     val motebehov: Motebehov? = null
 ) : Serializable
@@ -32,7 +34,7 @@ fun MotebehovStatus.isMotebehovAvailableForAnswer(): Boolean {
 
 data class MotebehovStatusWithFormValuesDTO(
     val visMotebehov: Boolean,
-    val skjemaType: MotebehovSkjemaType? = null,
+    val skjemaType: MotebehovSkjemaType,
     val motebehovWithFormValues: MotebehovWithFormValuesOutputDTO? = null,
 )
 
