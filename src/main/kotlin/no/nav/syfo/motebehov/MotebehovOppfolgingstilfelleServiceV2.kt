@@ -63,7 +63,7 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
                 ferdigstillVarselForSvarMotebehovForArbeidsgiver(
                     arbeidstakerFnr,
                     innloggetFnr,
-                    nyttMotebehov,
+                    nyttMotebehov.virksomhetsnummer,
                     isOwnLeader
                 )
             }
@@ -108,13 +108,13 @@ class MotebehovOppfolgingstilfelleServiceV2 @Inject constructor(
     private fun ferdigstillVarselForSvarMotebehovForArbeidsgiver(
         arbeidstakerFnr: String,
         innloggetFnr: String,
-        nyttMotebehov: NyttMotebehovArbeidsgiverDTO,
+        virksomhetsnummer: String,
         isOwnLeader: Boolean
     ) {
         varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLeder(
             arbeidstakerFnr,
             innloggetFnr,
-            nyttMotebehov.virksomhetsnummer
+            virksomhetsnummer
         )
         if (isOwnLeader) {
             varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(arbeidstakerFnr)
