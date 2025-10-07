@@ -59,7 +59,7 @@ class MotebehovDAOTest : IntegrationTest() {
                 motebehovFraDb.virksomhetsnummer shouldBe pMotebehov.virksomhetsnummer
                 motebehovFraDb.sykmeldtFnr shouldBe pMotebehov.sykmeldtFnr
                 motebehovFraDb.harMotebehov shouldBe pMotebehov.harMotebehov
-                motebehovFraDb.forklaring shouldBe (pMotebehov.forklaring)
+                motebehovFraDb.forklaring shouldBe pMotebehov.forklaring
                 motebehovFraDb.tildeltEnhet shouldBe pMotebehov.tildeltEnhet
                 motebehovFraDb.skjemaType shouldBe pMotebehov.skjemaType
                 motebehovFraDb.innmelderType shouldBe pMotebehov.innmelderType
