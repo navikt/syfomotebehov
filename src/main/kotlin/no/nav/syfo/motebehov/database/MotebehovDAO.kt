@@ -6,7 +6,6 @@ import no.nav.syfo.motebehov.formSnapshot.FormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.convertFormSnapshotToJsonString
 import no.nav.syfo.motebehov.formSnapshot.convertJsonStringToFormSnapshot
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
-import no.nav.syfo.util.DbUtil.sanitizeUserInput
 import no.nav.syfo.util.convert
 import no.nav.syfo.util.convertNullable
 import no.nav.syfo.util.hentTidligsteDatoForGyldigMotebehovSvar
@@ -14,7 +13,6 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.jdbc.core.support.SqlLobValue
 import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.stereotype.Repository
 import org.springframework.stereotype.Service
@@ -23,7 +21,7 @@ import java.sql.ResultSet
 import java.sql.Types
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Service
 @Transactional
@@ -177,7 +175,9 @@ class MotebehovDAO(
             .addValue("aktoer_id", motebehov.aktoerId)
             .addValue("virksomhetsnummer", motebehov.virksomhetsnummer)
             .addValue("har_motebehov", motebehov.harMotebehov)
-            .addValue("forklaring", SqlLobValue(sanitizeUserInput(motebehov.forklaring)), Types.CLOB)
+            // This was used for old entries before FormSnapshot. When no value was passed,
+            // an empty string was stored in the db.
+            .addValue("forklaring", null)
             .addValue("tildelt_enhet", motebehov.tildeltEnhet)
             .addValue("behandlet_tidspunkt", convertNullable(motebehov.behandletTidspunkt))
             .addValue("behandlet_veileder_ident", motebehov.behandletVeilederIdent)

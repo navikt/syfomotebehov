@@ -1,7 +1,7 @@
 package no.nav.syfo.motebehov.database
 
 import no.nav.syfo.motebehov.Motebehov
-import no.nav.syfo.motebehov.MotebehovFormSubmissionCombinedDTO
+import no.nav.syfo.motebehov.MotebehovFormSubmissionDTO
 import no.nav.syfo.motebehov.MotebehovInnmelderType
 import no.nav.syfo.motebehov.formSnapshot.FormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.LegacyMotebehovToFormSnapshotHelper
@@ -45,31 +45,27 @@ fun PMotebehov.toMotebehov(
         behandletVeilederIdent = this.behandletVeilederIdent,
         skjemaType = this.skjemaType,
         innmelderType = this.innmelderType,
-        formSubmission = createMotebehovFormSubmissionFromPMotebehov(this, this.innmelderType),
+        formSubmission = this.createMotebehovFormSubmissionFromPMotebehov(),
     )
 }
 
-private fun createMotebehovFormSubmissionFromPMotebehov(
-    pMotebehov: PMotebehov,
-    innmelderType: MotebehovInnmelderType,
-): MotebehovFormSubmissionCombinedDTO {
-    val isLegacyMotebehov = pMotebehov.formSnapshot == null
+private fun PMotebehov.createMotebehovFormSubmissionFromPMotebehov(): MotebehovFormSubmissionDTO {
+    val isLegacyMotebehov = this.formSnapshot == null
 
     val formSnapshot = if (isLegacyMotebehov) {
         val helper = LegacyMotebehovToFormSnapshotHelper()
         helper.createFormSnapshotFromLegacyMotebehovValues(
-            pMotebehov.harMotebehov,
-            pMotebehov.forklaring,
-            pMotebehov.skjemaType,
+            this.harMotebehov,
+            this.forklaring,
+            this.skjemaType,
             innmelderType,
         )
     } else {
-        pMotebehov.formSnapshot
+        this.formSnapshot
     }
 
-    return MotebehovFormSubmissionCombinedDTO(
-        harMotebehov = pMotebehov.harMotebehov,
-        forklaring = pMotebehov.forklaring,
+    return MotebehovFormSubmissionDTO(
+        harMotebehov = this.harMotebehov,
         formSnapshot = formSnapshot
     )
 }
