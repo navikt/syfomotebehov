@@ -110,11 +110,11 @@ class MotebehovDAO(
         }
     }
 
+    /** This function does not populate the formSnapshot field for a PMotebehov. */
     fun hentUbehandledeMotebehov(aktoerId: String): List<PMotebehov> {
         return jdbcTemplate.query(
             """
-                SELECT m.*, f.* FROM motebehov m
-                LEFT JOIN motebehov_form_values f ON m.id = f.motebehov_row_id
+                SELECT m.* FROM motebehov m
                 WHERE m.aktoer_id = ? AND m.har_motebehov AND m.behandlet_veileder_ident IS NULL
                 """,
             motebehovRowMapper,
@@ -122,11 +122,11 @@ class MotebehovDAO(
         ) ?: emptyList()
     }
 
+    /** This function does not populate the formSnapshot field for a PMotebehov. */
     fun hentUbehandledeMotebehovEldreEnnDato(date: LocalDate): List<PMotebehov> {
         return jdbcTemplate.query(
             """
-                SELECT m.*, f.* FROM motebehov m
-                LEFT JOIN motebehov_form_values f ON m.id = f.motebehov_row_id
+                SELECT m.* FROM motebehov m
                 WHERE m.opprettet_dato < ? AND m.har_motebehov AND m.behandlet_veileder_ident IS NULL
                 """,
             motebehovRowMapper,
@@ -264,8 +264,22 @@ class MotebehovDAO(
                 innmelderType = rs.getString("innmelder_type").let { MotebehovInnmelderType.valueOf(it) },
                 sykmeldtFnr = rs.getString("sm_fnr"),
                 opprettetAvFnr = rs.getString("opprettet_av_fnr"),
-                formSnapshot = rs.getString("form_snapshot")?.let { convertJsonStringToFormSnapshot(it) },
+                formSnapshot =
+                // If there was no JOIN with motebehov_form_values, the form_snapshot column will not be present in the
+                // result set.
+                if (hasColumn(rs, "form_snapshot")) {
+                    rs.getString("form_snapshot")?.let { convertJsonStringToFormSnapshot(it) }
+                } else {
+                    null
+                }
             )
+        }
+
+        private fun hasColumn(rs: ResultSet, columnLabel: String): Boolean {
+            val meta = rs.metaData
+            return (1..meta.columnCount).any {
+                meta.getColumnLabel(it).equals(columnLabel, ignoreCase = true)
+            }
         }
     }
 }
