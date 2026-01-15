@@ -66,6 +66,20 @@ class MotebehovService @Inject constructor(
         return updatedCount
     }
 
+    @Transactional
+    fun behandleUbehandletMotebehovMedId(motebehovId: String, veilederIdent: String): Boolean {
+        val motebehov = hentMotebehov(motebehovId)
+        motebehov?.let {
+            val rowsAffected =
+                motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(motebehov.id, veilederIdent)
+            if (rowsAffected == 1) {
+                personoppgavehendelseService.sendPersonoppgaveHendelseBehandlet(motebehov.id, motebehov.arbeidstakerFnr)
+                return true
+            }
+        }
+        return false
+    }
+
     fun hentMotebehovListe(arbeidstakerFnr: String): List<Motebehov> {
         val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
         return motebehovDAO.hentMotebehovListeForAktoer(arbeidstakerAktoerId)
