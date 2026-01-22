@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @Component
@@ -31,7 +32,7 @@ class BehandleUbehandleteMotebehovScheduler @Inject constructor(
     }
 
 //  @Scheduled(cron = "0 0 11 * * *", scheduler = Scheduled.CRON_DISABLED)
-    @Scheduled(cron = "0 40 10 * * *")
+    @Scheduled(initialDelay = 5, timeUnit = TimeUnit.MINUTES)
     fun runCleanupJobForSpecificMotebehovIds() {
         if (leaderElectionClient.isLeader()) {
             log.info(
