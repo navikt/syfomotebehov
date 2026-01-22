@@ -16,7 +16,7 @@ class BehandleUbehandleteMotebehovScheduler @Inject constructor(
 ) {
     private val fakeVeilederIdent = "X000000"
 
-    @Scheduled(cron = "0 0 11 * * *")
+    @Scheduled(initialDelay = 1, timeUnit = TimeUnit.MINUTES, scheduler = Scheduled.CRON_DISABLED)
     fun runCleanupJobForOldMotebehov() {
         if (leaderElectionClient.isLeader()) {
             log.info(
@@ -31,8 +31,7 @@ class BehandleUbehandleteMotebehovScheduler @Inject constructor(
         }
     }
 
-//  @Scheduled(cron = "0 0 11 * * *", scheduler = Scheduled.CRON_DISABLED)
-    @Scheduled(initialDelay = 5, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(initialDelay = 1, timeUnit = TimeUnit.MINUTES)
     fun runCleanupJobForSpecificMotebehovIds() {
         if (leaderElectionClient.isLeader()) {
             log.info(
