@@ -31,7 +31,7 @@ class BehandleUbehandleteMotebehovScheduler @Inject constructor(
     }
 
 //  @Scheduled(cron = "0 0 11 * * *", scheduler = Scheduled.CRON_DISABLED)
-    @Scheduled(cron = "0 0 11 * * *")
+    @Scheduled(cron = "0 40 10 * * *")
     fun runCleanupJobForSpecificMotebehovIds() {
         if (leaderElectionClient.isLeader()) {
             log.info(
@@ -52,10 +52,7 @@ class BehandleUbehandleteMotebehovScheduler @Inject constructor(
 
         // Behandle ubehandlede møtebehov med disse IDene
         private val motebehovIdsToBehandle = listOf<String>(
-            "e9b9183e-ced4-4eb8-bd51-977ec59600e6",
-            "0bf41ef8-c5a6-4cfb-9f50-f6ac00c72f4e",
-            "df7a1f6a-2adb-4ec4-b07f-9eb104b7104f",
-            "2718c16f-ff2c-417a-9cc5-1ec41cfb49fd"
+            "d9c3c95e-305b-4a15-85f9-09093159fc18",
         )
 
         private val log = LoggerFactory.getLogger(BehandleUbehandleteMotebehovScheduler::class.java)
