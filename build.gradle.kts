@@ -22,7 +22,7 @@ val hikari = "5.1.0"
 val postgres = "42.7.9"
 val detektVersion = "1.23.8"
 val testcontainersVersion = "1.21.4"
-val kotestVersion = "5.9.1"
+val kotestVersion = "6.1.0"
 val springKotestExtensionVersion = "1.3.0"
 
 plugins {
