@@ -16,7 +16,6 @@ import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_END_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.DAYS_START_SVAR_BEHOV
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
-import no.nav.syfo.motebehov.toMotebehovFormSubmissionCombinedDTO
 import no.nav.syfo.motebehov.toMotebehovFormValuesOutputDTO
 import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
 import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseProducer
@@ -341,7 +340,6 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                         expVisMotebehov = true,
                         expSkjemaType = MotebehovSkjemaType.MELD_BEHOV,
                         expMotebehovFormValues = motebehovFormSubmissionDTO
-                            .toMotebehovFormSubmissionCombinedDTO()
                             .toMotebehovFormValuesOutputDTO()
                     )
             }
@@ -415,7 +413,6 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                         expVisMotebehov = true,
                         expSkjemaType = MotebehovSkjemaType.SVAR_BEHOV,
                         expMotebehovFormValues = motebehovFormSubmissionDTO
-                            .toMotebehovFormSubmissionCombinedDTO()
                             .toMotebehovFormValuesOutputDTO()
                     )
             }

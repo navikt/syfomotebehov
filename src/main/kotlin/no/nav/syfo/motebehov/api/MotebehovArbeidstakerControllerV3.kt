@@ -6,19 +6,17 @@ import no.nav.syfo.api.auth.tokenX.TokenXUtil
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.TokenXIssuer
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.MotebehovFormSubmissionCombinedDTO
-import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
-import no.nav.syfo.motebehov.MotebehovSvarLegacyDTO
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatus
-import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
-import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusWithLegacyMotebehovDTO
-import no.nav.syfo.motebehov.motebehovstatus.toMotebehovStatusWithLegacyMotebehovDTO
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.*
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import javax.inject.Inject
-import javax.validation.Valid
 
 @RestController
 @ProtectedWithClaims(
@@ -30,14 +28,8 @@ import javax.validation.Valid
 class MotebehovArbeidstakerControllerV3 @Inject constructor(
     private val contextHolder: TokenValidationContextHolder,
     private val metric: Metric,
-    private val motebehovStatusServiceV2: MotebehovStatusServiceV2,
-    private val motebehovOppfolgingstilfelleServiceV2: MotebehovOppfolgingstilfelleServiceV2,
-    @Value("\${dialogmote.frontend.client.id}")
-    val dialogmoteClientId: String,
     @Value("\${ditt.sykefravaer.frontend.client.id}")
     val dittSykefravaerClientId: String,
-    @Value("\${esyfo-proxy.client.id}")
-    val esyfoProxyClientId: String,
 ) {
     @GetMapping(
         value = ["/motebehov"],
@@ -50,9 +42,10 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         )
             .fnrFromIdportenTokenX()
 
-        metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker")
-
-        // This endpoint is only used by Ditt sykefravær. Should be removed when they stop calling it. Until then, return empty result
+        // This endpoint is only used by Ditt sykefravær.
+        // Should be removed when they stop calling it.
+        // Until then, return empty result
+        metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker_v3")
         return MotebehovStatus(
             false,
             MotebehovSkjemaType.MELD_BEHOV,
@@ -60,67 +53,21 @@ class MotebehovArbeidstakerControllerV3 @Inject constructor(
         )
     }
 
-    @GetMapping(
-        value = ["/motebehov/all"],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
-    fun motebehovStatusArbeidstakerWithCodeSixUsers(): MotebehovStatusWithLegacyMotebehovDTO {
-        val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
-            contextHolder,
-            dialogmoteClientId,
-            esyfoProxyClientId
-        )
-            .fnrFromIdportenTokenX()
+    @GetMapping("/motebehov/all")
+    fun motebehovStatusArbeidstakerWithCodeSixUsers() = ResponseEntity
+        .status(HttpStatus.MOVED_PERMANENTLY).build<Void>().also {
+            metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker_all_v3")
+        }
 
-        metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker_all")
+    @PostMapping("/motebehov")
+    fun submitMotebehovArbeidstaker() = ResponseEntity
+        .status(HttpStatus.MOVED_PERMANENTLY).build<Void>().also {
+            metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker_v3")
+        }
 
-        return motebehovStatusServiceV2.motebehovStatusForArbeidstaker(arbeidstakerFnr)
-            .toMotebehovStatusWithLegacyMotebehovDTO()
-    }
-
-    // Currently used POST-endpoint to phase out
-    @PostMapping(
-        value = ["/motebehov"],
-        consumes = [MediaType.APPLICATION_JSON_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
-    fun submitMotebehovArbeidstaker(
-        @RequestBody nyttMotebehovSvar: @Valid MotebehovSvarLegacyDTO,
-    ) {
-        metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker")
-        val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
-            contextHolder,
-            dialogmoteClientId,
-            esyfoProxyClientId
-        )
-            .fnrFromIdportenTokenX()
-
-        val formSubmission = MotebehovFormSubmissionCombinedDTO(
-            harMotebehov = nyttMotebehovSvar.harMotebehov,
-            forklaring = nyttMotebehovSvar.forklaring,
-            formSnapshot = null,
-        )
-
-        motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidstaker(
-            arbeidstakerFnr,
-            formSubmission,
-        )
-    }
-
-    @PostMapping(
-        value = ["/motebehov/ferdigstill"],
-        consumes = [MediaType.APPLICATION_JSON_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
-    fun ferdigstillMotebehovArbeidstaker() {
-        metric.tellEndepunktKall("call_endpoint_ferdigstill_motebehov_arbeidstaker")
-        val arbeidstakerFnr = TokenXUtil.validateTokenXClaims(
-            contextHolder,
-            dialogmoteClientId,
-            esyfoProxyClientId
-        )
-            .fnrFromIdportenTokenX()
-
-        motebehovOppfolgingstilfelleServiceV2.ferdigstillMotebehov(arbeidstakerFnr)
-    }
+    @PostMapping("/motebehov/ferdigstill")
+    fun ferdigstillMotebehovArbeidstaker(): ResponseEntity<Void> = ResponseEntity
+        .status(HttpStatus.MOVED_PERMANENTLY).build<Void>().also {
+            metric.tellEndepunktKall("call_endpoint_ferdigstill_motebehov_arbeidstaker_v3")
+        }
 }

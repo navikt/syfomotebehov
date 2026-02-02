@@ -1,37 +1,37 @@
 group = "no.nav.syfo"
 
 val junitJupiterVersion = "5.13.4"
-val kotlinJacksonVersion = "2.19.2"
+val kotlinJacksonVersion = "2.21.0"
 val flywayVersion = "9.22.3"
 val tokenSupportVersion = "3.2.0"
-val mockkVersion = "1.14.5"
-val nimbusVersion = "9.37.2"
+val mockkVersion = "1.14.7"
+val nimbusVersion = "9.37.4"
 val kotestTestContainersExtensionVersion = "2.0.2"
 val wiremockKotestExtensionVersion = "3.1.0"
 val springMockkVersion = "4.0.2"
 val confluent = "7.9.0"
 val isdialogmoteSchema = "1.0.5"
-val jsoupVersion = "1.21.1"
+val jsoupVersion = "1.22.1"
 val logstashVersion = "4.10"
 val javaxInjectVersion = "1"
 val owaspSanitizerVersion = "20240325.1"
-val apacheCommonsTextVersion = "1.14.0"
-val apacheMinaVersion = "2.2.4"
+val apacheCommonsTextVersion = "1.15.0"
+val apacheMinaVersion = "2.2.5"
 val jakartaRsApiVersion = "4.0.0"
 val hikari = "7.0.2"
-val postgres = "42.7.3"
+val postgres = "42.7.9"
 val detektVersion = "1.23.8"
-val testcontainersVersion = "1.21.3"
+val testcontainersVersion = "1.21.4"
 val kotestVersion = "5.9.1"
 val springKotestExtensionVersion = "1.3.0"
 
 plugins {
     id("java")
-    id("org.springframework.boot") version "3.4.6"
+    id("org.springframework.boot") version "3.5.6"
     id("io.spring.dependency-management") version "1.1.7"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
-    kotlin("jvm") version "2.0.21"
-    kotlin("plugin.spring") version "2.0.21"
+    kotlin("jvm") version "2.2.21"
+    kotlin("plugin.spring") version "2.2.21"
 }
 
 repositories {
@@ -68,7 +68,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
-    implementation("io.micrometer:micrometer-registry-prometheus:1.12.8")
+    implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
     implementation("org.springframework.kafka:spring-kafka") {
         exclude(group = "log4j", module = "log4j")

@@ -13,7 +13,7 @@ import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.motebehov.MotebehovTilbakemelding
-import no.nav.syfo.motebehov.api.internad.dto.MotebehovVeilederDTOv4
+import no.nav.syfo.motebehov.api.internad.dto.MotebehovVeilederDTO
 import no.nav.syfo.motebehov.historikk.Historikk
 import no.nav.syfo.motebehov.historikk.HistorikkService
 import no.nav.syfo.motebehov.toMotebehovVeilederDTOv4List
@@ -49,7 +49,7 @@ class MotebehovVeilederADControllerV4 @Inject constructor(
         @RequestHeader(name = NAV_PERSONIDENT_HEADER) personident:
         @Pattern(regexp = "^[0-9]{11}$")
         String
-    ): List<MotebehovVeilederDTOv4> {
+    ): List<MotebehovVeilederDTO> {
         metric.tellEndepunktKall("veileder_hent_motebehov")
 
         kastExceptionHvisIkkeTilgang(personident)

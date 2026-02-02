@@ -2,14 +2,14 @@ package no.nav.syfo.motebehov.motebehovstatus
 
 import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.motebehov.MotebehovWithFormValuesOutputDTO
-import no.nav.syfo.motebehov.MotebehovWithLegacyMotebehovSvarOutputDTO
 import no.nav.syfo.motebehov.isUbehandlet
 import no.nav.syfo.motebehov.toMotebehovWithFormValuesOutputDTO
-import no.nav.syfo.motebehov.toMotebehovWithLegacyMotebehovSvarOutputDTO
 import java.io.Serializable
 
 data class MotebehovStatus(
+    // Indikerer om bruker skal ha tilgang til å svare/melde motebehov, eller se sitt svar.
     val visMotebehov: Boolean,
+    // Indikerer hvilket skjema bruker skal få opp når visMotebehov er true og motebehov er null.
     val skjemaType: MotebehovSkjemaType,
     val motebehov: Motebehov? = null
 ) : Serializable
@@ -32,30 +32,18 @@ fun MotebehovStatus.isMotebehovAvailableForAnswer(): Boolean {
         this.motebehov == null
 }
 
-data class MotebehovStatusWithLegacyMotebehovDTO(
-    val visMotebehov: Boolean,
-    val skjemaType: MotebehovSkjemaType? = null,
-    val motebehov: MotebehovWithLegacyMotebehovSvarOutputDTO? = null,
-)
-
-fun MotebehovStatus.toMotebehovStatusWithLegacyMotebehovDTO(): MotebehovStatusWithLegacyMotebehovDTO {
-    return MotebehovStatusWithLegacyMotebehovDTO(
-        visMotebehov = this.visMotebehov,
-        skjemaType = this.skjemaType,
-        motebehov = this.motebehov?.toMotebehovWithLegacyMotebehovSvarOutputDTO()
-    )
-}
-
 data class MotebehovStatusWithFormValuesDTO(
     val visMotebehov: Boolean,
-    val skjemaType: MotebehovSkjemaType? = null,
+    val skjemaType: MotebehovSkjemaType,
     val motebehovWithFormValues: MotebehovWithFormValuesOutputDTO? = null,
+    val motebehov: MotebehovWithFormValuesOutputDTO? = null,
 )
 
 fun MotebehovStatus.toMotebehovStatusWithFormValuesDTO(): MotebehovStatusWithFormValuesDTO {
     return MotebehovStatusWithFormValuesDTO(
         visMotebehov = this.visMotebehov,
         skjemaType = this.skjemaType,
-        motebehovWithFormValues = this.motebehov?.toMotebehovWithFormValuesOutputDTO()
+        motebehovWithFormValues = this.motebehov?.toMotebehovWithFormValuesOutputDTO(),
+        motebehov = this.motebehov?.toMotebehovWithFormValuesOutputDTO()
     )
 }

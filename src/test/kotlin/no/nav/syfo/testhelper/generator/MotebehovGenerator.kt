@@ -1,6 +1,9 @@
 package no.nav.syfo.testhelper.generator
 
-import no.nav.syfo.motebehov.*
+import no.nav.syfo.motebehov.Motebehov
+import no.nav.syfo.motebehov.MotebehovFormSubmissionDTO
+import no.nav.syfo.motebehov.MotebehovInnmelderType
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
 import no.nav.syfo.motebehov.database.PMotebehov
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverMeldOnskerSykmelderOgTolkFormSnapshot
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
@@ -21,11 +24,6 @@ import java.time.LocalDateTime
 import java.util.*
 
 class MotebehovGenerator {
-    private val motebehovSvarLegacyInputDTO = MotebehovSvarLegacyDTO(
-        harMotebehov = true,
-        forklaring = "",
-    )
-
     private val motebehov = Motebehov(
         id = UUID.randomUUID(),
         arbeidstakerFnr = ARBEIDSTAKER_FNR,
@@ -33,9 +31,8 @@ class MotebehovGenerator {
         virksomhetsnummer = VIRKSOMHETSNUMMER,
         opprettetAv = LEDER_AKTORID,
         opprettetDato = LocalDateTime.now().minusMinutes(2L),
-        formSubmission = MotebehovFormSubmissionCombinedDTO(
+        formSubmission = MotebehovFormSubmissionDTO(
             harMotebehov = true,
-            forklaring = "",
             formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
         ),
         tildeltEnhet = NAV_ENHET,
@@ -46,14 +43,7 @@ class MotebehovGenerator {
         innmelderType = MotebehovInnmelderType.ARBEIDSGIVER,
     )
 
-    private val nyttMotebehovArbeidsgiverLegacyInput = NyttMotebehovArbeidsgiverLegacyDTO(
-        arbeidstakerFnr = ARBEIDSTAKER_FNR,
-        virksomhetsnummer = VIRKSOMHETSNUMMER,
-        motebehovSvar = motebehovSvarLegacyInputDTO,
-        tildeltEnhet = NAV_ENHET,
-    )
-
-    private val nyttMotebehovArbeidsgiverFormSubmissionInput = NyttMotebehovArbeidsgiverFormSubmissionDTO(
+    private val nyttMotebehovArbeidsgiverFormSubmissionInput = NyttMotebehovArbeidsgiverDTO(
         arbeidstakerFnr = ARBEIDSTAKER_FNR,
         virksomhetsnummer = VIRKSOMHETSNUMMER,
         formSubmission = MotebehovFormSubmissionDTO(
@@ -62,12 +52,6 @@ class MotebehovGenerator {
         ),
         tildeltEnhet = NAV_ENHET,
     )
-
-    fun lagMotebehovSvarLegacyDTO(harBehov: Boolean): MotebehovSvarLegacyDTO {
-        return motebehovSvarLegacyInputDTO.copy(
-            harMotebehov = harBehov,
-        )
-    }
 
     fun lagFormSubmissionArbeidstakerSvarJaDTO(): MotebehovFormSubmissionDTO {
         return MotebehovFormSubmissionDTO(
@@ -90,11 +74,7 @@ class MotebehovGenerator {
         )
     }
 
-    fun lagNyttMotebehovArbeidsgiverLegacyInput(): NyttMotebehovArbeidsgiverLegacyDTO {
-        return nyttMotebehovArbeidsgiverLegacyInput.copy()
-    }
-
-    fun lagNyArbeidsgiverFormSubmissionSvarJa(): NyttMotebehovArbeidsgiverFormSubmissionDTO {
+    fun lagNyArbeidsgiverFormSubmissionSvarJa(): NyttMotebehovArbeidsgiverDTO {
         return nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
             formSubmission = MotebehovFormSubmissionDTO(
                 harMotebehov = true,
@@ -103,7 +83,7 @@ class MotebehovGenerator {
         )
     }
 
-    fun lagNyArbeidsgiverFormSubmissionSvarNei(): NyttMotebehovArbeidsgiverFormSubmissionDTO {
+    fun lagNyArbeidsgiverFormSubmissionSvarNei(): NyttMotebehovArbeidsgiverDTO {
         return nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
             formSubmission = MotebehovFormSubmissionDTO(
                 harMotebehov = false,
@@ -112,7 +92,7 @@ class MotebehovGenerator {
         )
     }
 
-    fun lagNyArbeidsgiverFormSubmissionMeld(): NyttMotebehovArbeidsgiverFormSubmissionDTO {
+    fun lagNyArbeidsgiverFormSubmissionMeld(): NyttMotebehovArbeidsgiverDTO {
         return nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
             formSubmission = MotebehovFormSubmissionDTO(
                 harMotebehov = true,
@@ -151,9 +131,5 @@ class MotebehovGenerator {
 
     fun generateMotebehov(): Motebehov {
         return motebehov.copy()
-    }
-
-    fun generateMotebehovOutputDTO(): MotebehovWithFormValuesOutputDTO {
-        return motebehov.toMotebehovWithFormValuesOutputDTO()
     }
 }

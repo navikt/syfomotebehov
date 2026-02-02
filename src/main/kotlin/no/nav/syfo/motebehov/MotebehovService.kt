@@ -66,6 +66,20 @@ class MotebehovService @Inject constructor(
         return updatedCount
     }
 
+    @Transactional
+    fun behandleUbehandletMotebehovMedId(motebehovId: String, veilederIdent: String): Boolean {
+        val motebehov = hentMotebehov(motebehovId)
+        motebehov?.let {
+            val rowsAffected =
+                motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(motebehov.id, veilederIdent)
+            if (rowsAffected == 1) {
+                personoppgavehendelseService.sendPersonoppgaveHendelseBehandlet(motebehov.id, motebehov.arbeidstakerFnr)
+                return true
+            }
+        }
+        return false
+    }
+
     fun hentMotebehovListe(arbeidstakerFnr: String): List<Motebehov> {
         val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
         return motebehovDAO.hentMotebehovListeForAktoer(arbeidstakerAktoerId)
@@ -107,6 +121,7 @@ class MotebehovService @Inject constructor(
             .collect(Collectors.toList())
     }
 
+    @Suppress("LongParameterList")
     @Transactional
     fun lagreMotebehov(
         innloggetFNR: String,
@@ -114,7 +129,7 @@ class MotebehovService @Inject constructor(
         virksomhetsnummer: String,
         skjemaType: MotebehovSkjemaType,
         innmelderType: MotebehovInnmelderType,
-        motebehovFormSubmission: MotebehovFormSubmissionCombinedDTO,
+        motebehovFormSubmission: MotebehovFormSubmissionDTO,
     ): UUID {
         val innloggetBrukerAktoerId = pdlConsumer.aktorid(innloggetFNR)
         val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
