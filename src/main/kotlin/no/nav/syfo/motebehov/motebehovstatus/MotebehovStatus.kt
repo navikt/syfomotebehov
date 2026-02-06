@@ -43,7 +43,6 @@ fun MotebehovStatus.toMotebehovStatusWithFormValuesDTO(): MotebehovStatusWithFor
     return MotebehovStatusWithFormValuesDTO(
         visMotebehov = this.visMotebehov,
         skjemaType = this.skjemaType,
-        motebehovWithFormValues = this.motebehov?.toMotebehovWithFormValuesOutputDTO(),
         motebehov = this.motebehov?.toMotebehovWithFormValuesOutputDTO()
     )
 }
