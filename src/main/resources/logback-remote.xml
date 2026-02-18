@@ -15,4 +15,6 @@
 	<logger name="no.nav.security.spring.oidc.validation.interceptor.OIDCTokenControllerHandlerInterceptor" level="INFO" />
 
 	<logger name="org.springframework" level="INFO"/>
+
+    <logger name="org.hibernate.orm.connections.pooling" level="warn"/>
 </included>
