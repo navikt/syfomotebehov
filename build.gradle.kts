@@ -22,7 +22,7 @@ val hikari = "7.0.2"
 val postgres = "42.7.9"
 val detektVersion = "1.23.8"
 val testcontainersVersion = "1.21.4"
-val kotestVersion = "5.9.1"
+val kotestVersion = "6.1.3"
 val springKotestExtensionVersion = "1.3.0"
 
 plugins {
@@ -99,20 +99,19 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "junit")
     }
-    testImplementation("io.kotest:kotest-runner-junit5:5.9.1")
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
 
-    testImplementation("io.kotest:kotest-framework-datatest:5.9.1")
-    testImplementation("io.kotest.extensions:kotest-extensions-spring:$springKotestExtensionVersion")
+    testImplementation("io.kotest:kotest-extensions-spring:$kotestVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:$kotestTestContainersExtensionVersion")
+    testImplementation("io.kotest:kotest-extensions-testcontainers:$kotestVersion")
     testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
     testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
     testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-property:$kotestVersion")
-    testImplementation("io.kotest.extensions:kotest-extensions-wiremock:$wiremockKotestExtensionVersion")
+    testImplementation("io.kotest:kotest-extensions-wiremock:$kotestVersion")
 
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
 }

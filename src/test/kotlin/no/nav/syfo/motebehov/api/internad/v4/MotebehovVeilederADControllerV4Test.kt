@@ -2,6 +2,7 @@ package no.nav.syfo.motebehov.api.internad.v4
 
 import com.ninjasquad.springmockk.MockkBean
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.extensions.ApplyExtension
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.date.shouldBeWithin
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -59,6 +60,7 @@ import java.util.function.Consumer
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
+@ApplyExtension(SpringExtension::class)
 class MotebehovVeilederADControllerV4Test : IntegrationTest() {
 
     @Value("\${azure.openid.config.token.endpoint}")
@@ -111,7 +113,6 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
     private lateinit var mockRestServiceServer: MockRestServiceServer
 
     init {
-        extensions(SpringExtension)
         beforeTest {
             cleanDB()
 
