@@ -1,12 +1,12 @@
 package no.nav.syfo.motebehov
 
 import com.ninjasquad.springmockk.MockkBean
+import io.kotest.core.extensions.ApplyExtension
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.every
-import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.motebehov.database.MotebehovDAO
@@ -24,15 +24,16 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
+import no.nav.syfo.IntegrationTest
 
-@TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
+@ApplyExtension(SpringExtension::class)
 class MotebehovServiceTest : IntegrationTest() {
+
     @Value("\${azure.openid.config.token.endpoint}")
     private lateinit var azureTokenEndpoint: String
 
@@ -68,7 +69,6 @@ class MotebehovServiceTest : IntegrationTest() {
     private lateinit var mockRestServiceServer: MockRestServiceServer
 
     init {
-        extensions(SpringExtension)
         beforeTest {
             val sqlDeleteAll = "DELETE FROM MOTEBEHOV"
             jdbcTemplate.update(sqlDeleteAll)

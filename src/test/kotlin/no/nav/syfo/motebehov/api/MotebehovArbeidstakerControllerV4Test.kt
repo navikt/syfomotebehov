@@ -1,6 +1,7 @@
 package no.nav.syfo.motebehov.api
 
 import com.ninjasquad.springmockk.MockkBean
+import io.kotest.core.extensions.ApplyExtension
 import io.kotest.extensions.spring.SpringExtension
 import io.mockk.every
 import io.mockk.verify
@@ -52,6 +53,7 @@ import java.util.function.Consumer
 
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
+@ApplyExtension(SpringExtension::class)
 class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
     @Value("\${azure.openid.config.token.endpoint}")
     private lateinit var azureTokenEndpoint: String
@@ -105,7 +107,6 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
     private val motebehovGenerator = MotebehovGenerator()
 
     init {
-        extensions(SpringExtension)
         beforeTest {
             every { pdlConsumer.person(ARBEIDSTAKER_FNR) } returns generatePdlHentPerson(null, null)
             every { pdlConsumer.aktorid(any()) } returns ARBEIDSTAKER_AKTORID

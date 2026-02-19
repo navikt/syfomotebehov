@@ -1,6 +1,8 @@
 package no.nav.syfo.dialogmotekandidat
 
 import com.ninjasquad.springmockk.MockkBean
+import io.kotest.core.extensions.ApplyExtension
+import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.mockk.verify
 import no.nav.syfo.IntegrationTest
@@ -22,6 +24,7 @@ import java.util.*
 
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
+@ApplyExtension(SpringExtension::class)
 @DirtiesContext
 internal class DialogmotekandidatServiceTest : IntegrationTest() {
 
@@ -37,8 +40,8 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
     @Autowired
     private lateinit var dialogmotekandidatService: DialogmotekandidatService
 
+
     init {
-        extensions(SpringExtension)
         beforeTest {
             val sqlDeleteAll = "DELETE FROM DIALOGMOTEKANDIDAT"
             jdbcTemplate.update(sqlDeleteAll)

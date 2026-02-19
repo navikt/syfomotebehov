@@ -1,6 +1,7 @@
 package no.nav.syfo.dialogmote
 
 import com.ninjasquad.springmockk.MockkBean
+import io.kotest.core.extensions.ApplyExtension
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -26,6 +27,7 @@ import java.util.UUID
 
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
+@ApplyExtension(SpringExtension::class)
 @DirtiesContext
 class DialogmoteStatusServiceTest : IntegrationTest() {
 
@@ -45,7 +47,6 @@ class DialogmoteStatusServiceTest : IntegrationTest() {
     val dialogmotetidspunkt = convertLocalDateTimeToInstant(LocalDateTime.now().plusWeeks(4))
 
     init {
-        extensions(SpringExtension)
         beforeTest {
             val sqlDeleteAll = "DELETE FROM DIALOGMOTE"
             jdbcTemplate.update(sqlDeleteAll)

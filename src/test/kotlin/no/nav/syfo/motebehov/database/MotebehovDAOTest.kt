@@ -1,8 +1,10 @@
 package no.nav.syfo.motebehov.database
 
+import io.kotest.core.extensions.ApplyExtension
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.mockk.clearAllMocks
 import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.motebehov.MotebehovInnmelderType
@@ -26,6 +28,7 @@ import java.time.temporal.ChronoUnit
 
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
+@ApplyExtension(SpringExtension::class)
 @Sql(statements = ["DELETE FROM MOTEBEHOV"])
 class MotebehovDAOTest : IntegrationTest() {
 
@@ -38,8 +41,9 @@ class MotebehovDAOTest : IntegrationTest() {
     private val motebehovGenerator = MotebehovGenerator()
 
     init {
-        extensions(SpringExtension)
-
+        afterTest {
+            clearAllMocks()
+        }
         describe("Møtebehov DAO") {
             it("should create møtebehov and retrieve it back with same values using hentMotebehovListeForAktoer") {
                 val pMotebehov = motebehovGenerator.generatePmotebehov()

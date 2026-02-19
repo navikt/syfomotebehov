@@ -1,7 +1,9 @@
 package no.nav.syfo.testdata.reset
 
 import com.ninjasquad.springmockk.MockkBean
+import io.kotest.core.extensions.ApplyExtension
 import io.kotest.extensions.spring.SpringExtension
+import io.mockk.clearAllMocks
 import io.mockk.every
 import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
@@ -29,6 +31,7 @@ import java.util.UUID
 
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
+@ApplyExtension(SpringExtension::class)
 class TestdataResetServiceTest : IntegrationTest() {
 
     @MockkBean(relaxed = true)
@@ -50,11 +53,10 @@ class TestdataResetServiceTest : IntegrationTest() {
     private lateinit var testdataResetService: TestdataResetService
 
     init {
-        extensions(SpringExtension)
         beforeTest {
+            clearAllMocks()
             every { pdlConsumer.aktorid(ARBEIDSTAKER_FNR) } returns ARBEIDSTAKER_AKTORID
         }
-
         describe("TestdataResetService") {
             it("skalNullstilleData") {
                 motebehovDAO.create(
