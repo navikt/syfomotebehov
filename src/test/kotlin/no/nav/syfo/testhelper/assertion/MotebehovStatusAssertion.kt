@@ -18,10 +18,10 @@ fun MotebehovStatusWithFormValuesDTO.assertMotebehovStatus(
     }
 
     if (expMotebehovFormValues != null) {
-        this.motebehovWithFormValues shouldNotBe null
-        this.motebehovWithFormValues!!.formValues shouldBe expMotebehovFormValues
-        this.motebehovWithFormValues!!.skjemaType shouldBe expSkjemaType
+        this.motebehov shouldNotBe null
+        this.motebehov?.formValues shouldBe expMotebehovFormValues
+        this.motebehov?.skjemaType shouldBe expSkjemaType
     } else {
-        this.motebehovWithFormValues shouldBe null
+        this.motebehov shouldBe null
     }
 }

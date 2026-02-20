@@ -599,7 +599,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
 
         assertTrue(motebehovStatus.visMotebehov)
         assertEquals(MotebehovSkjemaType.SVAR_BEHOV, motebehovStatus.skjemaType)
-        val motebehov = motebehovStatus.motebehovWithFormValues!!
+        val motebehov = motebehovStatus.motebehov!!
         assertNotNull(motebehov)
         assertThat(motebehov.opprettetAv).isEqualTo(LEDER_AKTORID)
         assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)

@@ -35,7 +35,6 @@ fun MotebehovStatus.isMotebehovAvailableForAnswer(): Boolean {
 data class MotebehovStatusWithFormValuesDTO(
     val visMotebehov: Boolean,
     val skjemaType: MotebehovSkjemaType,
-    val motebehovWithFormValues: MotebehovWithFormValuesOutputDTO? = null,
     val motebehov: MotebehovWithFormValuesOutputDTO? = null,
 )
 
