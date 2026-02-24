@@ -20,7 +20,6 @@ val apacheMinaVersion = "2.2.5"
 val jakartaRsApiVersion = "4.0.0"
 val hikari = "7.0.2"
 val postgres = "42.7.10"
-val detektVersion = "1.23.8"
 val testcontainersVersion = "1.21.4"
 val kotestVersion = "6.1.3"
 val springKotestExtensionVersion = "1.3.0"
@@ -29,7 +28,6 @@ plugins {
     id("java")
     id("org.springframework.boot") version "3.5.6"
     id("io.spring.dependency-management") version "1.1.7"
-    id("io.gitlab.arturbosch.detekt") version "1.23.8"
     kotlin("jvm") version "2.2.21"
     kotlin("plugin.spring") version "2.2.21"
 }
@@ -113,7 +111,6 @@ dependencies {
     testImplementation("io.kotest:kotest-property:$kotestVersion")
     testImplementation("io.kotest:kotest-extensions-wiremock:$kotestVersion")
 
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
 }
 
 java.toolchain {
@@ -132,8 +129,3 @@ tasks {
     }
 }
 
-detekt {
-    config.from("detekt-config.yml")
-    buildUponDefaultConfig = true
-    baseline = file("detekt-baseline.xml")
-}
