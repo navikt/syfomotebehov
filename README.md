@@ -36,9 +36,6 @@ Enhetstester er satt opp med in-memory db og kan kjøres på vanlig vis: **./gra
 Applikasjonen pakkes til en stor jar vha. plugin Gradle Shadow og bygges med docker. Applikasjonen kan kjøres opp 
 lokalt på docker hvis jdbc-url legges på path.
 
-### Lint
-Kjør `./gradlew detekt` 
-
 ### Pipeline
 
 Pipeline er på Github Action.
