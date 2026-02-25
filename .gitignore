@@ -33,4 +33,7 @@ hs_err_pid*
 .DS_Store
 transaction-logs
 
+# Local working notes (not for version control)
+.local-notes/
+
 gradle.properties

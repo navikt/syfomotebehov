@@ -238,6 +238,26 @@ All integration tests require Docker running for TestContainers.
 - Bypass authentication or access control checks
 - Use `!!` operator without proper null checks
 
+## Documentation and Working Notes
+
+This project uses three tiers for storing written artifacts:
+
+| Tier | Location | Purpose | Persists across sessions | Checked in |
+|------|----------|---------|--------------------------|------------|
+| **Session** | `~/.copilot/session-state/` | Scratch work for one task (todos, intermediate results) | No | No |
+| **Local notes** | `.local-notes/` | Plans, architecture drafts, research, implementation notes, AI reviews | Yes | No |
+| **Permanent docs** | `docs/` | Finalized documentation (ADRs, API docs, onboarding guides) | Yes | Yes |
+
+### Defaults (do not ask)
+
+- **Planning, research, architecture drafts, reviews** → `.local-notes/` (create subdirectories as needed, e.g. `.local-notes/architecture/`, `.local-notes/research/`)
+- **Finalized documentation explicitly requested for the repo** → `docs/`
+- **Throwaway task tracking within a single session** → session state
+
+### When to ask
+
+If it's genuinely unclear whether the user wants a permanent doc or a working note (e.g., "write an ADR" — should it mature in `.local-notes/` first, or go straight to `docs/`?), ask.
+
 ## Keeping Copilot Config in Sync
 
 When making changes that affect the patterns described in `.github/` config files (agents, instructions, skills), **suggest** updating the relevant files — but do not update them automatically.
