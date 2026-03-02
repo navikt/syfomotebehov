@@ -23,7 +23,7 @@ class DialogmotekandidatService @Inject constructor(
             if (dialogmotekandidatEndring.kandidat) {
                 varselServiceV2.sendSvarBehovVarsel(dialogmotekandidatEndring.personIdentNumber, dialogmotekandidatEndring.uuid)
             } else {
-                log.info("Ferdigstill varsel because message has kandidat=false")
+                log.info("Start ferdigstill varsel because message has kandidat=false")
                 varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(dialogmotekandidatEndring.personIdentNumber)
                 varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLedere(dialogmotekandidatEndring.personIdentNumber)
             }
@@ -38,14 +38,13 @@ class DialogmotekandidatService @Inject constructor(
     ) {
         when {
             existingKandidat == null -> {
-                log.info("Lagrer ny kandidat i databasen")
                 dialogmotekandidatDAO.create(
                     dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
                     createdAt = dialogmotekandidatEndring.localCreatedAt(),
                     fnr = dialogmotekandidatEndring.personIdentNumber,
                     kandidat = dialogmotekandidatEndring.kandidat,
                     arsak = dialogmotekandidatEndring.arsak
-                )
+                ).also { log.info("Lagret ny kandidat i databasen") }
             }
 
             newerKandidatAlreadyExists(existingKandidat, dialogmotekandidatEndring) -> {
@@ -53,14 +52,13 @@ class DialogmotekandidatService @Inject constructor(
             }
 
             else -> {
-                log.info("Oppdaterer eksisterende kandidat i databasen")
                 dialogmotekandidatDAO.update(
                     dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
                     createdAt = dialogmotekandidatEndring.localCreatedAt(),
                     fnr = dialogmotekandidatEndring.personIdentNumber,
                     kandidat = dialogmotekandidatEndring.kandidat,
                     arsak = dialogmotekandidatEndring.arsak
-                )
+                ).also { log.info("Oppdatert eksisterende kandidat i databasen") }
             }
         }
     }
@@ -77,8 +75,8 @@ class DialogmotekandidatService @Inject constructor(
         val wasKandidatBefore = wasKandidatBefore(existingKandidat, dialogmotekandidatEndring)
 
         return when {
-            newerKandidatExists -> false.also { log.info("Skip KafkaDialogmotekandidatEndring message because newer change exists") }
-            wasKandidatBefore -> false.also { log.info("Not sending varsel because person is kandidat from before") }
+            newerKandidatExists -> false.also { log.info("Skip ${KafkaDialogmotekandidatEndring::class.simpleName} message because newer exists") }
+            wasKandidatBefore -> false.also { log.info("Not sending varsel because person was kandidat before") }
             else -> true
         }
     }
