@@ -48,10 +48,11 @@ class KafkaTestdataResetConfig(
     }
 
     @Bean("TestdataResetListenerContainerFactory")
-    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String> {
-        return ConcurrentKafkaListenerContainerFactory<String, String>().apply {
+    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String> =
+        ConcurrentKafkaListenerContainerFactory<String, String>().apply {
             this.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
-            this.consumerFactory = testdataResetConsumerFactory()
+        }.also {
+            it.setConsumerFactory(testdataResetConsumerFactory())
         }
-    }
+
 }

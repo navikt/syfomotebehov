@@ -42,10 +42,10 @@ class DialogmotekandidatKafkaConfig @Inject constructor(
     }
 
     @Bean("DialogmotekandidatListenerContainerFactory")
-    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, KafkaDialogmotekandidatEndring> {
-        return ConcurrentKafkaListenerContainerFactory<String, KafkaDialogmotekandidatEndring>().apply {
+    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, KafkaDialogmotekandidatEndring> =
+        ConcurrentKafkaListenerContainerFactory<String, KafkaDialogmotekandidatEndring>().apply {
             this.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
-            this.consumerFactory = dialogmotekandidatConsumerFactory()
+        }.also {
+            it.setConsumerFactory(dialogmotekandidatConsumerFactory())
         }
-    }
 }

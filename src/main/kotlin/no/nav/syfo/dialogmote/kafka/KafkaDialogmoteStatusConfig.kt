@@ -144,10 +144,10 @@ class KafkaDialogmoteStatusConfig(
     }
 
     @Bean("DialogmoteListenerContainerFactory")
-    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, KDialogmoteStatusEndring> {
-        return ConcurrentKafkaListenerContainerFactory<String, KDialogmoteStatusEndring>().apply {
+    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, KDialogmoteStatusEndring> =
+        ConcurrentKafkaListenerContainerFactory<String, KDialogmoteStatusEndring>().apply {
             this.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
-            this.consumerFactory = dialogmoteStatusConsumerFactory()
+        }.also {
+            it.setConsumerFactory(dialogmoteStatusConsumerFactory())
         }
-    }
 }

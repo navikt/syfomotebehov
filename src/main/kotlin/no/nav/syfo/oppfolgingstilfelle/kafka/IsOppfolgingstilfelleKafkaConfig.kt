@@ -53,12 +53,12 @@ class KafkaIsOppfolgingstilfelleConfig(
     }
 
     @Bean("IsOppfolgingstilfelleListenerContainerFactory")
-    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, KafkaOppfolgingstilfellePerson> {
-        return ConcurrentKafkaListenerContainerFactory<String, KafkaOppfolgingstilfellePerson>().apply {
+    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, KafkaOppfolgingstilfellePerson> =
+        ConcurrentKafkaListenerContainerFactory<String, KafkaOppfolgingstilfellePerson>().apply {
             this.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
-            this.consumerFactory = isOppfolgingtilfelleConsumerFactory()
+        }.also {
+            it.setConsumerFactory( isOppfolgingtilfelleConsumerFactory())
         }
-    }
 }
 
 class KafkaIsOppfolgingstilfelleDeserializer : Deserializer<KafkaOppfolgingstilfellePerson> {

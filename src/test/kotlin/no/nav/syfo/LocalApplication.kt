@@ -1,11 +1,13 @@
 package no.nav.syfo
 
+import org.flywaydb.core.Flyway
 import org.springframework.boot.fromApplication
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
 import org.springframework.context.annotation.Bean
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
+import javax.sql.DataSource
 
 @TestConfiguration(proxyBeanMethods = false)
 class LocalApplication {
@@ -18,6 +20,16 @@ class LocalApplication {
             withPassword("postgres")
             withReuse(true)
         }
+
+    @Bean
+    fun flyway(dataSource: DataSource): Flyway {
+        val flyway = Flyway.configure()
+            .dataSource(dataSource)
+            .locations("classpath:db/migration")
+            .load()
+        flyway.migrate()
+        return flyway
+    }
 }
 
 fun main(args: Array<String>) {

@@ -16,6 +16,8 @@ spring:
       maximum-pool-size: 8
   cache:
     type: none
+
+
 server:
   port: 8811
   servlet:

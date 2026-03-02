@@ -2,7 +2,7 @@ group = "no.nav.syfo"
 
 val junitJupiterVersion = "6.0.3"
 val kotlinJacksonVersion = "2.21.0"
-val flywayVersion = "9.22.3"
+val flywayVersion = "12.0.2"
 val tokenSupportVersion = "3.2.0"
 val mockkVersion = "1.14.9"
 val nimbusVersion = "10.7"
@@ -68,9 +68,7 @@ dependencies {
 
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
-    implementation("org.springframework.kafka:spring-kafka") {
-        exclude(group = "log4j", module = "log4j")
-    }
+    implementation("org.springframework.kafka:spring-kafka")
 
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
     implementation("ch.qos.logback:logback-classic")
@@ -88,6 +86,7 @@ dependencies {
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:$jakartaRsApiVersion")
 
     implementation("org.flywaydb:flyway-core:$flywayVersion")
+    implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
     implementation("com.zaxxer:HikariCP:$hikari")
     implementation("org.postgresql:postgresql:$postgres")
 
@@ -118,8 +117,6 @@ java.toolchain {
 }
 
 tasks {
-    extra["log4j2.version"] = "2.16.0"
-
     named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
         this.archiveFileName.set("app.jar")
     }
@@ -128,4 +125,3 @@ tasks {
         useJUnitPlatform()
     }
 }
-
