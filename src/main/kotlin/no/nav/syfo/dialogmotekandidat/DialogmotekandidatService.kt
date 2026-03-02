@@ -18,10 +18,10 @@ class DialogmotekandidatService @Inject constructor(
     fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
         log.info("Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} og arsak ${dialogmotekandidatEndring.arsak}")
         val existingKandidat = dialogmotekandidatDAO.get(dialogmotekandidatEndring.personIdentNumber)
-        val sendVarselOrFerdigstill =
-            sendVarselOrFerdigstill(existingKandidat, dialogmotekandidatEndring)
 
-        if (sendVarselOrFerdigstill) {
+        val shouldSendVarselOrFerdigstill =
+            shouldSendVarselOrFerdigstill(existingKandidat, dialogmotekandidatEndring)
+        if (shouldSendVarselOrFerdigstill) {
             if (dialogmotekandidatEndring.kandidat) {
                 varselServiceV2.sendSvarBehovVarsel(dialogmotekandidatEndring.personIdentNumber, dialogmotekandidatEndring.uuid)
             } else {
@@ -31,10 +31,10 @@ class DialogmotekandidatService @Inject constructor(
             }
         }
 
-        upsertWhenNeverKandidate(existingKandidat, dialogmotekandidatEndring)
+        persistKandidatIfNecessary(existingKandidat, dialogmotekandidatEndring)
     }
 
-    private fun upsertWhenNeverKandidate(
+    private fun persistKandidatIfNecessary(
         existingKandidat: DialogmoteKandidatEndring?,
         dialogmotekandidatEndring: KafkaDialogmotekandidatEndring
     ) {
@@ -50,7 +50,7 @@ class DialogmotekandidatService @Inject constructor(
                 )
             }
 
-            newerKandidateExists(existingKandidat, dialogmotekandidatEndring) -> {
+            newerKandidatAlreadyExists(existingKandidat, dialogmotekandidatEndring) -> {
                 return
             }
 
@@ -71,26 +71,26 @@ class DialogmotekandidatService @Inject constructor(
         return dialogmotekandidatDAO.get(arbeidstakerFnr)
     }
 
-    private fun sendVarselOrFerdigstill(
+    private fun shouldSendVarselOrFerdigstill(
         existingKandidat: DialogmoteKandidatEndring?,
         dialogmotekandidatEndring: KafkaDialogmotekandidatEndring,
     ): Boolean {
-        val newerChangeExists = newerKandidateExists(existingKandidat, dialogmotekandidatEndring)
-        val wasKandidateBefore = wasKandidateBefore(existingKandidat, dialogmotekandidatEndring)
+        val newerKandidatExists = newerKandidatAlreadyExists(existingKandidat, dialogmotekandidatEndring)
+        val wasKandidatBefore = wasKandidatBefore(existingKandidat, dialogmotekandidatEndring)
 
         return when {
-            newerChangeExists -> false.also { log.info("Skip KafkaDialogmotekandidatEndring message because newer change exists") }
-            wasKandidateBefore -> false.also { log.info("Not sending varsel because person is kandidat from before") }
+            newerKandidatExists -> false.also { log.info("Skip KafkaDialogmotekandidatEndring message because newer change exists") }
+            wasKandidatBefore -> false.also { log.info("Not sending varsel because person is kandidat from before") }
             else -> true
         }
     }
 
-    private fun wasKandidateBefore(
+    private fun wasKandidatBefore(
         existingKandidat: DialogmoteKandidatEndring?,
         dialogmotekandidatEndring: KafkaDialogmotekandidatEndring
     ): Boolean = existingKandidat?.kandidat == true && dialogmotekandidatEndring.kandidat
 
-    private fun newerKandidateExists(
+    private fun newerKandidatAlreadyExists(
         existingKandidat: DialogmoteKandidatEndring?,
         dialogmotekandidatEndring: KafkaDialogmotekandidatEndring
     ): Boolean = existingKandidat?.createdAt?.isEqualOrAfter(dialogmotekandidatEndring.localCreatedAt()) == true
