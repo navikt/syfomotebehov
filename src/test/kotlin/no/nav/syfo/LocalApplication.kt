@@ -6,7 +6,6 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.context.annotation.Bean
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import javax.sql.DataSource
 
 @TestConfiguration(proxyBeanMethods = false)
 class LocalApplication {
