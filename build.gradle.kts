@@ -1,8 +1,8 @@
 group = "no.nav.syfo"
 
 val junitJupiterVersion = "6.0.3"
-val flywayVersion = "12.0.2"
 val kotlinJacksonVersion = "2.21.1"
+val flywayVersion = "12.0.2"
 val tokenSupportVersion = "3.2.0"
 val mockkVersion = "1.14.9"
 val nimbusVersion = "10.8"
@@ -89,6 +89,8 @@ dependencies {
     implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:$owaspSanitizerVersion")
     implementation("org.jsoup:jsoup:$jsoupVersion")
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:$jakartaRsApiVersion")
+
+    implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
     implementation("com.zaxxer:HikariCP:$hikari")
     implementation("org.postgresql:postgresql:$postgres")
@@ -108,6 +110,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("io.kotest:kotest-extensions-testcontainers:$kotestVersion")
     testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
+    testImplementation("org.testcontainers:kafka:$testcontainersVersion")
     testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
     testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")

@@ -40,7 +40,6 @@ import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.clearCache
 import no.nav.syfo.testhelper.generator.generateOppfolgingstilfellePerson
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
-import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import no.nav.syfo.testhelper.mockSvarFraIstilgangskontrollTilgangTilBruker
 import no.nav.syfo.util.TokenValidationUtil
 import org.junit.jupiter.api.TestInstance
@@ -68,9 +67,6 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
 
     @Value("\${istilgangskontroll.url}")
     private lateinit var tilgangskontrollUrl: String
-
-    @Value("\${syfobehandlendeenhet.url}")
-    private lateinit var behandlendeenhetUrl: String
 
     @Autowired
     private lateinit var motebehovArbeidstakerControllerV4: MotebehovArbeidstakerControllerV4
@@ -151,7 +147,6 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
         describe("MotebehovVeilederADControllerV4") {
             it("arbeidsgiver lagrer Motebehov og Veileder henter Motebehov") {
                 // Arbeidsgiver lagrer nytt motebehov
-                mockBehandlendEnhet(ARBEIDSTAKER_FNR)
                 val submitted = arbeidsgiverLoggerInnOgLagrerMotebehov()
 
                 // Veileder henter møtebehov
@@ -171,7 +166,6 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
 
             it("arbeidstaker lagrer Motebehov og Veileder henter Motebehov") {
                 // Arbeidstaker lagrer nytt motebehov
-                mockBehandlendEnhet(ARBEIDSTAKER_FNR)
                 val submitted = sykmeldtLoggerInnOgLagrerMotebehov(true)
 
                 // Veileder henter møtebehov
@@ -191,7 +185,6 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
 
             it("hent Historikk") {
                 // Arbeidsgiver lagrer motebehov
-                mockBehandlendEnhet(ARBEIDSTAKER_FNR)
                 arbeidsgiverLoggerInnOgLagrerMotebehov()
 
                 // Veileder henter motebehovliste
@@ -221,7 +214,6 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
             }
 
             it("hent ubehandlede Motebehov") {
-                mockBehandlendEnhet(ARBEIDSTAKER_FNR)
                 sykmeldtLoggerInnOgLagrerMotebehov(true)
                 resetMockRestServers()
                 arbeidsgiverLoggerInnOgLagrerMotebehov()
@@ -240,7 +232,6 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
 
             it("behandle kun motebehov med Motebehov") {
                 // AT og AG lagrer møtebehov
-                mockBehandlendEnhet(ARBEIDSTAKER_FNR)
                 sykmeldtLoggerInnOgLagrerMotebehov(false)
                 resetMockRestServers()
                 arbeidsgiverLoggerInnOgLagrerMotebehov()
@@ -260,7 +251,6 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
             }
 
             it("behandle Motebehov og ulik Veileder behandler") {
-                mockBehandlendEnhet(ARBEIDSTAKER_FNR)
                 sykmeldtLoggerInnOgLagrerMotebehov(true)
                 behandleMotebehov(ARBEIDSTAKER_AKTORID, VEILEDER_ID)
                 resetMockRestServers()
@@ -281,7 +271,6 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
             }
 
             it("behandle ikkeeksisterende Motebehov") {
-                mockBehandlendEnhet(ARBEIDSTAKER_FNR)
                 sykmeldtLoggerInnOgLagrerMotebehov(true)
                 behandleMotebehov(ARBEIDSTAKER_AKTORID, VEILEDER_ID)
                 resetMockRestServers()
@@ -358,16 +347,6 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
             mockRestServiceServerAzureAD = mockRestServiceServerAzureAD,
             status = status,
             fnr = fnr,
-        )
-    }
-
-    private fun mockBehandlendEnhet(fnr: String) {
-        mockAndExpectBehandlendeEnhetRequest(
-            azureTokenEndpoint,
-            mockRestServiceServerAzureAD,
-            mockRestServiceServer,
-            behandlendeenhetUrl,
-            fnr,
         )
     }
 

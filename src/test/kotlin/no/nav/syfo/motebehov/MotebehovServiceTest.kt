@@ -19,26 +19,15 @@ import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.generator.MotebehovGenerator
-import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.test.web.client.MockRestServiceServer
-import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 import no.nav.syfo.IntegrationTest
 
 @SpringBootTest(classes = [LocalApplication::class])
 @ApplyExtension(SpringExtension::class)
 class MotebehovServiceTest : IntegrationTest() {
-
-    @Value("\${azure.openid.config.token.endpoint}")
-    private lateinit var azureTokenEndpoint: String
-
-    @Value("\${syfobehandlendeenhet.url}")
-    private lateinit var behandlendeenhetUrl: String
 
     @MockkBean(relaxed = true)
     private lateinit var personoppgavehendelseService: PersonoppgavehendelseService
@@ -54,19 +43,8 @@ class MotebehovServiceTest : IntegrationTest() {
 
     private val veilederIdent = "testVeileder"
 
-    @Autowired
-    private lateinit var restTemplate: RestTemplate
-
     @MockkBean
     private lateinit var pdlConsumer: PdlConsumer
-
-    private lateinit var mockRestServiceServerAzureAD: MockRestServiceServer
-
-    @Autowired
-    @Qualifier("AzureAD")
-    private lateinit var restTemplateAzureAD: RestTemplate
-
-    private lateinit var mockRestServiceServer: MockRestServiceServer
 
     init {
         beforeTest {
@@ -103,17 +81,6 @@ class MotebehovServiceTest : IntegrationTest() {
 
             it("should store motebehov and retrieve it with same values") {
                 // Arrange
-                mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build()
-                mockRestServiceServerAzureAD = MockRestServiceServer.bindTo(restTemplateAzureAD).build()
-
-                mockAndExpectBehandlendeEnhetRequest(
-                    azureTokenEndpoint,
-                    mockRestServiceServerAzureAD,
-                    mockRestServiceServer,
-                    behandlendeenhetUrl,
-                    ARBEIDSTAKER_FNR,
-                )
-
                 every { pdlConsumer.aktorid(ARBEIDSTAKER_FNR) } returns ARBEIDSTAKER_AKTORID
                 every { pdlConsumer.aktorid(LEDER_FNR) } returns LEDER_AKTORID
 

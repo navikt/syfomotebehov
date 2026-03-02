@@ -1,12 +1,13 @@
 package no.nav.syfo.oppfolgingstilfelle.kafka
 
 import no.nav.syfo.config.kafka.KafkaAivenConfig
-import no.nav.syfo.dialogmotekandidat.kafka.configuredJacksonMapper
+import no.nav.syfo.dialogmotekandidat.kafka.configuredJsonMapper
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfellePerson
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
@@ -17,6 +18,7 @@ import org.apache.kafka.common.errors.SerializationException
 import org.apache.kafka.common.serialization.Deserializer
 import org.springframework.beans.factory.annotation.Value
 
+@Profile("!local")
 @EnableKafka
 @Configuration
 class KafkaIsOppfolgingstilfelleConfig(
@@ -62,7 +64,7 @@ class KafkaIsOppfolgingstilfelleConfig(
 }
 
 class KafkaIsOppfolgingstilfelleDeserializer : Deserializer<KafkaOppfolgingstilfellePerson> {
-    private val objectMapper = configuredJacksonMapper()
+    private val objectMapper = configuredJsonMapper()
 
     override fun deserialize(topic: String, data: ByteArray): KafkaOppfolgingstilfellePerson {
         return try {

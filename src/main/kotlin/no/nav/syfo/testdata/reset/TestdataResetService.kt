@@ -1,6 +1,6 @@
 package no.nav.syfo.testdata.reset
 
-import no.nav.syfo.consumer.pdl.PdlConsumer
+import no.nav.syfo.consumer.pdl.IPdlConsumer
 import no.nav.syfo.dialogmote.database.DialogmoteDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.motebehov.database.MotebehovDAO
@@ -15,7 +15,7 @@ class TestdataResetService @Inject constructor(
     private val dialogmoteDAO: DialogmoteDAO,
     private val dialogmotekandidatDAO: DialogmotekandidatDAO,
     private val oppfolgingstilfelleDAO: OppfolgingstilfelleDAO,
-    private val pdlConsumer: PdlConsumer,
+    private val pdlConsumer: IPdlConsumer,
 ) {
 
     fun resetTestdata(fnr: String) {
