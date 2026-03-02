@@ -19,9 +19,7 @@ class DialogmotekandidatService @Inject constructor(
         log.info("Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} og arsak ${dialogmotekandidatEndring.arsak}")
         val existingKandidat = dialogmotekandidatDAO.get(dialogmotekandidatEndring.personIdentNumber)
 
-        val shouldSendVarselOrFerdigstill =
-            shouldSendVarselOrFerdigstill(existingKandidat, dialogmotekandidatEndring)
-        if (shouldSendVarselOrFerdigstill) {
+        if (shouldSendVarselOrFerdigstill(existingKandidat, dialogmotekandidatEndring)) {
             if (dialogmotekandidatEndring.kandidat) {
                 varselServiceV2.sendSvarBehovVarsel(dialogmotekandidatEndring.personIdentNumber, dialogmotekandidatEndring.uuid)
             } else {
