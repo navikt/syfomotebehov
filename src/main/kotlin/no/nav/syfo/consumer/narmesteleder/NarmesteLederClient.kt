@@ -31,11 +31,11 @@ class NarmesteLederClient(
                 scopeClientId = targetApp
             )
 
-            val response: ResponseEntity<List<NarmesteLederRelasjonDTO>?> = restTemplate.exchange(
+            val response: ResponseEntity<List<NarmesteLederRelasjonDTO>> = restTemplate.exchange(
                 "$baseUrl/api/system/v1/narmestelederrelasjoner",
                 HttpMethod.GET,
                 entity(token, fnr),
-                object : ParameterizedTypeReference<List<NarmesteLederRelasjonDTO>?>() {}
+                object : ParameterizedTypeReference<List<NarmesteLederRelasjonDTO>>() {}
             )
 
             return response.body

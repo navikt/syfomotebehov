@@ -2,7 +2,7 @@ group = "no.nav.syfo"
 
 val junitJupiterVersion = "6.0.3"
 val kotlinJacksonVersion = "2.21.0"
-val flywayVersion = "9.22.3"
+val flywayVersion = "12.0.2"
 val tokenSupportVersion = "3.2.0"
 val mockkVersion = "1.14.9"
 val nimbusVersion = "10.8"
@@ -26,7 +26,7 @@ val springKotestExtensionVersion = "1.3.0"
 
 plugins {
     id("java")
-    id("org.springframework.boot") version "3.5.6"
+    id("org.springframework.boot") version "4.0.3"
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("jvm") version "2.3.10"
     kotlin("plugin.spring") version "2.3.10"
@@ -65,6 +65,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-flyway")
 
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
@@ -76,7 +77,9 @@ dependencies {
     implementation("ch.qos.logback:logback-classic")
 
     implementation("io.confluent:kafka-avro-serializer:$confluent")
-    implementation("io.confluent:kafka-schema-registry:$confluent")
+    implementation("io.confluent:kafka-schema-registry:$confluent") {
+        exclude(module="slf4j-reload4j") // Conflicts with logback slf4j provider
+    }
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:$isdialogmoteSchema")
     implementation("javax.inject:javax.inject:$javaxInjectVersion")
 
@@ -86,11 +89,11 @@ dependencies {
     implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:$owaspSanitizerVersion")
     implementation("org.jsoup:jsoup:$jsoupVersion")
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:$jakartaRsApiVersion")
-
-    implementation("org.flywaydb:flyway-core:$flywayVersion")
+    implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
     implementation("com.zaxxer:HikariCP:$hikari")
     implementation("org.postgresql:postgresql:$postgres")
 
+    testImplementation("org.springframework.boot:spring-boot-starter-flyway-test")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
     testImplementation("org.springframework.kafka:spring-kafka-test")
@@ -118,8 +121,6 @@ java.toolchain {
 }
 
 tasks {
-    extra["log4j2.version"] = "2.16.0"
-
     named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
         this.archiveFileName.set("app.jar")
     }
@@ -128,4 +129,3 @@ tasks {
         useJUnitPlatform()
     }
 }
-
