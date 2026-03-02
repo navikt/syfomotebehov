@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.kotest.core.extensions.ApplyExtension
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.extensions.spring.SpringExtension
+import io.mockk.every
 import io.mockk.verify
 import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
@@ -13,6 +14,7 @@ import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndring
 import no.nav.syfo.testhelper.UserConstants
 import no.nav.syfo.varsel.VarselServiceV2
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
@@ -207,6 +209,53 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
 
             verify(exactly = 1) { varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(any()) }
             verify(exactly = 1) { varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLedere(any()) }
+        }
+
+        it("skalIkkePersistereNyesteHendelseDersomSendVarselFeilerForDeretterAProvePaNytt") {
+            val kandidatMelding = generateDialogmotekandidatEndring(
+                kandidat = true,
+                arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
+                OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
+            )
+            every { varselServiceV2.sendSvarBehovVarsel(any(), any()) } throws RuntimeException("boom") andThen Unit
+
+            assertThrows<RuntimeException> {
+                dialogmotekandidatService.receiveDialogmotekandidatEndring(kandidatMelding)
+            }
+
+            assertThat(dialogmotekandidatDAO.get(UserConstants.ARBEIDSTAKER_FNR)).isNull()
+
+            dialogmotekandidatService.receiveDialogmotekandidatEndring(kandidatMelding)
+
+            assertThat(dialogmotekandidatDAO.get(UserConstants.ARBEIDSTAKER_FNR)).isNotNull
+            verify(exactly = 2) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
+        }
+
+        it("skalIkkeOppdatereNyesteHendelseDersomFerdigstillFeilerForDeretterAProvePaNytt") {
+            val forsteGangKandidat = generateDialogmotekandidatEndring(
+                kandidat = true,
+                arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
+                OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
+            )
+            dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
+
+            val unntak = generateDialogmotekandidatEndring(
+                kandidat = false,
+                arsak = DialogmotekandidatEndringArsak.UNNTAK.name,
+                OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(1)
+            )
+            every { varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(any()) } throws RuntimeException("boom") andThen Unit
+
+            assertThrows<RuntimeException> {
+                dialogmotekandidatService.receiveDialogmotekandidatEndring(unntak)
+            }
+
+            assertThat(dialogmotekandidatDAO.get(UserConstants.ARBEIDSTAKER_FNR)?.kandidat).isTrue()
+
+            dialogmotekandidatService.receiveDialogmotekandidatEndring(unntak)
+
+            assertThat(dialogmotekandidatDAO.get(UserConstants.ARBEIDSTAKER_FNR)?.kandidat).isFalse()
+            verify(exactly = 2) { varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(any()) }
         }
     }
 
