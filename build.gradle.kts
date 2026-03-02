@@ -65,6 +65,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-flyway")
 
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
@@ -84,12 +85,11 @@ dependencies {
     implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:$owaspSanitizerVersion")
     implementation("org.jsoup:jsoup:$jsoupVersion")
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:$jakartaRsApiVersion")
-
-    implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
     implementation("com.zaxxer:HikariCP:$hikari")
     implementation("org.postgresql:postgresql:$postgres")
 
+    testImplementation("org.springframework.boot:spring-boot-starter-flyway-test")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
     testImplementation("org.springframework.kafka:spring-kafka-test")

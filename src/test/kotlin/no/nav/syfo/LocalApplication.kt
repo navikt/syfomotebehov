@@ -20,16 +20,6 @@ class LocalApplication {
             withPassword("postgres")
             withReuse(true)
         }
-
-    @Bean
-    fun flyway(dataSource: DataSource): Flyway {
-        val flyway = Flyway.configure()
-            .dataSource(dataSource)
-            .locations("classpath:db/migration")
-            .load()
-        flyway.migrate()
-        return flyway
-    }
 }
 
 fun main(args: Array<String>) {

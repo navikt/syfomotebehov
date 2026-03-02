@@ -17,7 +17,6 @@ spring:
   cache:
     type: none
 
-
 server:
   port: 8811
   servlet:
