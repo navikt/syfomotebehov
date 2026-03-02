@@ -22,7 +22,7 @@ class DialogmotekandidatService @Inject constructor(
 
         val existingKandidat = dialogmotekandidatDAO.get(ansattFnr)
 
-        if (existingKandidat != null && existingKandidat.createdAt.isEqualOrAfter(createdAt)) {
+        if (existingKandidat?.createdAt?.isEqualOrAfter(createdAt) == true) {
             log.info("Skip KafkaDialogmotekandidatEndring message because newer change exists")
             return
         }
