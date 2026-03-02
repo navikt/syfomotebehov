@@ -3,7 +3,10 @@
 	<appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
 	</appender>
-
+    <!--
+        Obs!
+        Både Flyway og hibernate logger full connection string på INFO (som inkluderer brukernavn og passord).
+     -->
 	<root level="WARN">
 		<appender-ref ref="stdout_json"/>
 	</root>
@@ -15,8 +18,6 @@
 	<logger name="no.nav.security.spring.oidc.validation.interceptor.OIDCTokenControllerHandlerInterceptor" level="INFO" />
 
 	<logger name="org.springframework" level="INFO"/>
-
-    <logger name="org.flywaydb" level="INFO"/>
 
     <logger name="org.hibernate.orm.connections.pooling" level="warn"/>
 </included>
