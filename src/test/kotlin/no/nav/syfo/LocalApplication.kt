@@ -1,6 +1,5 @@
 package no.nav.syfo
 
-import org.flywaydb.core.Flyway
 import org.springframework.boot.fromApplication
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
