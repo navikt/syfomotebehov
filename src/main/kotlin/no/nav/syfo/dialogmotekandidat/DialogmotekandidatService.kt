@@ -29,14 +29,15 @@ class DialogmotekandidatService @Inject constructor(
 
         // Trigger side effects before persisting newest state so retries can re-run side effects on failure.
         val isKandidatFromBefore = existingKandidat != null && existingKandidat.kandidat
+        if (isKandidatFromBefore && dialogmotekandidatEndring.kandidat) {
+            log.info("Not sending varsel because person is kandidat from before")
+            return
+        }
 
         if (!dialogmotekandidatEndring.kandidat) {
             log.info("Ferdigstill varsel because message has kandidat=false")
             varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(ansattFnr)
             varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLedere(ansattFnr)
-        } else if (isKandidatFromBefore) {
-            log.info("Not sending varsel because person is kandidat from before")
-            return
         } else {
             varselServiceV2.sendSvarBehovVarsel(ansattFnr, dialogmotekandidatEndring.uuid)
         }
