@@ -3,8 +3,8 @@ package no.nav.syfo.dialogmotekandidat
 import no.nav.syfo.dialogmotekandidat.database.DialogmoteKandidatEndring
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndring
+import no.nav.syfo.dialogmotekandidat.kafka.localCreatedAt
 import no.nav.syfo.util.isEqualOrAfter
-import no.nav.syfo.util.toNorwegianLocalDateTime
 import no.nav.syfo.varsel.VarselServiceV2
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -17,28 +17,20 @@ class DialogmotekandidatService @Inject constructor(
 ) {
     fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
         log.info("Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} og arsak ${dialogmotekandidatEndring.arsak}")
-        val ansattFnr = dialogmotekandidatEndring.personIdentNumber
-        val createdAt = dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime()
 
-        val existingKandidat = dialogmotekandidatDAO.get(ansattFnr)
+        val existingKandidat = dialogmotekandidatDAO.get(dialogmotekandidatEndring.personIdentNumber)
+        val sendVarselEllerFerdigstill =
+            sendVarselEllerFerdigstill(existingKandidat, dialogmotekandidatEndring)
 
-        if (existingKandidat?.createdAt?.isEqualOrAfter(createdAt) == true) {
-            log.info("Skip KafkaDialogmotekandidatEndring message because newer change exists")
-            return
-        }
-
-        // Trigger side effects before persisting newest state so retries can re-run side effects on failure.
-        if (existingKandidat?.kandidat == true && dialogmotekandidatEndring.kandidat) {
-            log.info("Not sending varsel because person is kandidat from before")
-            return
-        }
-
-        if (dialogmotekandidatEndring.kandidat) {
-            varselServiceV2.sendSvarBehovVarsel(ansattFnr, dialogmotekandidatEndring.uuid)
-        } else {
-            log.info("Ferdigstill varsel because message has kandidat=false")
-            varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(ansattFnr)
-            varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLedere(ansattFnr)
+        if (sendVarselEllerFerdigstill)
+        {
+            if (dialogmotekandidatEndring.kandidat) {
+                varselServiceV2.sendSvarBehovVarsel(dialogmotekandidatEndring.personIdentNumber, dialogmotekandidatEndring.uuid)
+            } else {
+                log.info("Ferdigstill varsel because message has kandidat=false")
+                varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(dialogmotekandidatEndring.personIdentNumber)
+                varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLedere(dialogmotekandidatEndring.personIdentNumber)
+            }
         }
 
         when {
@@ -46,8 +38,8 @@ class DialogmotekandidatService @Inject constructor(
                 log.info("Lagrer ny kandidat i databasen")
                 dialogmotekandidatDAO.create(
                     dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
-                    createdAt = createdAt,
-                    fnr = ansattFnr,
+                    createdAt = dialogmotekandidatEndring.localCreatedAt(),
+                    fnr = dialogmotekandidatEndring.personIdentNumber,
                     kandidat = dialogmotekandidatEndring.kandidat,
                     arsak = dialogmotekandidatEndring.arsak
                 )
@@ -57,8 +49,8 @@ class DialogmotekandidatService @Inject constructor(
                 log.info("Oppdaterer eksisterende kandidat i databasen")
                 dialogmotekandidatDAO.update(
                     dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
-                    createdAt = createdAt,
-                    fnr = ansattFnr,
+                    createdAt = dialogmotekandidatEndring.localCreatedAt(),
+                    fnr = dialogmotekandidatEndring.personIdentNumber,
                     kandidat = dialogmotekandidatEndring.kandidat,
                     arsak = dialogmotekandidatEndring.arsak
                 )
@@ -68,6 +60,23 @@ class DialogmotekandidatService @Inject constructor(
 
     fun getDialogmotekandidatStatus(arbeidstakerFnr: String): DialogmoteKandidatEndring? {
         return dialogmotekandidatDAO.get(arbeidstakerFnr)
+    }
+
+    private fun sendVarselEllerFerdigstill(
+        existingKandidat: DialogmoteKandidatEndring?,
+        dialogmotekandidatEndring: KafkaDialogmotekandidatEndring,
+    ): Boolean {
+        if (existingKandidat?.createdAt?.isEqualOrAfter(dialogmotekandidatEndring.localCreatedAt()) == true) {
+            log.info("Skip KafkaDialogmotekandidatEndring message because newer change exists")
+            return false
+        }
+
+        // Trigger side effects before persisting newest state so retries can re-run side effects on failure.
+        if (existingKandidat?.kandidat == true && dialogmotekandidatEndring.kandidat) {
+            log.info("Not sending varsel because person is kandidat from before")
+            return false
+        }
+        return true
     }
 
     companion object {
