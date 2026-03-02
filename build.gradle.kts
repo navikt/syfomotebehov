@@ -69,13 +69,17 @@ dependencies {
 
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
-    implementation("org.springframework.kafka:spring-kafka")
+    implementation("org.springframework.kafka:spring-kafka") {
+        exclude(group = "log4j", module = "log4j")
+    }
 
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
     implementation("ch.qos.logback:logback-classic")
 
     implementation("io.confluent:kafka-avro-serializer:$confluent")
-    implementation("io.confluent:kafka-schema-registry:$confluent")
+    implementation("io.confluent:kafka-schema-registry:$confluent") {
+        exclude(module="slf4j-reload4j") // Conflicts with logback slf4j provider
+    }
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:$isdialogmoteSchema")
     implementation("javax.inject:javax.inject:$javaxInjectVersion")
 
