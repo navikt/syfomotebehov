@@ -17,66 +17,70 @@ class DialogmotekandidatService @Inject constructor(
     private val varselOutboxDao: VarselOutboxDao,
 ) {
     @Transactional
-    fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
-        log.info("Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} og arsak ${dialogmotekandidatEndring.arsak}")
-        val ansattFnr = dialogmotekandidatEndring.personIdentNumber
+    fun receiveDialogmotekandidatEndring(endring: KafkaDialogmotekandidatEndring) {
+        log.info("Mottok kandidatmelding: kandidat=${endring.kandidat}, arsak=${endring.arsak}")
+        val existing = dialogmotekandidatDAO.get(endring.personIdentNumber)
 
-        val existingKandidat = dialogmotekandidatDAO.get(ansattFnr)
-
-        when {
-            existingKandidat == null -> {
-                log.info("Lagrer ny kandidat i databasen")
-                dialogmotekandidatDAO.create(
-                    dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
-                    createdAt = dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime(),
-                    fnr = ansattFnr,
-                    kandidat = dialogmotekandidatEndring.kandidat,
-                    arsak = dialogmotekandidatEndring.arsak
-                )
-            }
-
-            existingKandidat.createdAt.isEqualOrAfter(dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime()) -> {
-                log.info("Skip KafkaDialogmotekandidatEndring message because newer change exists")
-                varselOutboxDao.createSkipped(dialogmotekandidatEndring)
-                return
-            }
-
-            else -> {
-                log.info("Oppdaterer eksisterende kandidat i databasen")
-                dialogmotekandidatDAO.update(
-                    dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
-                    createdAt = dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime(),
-                    fnr = ansattFnr,
-                    kandidat = dialogmotekandidatEndring.kandidat,
-                    arsak = dialogmotekandidatEndring.arsak
-                )
-            }
+        if (isOutdated(existing, endring)) {
+            log.info("Hopper over utdatert melding — nyere endring finnes allerede i databasen")
+            varselOutboxDao.createSkipped(endring)
+            return
         }
 
-        // isKandidatFromBefore er lest FØR DB-oppdateringen ovenfor
-        val isKandidatFromBefore = existingKandidat != null && existingKandidat.kandidat
+        val wasKandidatBefore = existing?.kandidat ?: false
+        persistKandidatEndring(existing, endring)
 
-        when {
-            !dialogmotekandidatEndring.kandidat -> {
-                log.info("Oppretter outbox-entry for ferdigstilling av varsel (kandidat=false)")
-                varselOutboxDao.createPending(dialogmotekandidatEndring)
-            }
-            isKandidatFromBefore -> {
-                log.info("Oppretter skipped outbox-entry: person var allerede kandidat")
-                varselOutboxDao.createSkipped(dialogmotekandidatEndring)
-            }
-            else -> {
-                log.info("Oppretter outbox-entry for utsending av svar behov varsel")
-                varselOutboxDao.createPending(dialogmotekandidatEndring)
-            }
+        val outboxAction = decideOutboxAction(wasKandidatBefore, endring.kandidat)
+        log.info("Oppretter outbox-entry med action=$outboxAction")
+        when (outboxAction) {
+            OutboxAction.PENDING -> varselOutboxDao.createPending(endring)
+            OutboxAction.SKIPPED -> varselOutboxDao.createSkipped(endring)
         }
     }
 
-    fun getDialogmotekandidatStatus(arbeidstakerFnr: String): DialogmoteKandidatEndring? {
-        return dialogmotekandidatDAO.get(arbeidstakerFnr)
+    internal fun decideOutboxAction(wasKandidatBefore: Boolean, isKandidatNow: Boolean): OutboxAction =
+        when {
+            !isKandidatNow    -> OutboxAction.PENDING   // ferdigstill varsel
+            wasKandidatBefore -> OutboxAction.SKIPPED   // already kandidat, no new varsel
+            else              -> OutboxAction.PENDING   // new kandidat, send varsel
+        }
+
+    private fun isOutdated(
+        existing: DialogmoteKandidatEndring?,
+        endring: KafkaDialogmotekandidatEndring,
+    ): Boolean = existing != null &&
+        existing.createdAt.isEqualOrAfter(endring.createdAt.toNorwegianLocalDateTime())
+
+    private fun persistKandidatEndring(
+        existing: DialogmoteKandidatEndring?,
+        endring: KafkaDialogmotekandidatEndring,
+    ) {
+        val createdAt = endring.createdAt.toNorwegianLocalDateTime()
+        if (existing == null) {
+            dialogmotekandidatDAO.create(
+                dialogmotekandidatExternalUUID = endring.uuid,
+                createdAt = createdAt,
+                fnr = endring.personIdentNumber,
+                kandidat = endring.kandidat,
+                arsak = endring.arsak,
+            )
+        } else {
+            dialogmotekandidatDAO.update(
+                dialogmotekandidatExternalUUID = endring.uuid,
+                createdAt = createdAt,
+                fnr = endring.personIdentNumber,
+                kandidat = endring.kandidat,
+                arsak = endring.arsak,
+            )
+        }
     }
+
+    fun getDialogmotekandidatStatus(arbeidstakerFnr: String): DialogmoteKandidatEndring? =
+        dialogmotekandidatDAO.get(arbeidstakerFnr)
 
     companion object {
         private val log = LoggerFactory.getLogger(DialogmotekandidatService::class.java)
     }
 }
+
+enum class OutboxAction { PENDING, SKIPPED }
