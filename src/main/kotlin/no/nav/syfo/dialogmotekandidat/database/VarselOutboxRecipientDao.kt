@@ -40,6 +40,28 @@ class VarselOutboxRecipientDao @Inject constructor(
         return uuid
     }
 
+    fun createRecipients(outboxUuid: UUID, recipients: List<RecipientSpec>) {
+        if (recipients.isEmpty()) return
+        val sql = """
+            INSERT INTO VARSEL_OUTBOX_RECIPIENT (uuid, outbox_uuid, mottaker_fnr, payload, status, created_at, updated_at)
+            VALUES (:uuid, :outboxUuid, :mottakerFnr, :payload, :status, :createdAt, :updatedAt)
+            ON CONFLICT (outbox_uuid, mottaker_fnr) WHERE outbox_uuid IS NOT NULL DO NOTHING
+        """.trimIndent()
+        val now = LocalDateTime.now()
+        val params = recipients.map { spec ->
+            MapSqlParameterSource()
+                .addValue("uuid", UUID.randomUUID())
+                .addValue("outboxUuid", outboxUuid)
+                .addValue("mottakerFnr", spec.mottakerFnr)
+                .addValue("payload", jsonbOf(objectMapper.writeValueAsString(spec.hendelse)))
+                .addValue("status", VarselOutboxRecipientStatus.PENDING.name)
+                .addValue("createdAt", convert(now))
+                .addValue("updatedAt", convert(now))
+        }.toTypedArray()
+        namedParameterJdbcTemplate.batchUpdate(sql, params)
+    }
+
+
     fun getPending(): List<VarselOutboxRecipientEntry> =
         namedParameterJdbcTemplate.query(
             "SELECT * FROM VARSEL_OUTBOX_RECIPIENT WHERE status = 'PENDING' ORDER BY created_at ASC LIMIT 500 FOR UPDATE SKIP LOCKED",

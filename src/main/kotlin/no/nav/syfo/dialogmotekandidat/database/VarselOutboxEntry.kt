@@ -26,3 +26,8 @@ data class VarselOutboxRecipientEntry(
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
 )
+
+data class RecipientSpec(
+    val mottakerFnr: String,
+    val hendelse: EsyfovarselHendelse,
+)
