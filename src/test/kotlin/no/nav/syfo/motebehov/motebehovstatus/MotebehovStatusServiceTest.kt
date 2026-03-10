@@ -13,7 +13,6 @@ import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import no.nav.syfo.testhelper.UserConstants
-import no.nav.syfo.varsel.VarselServiceTest.Companion.userFnr
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.LocalDate
@@ -90,7 +89,7 @@ class MotebehovStatusServiceTest : DescribeSpec({
 
 private fun createOppfolgingstilfelle(): PersonOppfolgingstilfelle {
     return PersonOppfolgingstilfelle(
-        userFnr,
+        UserConstants.ARBEIDSTAKER_FNR,
         LocalDate.now().minusWeeks(4),
         LocalDate.now().minusMonths(2)
     )
