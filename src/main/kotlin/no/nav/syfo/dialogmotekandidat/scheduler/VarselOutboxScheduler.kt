@@ -11,6 +11,7 @@ import no.nav.syfo.dialogmotekandidat.database.VarselOutboxStatus
 import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndring
 import no.nav.syfo.dialogmotekandidat.kafka.configuredJacksonMapper
 import no.nav.syfo.leaderelection.LeaderElectionClient
+import no.nav.syfo.util.toNorwegianLocalDateTime
 import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusHelper
 import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
@@ -102,6 +103,7 @@ class VarselOutboxScheduler @Inject constructor(
     private fun isStale(endring: KafkaDialogmotekandidatEndring, entry: VarselOutboxEntry): Boolean {
         val ansattFnr = endring.personIdentNumber
         val current = dialogmotekandidatDAO.get(ansattFnr)
+        val endringCreatedAt = endring.createdAt.toNorwegianLocalDateTime()
         return when {
             endring.kandidat && (current == null || !current.kandidat) -> {
                 log.info("Outbox-entry ${entry.uuid} er utdatert — person er ikke lenger kandidat, setter til SKIPPED")
@@ -110,6 +112,11 @@ class VarselOutboxScheduler @Inject constructor(
             }
             !endring.kandidat && current != null && current.kandidat -> {
                 log.info("Outbox-entry ${entry.uuid} er utdatert — person er kandidat igjen, setter til SKIPPED")
+                varselOutboxDao.updateStatus(entry.uuid, VarselOutboxStatus.SKIPPED)
+                true
+            }
+            !endring.kandidat && current != null && !current.kandidat && current.createdAt.isAfter(endringCreatedAt) -> {
+                log.info("Outbox-entry ${entry.uuid} er utdatert — nyere ferdigstill-hendelse er allerede behandlet, setter til SKIPPED")
                 varselOutboxDao.updateStatus(entry.uuid, VarselOutboxStatus.SKIPPED)
                 true
             }
