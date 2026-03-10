@@ -87,7 +87,12 @@ class VarselOutboxScheduler @Inject constructor(
         val endring = objectMapper.readValue(entry.payload, KafkaDialogmotekandidatEndring::class.java)
         val ansattFnr = endring.personIdentNumber
 
-        if (isStale(endring, entry)) return
+        val staleReason = staleReason(endring)
+        if (staleReason != null) {
+            log.info("Outbox-entry ${entry.uuid} er utdatert — $staleReason, setter til SKIPPED")
+            varselOutboxDao.updateStatus(entry.uuid, VarselOutboxStatus.SKIPPED)
+            return
+        }
 
         val narmesteLedere = narmesteLederService.getAllNarmesteLederRelations(ansattFnr) ?: emptyList()
 
@@ -100,27 +105,17 @@ class VarselOutboxScheduler @Inject constructor(
         varselOutboxDao.updateStatus(entry.uuid, VarselOutboxStatus.PROCESSED)
     }
 
-    private fun isStale(endring: KafkaDialogmotekandidatEndring, entry: VarselOutboxEntry): Boolean {
-        val ansattFnr = endring.personIdentNumber
-        val current = dialogmotekandidatDAO.get(ansattFnr)
+    private fun staleReason(endring: KafkaDialogmotekandidatEndring): String? {
+        val current = dialogmotekandidatDAO.get(endring.personIdentNumber)
         val endringCreatedAt = endring.createdAt.toNorwegianLocalDateTime()
         return when {
-            endring.kandidat && (current == null || !current.kandidat) -> {
-                log.info("Outbox-entry ${entry.uuid} er utdatert — person er ikke lenger kandidat, setter til SKIPPED")
-                varselOutboxDao.updateStatus(entry.uuid, VarselOutboxStatus.SKIPPED)
-                true
-            }
-            !endring.kandidat && current != null && current.kandidat -> {
-                log.info("Outbox-entry ${entry.uuid} er utdatert — person er kandidat igjen, setter til SKIPPED")
-                varselOutboxDao.updateStatus(entry.uuid, VarselOutboxStatus.SKIPPED)
-                true
-            }
-            !endring.kandidat && current != null && !current.kandidat && current.createdAt.isAfter(endringCreatedAt) -> {
-                log.info("Outbox-entry ${entry.uuid} er utdatert — nyere ferdigstill-hendelse er allerede behandlet, setter til SKIPPED")
-                varselOutboxDao.updateStatus(entry.uuid, VarselOutboxStatus.SKIPPED)
-                true
-            }
-            else -> false
+            endring.kandidat && (current == null || !current.kandidat) ->
+                "person er ikke lenger kandidat"
+            !endring.kandidat && current != null && current.kandidat ->
+                "person er kandidat igjen"
+            !endring.kandidat && current != null && !current.kandidat && current.createdAt.isAfter(endringCreatedAt) ->
+                "nyere ferdigstill-hendelse er allerede behandlet"
+            else -> null
         }
     }
 

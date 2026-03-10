@@ -42,7 +42,7 @@ class VarselOutboxRecipientDao @Inject constructor(
 
     fun getPending(): List<VarselOutboxRecipientEntry> =
         namedParameterJdbcTemplate.query(
-            "SELECT * FROM VARSEL_OUTBOX_RECIPIENT WHERE status = 'PENDING' ORDER BY created_at ASC FOR UPDATE SKIP LOCKED",
+            "SELECT * FROM VARSEL_OUTBOX_RECIPIENT WHERE status = 'PENDING' ORDER BY created_at ASC LIMIT 500 FOR UPDATE SKIP LOCKED",
             MapSqlParameterSource(),
             rowMapper,
         )

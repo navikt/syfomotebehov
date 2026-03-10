@@ -48,7 +48,7 @@ class VarselOutboxDao @Inject constructor(
 
     fun getPending(): List<VarselOutboxEntry> =
         namedParameterJdbcTemplate.query(
-            "SELECT * FROM VARSEL_OUTBOX WHERE status = 'PENDING' ORDER BY created_at ASC",
+            "SELECT * FROM VARSEL_OUTBOX WHERE status = 'PENDING' ORDER BY created_at ASC LIMIT 500",
             MapSqlParameterSource(),
             rowMapper,
         )
