@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.VarselOutboxDao
+import no.nav.syfo.dialogmotekandidat.database.VarselOutboxRecipientDao
 import no.nav.syfo.dialogmotekandidat.database.VarselOutboxStatus
 import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndring
 import no.nav.syfo.dialogmotekandidat.kafka.configuredJacksonMapper
@@ -20,7 +21,9 @@ import javax.inject.Inject
 class VarselOutboxScheduler @Inject constructor(
     private val leaderElectionClient: LeaderElectionClient,
     private val varselOutboxDao: VarselOutboxDao,
+    private val varselOutboxRecipientDao: VarselOutboxRecipientDao,
     private val varselOutboxRecipientService: VarselOutboxRecipientService,
+    private val kandidatVarselResolver: KandidatVarselResolver,
     private val dialogmotekandidatDAO: DialogmotekandidatDAO,
     meterRegistry: MeterRegistry,
 ) {
@@ -78,7 +81,7 @@ class VarselOutboxScheduler @Inject constructor(
             return
         }
 
-        varselOutboxRecipientService.expandAndSaveRecipients(entry, endring)
+        varselOutboxRecipientDao.createRecipients(entry.uuid, kandidatVarselResolver.resolve(entry, endring))
         varselOutboxDao.updateStatus(entry.uuid, VarselOutboxStatus.PROCESSED)
     }
 
