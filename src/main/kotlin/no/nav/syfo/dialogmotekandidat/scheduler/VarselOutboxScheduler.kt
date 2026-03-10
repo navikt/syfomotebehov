@@ -1,5 +1,7 @@
 package no.nav.syfo.dialogmotekandidat.scheduler
 
+import io.micrometer.core.instrument.Gauge
+import io.micrometer.core.instrument.MeterRegistry
 import no.nav.syfo.consumer.narmesteleder.NarmesteLederRelasjonDTO
 import no.nav.syfo.consumer.narmesteleder.NarmesteLederService
 import no.nav.syfo.dialogmote.database.DialogmoteDAO
@@ -19,6 +21,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
 @Component
@@ -33,12 +36,34 @@ class VarselOutboxScheduler @Inject constructor(
     private val motebehovService: MotebehovService,
     private val motebehovStatusHelper: MotebehovStatusHelper,
     private val esyfovarselProducer: EsyfovarselProducer,
+    meterRegistry: MeterRegistry,
 ) {
+    private val stuckPendingGauge = AtomicInteger(0)
+
+    init {
+        Gauge.builder("varsel_outbox_pending_stuck_count", stuckPendingGauge) { it.get().toDouble() }
+            .description("Number of PENDING varsel outbox entries older than $STUCK_ALERT_HOURS hours")
+            .register(meterRegistry)
+    }
+
     @Scheduled(fixedDelay = 60_000)
     fun run() {
         if (!leaderElectionClient.isLeader()) return
         processPendingOutboxEntries()
         sendPendingRecipients()
+        updateStuckGauge()
+    }
+
+    private fun updateStuckGauge() {
+        val stuckEntries = varselOutboxDao.getPending()
+            .filter { it.createdAt.isBefore(LocalDateTime.now().minusHours(STUCK_ALERT_HOURS)) }
+        stuckPendingGauge.set(stuckEntries.size)
+        if (stuckEntries.isNotEmpty()) {
+            log.warn(
+                "${stuckEntries.size} PENDING varsel outbox entries er eldre enn $STUCK_ALERT_HOURS timer — " +
+                    "mulig stuck entries: ${stuckEntries.map { it.uuid }}"
+            )
+        }
     }
 
     private fun processPendingOutboxEntries() {
@@ -200,6 +225,7 @@ class VarselOutboxScheduler @Inject constructor(
 
     companion object {
         private const val MAX_AGE_DAYS = 7L
+        private const val STUCK_ALERT_HOURS = 24L
         private val log = LoggerFactory.getLogger(VarselOutboxScheduler::class.java)
         private val objectMapper = configuredJacksonMapper()
     }
