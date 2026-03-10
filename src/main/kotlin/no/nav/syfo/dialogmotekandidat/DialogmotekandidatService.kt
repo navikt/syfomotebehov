@@ -27,23 +27,23 @@ class DialogmotekandidatService @Inject constructor(
             return
         }
 
-        val wasKandidatBefore = existing?.kandidat ?: false
+        val wasKandidatBefore = wasKandidatBefore(existing)
         persistKandidatEndring(existing, endring)
 
-        val outboxAction = decideOutboxAction(wasKandidatBefore, endring.kandidat)
-        log.info("Oppretter outbox-entry med action=$outboxAction")
-        when (outboxAction) {
-            OutboxAction.PENDING -> varselOutboxDao.createPending(endring)
-            OutboxAction.SKIPPED -> varselOutboxDao.createSkipped(endring)
+        if (shouldSkipOutbox(wasKandidatBefore, endring.kandidat)) {
+            log.info("Oppretter skipped outbox-entry: person var allerede kandidat")
+            varselOutboxDao.createSkipped(endring)
+        } else {
+            log.info("Oppretter pending outbox-entry: kandidat=${endring.kandidat}")
+            varselOutboxDao.createPending(endring)
         }
     }
 
-    internal fun decideOutboxAction(wasKandidatBefore: Boolean, isKandidatNow: Boolean): OutboxAction =
-        when {
-            !isKandidatNow    -> OutboxAction.PENDING   // ferdigstill varsel
-            wasKandidatBefore -> OutboxAction.SKIPPED   // already kandidat, no new varsel
-            else              -> OutboxAction.PENDING   // new kandidat, send varsel
-        }
+    private fun wasKandidatBefore(existing: DialogmoteKandidatEndring?): Boolean =
+        existing?.kandidat ?: false
+
+    private fun shouldSkipOutbox(wasKandidatBefore: Boolean, isKandidatNow: Boolean): Boolean =
+        isKandidatNow && wasKandidatBefore
 
     private fun isOutdated(
         existing: DialogmoteKandidatEndring?,
@@ -82,5 +82,3 @@ class DialogmotekandidatService @Inject constructor(
         private val log = LoggerFactory.getLogger(DialogmotekandidatService::class.java)
     }
 }
-
-enum class OutboxAction { PENDING, SKIPPED }
