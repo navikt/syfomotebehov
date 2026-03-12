@@ -40,14 +40,15 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
 
                 dialogmotekandidatVarselStatusDao.create(uuid, fnr, DialogmotekandidatVarselType.VARSEL)
 
-                val pending = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
-                pending shouldHaveSize 1
-                with(pending[0]) {
-                    kafkaMeldingUuid shouldBe uuid
-                    this.fnr shouldBe fnr
-                    type shouldBe DialogmotekandidatVarselType.VARSEL
-                    status shouldBe DialogmotekandidatVarselStatusDao.STATUS_PENDING
-                    retryCount shouldBe 0
+                dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL).apply {
+                    shouldHaveSize(1)
+                    with(first()) {
+                        kafkaMeldingUuid shouldBe uuid
+                        this.fnr shouldBe fnr
+                        type shouldBe DialogmotekandidatVarselType.VARSEL
+                        status shouldBe DialogmotekandidatVarselStatusDao.STATUS_PENDING
+                        retryCount shouldBe 0
+                    }
                 }
             }
 
@@ -58,8 +59,9 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
                 dialogmotekandidatVarselStatusDao.create(uuid, fnr, DialogmotekandidatVarselType.VARSEL)
                 dialogmotekandidatVarselStatusDao.create(uuid, fnr, DialogmotekandidatVarselType.VARSEL)
 
-                val pending = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
-                pending shouldHaveSize 1
+                dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL).apply {
+                    shouldHaveSize(1)
+                }
             }
 
             it("updateStatusToSent setter status til SENT") {
@@ -70,7 +72,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
                 val created = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
                 created shouldHaveSize 1
 
-                dialogmotekandidatVarselStatusDao.updateStatusToSent(created[0].id)
+                dialogmotekandidatVarselStatusDao.updateStatusToSent(created.first().id)
 
                 val afterUpdate = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
                 afterUpdate.shouldBeEmpty()
@@ -88,10 +90,10 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
 
                 dialogmotekandidatVarselStatusDao.create(uuid, fnr, DialogmotekandidatVarselType.VARSEL)
                 val created = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
-                created[0].retryCount shouldBe 0
+                created.first().retryCount shouldBe 0
 
-                dialogmotekandidatVarselStatusDao.incrementRetryCount(created[0].id)
-                dialogmotekandidatVarselStatusDao.incrementRetryCount(created[0].id)
+                dialogmotekandidatVarselStatusDao.incrementRetryCount(created.first().id)
+                dialogmotekandidatVarselStatusDao.incrementRetryCount(created.first().id)
 
                 val retryCount = jdbcTemplate.queryForObject(
                     "SELECT retry_count FROM dialogkandidat_varsel_status WHERE kafka_melding_uuid = ?",
@@ -108,10 +110,14 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
                 val varselPending = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
                 val ferdigstillPending = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.FERDIGSTILL)
 
-                varselPending shouldHaveSize 1
-                varselPending[0].type shouldBe DialogmotekandidatVarselType.VARSEL
-                ferdigstillPending shouldHaveSize 1
-                ferdigstillPending[0].type shouldBe DialogmotekandidatVarselType.FERDIGSTILL
+                varselPending.apply {
+                    shouldHaveSize(1)
+                    with(first()) { type shouldBe DialogmotekandidatVarselType.VARSEL }
+                }
+                ferdigstillPending.apply {
+                    shouldHaveSize(1)
+                    with(first()) { type shouldBe DialogmotekandidatVarselType.FERDIGSTILL }
+                }
             }
 
             it("countPendingOlderThan teller korrekt") {
