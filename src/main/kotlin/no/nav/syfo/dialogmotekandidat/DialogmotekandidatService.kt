@@ -3,7 +3,7 @@ package no.nav.syfo.dialogmotekandidat
 import net.logstash.logback.argument.StructuredArguments.kv
 import no.nav.syfo.dialogmotekandidat.database.DialogmoteKandidatEndring
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
-import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselStatusDAO
+import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselStatusDao
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselType
 import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndring
 import no.nav.syfo.util.isEqualOrAfter
@@ -16,7 +16,7 @@ import javax.inject.Inject
 @Service
 class DialogmotekandidatService @Inject constructor(
     private val dialogmotekandidatDAO: DialogmotekandidatDAO,
-    private val dialogmotekandidatVarselStatusDAO: DialogmotekandidatVarselStatusDAO,
+    private val dialogmotekandidatVarselStatusDao: DialogmotekandidatVarselStatusDao,
 ) {
     @Transactional
     fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
@@ -73,7 +73,7 @@ class DialogmotekandidatService @Inject constructor(
             else -> DialogmotekandidatVarselType.VARSEL
         }
 
-        dialogmotekandidatVarselStatusDAO.create(
+        dialogmotekandidatVarselStatusDao.create(
             kafkaMeldingUuid = dialogmotekandidatEndring.uuid,
             fnr = ansattFnr,
             type = varselType,

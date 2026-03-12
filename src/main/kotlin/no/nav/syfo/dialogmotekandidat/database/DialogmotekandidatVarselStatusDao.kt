@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 @Transactional
 @Repository
-class DialogmotekandidatVarselStatusDAO @Inject constructor(
+class DialogmotekandidatVarselStatusDao @Inject constructor(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
 ) {
     fun create(
