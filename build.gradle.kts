@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.util.profile
+
 group = "no.nav.syfo"
 
 val junitJupiterVersion = "6.0.3"
@@ -130,5 +132,13 @@ tasks {
 
     withType<Test> {
         useJUnitPlatform()
+    }
+
+    register<org.springframework.boot.gradle.tasks.run.BootRun>("bootRunLocal") {
+        group = "application"
+        description = "Runs the app locally using LocalApplication (TestContainers + MockOAuth2Server)"
+        mainClass.set("no.nav.syfo.LocalApplicationKt")
+        args = listOf("--spring.profiles.active=local")
+        classpath(sourceSets.test.get().runtimeClasspath)
     }
 }
