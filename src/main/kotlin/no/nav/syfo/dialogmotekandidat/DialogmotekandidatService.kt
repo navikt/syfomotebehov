@@ -60,8 +60,7 @@ class DialogmotekandidatService
 
             if (!dialogmotekandidatEndring.kandidat) {
                 log.info("Ferdigstill varsel because message has kandidat=false")
-                varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(ansattFnr)
-                varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLedere(ansattFnr)
+                varselServiceV2.ferdigstillSvarMotebehovVarsel(ansattFnr)
             } else if (isKandidatFromBefore) {
                 log.info("Not sending varsel because person is kandidat from before")
                 return
