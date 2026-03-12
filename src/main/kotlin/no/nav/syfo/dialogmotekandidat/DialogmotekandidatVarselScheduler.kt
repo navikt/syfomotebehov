@@ -3,7 +3,7 @@ package no.nav.syfo.dialogmotekandidat
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tags
 import net.logstash.logback.argument.StructuredArguments.kv
-import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselStatusDAO
+import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselStatusDao
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselType
 import no.nav.syfo.leaderelection.LeaderElectionClient
 import no.nav.syfo.varsel.VarselServiceV2
@@ -19,7 +19,7 @@ import javax.inject.Inject
 @Profile("remote")
 class DialogmotekandidatVarselScheduler @Inject constructor(
     private val leaderElectionClient: LeaderElectionClient,
-    private val varselStatusDAO: DialogmotekandidatVarselStatusDAO,
+    private val varselStatusDao: DialogmotekandidatVarselStatusDao,
     private val varselServiceV2: VarselServiceV2,
     private val meterRegistry: MeterRegistry,
 ) {
@@ -48,28 +48,30 @@ class DialogmotekandidatVarselScheduler @Inject constructor(
     }
 
     internal fun sendPendingVarsler() {
-        val pendingVarsler = varselStatusDAO.getPendingByType(DialogmotekandidatVarselType.VARSEL)
-        for (row in pendingVarsler) {
-            try {
+        val pendingVarsler = varselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
+        pendingVarsler.forEach { row ->
+            runCatching {
                 varselServiceV2.sendSvarBehovVarsel(row.fnr, row.kafkaMeldingUuid)
-                varselStatusDAO.updateStatusToSent(row.id)
+                varselStatusDao.updateStatusToSent(row.id)
+            }.onSuccess {
                 log.info("Varsel sendt", kv("event", "dialogmotekandidat.varsel.sent"), kv("id", row.id))
-            } catch (e: Exception) {
-                varselStatusDAO.incrementRetryCount(row.id)
+            }.onFailure { e ->
+                varselStatusDao.incrementRetryCount(row.id)
                 log.warn("Feil ved sending av varsel", kv("event", "dialogmotekandidat.varsel.retry"), kv("id", row.id), kv("retryCount", row.retryCount + 1), e)
             }
         }
     }
 
     internal fun ferdigstillPendingVarsler() {
-        val pendingFerdigstill = varselStatusDAO.getPendingByType(DialogmotekandidatVarselType.FERDIGSTILL)
-        for (row in pendingFerdigstill) {
-            try {
+        val pendingFerdigstill = varselStatusDao.getPendingByType(DialogmotekandidatVarselType.FERDIGSTILL)
+        pendingFerdigstill.forEach { row ->
+            runCatching {
                 varselServiceV2.ferdigstillSvarMotebehovVarsel(row.fnr)
-                varselStatusDAO.updateStatusToSent(row.id)
+                varselStatusDao.updateStatusToSent(row.id)
+            }.onSuccess {
                 log.info("Ferdigstilt", kv("event", "dialogmotekandidat.ferdigstill.sent"), kv("id", row.id))
-            } catch (e: Exception) {
-                varselStatusDAO.incrementRetryCount(row.id)
+            }.onFailure { e ->
+                varselStatusDao.incrementRetryCount(row.id)
                 log.warn("Feil ved ferdigstilling", kv("event", "dialogmotekandidat.ferdigstill.retry"), kv("id", row.id), kv("retryCount", row.retryCount + 1), e)
             }
         }
@@ -77,14 +79,14 @@ class DialogmotekandidatVarselScheduler @Inject constructor(
 
     internal fun updateGauges() {
         val cutoff = LocalDateTime.now().minusDays(1)
-        varselPendingOver1Day.set(varselStatusDAO.countPendingOlderThan(DialogmotekandidatVarselType.VARSEL, cutoff).toLong())
-        ferdigstillPendingOver1Day.set(varselStatusDAO.countPendingOlderThan(DialogmotekandidatVarselType.FERDIGSTILL, cutoff).toLong())
+        varselPendingOver1Day.set(varselStatusDao.countPendingOlderThan(DialogmotekandidatVarselType.VARSEL, cutoff).toLong())
+        ferdigstillPendingOver1Day.set(varselStatusDao.countPendingOlderThan(DialogmotekandidatVarselType.FERDIGSTILL, cutoff).toLong())
     }
 
     internal fun cleanUp() {
         val now = LocalDateTime.now()
-        val sentDeleted = varselStatusDAO.deleteSentOlderThan(now.minusMonths(1))
-        val pendingDeleted = varselStatusDAO.deletePendingOlderThan(now.minusWeeks(2))
+        val sentDeleted = varselStatusDao.deleteSentOlderThan(now.minusMonths(1))
+        val pendingDeleted = varselStatusDao.deletePendingOlderThan(now.minusWeeks(2))
         log.info("Ryddet opp", kv("event", "dialogmotekandidat.cleanup"), kv("sentDeleted", sentDeleted), kv("pendingDeleted", pendingDeleted))
     }
 
