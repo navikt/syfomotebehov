@@ -151,10 +151,13 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
             )
             dialogmotekandidatService.receiveDialogmotekandidatEndring(melding)
 
-            val pending = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
-            pending shouldHaveSize 1
-            pending[0].fnr shouldBe UserConstants.ARBEIDSTAKER_FNR
-            pending[0].type shouldBe DialogmotekandidatVarselType.VARSEL
+            dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL).apply {
+                shouldHaveSize(1)
+                with(first()) {
+                    this.fnr shouldBe UserConstants.ARBEIDSTAKER_FNR
+                    type shouldBe DialogmotekandidatVarselType.VARSEL
+                }
+            }
         }
 
         it("skalOppretteFerdigstillPendingRadDersomIkkeKandidat") {
@@ -165,9 +168,10 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
             )
             dialogmotekandidatService.receiveDialogmotekandidatEndring(melding)
 
-            val pending = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.FERDIGSTILL)
-            pending shouldHaveSize 1
-            pending[0].type shouldBe DialogmotekandidatVarselType.FERDIGSTILL
+            dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.FERDIGSTILL).apply {
+                shouldHaveSize(1)
+                with(first()) { type shouldBe DialogmotekandidatVarselType.FERDIGSTILL }
+            }
         }
 
         it("skalIgnorereKandidatSomAllerendeErKandidat") {
