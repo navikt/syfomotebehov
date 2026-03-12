@@ -2,15 +2,19 @@ package no.nav.syfo.dialogmotekandidat
 
 import io.kotest.core.extensions.ApplyExtension
 import io.kotest.extensions.spring.SpringExtension
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
-import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselStatusDAO
+import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselStatusDao
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselType
 import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndring
 import no.nav.syfo.testhelper.UserConstants
-import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
@@ -27,7 +31,7 @@ import java.util.*
 internal class DialogmotekandidatServiceTest : IntegrationTest() {
 
     @Autowired
-    private lateinit var varselStatusDAO: DialogmotekandidatVarselStatusDAO
+    private lateinit var dialogmotekandidatVarselStatusDao: DialogmotekandidatVarselStatusDao
 
     @Autowired
     private lateinit var dialogmotekandidatDAO: DialogmotekandidatDAO
@@ -50,7 +54,7 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
                 UserConstants.ARBEIDSTAKER_FNR
             )
 
-            assertThat(existingKandidat).isNull()
+            existingKandidat.shouldBeNull()
 
             dialogmotekandidatService.receiveDialogmotekandidatEndring(
                 generateDialogmotekandidatEndring(
@@ -64,11 +68,13 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
                 UserConstants.ARBEIDSTAKER_FNR
             )
 
-            assertThat(kandidatAfterKafkaMessage).isNotNull
-            assertThat(kandidatAfterKafkaMessage?.databaseUpdatedAt).isNotNull
-            assertThat(kandidatAfterKafkaMessage?.personIdentNumber).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
-            assertThat(kandidatAfterKafkaMessage?.kandidat).isTrue
-            assertThat(kandidatAfterKafkaMessage?.arsak).isEqualTo(DialogmotekandidatEndringArsak.STOPPUNKT)
+            kandidatAfterKafkaMessage.shouldNotBeNull()
+            with(kandidatAfterKafkaMessage) {
+                databaseUpdatedAt.shouldNotBeNull()
+                personIdentNumber shouldBe UserConstants.ARBEIDSTAKER_FNR
+                kandidat shouldBe true
+                arsak shouldBe DialogmotekandidatEndringArsak.STOPPUNKT
+            }
         }
 
         it("skalOppdatereKandidatVedNyEndring") {
@@ -84,9 +90,9 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
                 UserConstants.ARBEIDSTAKER_FNR
             )
 
-            assertThat(existingKandidat).isNotNull
-            assertThat(existingKandidat?.kandidat).isTrue
-            assertThat(existingKandidat?.arsak).isEqualTo(DialogmotekandidatEndringArsak.STOPPUNKT)
+            existingKandidat.shouldNotBeNull()
+            existingKandidat.kandidat shouldBe true
+            existingKandidat.arsak shouldBe DialogmotekandidatEndringArsak.STOPPUNKT
 
             dialogmotekandidatService.receiveDialogmotekandidatEndring(
                 generateDialogmotekandidatEndring(
@@ -100,9 +106,9 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
                 UserConstants.ARBEIDSTAKER_FNR
             )
 
-            assertThat(updatedKandidat).isNotNull
-            assertThat(updatedKandidat?.kandidat).isFalse
-            assertThat(updatedKandidat?.arsak).isEqualTo(DialogmotekandidatEndringArsak.UNNTAK)
+            updatedKandidat.shouldNotBeNull()
+            updatedKandidat.kandidat shouldBe false
+            updatedKandidat.arsak shouldBe DialogmotekandidatEndringArsak.UNNTAK
         }
 
         it("rekjoringIGalRekkefolgeSkalOgsaaFungere") {
@@ -132,9 +138,9 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
             )
 
             // Nyeste melding er den som har blitt persistert
-            assertThat(kandidatStatus).isNotNull
-            assertThat(kandidatStatus?.kandidat).isFalse
-            assertThat(kandidatStatus?.arsak).isEqualTo(DialogmotekandidatEndringArsak.DIALOGMOTE_FERDIGSTILT)
+            kandidatStatus.shouldNotBeNull()
+            kandidatStatus.kandidat shouldBe false
+            kandidatStatus.arsak shouldBe DialogmotekandidatEndringArsak.DIALOGMOTE_FERDIGSTILT
         }
 
         it("skalOppretteVarselPendingRadDersomNyKandidat") {
@@ -145,10 +151,10 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
             )
             dialogmotekandidatService.receiveDialogmotekandidatEndring(melding)
 
-            val pending = varselStatusDAO.getPendingByType(DialogmotekandidatVarselType.VARSEL)
-            assertThat(pending).hasSize(1)
-            assertThat(pending[0].fnr).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
-            assertThat(pending[0].type).isEqualTo(DialogmotekandidatVarselType.VARSEL)
+            val pending = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
+            pending shouldHaveSize 1
+            pending[0].fnr shouldBe UserConstants.ARBEIDSTAKER_FNR
+            pending[0].type shouldBe DialogmotekandidatVarselType.VARSEL
         }
 
         it("skalOppretteFerdigstillPendingRadDersomIkkeKandidat") {
@@ -159,9 +165,9 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
             )
             dialogmotekandidatService.receiveDialogmotekandidatEndring(melding)
 
-            val pending = varselStatusDAO.getPendingByType(DialogmotekandidatVarselType.FERDIGSTILL)
-            assertThat(pending).hasSize(1)
-            assertThat(pending[0].type).isEqualTo(DialogmotekandidatVarselType.FERDIGSTILL)
+            val pending = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.FERDIGSTILL)
+            pending shouldHaveSize 1
+            pending[0].type shouldBe DialogmotekandidatVarselType.FERDIGSTILL
         }
 
         it("skalIgnorereKandidatSomAllerendeErKandidat") {
@@ -185,8 +191,8 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
                 )
             )
 
-            val pendingVarsel = varselStatusDAO.getPendingByType(DialogmotekandidatVarselType.VARSEL)
-            assertThat(pendingVarsel).isEmpty()
+            val pendingVarsel = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
+            pendingVarsel.shouldBeEmpty()
         }
 
         it("skalIgnorereEldreKafkaMelding") {
@@ -209,8 +215,8 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
                 )
             )
 
-            val pendingVarsel = varselStatusDAO.getPendingByType(DialogmotekandidatVarselType.VARSEL)
-            assertThat(pendingVarsel).isEmpty()
+            val pendingVarsel = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
+            pendingVarsel.shouldBeEmpty()
         }
     }
 
