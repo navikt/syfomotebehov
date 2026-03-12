@@ -9,7 +9,7 @@ import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
-import no.nav.syfo.consumer.pdl.IPdlConsumer
+import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
 import no.nav.syfo.motebehov.MotebehovFormSubmissionDTO
@@ -35,7 +35,8 @@ import no.nav.syfo.testhelper.clearCache
 import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import no.nav.syfo.testhelper.generator.generateOppfolgingstilfellePerson
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
-import no.nav.syfo.testhelper.mockSvarFraIstilgangskontrollTilgangTilBruker
+import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
+import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll
 import no.nav.syfo.util.TokenValidationUtil
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.assertj.core.api.Assertions.assertThat
@@ -49,7 +50,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.cache.CacheManager
-import org.springframework.http.HttpStatus
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
@@ -64,6 +64,9 @@ import java.util.function.Consumer
 class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
     @Value("\${azure.openid.config.token.endpoint}")
     private lateinit var azureTokenEndpoint: String
+
+    @Value("\${syfobehandlendeenhet.url}")
+    private lateinit var behandlendeenhetUrl: String
 
     @Value("\${istilgangskontroll.url}")
     private lateinit var tilgangskontrollUrl: String
@@ -100,7 +103,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
     private lateinit var esyfovarselService: EsyfovarselService
 
     @MockkBean(relaxed = true)
-    private lateinit var pdlConsumer: IPdlConsumer
+    private lateinit var pdlConsumer: PdlConsumer
 
     @MockkBean
     private lateinit var brukertilgangConsumer: BrukertilgangConsumer
@@ -349,14 +352,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
 
                 resetMockRestServers()
 
-                mockSvarFraIstilgangskontrollTilgangTilBruker(
-                    azureTokenEndpoint,
-                    tilgangskontrollUrl,
-                    mockRestServiceServerAzureAD,
-                    mockRestServiceServer,
-                    ARBEIDSTAKER_FNR,
-                    HttpStatus.OK,
-                )
+                mockBehandlendEnhetWithTilgangskontroll(ARBEIDSTAKER_FNR)
                 tokenValidationUtil.logInAsNavCounselor(VEILEDER_ID)
                 motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
 
@@ -558,6 +554,14 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
     private fun submitMotebehovAndSendOversikthendelse(
         arbeidsgiverFormSubmissionInputDTO: NyttMotebehovArbeidsgiverDTO
     ) {
+        mockAndExpectBehandlendeEnhetRequest(
+            azureTokenEndpoint,
+            mockRestServiceServerAzureAD,
+            mockRestServiceServer,
+            behandlendeenhetUrl,
+            ARBEIDSTAKER_FNR,
+        )
+
         motebehovArbeidsgiverController.lagreMotebehovArbeidsgiver(arbeidsgiverFormSubmissionInputDTO)
         if (arbeidsgiverFormSubmissionInputDTO.formSubmission.harMotebehov) {
             verify { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
@@ -567,6 +571,14 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
     }
 
     private fun lagreMotebehov(innsendtMotebehov: NyttMotebehovArbeidsgiverDTO) {
+        mockAndExpectBehandlendeEnhetRequest(
+            azureTokenEndpoint,
+            mockRestServiceServerAzureAD,
+            mockRestServiceServer,
+            behandlendeenhetUrl,
+            innsendtMotebehov.arbeidstakerFnr,
+        )
+
         createKandidatInDB(innsendtMotebehov.arbeidstakerFnr)
 
         motebehovArbeidsgiverController.lagreMotebehovArbeidsgiver(
@@ -619,6 +631,17 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
         oppfolgingstilfelleDAO.nullstillOppfolgingstilfeller(LEDER_AKTORID)
         dialogmotekandidatDAO.delete(ARBEIDSTAKER_FNR)
         dialogmotekandidatDAO.delete(LEDER_FNR)
+    }
+
+    private fun mockBehandlendEnhetWithTilgangskontroll(fnr: String) {
+        mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll(
+            azureTokenEndpoint,
+            mockRestServiceServerAzureAD,
+            mockRestServiceServer,
+            behandlendeenhetUrl,
+            tilgangskontrollUrl,
+            fnr,
+        )
     }
 
     private fun createKandidatInDB(fnr: String) {

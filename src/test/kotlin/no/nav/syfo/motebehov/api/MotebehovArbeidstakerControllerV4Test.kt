@@ -30,7 +30,8 @@ import no.nav.syfo.testhelper.clearCache
 import no.nav.syfo.testhelper.generator.MotebehovGenerator
 import no.nav.syfo.testhelper.generator.generateOppfolgingstilfellePerson
 import no.nav.syfo.testhelper.generator.generatePdlHentPerson
-import no.nav.syfo.testhelper.mockSvarFraIstilgangskontrollTilgangTilBruker
+import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
+import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll
 import no.nav.syfo.util.TokenValidationUtil
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.assertj.core.api.Assertions.assertThat
@@ -43,7 +44,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.cache.CacheManager
-import org.springframework.http.HttpStatus
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
@@ -57,6 +57,9 @@ import java.util.function.Consumer
 class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
     @Value("\${azure.openid.config.token.endpoint}")
     private lateinit var azureTokenEndpoint: String
+
+    @Value("\${syfobehandlendeenhet.url}")
+    private lateinit var behandlendeenhetUrl: String
 
     @Value("\${istilgangskontroll.url}")
     private lateinit var tilgangskontrollUrl: String
@@ -303,14 +306,7 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                 submitMotebehovAndSendOversikthendelse(motebehovFormSubmissionDTO)
 
                 resetMockRestServers()
-                mockSvarFraIstilgangskontrollTilgangTilBruker(
-                    azureTokenEndpoint,
-                    tilgangskontrollUrl,
-                    mockRestServiceServerAzureAD,
-                    mockRestServiceServer,
-                    ARBEIDSTAKER_FNR,
-                    HttpStatus.OK,
-                )
+                mockBehandlendEnhetWithTilgangskontroll(ARBEIDSTAKER_FNR)
                 tokenValidationUtil.logInAsNavCounselor(VEILEDER_ID)
                 motebehovVeilederController.behandleMotebehov(ARBEIDSTAKER_FNR)
 
@@ -499,6 +495,21 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                     ),
                 )
 
+                mockAndExpectBehandlendeEnhetRequest(
+                    azureTokenEndpoint,
+                    mockRestServiceServerAzureAD,
+                    mockRestServiceServer,
+                    behandlendeenhetUrl,
+                    ARBEIDSTAKER_FNR,
+                )
+                mockAndExpectBehandlendeEnhetRequest(
+                    azureTokenEndpoint,
+                    mockRestServiceServerAzureAD,
+                    mockRestServiceServer,
+                    behandlendeenhetUrl,
+                    ARBEIDSTAKER_FNR,
+                )
+
                 val formSubmission = motebehovGenerator.lagFormSubmissionArbeidstakerSvarJaDTO()
 
                 motebehovArbeidstakerController.submitMotebehovArbeidstaker(formSubmission)
@@ -512,6 +523,14 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
     }
 
     private fun submitMotebehovAndSendOversikthendelse(motebehovFormSubmission: MotebehovFormSubmissionDTO) {
+        mockAndExpectBehandlendeEnhetRequest(
+            azureTokenEndpoint,
+            mockRestServiceServerAzureAD,
+            mockRestServiceServer,
+            behandlendeenhetUrl,
+            ARBEIDSTAKER_FNR,
+        )
+
         motebehovArbeidstakerController.submitMotebehovArbeidstaker(motebehovFormSubmission)
         if (motebehovFormSubmission.harMotebehov) {
             verify { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) }
@@ -521,6 +540,14 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
     }
 
     private fun lagreOgHentMotebehovOgSendOversikthendelse(harBehov: Boolean) {
+        mockAndExpectBehandlendeEnhetRequest(
+            azureTokenEndpoint,
+            mockRestServiceServerAzureAD,
+            mockRestServiceServer,
+            behandlendeenhetUrl,
+            ARBEIDSTAKER_FNR,
+        )
+
         val formSubmission =
             if (harBehov) {
                 motebehovGenerator.lagFormSubmissionArbeidstakerSvarJaDTO()
@@ -560,6 +587,17 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
             }
         }
         verify(exactly = 0) { esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(any(), any(), any()) }
+    }
+
+    private fun mockBehandlendEnhetWithTilgangskontroll(fnr: String) {
+        mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll(
+            azureTokenEndpoint,
+            mockRestServiceServerAzureAD,
+            mockRestServiceServer,
+            behandlendeenhetUrl,
+            tilgangskontrollUrl,
+            fnr,
+        )
     }
 
     private fun createKandidatInDB() {
