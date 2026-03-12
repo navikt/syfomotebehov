@@ -1,6 +1,5 @@
 package no.nav.syfo.dialogmotekandidat.database
 
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -14,7 +13,6 @@ import javax.inject.Inject
 @Repository
 class DialogmotekandidatVarselStatusDAO @Inject constructor(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
-    private val jdbcTemplate: JdbcTemplate,
 ) {
     fun create(
         kafkaMeldingUuid: String,
@@ -89,14 +87,13 @@ class DialogmotekandidatVarselStatusDAO @Inject constructor(
         limit: Int = 50,
     ): List<DialogmotekandidatVarselStatus> {
         val query = """
+            -- Leader election ensures single-pod processing; no row-level locking needed
             SELECT *
             FROM $TABLE_NAME
             WHERE $COLUMN_STATUS = :status
               AND $COLUMN_TYPE = :type
-              AND $COLUMN_CREATED_AT >= NOW() - INTERVAL '7 days'
             ORDER BY $COLUMN_CREATED_AT ASC
             LIMIT :limit
-            FOR UPDATE SKIP LOCKED
         """.trimIndent()
         return namedParameterJdbcTemplate.query(
             query,
