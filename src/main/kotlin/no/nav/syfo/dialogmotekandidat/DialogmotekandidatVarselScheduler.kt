@@ -71,8 +71,8 @@ class DialogmotekandidatVarselScheduler @Inject constructor(
 
     internal fun updateGauges() {
         val cutoff = LocalDateTime.now().minusDays(1)
-        varselPendingOver1Day.set(varselStatusDAO.countPendingOlderThan(cutoff).toLong())
-        ferdigstillPendingOver1Day.set(varselStatusDAO.countPendingOlderThan(cutoff).toLong())
+        varselPendingOver1Day.set(varselStatusDAO.countPendingOlderThan(DialogmotekandidatVarselType.VARSEL, cutoff).toLong())
+        ferdigstillPendingOver1Day.set(varselStatusDAO.countPendingOlderThan(DialogmotekandidatVarselType.FERDIGSTILL, cutoff).toLong())
     }
 
     internal fun cleanUp() {
