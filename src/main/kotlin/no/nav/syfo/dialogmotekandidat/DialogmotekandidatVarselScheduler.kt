@@ -38,6 +38,12 @@ class DialogmotekandidatVarselScheduler @Inject constructor(
         sendPendingVarsler()
         ferdigstillPendingVarsler()
         updateGauges()
+    }
+
+    @Scheduled(fixedDelay = 3_600_000L)
+    fun runCleanUp() {
+        if (!leaderElectionClient.isLeader()) return
+
         cleanUp()
     }
 
