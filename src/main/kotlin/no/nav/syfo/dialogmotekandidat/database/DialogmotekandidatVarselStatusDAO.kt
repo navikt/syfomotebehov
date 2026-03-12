@@ -46,7 +46,7 @@ class DialogmotekandidatVarselStatusDAO @Inject constructor(
         namedParameterJdbcTemplate.update(
             query,
             MapSqlParameterSource()
-                .addValue("id", UUID.randomUUID().toString())
+                .addValue("id", UUID.randomUUID())
                 .addValue("kafkaMeldingUuid", kafkaMeldingUuid)
                 .addValue("fnr", fnr)
                 .addValue("type", type.name)
@@ -66,7 +66,7 @@ class DialogmotekandidatVarselStatusDAO @Inject constructor(
             query,
             MapSqlParameterSource()
                 .addValue("status", STATUS_SENT)
-                .addValue("id", id.toString()),
+                .addValue("id", id),
         )
     }
 
@@ -80,7 +80,7 @@ class DialogmotekandidatVarselStatusDAO @Inject constructor(
         namedParameterJdbcTemplate.update(
             query,
             MapSqlParameterSource()
-                .addValue("id", id.toString()),
+                .addValue("id", id),
         )
     }
 
@@ -108,17 +108,19 @@ class DialogmotekandidatVarselStatusDAO @Inject constructor(
         )
     }
 
-    fun countPendingOlderThan(cutoff: LocalDateTime): Int {
+    fun countPendingOlderThan(type: DialogmotekandidatVarselType, cutoff: LocalDateTime): Int {
         val query = """
             SELECT COUNT(*)
             FROM $TABLE_NAME
             WHERE $COLUMN_STATUS = :status
+              AND $COLUMN_TYPE = :type
               AND $COLUMN_CREATED_AT < :cutoff
         """.trimIndent()
         return namedParameterJdbcTemplate.queryForObject(
             query,
             MapSqlParameterSource()
                 .addValue("status", STATUS_PENDING)
+                .addValue("type", type.name)
                 .addValue("cutoff", cutoff),
             Int::class.java,
         ) ?: 0
@@ -154,7 +156,7 @@ class DialogmotekandidatVarselStatusDAO @Inject constructor(
 
     private val varselStatusRowMapper = RowMapper { rs, _ ->
         DialogmotekandidatVarselStatus(
-            id = UUID.fromString(rs.getString(COLUMN_ID)),
+            id = rs.getObject(COLUMN_ID, UUID::class.java),
             kafkaMeldingUuid = rs.getString(COLUMN_KAFKA_MELDING_UUID),
             fnr = rs.getString(COLUMN_FNR),
             type = DialogmotekandidatVarselType.valueOf(rs.getString(COLUMN_TYPE)),
