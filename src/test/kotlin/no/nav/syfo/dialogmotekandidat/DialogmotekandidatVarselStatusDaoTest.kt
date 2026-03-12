@@ -27,24 +27,25 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
 
+    private val testFnr = "12345678901"
+    private lateinit var uuid: String
+
     init {
         beforeTest {
             jdbcTemplate.update("DELETE FROM dialogkandidat_varsel_status")
+            uuid = UUID.randomUUID().toString()
         }
 
         describe("DialogmotekandidatVarselStatusDao") {
 
             it("create oppretter en PENDING-rad med riktig type") {
-                val uuid = UUID.randomUUID().toString()
-                val fnr = "12345678901"
-
-                dialogmotekandidatVarselStatusDao.create(uuid, fnr, DialogmotekandidatVarselType.VARSEL)
+                dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
 
                 dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL).apply {
                     shouldHaveSize(1)
                     with(first()) {
                         kafkaMeldingUuid shouldBe uuid
-                        this.fnr shouldBe fnr
+                        this.fnr shouldBe testFnr
                         type shouldBe DialogmotekandidatVarselType.VARSEL
                         status shouldBe DialogmotekandidatVarselStatusDao.STATUS_PENDING
                         retryCount shouldBe 0
@@ -53,11 +54,8 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             }
 
             it("create med duplikat uuid gjør ingenting") {
-                val uuid = UUID.randomUUID().toString()
-                val fnr = "12345678901"
-
-                dialogmotekandidatVarselStatusDao.create(uuid, fnr, DialogmotekandidatVarselType.VARSEL)
-                dialogmotekandidatVarselStatusDao.create(uuid, fnr, DialogmotekandidatVarselType.VARSEL)
+                dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
+                dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
 
                 dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL).apply {
                     shouldHaveSize(1)
@@ -65,10 +63,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             }
 
             it("updateStatusToSent setter status til SENT") {
-                val uuid = UUID.randomUUID().toString()
-                val fnr = "12345678901"
-
-                dialogmotekandidatVarselStatusDao.create(uuid, fnr, DialogmotekandidatVarselType.VARSEL)
+                dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
                 val created = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
                 created shouldHaveSize 1
 
@@ -85,10 +80,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             }
 
             it("incrementRetryCount øker retry_count") {
-                val uuid = UUID.randomUUID().toString()
-                val fnr = "12345678901"
-
-                dialogmotekandidatVarselStatusDao.create(uuid, fnr, DialogmotekandidatVarselType.VARSEL)
+                dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
                 val created = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
                 created.first().retryCount shouldBe 0
 
@@ -121,8 +113,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             }
 
             it("countPendingOlderThan teller korrekt") {
-                val uuid = UUID.randomUUID().toString()
-                dialogmotekandidatVarselStatusDao.create(uuid, "12345678901", DialogmotekandidatVarselType.VARSEL)
+                dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
 
                 // Bakdaterer created_at til 2 dager siden
                 jdbcTemplate.update(
@@ -145,8 +136,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             }
 
             it("deleteSentOlderThan sletter riktige rader") {
-                val uuid = UUID.randomUUID().toString()
-                dialogmotekandidatVarselStatusDao.create(uuid, "12345678901", DialogmotekandidatVarselType.VARSEL)
+                dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
                 val created = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
                 dialogmotekandidatVarselStatusDao.updateStatusToSent(created[0].id)
 
@@ -167,8 +157,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             }
 
             it("deletePendingOlderThan sletter riktige rader") {
-                val uuid = UUID.randomUUID().toString()
-                dialogmotekandidatVarselStatusDao.create(uuid, "12345678901", DialogmotekandidatVarselType.VARSEL)
+                dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
 
                 // Bakdaterer created_at slik at raden er eldre enn cutoff
                 jdbcTemplate.update(
