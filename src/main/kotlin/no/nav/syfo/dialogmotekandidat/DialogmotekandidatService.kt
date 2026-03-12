@@ -11,68 +11,65 @@ import org.springframework.stereotype.Service
 import javax.inject.Inject
 
 @Service
-class DialogmotekandidatService
-    @Inject
-    constructor(
-        private val dialogmotekandidatDAO: DialogmotekandidatDAO,
-        private val varselServiceV2: VarselServiceV2,
-    ) {
-        fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
-            log.info(
-                "Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} og arsak ${dialogmotekandidatEndring.arsak}",
-            )
-            val ansattFnr = dialogmotekandidatEndring.personIdentNumber
+class DialogmotekandidatService @Inject constructor(
+    private val dialogmotekandidatDAO: DialogmotekandidatDAO,
+    private val varselServiceV2: VarselServiceV2,
+) {
+    fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
+        log.info("Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} og arsak ${dialogmotekandidatEndring.arsak}")
+        val ansattFnr = dialogmotekandidatEndring.personIdentNumber
 
-            val existingKandidat = dialogmotekandidatDAO.get(ansattFnr)
+        val existingKandidat = dialogmotekandidatDAO.get(ansattFnr)
 
-            // Store latest kandidat-info
-            when {
-                existingKandidat == null -> {
-                    log.info("Lagrer ny kandidat i databasen")
-                    dialogmotekandidatDAO.create(
-                        dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
-                        createdAt = dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime(),
-                        fnr = ansattFnr,
-                        kandidat = dialogmotekandidatEndring.kandidat,
-                        arsak = dialogmotekandidatEndring.arsak,
-                    )
-                }
-
-                existingKandidat.createdAt.isEqualOrAfter(dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime()) -> {
-                    log.info("Skip KafkaDialogmotekandidatEndring message because newer change exists")
-                    return
-                }
-
-                else -> {
-                    log.info("Oppdaterer eksisterende kandidat i databasen")
-                    dialogmotekandidatDAO.update(
-                        dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
-                        createdAt = dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime(),
-                        fnr = ansattFnr,
-                        kandidat = dialogmotekandidatEndring.kandidat,
-                        arsak = dialogmotekandidatEndring.arsak,
-                    )
-                }
+        // Store latest kandidat-info
+        when {
+            existingKandidat == null -> {
+                log.info("Lagrer ny kandidat i databasen")
+                dialogmotekandidatDAO.create(
+                    dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
+                    createdAt = dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime(),
+                    fnr = ansattFnr,
+                    kandidat = dialogmotekandidatEndring.kandidat,
+                    arsak = dialogmotekandidatEndring.arsak
+                )
             }
 
-            // Send svar behov varsel if no kandidat==true exists from before
-            val isKandidatFromBefore = existingKandidat != null && existingKandidat.kandidat
-
-            if (!dialogmotekandidatEndring.kandidat) {
-                log.info("Ferdigstill varsel because message has kandidat=false")
-                varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(ansattFnr)
-                varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLedere(ansattFnr)
-            } else if (isKandidatFromBefore) {
-                log.info("Not sending varsel because person is kandidat from before")
+            existingKandidat.createdAt.isEqualOrAfter(dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime()) -> {
+                log.info("Skip KafkaDialogmotekandidatEndring message because newer change exists")
                 return
-            } else {
-                varselServiceV2.sendSvarBehovVarsel(ansattFnr, dialogmotekandidatEndring.uuid)
+            }
+
+            else -> {
+                log.info("Oppdaterer eksisterende kandidat i databasen")
+                dialogmotekandidatDAO.update(
+                    dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
+                    createdAt = dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime(),
+                    fnr = ansattFnr,
+                    kandidat = dialogmotekandidatEndring.kandidat,
+                    arsak = dialogmotekandidatEndring.arsak
+                )
             }
         }
 
-        fun getDialogmotekandidatStatus(arbeidstakerFnr: String): DialogmoteKandidatEndring? = dialogmotekandidatDAO.get(arbeidstakerFnr)
+        // Send svar behov varsel if no kandidat==true exists from before
+        val isKandidatFromBefore = existingKandidat != null && existingKandidat.kandidat
 
-        companion object {
-            private val log = LoggerFactory.getLogger(DialogmotekandidatService::class.java)
+        if (!dialogmotekandidatEndring.kandidat) {
+            log.info("Ferdigstill varsel because message has kandidat=false")
+            varselServiceV2.ferdigstillSvarMotebehovVarsel(ansattFnr)
+        } else if (isKandidatFromBefore) {
+            log.info("Not sending varsel because person is kandidat from before")
+            return
+        } else {
+            varselServiceV2.sendSvarBehovVarsel(ansattFnr, dialogmotekandidatEndring.uuid)
         }
     }
+
+    fun getDialogmotekandidatStatus(arbeidstakerFnr: String): DialogmoteKandidatEndring? {
+        return dialogmotekandidatDAO.get(arbeidstakerFnr)
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(DialogmotekandidatService::class.java)
+    }
+}
