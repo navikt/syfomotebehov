@@ -1,17 +1,15 @@
 package no.nav.syfo.dialogmotekandidat
 
-import com.ninjasquad.springmockk.MockkBean
 import io.kotest.core.extensions.ApplyExtension
-import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.extensions.spring.SpringExtension
-import io.mockk.verify
 import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
+import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselStatusDAO
+import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselType
 import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndring
 import no.nav.syfo.testhelper.UserConstants
-import no.nav.syfo.varsel.VarselServiceV2
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -28,8 +26,8 @@ import java.util.*
 @DirtiesContext
 internal class DialogmotekandidatServiceTest : IntegrationTest() {
 
-    @MockkBean(relaxed = true)
-    private lateinit var varselServiceV2: VarselServiceV2
+    @Autowired
+    private lateinit var varselStatusDAO: DialogmotekandidatVarselStatusDAO
 
     @Autowired
     private lateinit var dialogmotekandidatDAO: DialogmotekandidatDAO
@@ -43,8 +41,8 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
 
     init {
         beforeTest {
-            val sqlDeleteAll = "DELETE FROM DIALOGMOTEKANDIDAT"
-            jdbcTemplate.update(sqlDeleteAll)
+            jdbcTemplate.update("DELETE FROM DIALOGMOTEKANDIDAT")
+            jdbcTemplate.update("DELETE FROM dialogkandidat_varsel_status")
         }
 
         it("skalLagreNyKandidatEndring") {
@@ -139,73 +137,80 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
             assertThat(kandidatStatus?.arsak).isEqualTo(DialogmotekandidatEndringArsak.DIALOGMOTE_FERDIGSTILT)
         }
 
-        it("skalSendeVarselDersomNyKandidat") {
-            val forsteGangKandidat = generateDialogmotekandidatEndring(
+        it("skalOppretteVarselPendingRadDersomNyKandidat") {
+            val melding = generateDialogmotekandidatEndring(
                 kandidat = true,
                 arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
                 OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
             )
+            dialogmotekandidatService.receiveDialogmotekandidatEndring(melding)
 
-            dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
-
-            verify(exactly = 1) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
-            verify(exactly = 0) { varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(any()) }
+            val pending = varselStatusDAO.getPendingByType(DialogmotekandidatVarselType.VARSEL)
+            assertThat(pending).hasSize(1)
+            assertThat(pending[0].fnr).isEqualTo(UserConstants.ARBEIDSTAKER_FNR)
+            assertThat(pending[0].type).isEqualTo(DialogmotekandidatVarselType.VARSEL)
         }
 
-        it("skalIkkeSendeVarselDersomIkkeKandidat") {
-            val forsteGangKandidat = generateDialogmotekandidatEndring(
+        it("skalOppretteFerdigstillPendingRadDersomIkkeKandidat") {
+            val melding = generateDialogmotekandidatEndring(
                 kandidat = false,
                 arsak = DialogmotekandidatEndringArsak.UNNTAK.name,
                 OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
             )
+            dialogmotekandidatService.receiveDialogmotekandidatEndring(melding)
 
-            dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
-
-            verify(exactly = 0) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
+            val pending = varselStatusDAO.getPendingByType(DialogmotekandidatVarselType.FERDIGSTILL)
+            assertThat(pending).hasSize(1)
+            assertThat(pending[0].type).isEqualTo(DialogmotekandidatVarselType.FERDIGSTILL)
         }
 
-        it("skalIkkeSendeVarselDersomIkkeAktuellKandidat") {
-            val forsteGangKandidat = generateDialogmotekandidatEndring(
-                kandidat = false,
-                arsak = DialogmotekandidatEndringArsak.IKKE_AKTUELL.name,
-                OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
+        it("skalIgnorereKandidatSomAllerendeErKandidat") {
+            // First message: candidate becomes true
+            dialogmotekandidatService.receiveDialogmotekandidatEndring(
+                generateDialogmotekandidatEndring(
+                    kandidat = true,
+                    arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
+                    OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
+                )
+            )
+            // Clear the outbox row
+            jdbcTemplate.update("DELETE FROM dialogkandidat_varsel_status")
+
+            // Second message: still candidate (different uuid but same fnr, newer time)
+            dialogmotekandidatService.receiveDialogmotekandidatEndring(
+                generateDialogmotekandidatEndring(
+                    kandidat = true,
+                    arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
+                    OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusMinutes(1)
+                )
             )
 
-            dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
-
-            verify(exactly = 0) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
+            val pendingVarsel = varselStatusDAO.getPendingByType(DialogmotekandidatVarselType.VARSEL)
+            assertThat(pendingVarsel).isEmpty()
         }
 
-        it("skalIkkeSendeVarselDersomLukketKandidat") {
-            val forsteGangKandidat = generateDialogmotekandidatEndring(
-                kandidat = false,
-                arsak = DialogmotekandidatEndringArsak.LUKKET.name,
-                OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
+        it("skalIgnorereEldreKafkaMelding") {
+            // Insert newer message first
+            dialogmotekandidatService.receiveDialogmotekandidatEndring(
+                generateDialogmotekandidatEndring(
+                    kandidat = true,
+                    arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
+                    OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusMinutes(1)
+                )
+            )
+            jdbcTemplate.update("DELETE FROM dialogkandidat_varsel_status")
+
+            // Try to insert older message
+            dialogmotekandidatService.receiveDialogmotekandidatEndring(
+                generateDialogmotekandidatEndring(
+                    kandidat = true,
+                    arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
+                    OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
+                )
             )
 
-            dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
-
-            verify(exactly = 0) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
-        }
-
-        it("skalFerdigsstilleVarselDersomIkkeKandidat") {
-            val forsteGangKandidat = generateDialogmotekandidatEndring(
-                kandidat = true,
-                arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
-                OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
-            )
-
-            dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
-
-            val unntak = generateDialogmotekandidatEndring(
-                kandidat = false,
-                arsak = DialogmotekandidatEndringArsak.UNNTAK.name,
-                OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
-            )
-
-            dialogmotekandidatService.receiveDialogmotekandidatEndring(unntak)
-
-            verify(exactly = 1) { varselServiceV2.ferdigstillSvarMotebehovVarsel(any()) }
+            val pendingVarsel = varselStatusDAO.getPendingByType(DialogmotekandidatVarselType.VARSEL)
+            assertThat(pendingVarsel).isEmpty()
         }
     }
 
