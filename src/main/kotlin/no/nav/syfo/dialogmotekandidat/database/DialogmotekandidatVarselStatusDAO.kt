@@ -166,7 +166,7 @@ class DialogmotekandidatVarselStatusDAO @Inject constructor(
     }
 
     companion object {
-        const val TABLE_NAME = "dialogmotekandidat_varsel_status"
+        const val TABLE_NAME = "dialogkandidat_varsel_status"
 
         const val COLUMN_ID = "id"
         const val COLUMN_KAFKA_MELDING_UUID = "kafka_melding_uuid"
