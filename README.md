@@ -14,14 +14,37 @@ Start opp appen fra [LocalApplication.kt](./src/test/kotlin/no/nav/syfo/LocalApp
 Har du IntelliJ satt opp med Spring-støtte, må du i Run/Debug configuration endre Spring boot modulen til å bruke
 testversjonen og ikke prodversjonen av applikasjonen:
 
+For å kjøre med mockede eksterne tjenester må også spring profilen "local" være aktivert.
+
 ```
 Run > Edit Configurations > Spring Boot > Local Application > Configuration
 Endre på følgende felter:
 Name --> LocalApplication
 Main --> no.nav.syfo.LocalApplication
+Active profiles --> local
 ```
 
 Appen kjører da på localhost:8811/
+
+### Persistent storage
+
+For å beholde data mellom oppstarter av appen, må man legge til følgene config i ~/.testcontainers.properties:
+`testcontainers.reuse.enable=true`
+
+```bash
+echo "testcontainers.reuse.enable=true" >> ~/.testcontainers.properties
+```
+
+### Mock eksterne tjenester
+Stubs for eksterne tjenester ligger under /test/.../stubs og benyttes i "local"-profilen. De ble innført etter at testene ble skrevet, og benyttes
+ikke i disse.
+
+### Mock auth
+Det er satt opp egne endepunkter som kjører med "local"-profilen for å mocke auth.
+
+### Bruno
+Bruno collection ligger under `/bruno` og bruker MockOauth2Server for auth
+
 
 ### Properties
 

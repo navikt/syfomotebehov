@@ -1,4 +1,4 @@
-package no.nav.syfo
+package no.nav.syfo.stubs
 
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.core.api.Unprotected

@@ -1,4 +1,4 @@
-package no.nav.syfo
+package no.nav.syfo.stubs
 
 import no.nav.syfo.consumer.azuread.v2.IAzureAdV2TokenConsumer
 import org.slf4j.LoggerFactory

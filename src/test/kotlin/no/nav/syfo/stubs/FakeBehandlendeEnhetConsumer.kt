@@ -1,4 +1,4 @@
-package no.nav.syfo
+package no.nav.syfo.stubs
 
 import no.nav.syfo.consumer.behandlendeenhet.BehandlendeEnhet
 import no.nav.syfo.consumer.behandlendeenhet.EnhetDTO
