@@ -3,6 +3,7 @@ package no.nav.syfo.dialogmotekandidat
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tags
 import net.logstash.logback.argument.StructuredArguments.kv
+import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselStatus
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselStatusDao
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselType
 import no.nav.syfo.leaderelection.LeaderElectionClient
@@ -48,32 +49,48 @@ class DialogmotekandidatVarselScheduler @Inject constructor(
     }
 
     internal fun sendPendingVarsler() {
-        val pendingVarsler = varselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
-        pendingVarsler.forEach { row ->
-            runCatching {
-                varselServiceV2.sendSvarBehovVarsel(row.fnr, row.kafkaMeldingUuid)
-                varselStatusDao.updateStatusToSent(row.id)
-            }.onSuccess {
-                log.info("Varsel sendt", kv("event", "dialogmotekandidat.varsel.sent"), kv("id", row.id))
-            }.onFailure { e ->
-                varselStatusDao.incrementRetryCount(row.id)
-                log.warn("Feil ved sending av varsel", kv("event", "dialogmotekandidat.varsel.retry"), kv("id", row.id), kv("retryCount", row.retryCount + 1), e)
-            }
+        varselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
+            .forEach { processPendingVarsler(it) }
+    }
+
+    private fun processPendingVarsler(row: DialogmotekandidatVarselStatus) {
+        runCatching {
+            varselServiceV2.sendSvarBehovVarsel(row.fnr, row.kafkaMeldingUuid)
+            varselStatusDao.updateStatusToSent(row.id)
+        }.onSuccess {
+            log.info("Varsel sendt", kv("event", "dialogmotekandidat.varsel.sent"), kv("id", row.id))
+        }.onFailure { e ->
+            varselStatusDao.incrementRetryCount(row.id)
+            log.warn(
+                "Feil ved sending av varsel",
+                kv("event", "dialogmotekandidat.varsel.retry"),
+                kv("id", row.id),
+                kv("retryCount", row.retryCount + 1),
+                e
+            )
         }
     }
 
     internal fun ferdigstillPendingVarsler() {
-        val pendingFerdigstill = varselStatusDao.getPendingByType(DialogmotekandidatVarselType.FERDIGSTILL)
-        pendingFerdigstill.forEach { row ->
-            runCatching {
-                varselServiceV2.ferdigstillSvarMotebehovVarsel(row.fnr)
-                varselStatusDao.updateStatusToSent(row.id)
-            }.onSuccess {
-                log.info("Ferdigstilt", kv("event", "dialogmotekandidat.ferdigstill.sent"), kv("id", row.id))
-            }.onFailure { e ->
-                varselStatusDao.incrementRetryCount(row.id)
-                log.warn("Feil ved ferdigstilling", kv("event", "dialogmotekandidat.ferdigstill.retry"), kv("id", row.id), kv("retryCount", row.retryCount + 1), e)
-            }
+        varselStatusDao.getPendingByType(DialogmotekandidatVarselType.FERDIGSTILL)
+            .forEach { processFerdigstillVarsler(it) }
+    }
+
+    private fun processFerdigstillVarsler(row: DialogmotekandidatVarselStatus) {
+        runCatching {
+            varselServiceV2.ferdigstillSvarMotebehovVarsel(row.fnr)
+            varselStatusDao.updateStatusToSent(row.id)
+        }.onSuccess {
+            log.info("Ferdigstilt", kv("event", "dialogmotekandidat.ferdigstill.sent"), kv("id", row.id))
+        }.onFailure { e ->
+            varselStatusDao.incrementRetryCount(row.id)
+            log.warn(
+                "Feil ved ferdigstilling",
+                kv("event", "dialogmotekandidat.ferdigstill.retry"),
+                kv("id", row.id),
+                kv("retryCount", row.retryCount + 1),
+                e
+            )
         }
     }
 
