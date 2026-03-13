@@ -83,7 +83,7 @@ flowchart TD
     C --> D{kandidat=true?}
 
     D -- Nei --> FE[INSERT PENDING<br/>FERDIGSTILL]
-    D -- Ja --> E{Eksisterende rad\ni DB?}
+    D -- Ja --> E{Eksisterende rad<br/>i DB?}
 
     E -- Nei --> VA1[INSERT PENDING<br/>VARSEL]
     E -- Ja --> F{DB.kandidat=true?}
