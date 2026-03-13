@@ -22,7 +22,7 @@ class DialogmotekandidatVarselScheduler @Inject constructor(
     private val leaderElectionClient: LeaderElectionClient,
     private val varselStatusDao: DialogmotekandidatVarselStatusDao,
     private val varselServiceV2: VarselServiceV2,
-    private val meterRegistry: MeterRegistry,
+    meterRegistry: MeterRegistry,
 ) {
     private val varselPendingOver1Day = AtomicLong(0)
     private val ferdigstillPendingOver1Day = AtomicLong(0)
