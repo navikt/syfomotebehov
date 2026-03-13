@@ -94,14 +94,11 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             dialogmotekandidatVarselStatusDao.create(UUID.randomUUID().toString(), "11111111111", DialogmotekandidatVarselType.VARSEL)
             dialogmotekandidatVarselStatusDao.create(UUID.randomUUID().toString(), "22222222222", DialogmotekandidatVarselType.FERDIGSTILL)
 
-            val varselPending = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
-            val ferdigstillPending = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.FERDIGSTILL)
-
-            varselPending.apply {
+            dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL).apply {
                 shouldHaveSize(1)
                 with(first()) { type shouldBe DialogmotekandidatVarselType.VARSEL }
             }
-            ferdigstillPending.apply {
+            dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.FERDIGSTILL).apply {
                 shouldHaveSize(1)
                 with(first()) { type shouldBe DialogmotekandidatVarselType.FERDIGSTILL }
             }
