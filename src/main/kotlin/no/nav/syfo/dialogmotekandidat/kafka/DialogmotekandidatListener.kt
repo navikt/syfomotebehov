@@ -12,8 +12,7 @@ import org.springframework.stereotype.Component
 /**
  * Lytter på Kafka-topic [DIALOGMOTEKANDIDAT_TOPIC] og delegerer til [DialogmotekandidatService].
  *
- * Se [docs/dialogmotekandidat-varsel-flow.md](../../../../../../../../docs/dialogmotekandidat-varsel-flow.md)
- * for full beskrivelse av flyten.
+ * Se `docs/dialogmotekandidat-varsel-flow.md` for full beskrivelse av flyten.
  */
 @Profile("remote")
 @Component
