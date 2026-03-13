@@ -1,0 +1,61 @@
+# Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
+name: Auto-approve copilot config sync
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    paths: ['.github/**']
+
+jobs:
+  auto-approve:
+    if: github.head_ref == 'copilot-config-sync'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Verify only .github/ files changed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          FILES=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files --paginate --jq '.[].filename')
+
+          if [ -z "$FILES" ]; then
+            echo "::warning::No files found — skipping approve (possible API issue)"
+            exit 1
+          fi
+
+          echo "Changed files:"
+          echo "$FILES"
+
+          ALLOWED_PATTERNS=(
+            '.github/instructions/*'
+            '.github/prompts/*'
+            '.github/skills/*'
+            '.github/skills/**/*'
+            '.github/agents/*'
+            '.github/copilot-instructions.md'
+            '.github/workflows/copilot-config-auto-approve.yml'
+          )
+
+          while IFS= read -r file; do
+            match=false
+            for pattern in "${ALLOWED_PATTERNS[@]}"; do
+              if [[ "$file" == $pattern ]]; then
+                match=true
+                break
+              fi
+            done
+            if [ "$match" = false ]; then
+              echo "::error::File not in allowlist: $file"
+              echo "Refusing to approve — only specific .github/ paths are allowed"
+              exit 1
+            fi
+          done <<< "$FILES"
+
+          echo "All changed files match the allowlist — safe to approve"
+
+      - name: Auto-approve PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr review --approve ${{ github.event.pull_request.number }} --repo ${{ github.repository }}
