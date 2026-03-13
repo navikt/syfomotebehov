@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 
-@Profile("local", "!remote")
+@Profile("local & !remote")
 @Component
 class FakeAzureAdV2TokenConsumer : IAzureAdV2TokenConsumer {
     val logger = LoggerFactory.getLogger(this.javaClass)

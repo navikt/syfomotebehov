@@ -23,7 +23,7 @@ class MockTokenController(val mockOauth: MockOAuth2Server) {
 
     @GetMapping(
         value = ["/tokenx"],
-        produces = [MediaType.APPLICATION_JSON_VALUE]
+        produces = [MediaType.TEXT_PLAIN_VALUE]
     )
     fun getMockTokenx(@RequestParam fnr: String?, @RequestParam clientId :String?): ResponseEntity<String> {
         logger.info("MockTokenController returned token")
@@ -40,7 +40,7 @@ class MockTokenController(val mockOauth: MockOAuth2Server) {
 
     @GetMapping(
         value = ["/azuread"],
-        produces = [MediaType.APPLICATION_JSON_VALUE]
+        produces = [MediaType.TEXT_PLAIN_VALUE]
     )
     fun getMockTokenAD(@RequestParam fnr: String?, @RequestParam clientId: String?, @RequestParam navIdent: String?): ResponseEntity<String> {
         logger.info("MockTokenController returned token")

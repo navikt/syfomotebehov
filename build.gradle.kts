@@ -138,7 +138,6 @@ tasks {
         group = "application"
         description = "Runs the app locally using LocalApplication (TestContainers + MockOAuth2Server)"
         mainClass.set("no.nav.syfo.LocalApplicationKt")
-        args = listOf("--spring.profiles.active=local")
         classpath(sourceSets.test.get().runtimeClasspath)
     }
 }
