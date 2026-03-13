@@ -11,6 +11,7 @@ import no.nav.syfo.util.toNorwegianLocalDateTime
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @Service
@@ -35,6 +36,40 @@ class DialogmotekandidatService @Inject constructor(
             return
         }
 
+        saveKandidat(existingKandidat, dialogmotekandidatEndring, kafkaCreatedAt, ansattFnr)
+
+        val varselType = resolveVarselType(dialogmotekandidatEndring.kandidat, existingKandidat)
+            ?: run {
+                log.info(
+                    "Ignoring dialogmotekandidat message",
+                    kv("event", "dialogmotekandidat.ignored"),
+                    kv("reason", "already_kandidat"),
+                )
+                return
+            }
+
+        dialogmotekandidatVarselStatusDao.create(
+            kafkaMeldingUuid = dialogmotekandidatEndring.uuid,
+            fnr = ansattFnr,
+            type = varselType,
+        )
+    }
+
+    private fun resolveVarselType(
+        kandidat: Boolean,
+        existingKandidat: DialogmoteKandidatEndring?,
+    ): DialogmotekandidatVarselType? = when {
+        !kandidat -> DialogmotekandidatVarselType.FERDIGSTILL
+        existingKandidat?.kandidat == true -> null
+        else -> DialogmotekandidatVarselType.VARSEL
+    }
+
+    private fun saveKandidat(
+        existingKandidat: DialogmoteKandidatEndring?,
+        dialogmotekandidatEndring: KafkaDialogmotekandidatEndring,
+        kafkaCreatedAt: LocalDateTime,
+        ansattFnr: String
+    ) {
         when {
             existingKandidat == null -> {
                 log.info("Lagrer ny kandidat i databasen")
@@ -46,6 +81,7 @@ class DialogmotekandidatService @Inject constructor(
                     arsak = dialogmotekandidatEndring.arsak,
                 )
             }
+
             else -> {
                 log.info("Oppdaterer eksisterende kandidat i databasen")
                 dialogmotekandidatDAO.update(
@@ -57,25 +93,6 @@ class DialogmotekandidatService @Inject constructor(
                 )
             }
         }
-
-        val varselType = when {
-            !dialogmotekandidatEndring.kandidat -> DialogmotekandidatVarselType.FERDIGSTILL
-            existingKandidat?.kandidat == true -> {
-                log.info(
-                    "Ignoring dialogmotekandidat message",
-                    kv("event", "dialogmotekandidat.ignored"),
-                    kv("reason", "already_kandidat"),
-                )
-                return
-            }
-            else -> DialogmotekandidatVarselType.VARSEL
-        }
-
-        dialogmotekandidatVarselStatusDao.create(
-            kafkaMeldingUuid = dialogmotekandidatEndring.uuid,
-            fnr = ansattFnr,
-            type = varselType,
-        )
     }
 
     fun getDialogmotekandidatStatus(arbeidstakerFnr: String): DialogmoteKandidatEndring? {
