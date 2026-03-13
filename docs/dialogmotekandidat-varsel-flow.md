@@ -17,7 +17,7 @@ Med outbox-mønsteret splittes ansvaret i to separate steg:
 
 | Steg | Komponent | Ansvar |
 |---|---|---|
-| **Motta og lagre** | `DialogmotekandidatListener` + `DialogmotekandidatService` | Persisterer kandidatstatus og setter inn en `PENDING`-rad i `DIALOGKANDIDAT_VARSEL_STATUS`. Bekrefter Kafka-offset. |
+| **Motta og lagre** | `DialogmotekandidatListener` + `DialogmotekandidatService` | Lytter på Kafka-topic `teamsykefravr.isdialogmotekandidat-dialogmotekandidat`. Persisterer kandidatstatus og setter inn en `PENDING`-rad i `DIALOGKANDIDAT_VARSEL_STATUS`. Bekrefter Kafka-offset. |
 | **Sende varsel** | `DialogmotekandidatVarselScheduler` | Poller `PENDING`-rader hvert minutt og kaller esyfovarsel. Har innebygd retry-teller. |
 | **Rydde opp** | `DialogmotekandidatVarselScheduler.runCleanUp()` | Sletter gamle `SENT`- og `PENDING`-rader én gang i timen. |
 
@@ -49,13 +49,23 @@ sequenceDiagram
         Sched->>VS: sendSvarBehovVarsel(fnr, uuid)
         VS->>EP: produserVarsel(SM + NL)
         EP->>KB: produce melding
-        Sched->>DB_V: updateStatusToSent
+        alt success
+            Sched->>DB_V: updateStatusToSent(id)
+        else failure
+            Sched->>DB_V: incrementRetryCount(id)
+        end
 
         Sched->>DB_V: hent PENDING FERDIGSTILL-rader
         Sched->>VS: ferdigstillSvarMotebehovVarsel(fnr)
         VS->>EP: produserFerdigstill(SM + NL)
         EP->>KB: produce melding
-        Sched->>DB_V: updateStatusToSent
+        alt success
+            Sched->>DB_V: updateStatusToSent(id)
+        else failure
+            Sched->>DB_V: incrementRetryCount(id)
+        end
+
+        Sched->>Sched: updateGauges() – oppdater pending-over-1d gauge
     end
 ```
 
