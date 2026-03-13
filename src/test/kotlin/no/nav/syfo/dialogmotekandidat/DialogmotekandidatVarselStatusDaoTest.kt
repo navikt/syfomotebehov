@@ -36,9 +36,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             uuid = UUID.randomUUID().toString()
         }
 
-        describe("DialogmotekandidatVarselStatusDao") {
-
-            it("create oppretter en PENDING-rad med riktig type") {
+        it("create oppretter en PENDING-rad med riktig type") {
                 dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
 
                 dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL).apply {
@@ -69,8 +67,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
 
                 dialogmotekandidatVarselStatusDao.updateStatusToSent(created.first().id)
 
-                val afterUpdate = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
-                afterUpdate.shouldBeEmpty()
+                dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL).shouldBeEmpty()
 
                 val sentCount = jdbcTemplate.queryForObject(
                     "SELECT COUNT(*) FROM dialogkandidat_varsel_status WHERE status = 'SENT'",
@@ -138,7 +135,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             it("deleteSentOlderThan sletter riktige rader") {
                 dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
                 val created = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
-                dialogmotekandidatVarselStatusDao.updateStatusToSent(created[0].id)
+                dialogmotekandidatVarselStatusDao.updateStatusToSent(created.first().id)
 
                 // Bakdaterer updated_at slik at raden er eldre enn cutoff
                 jdbcTemplate.update(
@@ -174,6 +171,5 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
                 )
                 remaining shouldBe 0
             }
-        }
     }
 }
