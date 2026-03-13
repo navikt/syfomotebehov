@@ -21,8 +21,12 @@ class DialogmotekandidatService @Inject constructor(
 ) {
     @Transactional
     fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
-        log.info("Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} " +
-                "og arsak ${dialogmotekandidatEndring.arsak}")
+        log.info(
+            "Mottok kandidatmelding",
+            kv("event", "dialogmotekandidat.received"),
+            kv("kandidat", dialogmotekandidatEndring.kandidat),
+            kv("arsak", dialogmotekandidatEndring.arsak),
+        )
         val ansattFnr = dialogmotekandidatEndring.personIdentNumber
 
         val existingKandidat = dialogmotekandidatDAO.get(ansattFnr)
@@ -71,7 +75,7 @@ class DialogmotekandidatService @Inject constructor(
     ) {
         when {
             existingKandidat == null -> {
-                log.info("Lagrer ny kandidat i databasen")
+                log.info("Lagrer ny kandidat i databasen", kv("event", "dialogmotekandidat.created"))
                 dialogmotekandidatDAO.create(
                     dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
                     createdAt = dialogmotekandidatEndring.createdAtNorwegian,
@@ -82,7 +86,7 @@ class DialogmotekandidatService @Inject constructor(
             }
 
             else -> {
-                log.info("Oppdaterer eksisterende kandidat i databasen")
+                log.info("Oppdaterer eksisterende kandidat i databasen", kv("event", "dialogmotekandidat.updated"))
                 dialogmotekandidatDAO.update(
                     dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
                     createdAt = dialogmotekandidatEndring.createdAtNorwegian,
