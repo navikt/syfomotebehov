@@ -1,6 +1,6 @@
 package no.nav.syfo.dialogmotekandidat.kafka
 
-import com.fasterxml.jackson.core.JsonProcessingException
+import net.logstash.logback.argument.StructuredArguments.kv
 import no.nav.syfo.dialogmotekandidat.DialogmotekandidatService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
@@ -9,6 +9,11 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
 
+/**
+ * Lytter på Kafka-topic [DIALOGMOTEKANDIDAT_TOPIC] og delegerer til [DialogmotekandidatService].
+ *
+ * Se `docs/dialogmotekandidat-varsel-flow.md` for full beskrivelse av flyten.
+ */
 @Profile("remote")
 @Component
 class DialogmotekandidatListener(
@@ -19,12 +24,16 @@ class DialogmotekandidatListener(
         consumerRecord: ConsumerRecord<String, KafkaDialogmotekandidatEndring>,
         acknowledgment: Acknowledgment
     ) {
-        log.info("Got record from $DIALOGMOTEKANDIDAT_TOPIC topic for uuid: ${consumerRecord.value().uuid}")
         try {
-            dialogmotekandidatService.receiveDialogmotekandidatEndring(consumerRecord.value())
+            val melding = consumerRecord.value()
+            log.info(
+                "Got record",
+                kv("event", "dialogmotekandidat.received"),
+                kv("topic", DIALOGMOTEKANDIDAT_TOPIC),
+                kv("uuid", melding.uuid),
+            )
+            dialogmotekandidatService.receiveDialogmotekandidatEndring(melding)
             acknowledgment.acknowledge()
-        } catch (e: JsonProcessingException) {
-            log.error("DialogmotekandidatListener: Kunne ikke deserialisere topic", e)
         } catch (e: Exception) {
             log.error("DialogmotekandidatListener: Uventet feil ved lesing av topic", e)
         }
