@@ -24,11 +24,10 @@ class DialogmotekandidatService @Inject constructor(
         log.info("Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} " +
                 "og arsak ${dialogmotekandidatEndring.arsak}")
         val ansattFnr = dialogmotekandidatEndring.personIdentNumber
-        val kafkaCreatedAt = dialogmotekandidatEndring.createdAtNorwegian
 
         val existingKandidat = dialogmotekandidatDAO.get(ansattFnr)
 
-        if (existingKandidat?.createdAt?.isEqualOrAfter(kafkaCreatedAt) == true) {
+        if (existingKandidat?.createdAt?.isEqualOrAfter(dialogmotekandidatEndring.createdAtNorwegian) == true) {
             log.info(
                 "Ignoring dialogmotekandidat message",
                 kv("event", "dialogmotekandidat.ignored"),
@@ -37,7 +36,7 @@ class DialogmotekandidatService @Inject constructor(
             return
         }
 
-        saveKandidat(existingKandidat, dialogmotekandidatEndring, kafkaCreatedAt, ansattFnr)
+        saveKandidat(existingKandidat, dialogmotekandidatEndring, ansattFnr)
 
         val varselType = resolveVarselType(dialogmotekandidatEndring.kandidat, existingKandidat)
             ?: run {
@@ -68,7 +67,6 @@ class DialogmotekandidatService @Inject constructor(
     private fun saveKandidat(
         existingKandidat: DialogmoteKandidatEndring?,
         dialogmotekandidatEndring: KafkaDialogmotekandidatEndring,
-        kafkaCreatedAt: LocalDateTime,
         ansattFnr: String
     ) {
         when {
@@ -76,7 +74,7 @@ class DialogmotekandidatService @Inject constructor(
                 log.info("Lagrer ny kandidat i databasen")
                 dialogmotekandidatDAO.create(
                     dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
-                    createdAt = kafkaCreatedAt,
+                    createdAt = dialogmotekandidatEndring.createdAtNorwegian,
                     fnr = ansattFnr,
                     kandidat = dialogmotekandidatEndring.kandidat,
                     arsak = dialogmotekandidatEndring.arsak,
@@ -87,7 +85,7 @@ class DialogmotekandidatService @Inject constructor(
                 log.info("Oppdaterer eksisterende kandidat i databasen")
                 dialogmotekandidatDAO.update(
                     dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
-                    createdAt = kafkaCreatedAt,
+                    createdAt = dialogmotekandidatEndring.createdAtNorwegian,
                     fnr = ansattFnr,
                     kandidat = dialogmotekandidatEndring.kandidat,
                     arsak = dialogmotekandidatEndring.arsak,
