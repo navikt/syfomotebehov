@@ -1,13 +1,9 @@
-package no.nav.syfo.dialogmotekandidat.kafka
+package no.nav.syfo.util
 
-import com.fasterxml.jackson.databind.*
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.module.kotlin.jsonMapper
 
-fun configuredJacksonMapper() = jacksonObjectMapper().configure()
 
-fun ObjectMapper.configure() = this.apply {
-    registerModule(JavaTimeModule())
-    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+fun configuredJsonMapper() = jsonMapper {
+    disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 }

@@ -1,7 +1,6 @@
 package no.nav.syfo.motebehov.formSnapshot
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.annotation.JsonDeserialize
 import java.io.Serializable
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
@@ -50,19 +49,17 @@ data class FormSnapshot(
     @field:NotEmpty
     // For info: This configures deserialization both for POST-handlers in controllers and for the object mapper used
     // when reading from the database in FormSnapshotJSONConversion.kt.
-    @JsonDeserialize(contentUsing = FieldSnapshotDeserializer::class)
+    @get:JsonDeserialize(contentUsing = FieldSnapshotDeserializer::class)
     val fieldSnapshots: List<FieldSnapshot>,
 ) {
-    @get:JsonIgnore
-    val fieldValues: Map<String, Any>
-        get() = fieldSnapshots.associate { fieldSnapshot ->
-            fieldSnapshot.fieldId to when (fieldSnapshot) {
-                is TextFieldSnapshot -> fieldSnapshot.value
-                is SingleCheckboxFieldSnapshot -> fieldSnapshot.value
-                is RadioGroupFieldSnapshot -> fieldSnapshot.selectedOptionId
-                else -> throw IllegalArgumentException("Unknown field type: ${fieldSnapshot.fieldType}")
-            }
+    fun fieldvaluesToMap() = fieldSnapshots.associate { fieldSnapshot ->
+        fieldSnapshot.fieldId to when (fieldSnapshot) {
+            is TextFieldSnapshot -> fieldSnapshot.value
+            is SingleCheckboxFieldSnapshot -> fieldSnapshot.value
+            is RadioGroupFieldSnapshot -> fieldSnapshot.selectedOptionId
+            else -> throw IllegalArgumentException("Unknown field type: ${fieldSnapshot.fieldType}")
         }
+    }
 }
 
 abstract class FieldSnapshot(

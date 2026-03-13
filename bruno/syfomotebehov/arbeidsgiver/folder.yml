@@ -1,0 +1,21 @@
+info:
+  name: arbeidsgiver
+  type: folder
+  seq: 1
+
+request:
+  auth: inherit
+  variables:
+    - name: arbeidsgiverBasePath
+      value: "{{basePath}}/api/v4"
+    - name: arbeidstakerFnr
+      value: "01010112345"
+    - name: virksomhetsnummer
+      value: "910067494"
+    - name: formIdentifier
+      value: motebehov-arbeidsgiver-svar
+  scripts:
+    - type: before-request
+      code: |-
+        const tokenResponse = await bru.runRequest("/mock-auth/tokenx");
+        bru.setEnvVar("token", tokenResponse.data)

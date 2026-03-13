@@ -33,7 +33,7 @@ data class MotebehovFormValuesExtractedFromFormSnapshot(
 )
 
 fun extractFormValuesFromFormSnapshot(formSnapshot: FormSnapshot): MotebehovFormValuesExtractedFromFormSnapshot {
-    val fieldValues = formSnapshot.fieldValues
+    val fieldValues = formSnapshot.fieldvaluesToMap()
 
     return MotebehovFormValuesExtractedFromFormSnapshot(
         formIdentifier = formSnapshot.formIdentifier.identifier,
