@@ -16,6 +16,7 @@ spring:
       maximum-pool-size: 8
   cache:
     type: none
+
 server:
   port: 8811
   servlet:
@@ -43,18 +44,18 @@ srvsyfomotebehov:
 srv.username: "kek"
 srv.password: "bur"
 
-mock.token.server.port: 8081
+mock-oauth2-server.port: 9923
 
 no.nav.security:
   jwt:
     expirythreshold: 1
     issuer:
       internazureadv2:
-        discoveryurl: http://localhost:${mock.token.server.port}/issuer1/.well-known/openid-configuration
-        accepted_audience: azure.app.client.id
+        discoveryurl: "http://localhost:${mock-oauth2-server.port}/internazureadv2/.well-known/openid-configuration"
+        accepted_audience: clientID
         cookiename: localhost-idtoken
       tokenx:
-        discoveryurl: http://localhost:${mock.token.server.port}/issuer1/.well-known/openid-configuration
+        discoveryurl: "http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration"
         accepted_audience: clientID
 
 syfobrukertilgang:
@@ -71,7 +72,7 @@ syfobehandlendeenhet.url: "https://syfobehandlendeenhet"
 istilgangskontroll.client.id: "istilgangskontrollId"
 istilgangskontroll.url: "https://www.ikke.no"
 security.token.service.rest.url: "https://security-token-service"
-kafka.brokers: localhost://9092
+kafka.brokers: localhost:9092
 kafka.truststore.path: /truststore
 kafka.keystore.path: /keystore
 kafka.credstore.password: /credstore/password

@@ -1,6 +1,6 @@
 package no.nav.syfo.motebehov.historikk
 
-import no.nav.syfo.consumer.pdl.PdlConsumer
+import no.nav.syfo.consumer.pdl.IPdlConsumer
 import no.nav.syfo.consumer.pdl.fullName
 import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.motebehov.MotebehovService
@@ -11,7 +11,7 @@ import javax.inject.Inject
 @Service
 class HistorikkService @Inject constructor(
     private val motebehovService: MotebehovService,
-    private val pdlConsumer: PdlConsumer
+    private val pdlConsumer: IPdlConsumer
 ) {
     fun hentHistorikkListe(arbeidstakerFnr: String): List<Historikk> {
         val motebehovListe = motebehovService.hentMotebehovListe(arbeidstakerFnr)
