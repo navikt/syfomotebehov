@@ -5,7 +5,6 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
@@ -13,7 +12,6 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.listener.ContainerProperties
 import javax.inject.Inject
 
-@Profile("!local")
 @EnableKafka
 @Configuration
 class DialogmotekandidatKafkaConfig @Inject constructor(
@@ -44,10 +42,10 @@ class DialogmotekandidatKafkaConfig @Inject constructor(
     }
 
     @Bean("DialogmotekandidatListenerContainerFactory")
-    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, KafkaDialogmotekandidatEndring> =
-        ConcurrentKafkaListenerContainerFactory<String, KafkaDialogmotekandidatEndring>().apply {
+    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, KafkaDialogmotekandidatEndring> {
+        return ConcurrentKafkaListenerContainerFactory<String, KafkaDialogmotekandidatEndring>().apply {
             this.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
-        }.also {
-            it.setConsumerFactory(dialogmotekandidatConsumerFactory())
+            this.consumerFactory = dialogmotekandidatConsumerFactory()
         }
+    }
 }

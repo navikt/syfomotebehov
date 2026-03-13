@@ -1,6 +1,6 @@
 package no.nav.syfo.consumer.narmesteleder
 
-import no.nav.syfo.consumer.azuread.v2.IAzureAdV2TokenConsumer
+import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.util.APP_CONSUMER_ID
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
@@ -20,7 +20,7 @@ import java.util.*
 
 @Service
 class NarmesteLederClient(
-    private val azureAdV2TokenConsumer: IAzureAdV2TokenConsumer,
+    private val azureAdV2TokenConsumer: AzureAdV2TokenConsumer,
     @Value("\${isnarmesteleder.url}") private val baseUrl: String,
     @Value("\${isnarmesteleder.client.id}") private val targetApp: String,
     private val restTemplate: RestTemplate
@@ -31,11 +31,11 @@ class NarmesteLederClient(
                 scopeClientId = targetApp
             )
 
-            val response: ResponseEntity<List<NarmesteLederRelasjonDTO>> = restTemplate.exchange(
+            val response: ResponseEntity<List<NarmesteLederRelasjonDTO>?> = restTemplate.exchange(
                 "$baseUrl/api/system/v1/narmestelederrelasjoner",
                 HttpMethod.GET,
                 entity(token, fnr),
-                object : ParameterizedTypeReference<List<NarmesteLederRelasjonDTO>>() {}
+                object : ParameterizedTypeReference<List<NarmesteLederRelasjonDTO>?>() {}
             )
 
             return response.body

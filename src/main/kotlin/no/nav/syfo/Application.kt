@@ -2,13 +2,13 @@ package no.nav.syfo
 
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration
-import org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration
+import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
 import org.springframework.boot.runApplication
 
 @SpringBootApplication(
     exclude = [
-        DataJpaRepositoriesAutoConfiguration::class,
+        JpaRepositoriesAutoConfiguration::class,
         HibernateJpaAutoConfiguration::class,
     ]
 )

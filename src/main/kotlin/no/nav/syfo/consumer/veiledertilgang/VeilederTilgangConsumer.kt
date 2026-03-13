@@ -3,29 +3,27 @@ package no.nav.syfo.consumer.veiledertilgang
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.api.auth.OIDCUtil
-import no.nav.syfo.consumer.azuread.v2.IAzureAdV2TokenConsumer
+import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.annotation.Profile
 import org.springframework.http.*
 import org.springframework.stereotype.Service
 import org.springframework.web.client.*
 
 @Service
-@Profile("!local")
 class VeilederTilgangConsumer(
     @Value("\${istilgangskontroll.client.id}") private val istilgangskontrollClientId: String,
     @Value("\${istilgangskontroll.url}") private val istilgangskontrollUrl: String,
-    private val azureAdV2TokenConsumer: IAzureAdV2TokenConsumer,
+    private val azureAdV2TokenConsumer: AzureAdV2TokenConsumer,
     private val metric: Metric,
     private val template: RestTemplate,
     private val oidcContextHolder: TokenValidationContextHolder,
-) : IVeilederTilgangConsumer {
+) {
     private val tilgangskontrollPersonUrl: String = "$istilgangskontrollUrl$TILGANGSKONTROLL_PERSON_PATH"
 
-    override fun sjekkVeiledersTilgangTilPersonMedOBO(fnr: String): Boolean {
+    fun sjekkVeiledersTilgangTilPersonMedOBO(fnr: String): Boolean {
         val token = OIDCUtil.tokenFraOIDC(oidcContextHolder, OIDCIssuer.INTERN_AZUREAD_V2)
         val oboToken = azureAdV2TokenConsumer.getOnBehalfOfToken(
             scopeClientId = istilgangskontrollClientId,

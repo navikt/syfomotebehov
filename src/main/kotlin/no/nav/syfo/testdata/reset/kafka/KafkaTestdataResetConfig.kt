@@ -5,7 +5,6 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
@@ -14,7 +13,6 @@ import org.springframework.kafka.listener.ContainerProperties
 
 import org.springframework.beans.factory.annotation.Value
 
-@Profile("!local")
 @EnableKafka
 @Configuration
 class KafkaTestdataResetConfig(
@@ -50,11 +48,10 @@ class KafkaTestdataResetConfig(
     }
 
     @Bean("TestdataResetListenerContainerFactory")
-    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String> =
-        ConcurrentKafkaListenerContainerFactory<String, String>().apply {
+    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String> {
+        return ConcurrentKafkaListenerContainerFactory<String, String>().apply {
             this.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
-        }.also {
-            it.setConsumerFactory(testdataResetConsumerFactory())
+            this.consumerFactory = testdataResetConsumerFactory()
         }
-
+    }
 }
