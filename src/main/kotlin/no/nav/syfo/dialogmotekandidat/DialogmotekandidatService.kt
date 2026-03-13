@@ -26,11 +26,10 @@ class DialogmotekandidatService @Inject constructor(
 
         val existingKandidat = dialogmotekandidatDAO.get(ansattFnr)
 
-        if (existingKandidat != null && existingKandidat.createdAt.isEqualOrAfter(kafkaCreatedAt)) {
+        if (existingKandidat?.createdAt?.isEqualOrAfter(kafkaCreatedAt) == true) {
             log.info(
                 "Ignoring dialogmotekandidat message",
                 kv("event", "dialogmotekandidat.ignored"),
-                kv("fnr_length", ansattFnr.length),
                 kv("reason", "newer_change_exists"),
             )
             return
@@ -65,7 +64,6 @@ class DialogmotekandidatService @Inject constructor(
                 log.info(
                     "Ignoring dialogmotekandidat message",
                     kv("event", "dialogmotekandidat.ignored"),
-                    kv("fnr_length", ansattFnr.length),
                     kv("reason", "already_kandidat"),
                 )
                 return
