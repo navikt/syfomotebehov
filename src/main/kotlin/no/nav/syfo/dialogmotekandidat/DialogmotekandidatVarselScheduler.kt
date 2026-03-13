@@ -58,13 +58,19 @@ class DialogmotekandidatVarselScheduler @Inject constructor(
             varselServiceV2.sendSvarBehovVarsel(row.fnr, row.kafkaMeldingUuid)
             varselStatusDao.updateStatusToSent(row.id)
         }.onSuccess {
-            log.info("Varsel sendt", kv("event", "dialogmotekandidat.varsel.sent"), kv("id", row.id))
+            log.info(
+                "Varsel sendt",
+                kv("event", "dialogmotekandidat.varsel.sent"),
+                kv("id", row.id),
+                kv("messageId", row.kafkaMeldingUuid),
+            )
         }.onFailure { e ->
             varselStatusDao.incrementRetryCount(row.id)
             log.warn(
                 "Feil ved sending av varsel",
                 kv("event", "dialogmotekandidat.varsel.retry"),
                 kv("id", row.id),
+                kv("messageId", row.kafkaMeldingUuid),
                 kv("retryCount", row.retryCount + 1),
                 e
             )
@@ -81,13 +87,19 @@ class DialogmotekandidatVarselScheduler @Inject constructor(
             varselServiceV2.ferdigstillSvarMotebehovVarsel(row.fnr)
             varselStatusDao.updateStatusToSent(row.id)
         }.onSuccess {
-            log.info("Ferdigstilt", kv("event", "dialogmotekandidat.ferdigstill.sent"), kv("id", row.id))
+            log.info(
+                "Ferdigstilt",
+                kv("event", "dialogmotekandidat.ferdigstill.sent"),
+                kv("id", row.id),
+                kv("messageId", row.kafkaMeldingUuid),
+            )
         }.onFailure { e ->
             varselStatusDao.incrementRetryCount(row.id)
             log.warn(
                 "Feil ved ferdigstilling",
                 kv("event", "dialogmotekandidat.ferdigstill.retry"),
                 kv("id", row.id),
+                kv("messageId", row.kafkaMeldingUuid),
                 kv("retryCount", row.retryCount + 1),
                 e
             )

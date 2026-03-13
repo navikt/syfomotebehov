@@ -21,12 +21,6 @@ class DialogmotekandidatService @Inject constructor(
 ) {
     @Transactional
     fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
-        log.info(
-            "Mottok kandidatmelding",
-            kv("event", "dialogmotekandidat.received"),
-            kv("kandidat", dialogmotekandidatEndring.kandidat),
-            kv("arsak", dialogmotekandidatEndring.arsak),
-        )
         val ansattFnr = dialogmotekandidatEndring.personIdentNumber
 
         val existingKandidat = dialogmotekandidatDAO.get(ansattFnr)
@@ -36,6 +30,7 @@ class DialogmotekandidatService @Inject constructor(
                 "Ignoring dialogmotekandidat message",
                 kv("event", "dialogmotekandidat.ignored"),
                 kv("reason", "newer_change_exists"),
+                kv("messageId", dialogmotekandidatEndring.uuid),
             )
             return
         }
@@ -48,6 +43,7 @@ class DialogmotekandidatService @Inject constructor(
                     "Ignoring dialogmotekandidat message",
                     kv("event", "dialogmotekandidat.ignored"),
                     kv("reason", "already_kandidat"),
+                    kv("messageId", dialogmotekandidatEndring.uuid),
                 )
                 return
             }
@@ -75,7 +71,7 @@ class DialogmotekandidatService @Inject constructor(
     ) {
         when {
             existingKandidat == null -> {
-                log.info("Lagrer ny kandidat i databasen", kv("event", "dialogmotekandidat.created"))
+                log.info("Lagrer ny kandidat i databasen", kv("event", "dialogmotekandidat.created"), kv("messageId", dialogmotekandidatEndring.uuid))
                 dialogmotekandidatDAO.create(
                     dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
                     createdAt = dialogmotekandidatEndring.createdAtNorwegian,
@@ -86,7 +82,7 @@ class DialogmotekandidatService @Inject constructor(
             }
 
             else -> {
-                log.info("Oppdaterer eksisterende kandidat i databasen", kv("event", "dialogmotekandidat.updated"))
+                log.info("Oppdaterer eksisterende kandidat i databasen", kv("event", "dialogmotekandidat.updated"), kv("messageId", dialogmotekandidatEndring.uuid))
                 dialogmotekandidatDAO.update(
                     dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
                     createdAt = dialogmotekandidatEndring.createdAtNorwegian,
