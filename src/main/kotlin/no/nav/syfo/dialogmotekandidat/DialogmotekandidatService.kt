@@ -21,7 +21,8 @@ class DialogmotekandidatService @Inject constructor(
 ) {
     @Transactional
     fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
-        log.info("Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} og arsak ${dialogmotekandidatEndring.arsak}")
+        log.info("Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} " +
+                "og arsak ${dialogmotekandidatEndring.arsak}")
         val ansattFnr = dialogmotekandidatEndring.personIdentNumber
         val kafkaCreatedAt = dialogmotekandidatEndring.createdAtNorwegian
 
