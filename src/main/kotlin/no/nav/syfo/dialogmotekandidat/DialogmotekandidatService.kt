@@ -23,7 +23,7 @@ class DialogmotekandidatService @Inject constructor(
     fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
         log.info("Mottok kandidatmelding med kandidatstatus ${dialogmotekandidatEndring.kandidat} og arsak ${dialogmotekandidatEndring.arsak}")
         val ansattFnr = dialogmotekandidatEndring.personIdentNumber
-        val kafkaCreatedAt = dialogmotekandidatEndring.createdAt.toNorwegianLocalDateTime()
+        val kafkaCreatedAt = dialogmotekandidatEndring.createdAtNorwegian
 
         val existingKandidat = dialogmotekandidatDAO.get(ansattFnr)
 
@@ -103,3 +103,6 @@ class DialogmotekandidatService @Inject constructor(
         private val log = LoggerFactory.getLogger(DialogmotekandidatService::class.java)
     }
 }
+
+private val KafkaDialogmotekandidatEndring.createdAtNorwegian: LocalDateTime
+    get() = createdAt.toNorwegianLocalDateTime()
