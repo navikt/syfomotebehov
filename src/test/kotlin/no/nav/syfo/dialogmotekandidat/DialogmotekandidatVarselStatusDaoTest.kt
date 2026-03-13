@@ -37,7 +37,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             uuid = UUID.randomUUID().toString()
         }
 
-        it("create oppretter en PENDING-rad med riktig type") {
+        it("create stores row with PENDING status, correct type, fnr and zero retryCount") {
             dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
 
             dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL).apply {
@@ -52,7 +52,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             }
         }
 
-        it("create med duplikat uuid gjør ingenting") {
+        it("create with duplicate uuid is idempotent - does not insert a second row") {
             dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
             dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
 
@@ -61,7 +61,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             }
         }
 
-        it("updateStatusToSent setter status til SENT") {
+        it("updateStatusToSent moves row out of PENDING results and sets status to SENT") {
             dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
             val created = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
             created shouldHaveSize 1
@@ -75,7 +75,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             ) shouldBe 1
         }
 
-        it("incrementRetryCount øker retry_count") {
+        it("incrementRetryCount increments retryCount by one for each call") {
             dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
             val created = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
             created.first().retryCount shouldBe 0
@@ -90,7 +90,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             ) shouldBe 2
         }
 
-        it("getPendingByType returnerer kun riktig type") {
+        it("getPendingByType returns only rows matching the requested type, not other types") {
             dialogmotekandidatVarselStatusDao.create(UUID.randomUUID().toString(), "11111111111", DialogmotekandidatVarselType.VARSEL)
             dialogmotekandidatVarselStatusDao.create(UUID.randomUUID().toString(), "22222222222", DialogmotekandidatVarselType.FERDIGSTILL)
 
@@ -104,7 +104,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             }
         }
 
-        it("countPendingOlderThan teller korrekt") {
+        it("countPendingOlderThan counts rows created before cutoff and excludes newer ones") {
             dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
 
             // Bakdaterer created_at til 2 dager siden
@@ -127,7 +127,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             countNew shouldBe 0
         }
 
-        it("deleteSentOlderThan sletter riktige rader") {
+        it("deleteSentOlderThan deletes SENT rows older than cutoff and returns deleted count") {
             dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
             val created = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
             dialogmotekandidatVarselStatusDao.updateStatusToSent(created.first().id)
@@ -146,7 +146,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             ) shouldBe 0
         }
 
-        it("deletePendingOlderThan sletter riktige rader") {
+        it("deletePendingOlderThan deletes PENDING rows older than cutoff and returns deleted count") {
             dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
 
             // Bakdaterer created_at slik at raden er eldre enn cutoff
