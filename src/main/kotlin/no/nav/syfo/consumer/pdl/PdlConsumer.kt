@@ -1,11 +1,10 @@
 package no.nav.syfo.consumer.pdl
 
-import no.nav.syfo.consumer.azuread.v2.IAzureAdV2TokenConsumer
+import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.annotation.Profile
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.*
 import org.springframework.http.HttpHeaders.AUTHORIZATION
@@ -13,16 +12,15 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestTemplate
 
-@Profile("!local")
 @Service
 class PdlConsumer(
     private val metric: Metric,
     @Value("\${pdl.client.id}") private val pdlClientId: String,
     @Value("\${pdl.url}") private val pdlUrl: String,
     private val restTemplate: RestTemplate,
-    private val azureAdV2TokenConsumer: IAzureAdV2TokenConsumer,
-) : IPdlConsumer {
-    override fun person(ident: String): PdlHentPerson? {
+    private val azureAdV2TokenConsumer: AzureAdV2TokenConsumer,
+) {
+    fun person(ident: String): PdlHentPerson? {
         metric.tellHendelse("call_pdl")
 
         val query = this::class.java.getResource("/pdl/hentPerson.graphql").readText().replace("[\n\r]", "")
@@ -53,7 +51,7 @@ class PdlConsumer(
         }
     }
 
-    override fun aktorid(fnr: String): String {
+    fun aktorid(fnr: String): String {
         metric.tellHendelse("call_pdl")
 
         val query = this::class.java.getResource("/pdl/hentIdenter.graphql").readText().replace("[\n\r]", "")
@@ -92,7 +90,7 @@ class PdlConsumer(
         }
     }
 
-    override fun fnr(aktorid: String): String {
+    fun fnr(aktorid: String): String {
         metric.tellHendelse("call_pdl")
 
         val query = this::class.java.getResource("/pdl/hentIdenter.graphql").readText().replace("[\n\r]", "")
@@ -131,7 +129,7 @@ class PdlConsumer(
         }
     }
 
-    override fun isKode6(fnr: String): Boolean {
+    fun isKode6(fnr: String): Boolean {
         return person(fnr)?.isKode6() ?: throw PdlRequestFailedException()
     }
 

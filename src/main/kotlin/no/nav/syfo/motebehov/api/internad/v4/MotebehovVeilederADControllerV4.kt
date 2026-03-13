@@ -7,9 +7,9 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.OIDCIssuer.INTERN_AZUREAD_V2
 import no.nav.syfo.api.auth.getSubjectInternADV2
-import no.nav.syfo.consumer.pdl.IPdlConsumer
+import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.consumer.pdl.fullName
-import no.nav.syfo.consumer.veiledertilgang.IVeilederTilgangConsumer
+import no.nav.syfo.consumer.veiledertilgang.VeilederTilgangConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.motebehov.MotebehovTilbakemelding
@@ -40,8 +40,8 @@ class MotebehovVeilederADControllerV4 @Inject constructor(
     private val metric: Metric,
     private val historikkService: HistorikkService,
     private val motebehovService: MotebehovService,
-    private val pdlConsumer: IPdlConsumer,
-    private val veilederTilgangConsumer: IVeilederTilgangConsumer,
+    private val pdlConsumer: PdlConsumer,
+    private val veilederTilgangConsumer: VeilederTilgangConsumer,
     private val esyfovarselService: EsyfovarselService,
 ) {
     @GetMapping(value = ["/motebehov"], produces = [MediaType.APPLICATION_JSON_VALUE])

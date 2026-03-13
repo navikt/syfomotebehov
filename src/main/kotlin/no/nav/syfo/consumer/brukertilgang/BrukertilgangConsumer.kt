@@ -12,7 +12,6 @@ import no.nav.syfo.util.bearerCredentials
 import no.nav.syfo.util.createCallId
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
@@ -22,7 +21,6 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 
-@Profile("!local")
 @Service
 class BrukertilgangConsumer(
     private val contextHolder: TokenValidationContextHolder,
@@ -31,8 +29,8 @@ class BrukertilgangConsumer(
     private val tokenDingsConsumer: TokenDingsConsumer,
     @Value("\${syfobrukertilgang.url}") private val baseUrl: String,
     @Value("\${syfobrukertilgang.client.id}") private val targetApp: String
-) : IBrukertilgangConsumer {
-    override fun hasAccessToAnsatt(ansattFnr: String): Boolean {
+) {
+    fun hasAccessToAnsatt(ansattFnr: String): Boolean {
         val callId = createCallId()
         val exchangedToken = tokenDingsConsumer.exchangeToken(TokenXUtil.tokenFromTokenX(contextHolder), targetApp)
 

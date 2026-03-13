@@ -5,7 +5,7 @@ import org.apache.kafka.common.serialization.Deserializer
 
 class KafkaDialogmotekandidatDeserializer : Deserializer<KafkaDialogmotekandidatEndring> {
 
-    private val objectMapper = configuredJsonMapper()
+    private val objectMapper = configuredJacksonMapper()
 
     override fun deserialize(topic: String, data: ByteArray): KafkaDialogmotekandidatEndring {
         return try {
