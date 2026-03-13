@@ -24,7 +24,6 @@ class DialogmotekandidatService @Inject constructor(
         val ansattFnr = dialogmotekandidatEndring.personIdentNumber
 
         val existingKandidat = dialogmotekandidatDAO.get(ansattFnr)
-
         if (existingKandidat?.createdAt?.isEqualOrAfter(dialogmotekandidatEndring.createdAtNorwegian) == true) {
             log.info(
                 "Ignoring dialogmotekandidat message",
