@@ -4,9 +4,7 @@ Denne siden dokumenterer den komplette flyten fra en kandidat-melding ankommer p
 
 ---
 
-## 1. Innledning
-
-### Bakgrunn – outbox-mønsteret
+## Bakgrunn - outbox-mønsteret
 
 Før outbox-mønsteret ble innført ble varsel sendt direkte fra `DialogmotekandidatService` i én og samme transaksjon som kandidatoppdateringen. Det medførte to problemer:
 
@@ -23,7 +21,7 @@ Med outbox-mønsteret splittes ansvaret i to separate steg:
 
 ---
 
-## 2. Full flyt – sekvensdiagram
+## Full flyt – sekvensdiagram
 
 ```mermaid
 sequenceDiagram
@@ -71,7 +69,7 @@ sequenceDiagram
 
 ---
 
-## 3. Beslutningslogikk – flowchart
+## Beslutningslogikk i DialogmotekandidatService – flowchart
 
 Logikken i `receiveDialogmotekandidatEndring` avgjør hvilken `PENDING`-rad som settes inn (eller om meldingen ignoreres).
 
@@ -106,7 +104,7 @@ flowchart TD
 
 ---
 
-## 4. Esyfovarsel-utsendelse – sekvensdiagram
+## Esyfovarsel-utsendelse – sekvensdiagram
 
 ```mermaid
 sequenceDiagram
@@ -141,7 +139,7 @@ sequenceDiagram
 
 ---
 
-## 5. Opprydding – sekvensdiagram
+## Opprydding – sekvensdiagram
 
 ```mermaid
 sequenceDiagram
@@ -161,7 +159,7 @@ sequenceDiagram
 
 ---
 
-## 6. Strukturert logging
+## Strukturert logging
 
 Alle log-hendelser bruker `net.logstash.logback.argument.StructuredArguments.kv` og produserer JSON-logger som kan søkes i Grafana Loki.
 
@@ -187,7 +185,7 @@ Bytt ut `<uuid>` med `uuid`-verdien fra den opprinnelige `dialogmotekandidat.rec
 
 ---
 
-## 7. Prometheus-metrikker
+## Prometheus-metrikker
 
 Scheduleren eksponerer to gauges som måler «stuck» rader – `PENDING`-rader som har ligget usendt i mer enn én dag.
 
