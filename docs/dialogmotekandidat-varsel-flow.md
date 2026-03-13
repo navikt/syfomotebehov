@@ -77,19 +77,19 @@ Logikken i `receiveDialogmotekandidatEndring` avgjør hvilken `PENDING`-rad som 
 
 ```mermaid
 flowchart TD
-    A([Ny KafkaDialogmotekandidatEndring]) --> B{Er DB-rad nyere\nenn meldingen?}
-    B -- Ja --> IG1[IGNORE\nreason: newer_change_exists]
+    A([Ny KafkaDialogmotekandidatEndring]) --> B{Er DB-rad nyere<br/>enn meldingen?}
+    B -- Ja --> IG1[IGNORE<br/>reason: newer_change_exists]
     B -- Nei --> C[Upsert DIALOGMOTEKANDIDAT]
     C --> D{kandidat=true?}
 
-    D -- Nei --> FE[INSERT PENDING\nFERDIGSTILL]
+    D -- Nei --> FE[INSERT PENDING<br/>FERDIGSTILL]
     D -- Ja --> E{Eksisterende rad\ni DB?}
 
-    E -- Nei --> VA1[INSERT PENDING\nVARSEL]
+    E -- Nei --> VA1[INSERT PENDING<br/>VARSEL]
     E -- Ja --> F{DB.kandidat=true?}
 
-    F -- Ja --> IG2[IGNORE\nreason: already_kandidat]
-    F -- Nei --> VA2[INSERT PENDING\nVARSEL]
+    F -- Ja --> IG2[IGNORE<br/>reason: already_kandidat]
+    F -- Nei --> VA2[INSERT PENDING<br/>VARSEL]
 ```
 
 ### Beslutningstabell
@@ -154,7 +154,7 @@ sequenceDiagram
     Sched->>DB: deletePendingOlderThan(2 uker)
     DB-->>Sched: antall slettet (pendingDeleted)
 
-    Sched->>Sched: log event dialogmotekandidat.cleanup\n{sentDeleted, pendingDeleted}
+    Sched->>Sched: log event dialogmotekandidat.cleanup<br/>{sentDeleted, pendingDeleted}
 ```
 
 `PENDING`-rader eldre enn 2 uker regnes som ikke-leverbare og fjernes for å unngå evig retry.
