@@ -1,12 +1,12 @@
 package no.nav.syfo.dialogmotekandidat.kafka
 
-import no.nav.syfo.util.configuredJsonMapper
+import no.nav.syfo.util.configuredJacksonMapper
 import org.apache.kafka.common.errors.SerializationException
 import org.apache.kafka.common.serialization.Deserializer
 
 class KafkaDialogmotekandidatDeserializer : Deserializer<KafkaDialogmotekandidatEndring> {
 
-    private val objectMapper = configuredJsonMapper()
+    private val objectMapper = configuredJacksonMapper()
 
     override fun deserialize(topic: String, data: ByteArray): KafkaDialogmotekandidatEndring {
         return try {
