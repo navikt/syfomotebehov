@@ -22,7 +22,7 @@ val postgres = "42.7.10"
 val testcontainersVersion = "1.21.4"
 val kotestVersion = "6.1.4"
 val springKotestExtensionVersion = "1.3.0"
-val kotlinModuleJackson = "3.1.0"
+val jacksonVersion = "3.1.0"
 
 plugins {
     id("java")
@@ -56,8 +56,8 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
     implementation("org.apache.httpcomponents.client5:httpclient5")
-    implementation("tools.jackson.module:jackson-module-kotlin:$kotlinModuleJackson")
-    implementation("tools.jackson.core:jackson-core:$kotlinModuleJackson")
+    implementation("tools.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("tools.jackson.core:jackson-core:$jacksonVersion")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-jersey")
