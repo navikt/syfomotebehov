@@ -2,6 +2,7 @@ package no.nav.syfo.oppfolgingstilfelle.kafka
 
 import no.nav.syfo.config.kafka.KafkaAivenConfig
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfellePerson
+import no.nav.syfo.util.configuredJsonMapper
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.context.annotation.Bean
