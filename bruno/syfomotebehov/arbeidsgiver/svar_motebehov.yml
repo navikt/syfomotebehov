@@ -1,0 +1,88 @@
+info:
+  name: svar_motebehov
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{arbeidsgiverBasePath}}/motebehov"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "arbeidstakerFnr": "{{arbeidstakerFnr}}",
+        "virksomhetsnummer": "{{virksomhetsnummer}}",
+        "formSubmission": {
+          "harMotebehov": true,
+          "formSnapshot": {
+            "formIdentifier": "{{formIdentifier}}",
+            "formSemanticVersion": "{{formSemanticVersion}}",
+            "fieldSnapshots": [
+              {
+                "fieldId": "harBehovRadioGroup",
+                "fieldType": "RADIO_GROUP",
+                "label": "Har dere behov for et dialogmøte med Nav?",
+                "description": "Du svarer på vegne av arbeidsgiver. Den ansatte har fått det samme spørsmålet og svarer på vegne av seg selv.",
+                "options": [
+                  {
+                    "optionId": "Ja",
+                    "optionLabel": "Ja, vi har behov for et dialogmøte.",
+                    "wasSelected": true
+                  },
+                  {
+                    "optionId": "Nei",
+                    "optionLabel": "Nei, vi har ikke behov for et dialogmøte nå.",
+                    "wasSelected": false
+                  }
+                ],
+                "selectedOptionId": "Ja",
+                "selectedOptionLabel": "Ja, vi har behov for et dialogmøte."
+              },
+              {
+                "fieldId": "begrunnelseText",
+                "fieldType": "TEXT",
+                "label": "Begrunnelse (må fylles ut)",
+                "description": "Hva ønsker du å ta opp i møtet? Hva tenker du at Nav kan bistå med? Ikke skriv sensitiv informasjon, for eksempel detaljerte opplysninger om helse.",
+                "value": "Dette er en begrunnelse",
+                "wasRequired": true
+              },
+              {
+                "fieldId": "onskerSykmelderDeltarCheckbox",
+                "fieldType": "CHECKBOX_SINGLE",
+                "label": "Jeg ønsker at sykmelder (lege/behandler) også deltar i møtet.",
+                "value": true
+              },
+              {
+                "fieldId": "onskerSykmelderDeltarBegrunnelseText",
+                "fieldType": "TEXT",
+                "label": "Hvorfor ønsker du at lege/behandler deltar i møtet?",
+                "value": "Behandler må være med",
+                "wasRequired": true
+              },
+              {
+                "fieldId": "onskerTolkCheckbox",
+                "fieldType": "CHECKBOX_SINGLE",
+                "label": "Vi har behov for tolk.",
+                "value": true
+              },
+              {
+                "fieldId": "tolkSprakText",
+                "fieldType": "TEXT",
+                "label": "Hva slags tolk har dere behov for?",
+                "value": "Engelsk tolk",
+                "wasRequired": true
+              }
+            ]
+          }
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

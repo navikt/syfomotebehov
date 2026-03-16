@@ -1,12 +1,13 @@
 package no.nav.syfo.oppfolgingstilfelle.kafka
 
 import no.nav.syfo.config.kafka.KafkaAivenConfig
-import no.nav.syfo.dialogmotekandidat.kafka.configuredJacksonMapper
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfellePerson
+import no.nav.syfo.util.configuredJacksonMapper
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
@@ -17,6 +18,7 @@ import org.apache.kafka.common.errors.SerializationException
 import org.apache.kafka.common.serialization.Deserializer
 import org.springframework.beans.factory.annotation.Value
 
+@Profile("!local")
 @EnableKafka
 @Configuration
 class KafkaIsOppfolgingstilfelleConfig(
@@ -53,12 +55,12 @@ class KafkaIsOppfolgingstilfelleConfig(
     }
 
     @Bean("IsOppfolgingstilfelleListenerContainerFactory")
-    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, KafkaOppfolgingstilfellePerson> {
-        return ConcurrentKafkaListenerContainerFactory<String, KafkaOppfolgingstilfellePerson>().apply {
+    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, KafkaOppfolgingstilfellePerson> =
+        ConcurrentKafkaListenerContainerFactory<String, KafkaOppfolgingstilfellePerson>().apply {
             this.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
-            this.consumerFactory = isOppfolgingtilfelleConsumerFactory()
+        }.also {
+            it.setConsumerFactory( isOppfolgingtilfelleConsumerFactory())
         }
-    }
 }
 
 class KafkaIsOppfolgingstilfelleDeserializer : Deserializer<KafkaOppfolgingstilfellePerson> {

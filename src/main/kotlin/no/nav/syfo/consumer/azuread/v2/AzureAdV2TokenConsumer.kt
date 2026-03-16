@@ -2,31 +2,34 @@ package no.nav.syfo.consumer.azuread.v2
 
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.*
+import org.springframework.context.annotation.Profile
 import org.springframework.http.*
 import org.springframework.stereotype.Component
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.exchange
 import java.util.concurrent.ConcurrentHashMap
 
+
+@Profile("!local")
 @Component
 class AzureAdV2TokenConsumer @Autowired constructor(
     @Qualifier("AzureAD") private val restTemplate: RestTemplate,
     @Value("\${azure.app.client.id}") private val azureAppClientId: String,
     @Value("\${azure.app.client.secret}") private val azureAppClientSecret: String,
     @Value("\${azure.openid.config.token.endpoint}") private val azureTokenEndpoint: String
-) {
-    fun getOnBehalfOfToken(
+) : IAzureAdV2TokenConsumer {
+    override fun getOnBehalfOfToken(
         scopeClientId: String,
         token: String
     ): String {
         try {
-            val response = restTemplate.exchange(
+            val response = restTemplate.exchange<AzureAdV2TokenResponse>(
                 azureTokenEndpoint,
                 HttpMethod.POST,
-                requestEntity(scopeClientId, token),
-                AzureAdV2TokenResponse::class.java
+                requestEntity(scopeClientId, token)
             )
             val tokenResponse = response.body!!
 
@@ -41,7 +44,7 @@ class AzureAdV2TokenConsumer @Autowired constructor(
         }
     }
 
-    fun getSystemToken(
+    override fun getSystemToken(
         scopeClientId: String
     ): String {
         val cachedToken = systemTokenCache[scopeClientId]
@@ -76,7 +79,7 @@ class AzureAdV2TokenConsumer @Autowired constructor(
         }
     }
 
-    fun systemTokenRequestEntity(
+    override fun systemTokenRequestEntity(
         scopeClientId: String
     ): HttpEntity<MultiValueMap<String, String>> {
         val headers = HttpHeaders()
