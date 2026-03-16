@@ -1,3 +1,5 @@
+# syfomotebehov
+
 [![Build & Deploy](https://github.com/navikt/syfomotebehov/actions/workflows/build-and-deploy.yaml/badge.svg)](https://github.com/navikt/syfomotebehov/actions/workflows/build-and-deploy.yaml)
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=Kotlin&logoColor=white)](https://kotlinlang.org/)
@@ -5,8 +7,6 @@
 [![Postgresql](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Kafka](https://img.shields.io/badge/Apache_Kafka-231F20?style=for-the-badge&logo=apache-kafka&logoColor=white)](https://kafka.apache.org/g/)
 
-
-# syfomotebehov
 
 Syfomotebehov lagrer data om behovet for et dialogmøte. Den sykmeldte og dens arbeidsgiver rapporter dette behovet.
 
