@@ -6,11 +6,9 @@ import no.nav.syfo.personoppgavehendelse.domain.KPersonoppgavehendelse
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.core.*
 
-@Profile("!local")
 @EnableKafka
 @Configuration
 class PersonoppgavehendelseKafkaConfig @Inject constructor(

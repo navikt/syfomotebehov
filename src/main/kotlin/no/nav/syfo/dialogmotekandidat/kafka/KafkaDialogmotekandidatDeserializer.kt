@@ -1,6 +1,5 @@
 package no.nav.syfo.dialogmotekandidat.kafka
 
-import no.nav.syfo.util.configuredJacksonMapper
 import org.apache.kafka.common.errors.SerializationException
 import org.apache.kafka.common.serialization.Deserializer
 

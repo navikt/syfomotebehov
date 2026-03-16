@@ -51,7 +51,7 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest : DescribeSpec({
                 )
             )
 
-            formSnapshot.fieldvaluesToMap() shouldBe
+            formSnapshot.fieldValues shouldBe
                 mapOf(
                     "harBehovRadioGroup" to "ja",
                     "begrunnelseText" to begrunnelse
@@ -98,7 +98,7 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest : DescribeSpec({
                 ),
             )
 
-            formSnapshot.fieldvaluesToMap() shouldBe
+            formSnapshot.fieldValues shouldBe
                 mapOf(
                     "harBehovRadioGroup" to "nei",
                     "begrunnelseText" to begrunnelse
@@ -146,7 +146,7 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest : DescribeSpec({
                 ),
             )
 
-            formSnapshot.fieldvaluesToMap() shouldBe
+            formSnapshot.fieldValues shouldBe
                 mapOf(
                     "harBehovCheckbox" to true,
                     "onskerSykmelderDeltarCheckbox" to false,
@@ -196,7 +196,7 @@ class ConvertLegacyMotebehovSvarFieldsHelperTest : DescribeSpec({
                 ),
             )
 
-            formSnapshot.fieldvaluesToMap() shouldBe mapOf(
+            formSnapshot.fieldValues shouldBe mapOf(
                 "harBehovCheckbox" to true,
                 "onskerSykmelderDeltarCheckbox" to true,
                 "begrunnelseText" to "Vi trenger å ha et møte med NAV."
