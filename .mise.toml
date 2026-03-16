@@ -1,7 +1,9 @@
 [tools]
 java = "21"
 
+[env]
+SPRING_PROFILES_ACTIVE = 'local'
+
 [tasks.start]
 description = "Run syfomotebehov locally"
 run = "./gradlew bootRunLocal"
-env = {SPRING_PROFILES_ACTIVE = "local"}
