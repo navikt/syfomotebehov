@@ -1,0 +1,18 @@
+info:
+  name: ferdigstill
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{v4basePath}}/motebehov/ferdigstill"
+  headers:
+    - name: Content-Type
+      value: application/json
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

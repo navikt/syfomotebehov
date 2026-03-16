@@ -1,16 +1,27 @@
+[![Build & Deploy](https://github.com/navikt/syfomotebehov/actions/workflows/build-and-deploy.yaml/badge.svg)](https://github.com/navikt/syfomotebehov/actions/workflows/build-and-deploy.yaml)
+
+[![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=Kotlin&logoColor=white)](https://kotlinlang.org/)
+[![Spring Boot](https://img.shields.io/badge/SpringBoot-6DB33F?style=for-the-badge&logo=Spring&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Postgresql](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Kafka](https://img.shields.io/badge/Apache_Kafka-231F20?style=for-the-badge&logo=apache-kafka&logoColor=white)](https://kafka.apache.org/g/)
+
+
 # syfomotebehov
 
 Syfomotebehov lagrer data om behovet for et dialogmøte. Den sykmeldte og dens arbeidsgiver rapporter dette behovet.
 
 syfomotebehov er en springboot-applikasjon basert. Den er satt opp til å kjøre på nais.
 
-## Lokal utvikling 
-
-
-### Oppstart
+## Lokal utvikling
+**Avhengigheter**
+* For å kjøre med mockede eksterne tjenester må spring profilen "local" være aktivert.
+* En docker engine må kjøre i bakgrunnen for at testcontainers skal kunne kjøre Kafka og Postgres.
 
 Start opp appen fra [LocalApplication.kt](./src/test/kotlin/no/nav/syfo/LocalApplication.kt).
 
+Appen kjører da på localhost:8811
+
+#### IntelliJ
 Har du IntelliJ satt opp med Spring-støtte, må du i Run/Debug configuration endre Spring boot modulen til å bruke
 testversjonen og ikke prodversjonen av applikasjonen:
 
@@ -19,10 +30,44 @@ Run > Edit Configurations > Spring Boot > Local Application > Configuration
 Endre på følgende felter:
 Name --> LocalApplication
 Main --> no.nav.syfo.LocalApplication
+Active profiles --> local
 ```
 
-Appen kjører da på localhost:8811/
+#### Mise/Gradle
+Mise:
+```bash
+mise start
+```
+Gradle:
+```bash
+./gradlew bootRunLocal
+```
 
+#### Persistent storage
+
+For å beholde data mellom oppstarter av appen, må man legge til følgene config i ~/.testcontainers.properties:
+`testcontainers.reuse.enable=true`
+
+```bash
+echo "testcontainers.reuse.enable=true" >> ~/.testcontainers.properties
+```
+
+#### Mock eksterne tjenester
+Stubs for eksterne tjenester ligger under /test/.../stubs og benyttes i "local"-profilen. De ble innført etter at testene ble skrevet, og benyttes
+ikke i disse.
+
+#### Mock auth
+Det er satt opp egne endepunkter som kjører med "local"-profilen for å mocke auth.
+
+### Bruno
+Bruno collection ligger under `/bruno` og bruker MockOauth2Server for auth
+
+Det er satt variabler på collection- og sub folder-nivå for å konfigurere fødselsnummer, hvilken type auth som benyttes
+og andre felles verdier.
+
+`arbeidsgiver` `arbeidstaker` og `veileder` er satt opp med pre request scripts som kaller token-endepunktene til MockOauth2Server og setter token i collection variabler.
+
+Der hvor endepunkter er versjonert, er kun siste versjon lagt til i Bruno. p.t. møtebehov v4.
 ### Properties
 
 Se [application.yaml](./src/test/resources/application.yaml)

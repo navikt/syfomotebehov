@@ -1,19 +1,15 @@
 info:
-  name: arbeidsgiver
+  name: arbeidstaker
   type: folder
   seq: 1
 
 request:
   auth: inherit
   variables:
-    - name: arbeidsgiverBasePath
-      value: "{{basePath}}/api/v4"
-    - name: arbeidstakerFnr
-      value: "01010112345"
-    - name: virksomhetsnummer
-      value: "910067494"
+    - name: v4basePath
+      value: "{{basePath}}/api/v4/arbeidstaker"
     - name: formIdentifier
-      value: "motebehov-arbeidsgiver-meld"
+      value: "motebehov-arbeidstaker-meld"
   scripts:
     - type: before-request
       code: |-

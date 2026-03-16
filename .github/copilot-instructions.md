@@ -15,7 +15,7 @@ These standards apply across Nav projects. Project-specific guidelines follow be
 
 ## Nav Tech Stack
 
-- **Backend**: Kotlin with Spring Boot 3, PostgreSQL, Apache Kafka
+- **Backend**: Kotlin with Spring Boot 4, PostgreSQL, Apache Kafka
 - **Platform**: Nais (Kubernetes on Google Cloud Platform)
 - **Auth**: Azure AD, TokenX, ID-porten
 - **Observability**: Prometheus, Grafana Loki, Tempo (OpenTelemetry)
@@ -24,7 +24,7 @@ These standards apply across Nav projects. Project-specific guidelines follow be
 
 ### Kotlin/Spring Boot Patterns
 
-- Spring Boot 3 with `@RestController` and `@ProtectedWithClaims` for auth
+- Spring Boot 4 with `@RestController` and `@ProtectedWithClaims` for auth
 - `JdbcTemplate` / `NamedParameterJdbcTemplate` for database access (no ORM)
 - Flyway for database migrations
 - Kotest DescribeSpec for testing, MockK for mocking
@@ -72,7 +72,7 @@ Based on [GitHub's analysis of 2,500+ repositories](https://github.blog/ai-and-m
 
 - **Commands early**: Put executable commands near the top, not buried at the bottom
 - **Code over prose**: Show real code examples, not descriptions of what code should do
-- **Specific stack**: Include versions and specifics (Java 21, Kotest DescribeSpec, Spring Boot 3)
+- **Specific stack**: Include versions and specifics (Java 21, Kotest DescribeSpec, Spring Boot 4)
 - **Actionable boundaries**: "Never commit secrets" not "I cannot access secrets"
 
 ---
@@ -81,7 +81,7 @@ Based on [GitHub's analysis of 2,500+ repositories](https://github.blog/ai-and-m
 
 ## What This Is
 
-A Kotlin/Spring Boot 3 application that stores and serves data about "møtebehov" (dialogue meeting needs) in NAV's sickness follow-up system. Employees (arbeidstaker), employers (arbeidsgiver), and counselors (veileder) each have their own API to view and submit meeting needs. Runs on NAIS (GCP).
+A Kotlin/Spring Boot 4 application that stores and serves data about "møtebehov" (dialogue meeting needs) in NAV's sickness follow-up system. Employees (arbeidstaker), employers (arbeidsgiver), and counselors (veileder) each have their own API to view and submit meeting needs. Runs on NAIS (GCP).
 
 ## Commands
 

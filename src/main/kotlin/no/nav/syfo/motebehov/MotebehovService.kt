@@ -1,9 +1,9 @@
 package no.nav.syfo.motebehov
 
 import no.nav.syfo.api.exception.ConflictException
-import no.nav.syfo.consumer.behandlendeenhet.BehandlendeEnhetConsumer
+import no.nav.syfo.consumer.behandlendeenhet.IBehandlendeEnhetConsumer
 import no.nav.syfo.consumer.behandlendeenhet.getEnhetId
-import no.nav.syfo.consumer.pdl.PdlConsumer
+import no.nav.syfo.consumer.pdl.IPdlConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.database.toMotebehov
@@ -22,10 +22,10 @@ import javax.inject.Inject
 @Service
 class MotebehovService @Inject constructor(
     private val metric: Metric,
-    private val behandlendeEnhetConsumer: BehandlendeEnhetConsumer,
+    private val behandlendeEnhetConsumer: IBehandlendeEnhetConsumer,
     private val personoppgavehendelseService: PersonoppgavehendelseService,
     private val motebehovDAO: MotebehovDAO,
-    private val pdlConsumer: PdlConsumer,
+    private val pdlConsumer: IPdlConsumer,
 ) {
     @Transactional
     fun behandleUbehandledeMotebehov(arbeidstakerFnr: String, veilederIdent: String) {
