@@ -56,6 +56,8 @@ spec:
         - application: dialogmote-frontend
         - application: syfomodiaperson
           namespace: teamsykefravr
+        - application: isdialogmote
+          namespace: teamsykefravr
         - application: ditt-sykefravaer
           namespace: flex
     outbound:
