@@ -1,4 +1,5 @@
 ---
+description: 'Kotlin-standarder — val/var, data classes, extension functions, Gradle'
 applyTo: "**/*.kt"
 ---
 <!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.

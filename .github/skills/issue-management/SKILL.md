@@ -1,5 +1,5 @@
 ---
-description: Create and manage GitHub Issues linked to the Team eSyfo GitHub Projects board
+description: Opprett og administrer GitHub Issues, epics, sub-issues og prosjektstatus på Team eSyfos GitHub Projects-board
 ---
 <!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
      For repo-specific customizations, create your own files without this header. -->
@@ -24,109 +24,46 @@ Før du oppretter et nytt issue, sjekk om brukeren allerede har referert til et 
 | **Task** | Teknisk oppgave, vedlikehold, chore |
 | **Bug** | Feil som må fikses |
 
-### 3. Opprett issue med standardisert beskrivelse
+### 3. Opprett issue med riktig struktur
 
-#### Feature / Story / Task
+Repoet har issue-templates i `.github/ISSUE_TEMPLATE/` for hvert type (feature, bug, task, epic). Les feltstrukturen fra templaten for den valgte typen og lag en markdown-body med tilsvarende seksjoner.
 
-~~~markdown
-## Beskrivelse
+Inkluder alltid:
+- **Avhengigheter** (valgfritt): `Avhenger av #NNN` hvis relevant
+- **Epic-kobling** (valgfritt): `Del av epic: #EPIC_NUMMER` hvis relevant
 
-[Kort og presis beskrivelse av hva som skal gjøres]
+### 4. Opprett issue
 
-## Bakgrunn
+**MCP (foretrukket):** Bruk `issue_write`-verktøyet med `type`-parameter for å opprette issue med riktig type direkte.
 
-[Hvorfor er dette nødvendig? Kontekst og motivasjon]
-
-## Avhengigheter
-
-[Valgfritt: Andre issues som må være løst først, f.eks. "Avhenger av #101"]
-Del av epic: [#EPIC_NUMMER hvis relevant]
-
-## Akseptansekriterier
-
-- [ ] [Kriterium 1]
-- [ ] [Kriterium 2]
-- [ ] [Kriterium 3]
-
-## Teknisk kontekst
-
-[Valgfritt: Relevante filer, API-er, avhengigheter, lenker]
-~~~
-
-#### Bug
-
-~~~markdown
-## Beskrivelse
-
-[Kort beskrivelse av feilen]
-
-## Steg for å reprodusere
-
-1. [Steg 1]
-2. [Steg 2]
-
-## Forventet oppførsel
-
-[Hva burde skje]
-
-## Faktisk oppførsel
-
-[Hva skjer i dag]
-
-## Teknisk kontekst
-
-[Stacktrace, logger, relevante filer]
-~~~
-
-#### Epic
-
-~~~markdown
-## Mål
-
-[Overordnet mål for epicen]
-
-## Bakgrunn
-
-[Kontekst og motivasjon]
-
-## Omfang
-
-[Hva er inkludert og hva er utenfor scope]
-
-## Deloppgaver
-
-Løses i rekkefølge. Issues uten innbyrdes avhengigheter kan løses parallelt.
-
-- [ ] #NNN — [Kort beskrivelse]
-- [ ] #NNN — [Kort beskrivelse] (avhenger av #NNN)
-- [ ] #NNN — [Kort beskrivelse] (avhenger av #NNN, #NNN)
-
-Oppdateres etterhvert som issues opprettes og fullføres.
-~~~
-
-### 4. Opprett issue med `gh` CLI
-
+**Fallback (`gh api`):**
 ```bash
-gh issue create \
-  --repo navikt/REPO_NAVN \
-  --title "Kort, beskrivende tittel" \
-  --body "BODY_FRA_MAL_OVER" \
-  --project "Team eSyfo"
+gh api repos/navikt/REPO_NAVN/issues \
+  -X POST \
+  -f title="Kort, beskrivende tittel" \
+  -f body="BODY" \
+  -f type="Feature" \
+  --jq '.html_url'
 ```
 
-Issuet legges automatisk til Team eSyfo-prosjektet via `--project`-flagget.
+Legg deretter til i Team eSyfo-prosjektet (bruk `html_url` fra forrige steg):
+```bash
+gh project item-add PROJECT_NUMBER --owner navikt --url ISSUE_URL --format json
+```
+
+Se `references/projects.md` for prosjektnummer og feltoppdatering.
+
+Se `references/issue-types.md` for detaljer om issue types.
 
 ### 5. Sett project-felter
 
-Etter opprettelse, sett riktig type og status i prosjektet:
+Issue-templates har `projects: ["navikt/157"]` som automatisk legger issues i Team eSyfo-prosjektet når de opprettes via web UI. Ved programmatisk opprettelse (`gh api`, `gh issue create`, MCP), legg til manuelt:
 
-```bash
-# Finn prosjektnummer
-gh project list --owner navikt --format json --jq '.projects[] | select(.title == "Team eSyfo") | .number'
+**MCP (foretrukket):** Bruk `projects_write`-verktøyet for å legge issue i prosjektet og sette Status og Type.
 
-# Sett type og status (krever project item ID)
-# Bruk gh project item-list og item-edit for å oppdatere felter
-```
+**`gh issue create`:** Bruk `--project "Team eSyfo"` for å legge til i prosjektet automatisk.
+
+**Fallback (`gh project`):** Se `references/projects.md` for komplett workflow med `gh project item-add` og `gh project item-edit`.
 
 **Statuser:**
 | Status | Bruk |
@@ -145,8 +82,13 @@ For store oppgaver som brytes ned:
 
 1. Opprett epic-issuet først (type: Epic)
 2. Opprett underliggende issues (type: Task/Story/Feature)
-3. Inkluder `Del av epic: #EPIC_NUMMER` i hvert underliggende issue
-4. Inkluder avhengigheter: `Avhenger av #NNN` der det er relevant
+3. Koble sub-issues til epicen via native sub-issues API:
+   - **MCP (foretrukket):** Bruk `sub_issue_write` med action `add` for å legge til sub-issue
+   - **Fallback:** Se `references/sub-issues.md` for `gh api` REST-kommandoer
+   - Inkluder også `Del av epic: #EPIC_NUMMER` i issue-body for lesbarhet
+4. Koble avhengigheter via native dependencies API:
+   - Se `references/dependencies.md` for MCP og `gh api`-kommandoer
+   - Inkluder også `Avhenger av #NNN` i issue-body for lesbarhet
 5. Oppdater epicens deloppgave-liste med lenker til nye issues
 6. Sett epicen til **Monday epics 🎯** hvis den skal jobbes med nå
 7. Underliggende issues starter i **Backlog** eller **Plukk meg! 🙌**
@@ -159,13 +101,14 @@ Hvert sub-issue skal inneholde nok kontekst til at noen kan plukke det opp uten 
 - Avhengigheter til andre issues
 - Akseptansekriterier
 
-Dette gjør at oppgaver kan gjenopptas neste dag eller overtas av et annet teammedlem uten re-analyse.
-
 ### 7. Stegvis løsning av epic
 
 Når en epic skal løses stegvis:
 
 1. **Les epicen** — Hent epic og alle sub-issues:
+   **MCP (foretrukket):** Bruk `issue_read` for å lese epicen, og list sub-issues via MCP.
+
+   **Fallback:**
    ```bash
    gh issue view EPIC_NUMMER --repo navikt/REPO
    gh issue list --repo navikt/REPO --search "Del av epic: #EPIC_NUMMER" --state all --json number,title,state
@@ -212,7 +155,6 @@ Kommentaren skal inneholde:
 Etter at et sub-issue er lukket, sjekk om alle sub-issues i epicen er fullført:
 
 ```bash
-# Sjekk om åpne sub-issues gjenstår
 gh issue list --repo navikt/REPO --search "Del av epic: #EPIC_NUMMER" --state open --json number
 ```
 
@@ -253,16 +195,3 @@ Er oppgaven stor nok for en epic?
 └── Nei → Opprett frittstående issue
     └── Type? → Feature / Story / Task / Bug
 ```
-
-## Sjekkliste
-
-- [ ] Issue opprettet med standardisert beskrivelse
-- [ ] Lagt til i Team eSyfo-prosjektet
-- [ ] Riktig type satt
-- [ ] Status satt (default: Backlog)
-- [ ] Avhengigheter dokumentert (hvis del av epic)
-- [ ] Sub-issues er selvstendige (nok kontekst til å jobbe uten epic-lesing)
-- [ ] PR knyttet til issue (når arbeidet er ferdig)
-- [ ] Completion comment lagt igjen etter løsning
-- [ ] Epic-kobling satt opp (hvis relevant)
-- [ ] Epic lukket når alle sub-issues er done

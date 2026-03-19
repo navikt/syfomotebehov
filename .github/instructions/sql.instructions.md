@@ -1,4 +1,5 @@
 ---
+description: 'Database-migrasjoner — Flyway-konvensjoner, SQL-standarder, rollback'
 applyTo: "**/db/migration/**/*.sql"
 ---
 <!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.

@@ -1,5 +1,5 @@
 ---
-description: Create standardized pull requests linked to GitHub Issues and the Team eSyfo workflow
+description: Opprett pull requests med semantisk tittel, issue-kobling og sjekkliste etter Team eSyfos arbeidsflyt
 ---
 <!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
      For repo-specific customizations, create your own files without this header. -->
@@ -25,66 +25,9 @@ type(scope): kort beskrivelse
 
 ## PR-body
 
-Bruk denne malen for PR-beskrivelsen:
+Repoet har en PR-template i `.github/PULL_REQUEST_TEMPLATE.md` som automatisk pre-fyller body når du oppretter en PR. Fyll inn seksjonene i templaten.
 
-~~~markdown
-## Beskrivelse
-
-[Kort beskrivelse av hva denne PR-en gjør og hvorfor]
-
-## Endringer
-
-- [Fil/modul]: [Hva som ble endret]
-- [Fil/modul]: [Hva som ble endret]
-
-## Issue
-
-Closes #ISSUE_NUMMER
-
-## Sjekkliste
-
-- [ ] Koden kompilerer og linter uten feil
-- [ ] Endringene er testet (manuelt eller automatisk)
-- [ ] Ingen sensitiv data eksponert (tokens, credentials, PII)
-~~~
-
-### Varianter
-
-**Uten issue** (frittstående arbeid):
-Erstatt `Closes #ISSUE_NUMMER` med en kort forklaring av motivasjonen.
-
-**Delvis arbeid** (issuet er ikke ferdig):
-Bruk `Relates to #ISSUE_NUMMER` i stedet for `Closes`.
-
-**Epic sub-issue**:
-Legg til referanse til epicen:
-~~~markdown
-## Issue
-
-Closes #SUB_ISSUE_NUMMER
-Del av epic: #EPIC_NUMMER
-~~~
-
-## Opprettelse med `gh` CLI
-
-```bash
-gh pr create \
-  --repo navikt/REPO_NAVN \
-  --title "type(scope): beskrivelse" \
-  --body "BODY_FRA_MAL_OVER"
-```
-
-### Med auto-merge (squash)
-
-```bash
-gh pr create \
-  --repo navikt/REPO_NAVN \
-  --title "type(scope): beskrivelse" \
-  --body "BODY_FRA_MAL_OVER" \
-  && gh pr merge --auto --squash
-```
-
-## Kobling til issues
+## Issue-kobling
 
 | Situasjon | I PR-body |
 |-----------|-----------|
@@ -93,10 +36,24 @@ gh pr create \
 | Del av epic | `Closes #123` + `Del av epic: #100` |
 | Ingen issue | Skriv motivasjon direkte i beskrivelsen |
 
-## Sjekkliste
+## Opprettelse
 
-- [ ] Tittel følger semantisk commit-format
-- [ ] Beskrivelse forklarer hva og hvorfor
-- [ ] Endrede filer listet opp
-- [ ] Issue-kobling inkludert (hvis relevant)
-- [ ] Ingen sensitiv data i PR-en
+### MCP (foretrukket)
+
+Bruk `create_pull_request` MCP-verktøyet. Fyll inn title og body.
+
+### Fallback (gh CLI)
+
+```bash
+gh pr create \
+  --repo navikt/REPO_NAVN \
+  --title "type(scope): beskrivelse" \
+  --body "BODY"
+```
+
+### Auto-merge (squash)
+
+Etter opprettelse:
+```bash
+gh pr merge --auto --squash
+```
