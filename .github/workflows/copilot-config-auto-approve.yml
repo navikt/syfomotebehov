@@ -8,7 +8,7 @@ on:
 
 jobs:
   auto-approve:
-    if: github.head_ref == 'copilot-config-sync'
+    if: github.head_ref == 'copilot-config-sync' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -28,6 +28,9 @@ jobs:
           echo "Changed files:"
           echo "$FILES"
 
+          # Security: The auto-approve workflow itself is intentionally excluded
+          # from this allowlist to prevent supply chain attacks where a malicious
+          # workflow change could auto-approve its own replacement.
           ALLOWED_PATTERNS=(
             '.github/instructions/*'
             '.github/prompts/*'
@@ -35,7 +38,8 @@ jobs:
             '.github/skills/**/*'
             '.github/agents/*'
             '.github/copilot-instructions.md'
-            '.github/workflows/copilot-config-auto-approve.yml'
+            '.github/ISSUE_TEMPLATE/*'
+            '.github/PULL_REQUEST_TEMPLATE.md'
           )
 
           while IFS= read -r file; do

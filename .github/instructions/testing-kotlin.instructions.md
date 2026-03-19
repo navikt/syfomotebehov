@@ -1,4 +1,5 @@
 ---
+description: 'Teststandarder for Kotlin — JUnit 5, Spek, testcontainers, mocking'
 applyTo: "**/*.test.kt,**/*.spec.kt,**/*Test.kt,**/*Spec.kt,**/*Spek.kt"
 ---
 <!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.

@@ -1,8 +1,11 @@
 ---
+description: 'Spring Kafka-spesifikke mønstre — @KafkaListener, ContainerFactory, retry'
 applyTo: "**/*Kafka*.kt,**/*Consumer*.kt,**/*Producer*.kt,**/*Listener*.kt,**/*Event*.kt"
 ---
 <!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
      For repo-specific customizations, create your own files without this header. -->
+
+> Spring Kafka-spesifikke patterns. Disse utvider (og tar presedens over) kafka.instructions.md for Spring-spesifikke konsepter.
 
 # Kafka — Spring Kafka Patterns
 
