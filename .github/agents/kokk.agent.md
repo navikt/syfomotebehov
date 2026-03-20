@@ -62,6 +62,15 @@ Når arbeidet er klart for review, bruk `pull-request`-skillen for å opprette P
 - Valider all input ved grenser
 - Ingen hemmeligheter i kode
 
+### Relevante skills
+
+Bruk disse skillene når oppgaven berører deres domene:
+- `observability-setup` — Metrikker, logging, tracing, alerting
+- `security-review` — Sikkerhetsgjennomgang, OWASP, GDPR, API-sikkerhet
+- `postgresql-review` — Database-optimalisering, indekser, JSONB, N+1
+- `flyway-migration` — Database-migrasjoner, konvensjoner
+- `api-design` — REST API-design og konvensjoner
+
 ### Regenererbarhet
 - Skriv kode slik at enhver fil/modul kan skrives om fra scratch uten å bryte systemet
 - Foretrekk klar, deklarativ konfigurasjon

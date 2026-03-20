@@ -19,6 +19,7 @@ applyTo: "**/db/migration/**/*.sql"
 - Use `TEXT` instead of `VARCHAR` (unless max length constraint is needed)
 - Use `IF NOT EXISTS` / `IF EXISTS` selectively where idempotency is intentional — prefer fail-fast in versioned migrations
 - Add indexes for columns used in WHERE, JOIN, ORDER BY
+- For avanserte PostgreSQL-mønstre, bruk `postgresql-review`-skillen. For migrasjonskonvensjoner, bruk `flyway-migration`-skillen.
 
 ## Patterns
 
@@ -35,38 +36,19 @@ CREATE TABLE table_name (
 -- Indexes
 CREATE INDEX idx_table_ident ON table_name(ident);
 CREATE INDEX idx_table_status ON table_name(status);
-
--- Updated_at trigger
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
-CREATE TRIGGER update_updated_at
-BEFORE UPDATE ON table_name
-FOR EACH ROW
-EXECUTE FUNCTION update_updated_at_column();
 ```
 
 ```sql
--- Adding a column (use IF NOT EXISTS only when idempotency is intentional)
+-- Adding a column
 ALTER TABLE table_name ADD COLUMN column_name TEXT;
 
 -- Adding an index
 CREATE INDEX idx_table_column ON table_name(column_name);
-
--- Foreign key with CASCADE
-ALTER TABLE child_table
-ADD CONSTRAINT fk_parent
-FOREIGN KEY (parent_id) REFERENCES parent_table(id) ON DELETE CASCADE;
 ```
 
 ## Best Practices
 - Always include `created_at` and `updated_at` timestamps
-- Add `updated_at` trigger for automatic updates
+- For `updated_at` trigger-mønster, se `flyway-migration`-skillen (repeatable migrations)
 - Index foreign keys
 - Use partial indexes for filtered queries: `CREATE INDEX idx_active ON orders(user_id) WHERE status = 'active'`
 - Use `BIGSERIAL` for auto-incrementing IDs, `UUID` for distributed systems

@@ -36,6 +36,7 @@ Sjekk ALLTID [aksel.nav.no](https://aksel.nav.no) for Nav Aksel-komponenter (`@n
 
 ### Spacing (KRITISK)
 - **Alltid** bruk Aksel spacing tokens: `space-4`, `space-8`, `space-12`, `space-16`, `space-20`, `space-24`, `space-32`
+- For komplett Aksel-referanse (tokens, komponenter, layout-patterns), bruk `aksel-design`-skillen
 - **Aldri** bruk Tailwind padding/margin (`p-4`, `mx-2`)
 - Bruk `Box` med `paddingBlock`/`paddingInline` for retningsbasert spacing
 - Bruk `VStack`/`HStack` med `gap` for layout, `HGrid` for responsive grids
