@@ -78,7 +78,7 @@ RUN gradle shadowJar --no-daemon
 FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/jre:openjdk-21
 WORKDIR /app
 COPY --from=build /app/build/libs/*-all.jar app.jar
-CMD ["-jar", "app.jar"]
+CMD ["java", "-jar", "app.jar"]
 ```
 
 ### Node.js
@@ -105,7 +105,8 @@ RUN npm run build
 
 FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/node:22-slim
 WORKDIR /app
-COPY --from=builder /app /app
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/build ./build
 CMD ["build/server.js"]
 ```
 

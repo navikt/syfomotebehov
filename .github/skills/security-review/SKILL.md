@@ -1,18 +1,18 @@
 ---
-description: Sikkerhetsgjennomgang før commit/push/PR — OWASP Top 10, Dependabot, Trivy, hemmeligheter, inputvalidering
+description: Sikkerhetsgjennomgang før commit/push/PR — OWASP Top 10, Dependabot, Trivy, hemmeligheter, inputvalidering og referanser for GDPR/API-sikkerhet
 ---
 <!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
      For repo-specific customizations, create your own files without this header. -->
-# Security Review
+# Sikkerhetsgjennomgang
 
-Pre-commit og pre-PR sikkerhetssjekk for Nav-applikasjoner. Dekker secret scanning, sårbarhetsskanning og OWASP Top 10.
+Sikkerhetssjekk før commit, push og PR for Nav-applikasjoner. Dekker hemmeligheter, sårbarhetsskanning, OWASP Top 10, GDPR/personvern og API-sikkerhet. Hold hovedreglene korte; bruk `references/` for detaljer.
 
 ## Automatiserte skanninger
 
 Kjør disse i terminalen:
 
 ```bash
-# Skann repo for kjente sårbarheter og secrets
+# Skann repoet for kjente sårbarheter og hemmeligheter
 trivy repo .
 
 # Skann Docker image for HIGH/CRITICAL CVE-er
@@ -21,7 +21,7 @@ trivy image <image-name> --severity HIGH,CRITICAL
 # Skann GitHub Actions workflows for usikre mønstre
 zizmor .github/workflows/
 
-# Rask søk etter secrets i git-historikk
+# Raskt søk etter hemmeligheter i git-historikken
 git log -p --all -S 'password' -- '*.kt' '*.ts' | head -100
 git log -p --all -S 'secret' -- '*.kt' '*.ts' | head -100
 ```
@@ -55,14 +55,14 @@ log.info("Behandler sak for bruker", kv("sakId", sak.id), kv("tema", sak.tema))
 log.info("Behandler sak for bruker ${bruker.fnr}")
 ```
 
-## Secrets fra miljøvariabler
+## Hemmeligheter fra miljøvariabler
 
 ```kotlin
 // ✅ Les fra miljø (Nais injiserer via Secret)
 val dbPassword = System.getenv("DB_PASSWORD")
     ?: throw IllegalStateException("DB_PASSWORD mangler")
 
-// ❌ Hardkodet secret
+// ❌ Hardkodet hemmelighet
 val dbPassword = "supersecret123"
 ```
 
@@ -138,6 +138,24 @@ allowedOrigins = listOf("*")
 <div dangerouslySetInnerHTML={{ __html: userInput }} />
 ```
 
+## GDPR og personvern
+
+- Følg dataminimering, formålsbinding og innebygd personvern.
+- Dokumenter behandlingsgrunnlag før innsamling eller visning av personopplysninger.
+- Planlegg sletting, anonymisering og audit logging sammen med funksjonaliteten.
+- Samtykke skal være eksplisitt og lett å trekke tilbake når det er behandlingsgrunnlaget.
+
+Se `references/gdpr-privacy.md` for detaljer om PII-kategorisering, retention, anonymisering, CEF-auditlogging og samtykkehåndtering.
+
+## API-sikkerhet
+
+- Begrens eksponering med rate limiting, grenser for request-størrelse og eksplisitt CORS.
+- Bruk sikre headers, sikre cookies/sesjoner og `Nav-Call-Id`.
+- Vurder STRIDE før nye endepunkter, spesielt for sensitive operasjoner og integrasjoner.
+- Ha en enkel plan for hendelseshåndtering ved funn i gjennomgang eller drift.
+
+Se `references/api-security.md` for Kotlin/Spring-eksempler og mer detaljerte mønstre.
+
 ## Filopplasting
 
 ```kotlin
@@ -166,16 +184,25 @@ npm audit fix
 
 - [ ] SQL-spørringer er parameteriserte
 - [ ] Ingen PII i logger (FNR, navn, adresse)
-- [ ] Secrets kun fra miljøvariabler
+- [ ] Hemmeligheter kun fra miljøvariabler
 - [ ] Nais accessPolicy er eksplisitt (ingen åpen inbound)
 - [ ] CORS begrenset til kjente domener
+- [ ] Rate limiting vurdert for sensitive eller publikt eksponerte endepunkter
+- [ ] Request size limits og payload-validering er på plass der store kall kan misbrukes
+- [ ] Sikkerhetsheadere er satt for web/API-flater
+- [ ] Sesjoner/cookies er `Secure`, `HttpOnly` og har riktig `SameSite`
+- [ ] `Nav-Call-Id` brukes for korrelasjon mellom tjenester
 - [ ] Input validert og sanitert
 - [ ] Tilgangskontroll sjekker eierskap (ikke bare autentisering)
 - [ ] Filopplasting validerer type, størrelse og innhold
+- [ ] Behandlingsgrunnlag for persondata er dokumentert
+- [ ] Retention, sletting eller anonymisering er definert for lagret persondata
+- [ ] Samtykke lagres og kan trekkes tilbake når samtykke er behandlingsgrunnlaget
+- [ ] Audit logging er vurdert for visning av personopplysninger
 - [ ] Avhengigheter oppdatert og sårbarhetsskannet
 - [ ] `trivy repo .` uten HIGH/CRITICAL funn
 - [ ] `zizmor` godkjent for alle GitHub Actions workflows
-- [ ] Git-historikk ren for committede secrets
+- [ ] Git-historikken er fri for committede hemmeligheter
 
 ## Referanser
 
@@ -183,3 +210,7 @@ npm audit fix
 |---------|-------------|
 | [sikkerhet.nav.no](https://sikkerhet.nav.no) | Navs Golden Path for sikkerhet |
 | auth-overview skill | JWT-validering, TokenX, ID-porten, Maskinporten |
+| `references/gdpr-privacy.md` | GDPR, personvern, retention, anonymisering og CEF-auditlogging |
+| `references/api-security.md` | API-sikkerhet, headere, CORS, cookies, STRIDE og hendelseshåndtering |
+
+For GDPR-detaljer, se `references/gdpr-privacy.md`. For API-sikkerhet, se `references/api-security.md`.

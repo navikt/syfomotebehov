@@ -62,6 +62,15 @@ Fjern mønstre som avslører KI-generert tekst.
 | "spiller en avgjørende rolle" | Gå rett på sak |
 | "effektivisere prosessen" | Si hvilken prosess og hvordan |
 | "digital transformasjon" | Si hva som endres konkret |
+| "sikre at" | "passe på", "gjøre X mulig" |
+| "sørge for at" | "gjøre", "passe på" |
+| "muliggjøre" | "gjøre mulig", "gi rom for" |
+| "understreke behovet for" | Si behovet direkte |
+| "hensynta" | "ta hensyn til" |
+| "implementere" | "innføre", "ta i bruk", "lage" |
+| "ivareta" | "ta vare på", "følge opp" |
+| "tilrettelegge for" | "legge til rette for", "gjøre det enklere" |
+| "understøtte" | "støtte" |
 
 ### Åpnings- og avslutningsfraser (kutt disse)
 
@@ -74,7 +83,17 @@ Fjern mønstre som avslører KI-generert tekst.
 - Fjern oppsummeringssetninger som bare gjentar det du har skrevet
 - Ikke tving balanse mellom alternativer når ett er bedre
 - Varier grammatisk struktur i kulepunkter
-- Ikke overforklarer ting som er åpenbare for målgruppa
+- Ikke overforklar ting som er åpenbare for målgruppa
+
+### Overgangsord og setningsbinding
+
+Varier overgangene mellom setninger og avsnitt. Unngå å starte mange setninger etter hverandre med:
+
+- "Videre", "I tillegg", "Dessuten"
+- "Det er viktig å", "Det er verdt å"
+- "For å sikre at", "Med tanke på"
+
+Bruk i stedet konkrete subjekter: "Teamet ...", "Koden ...", "Tjenesten ..."
 
 ## Fagtermer
 
@@ -102,6 +121,16 @@ Bruk bindestrek: `image-bygg`, `CI-pipeline`, `deploy-steg`, `Kafka-topicet`, `G
 | "delivere" | "levere" |
 | "har du noen input?" | "har du innspill?" |
 | "involvere" (overbrukt) | "ta med", "inkludere" |
+| "deploye" | "rulle ut" |
+| "shippe" | "levere", "sende ut" |
+| "reviewe" | "gå gjennom", "se over" |
+| "release" (som verb) | "gi ut", "rulle ut" |
+| "onboarde" | "ta imot", "sette i gang" |
+| "pitche" | "presentere", "foreslå" |
+| "tracke" | "følge med på", "spore" |
+| "booste" | "øke", "forbedre" |
+| "aligne" | "samkjøre", "enes om" |
+| "triage" | "prioritere", "sortere" |
 
 ## Nav-spesifikt
 
@@ -110,6 +139,23 @@ Bruk bindestrek: `image-bygg`, `CI-pipeline`, `deploy-steg`, `Kafka-topicet`, `G
 - Moderne, ledig bokmål: "framtid" over "fremtid"
 - "vi" ikke "man" i interne dokumenter
 - Skriv som om du forklarer til en kollega
+
+## Teksttyper
+
+| Teksttype | Tone | Tips |
+|-----------|------|------|
+| ADR | Nøytral, teknisk | Kontekst → Beslutning → Konsekvenser. Ingen salgssnakk. |
+| README | Direkte, vennlig | Start med hva appen gjør, deretter oppsett. |
+| UI-tekst | Enkel, handlingsrettet | Korte setninger. Brukeren er "du". |
+
+For commit-meldinger, se `conventional-commit`-skillen. For PR-beskrivelser, se `pull-request`-skillen.
+
+## Tegnsetting
+
+- **Bindestrek (-)**: Sammensatte ord: `API-kall`, `deploy-steg`, `CI-pipeline`
+- **Tankestrek (–)**: Mellom verdier: `kl. 08–16`, `side 3–7`
+- **Komma**: Sett komma før leddsetning som starter med "som", "fordi", "slik at", "når", "dersom"
+- **Kolon**: Små bokstaver etter kolon med mindre det følger en hel setning
 
 ## UI-tekst
 
@@ -139,6 +185,27 @@ Bruk bindestrek: `image-bygg`, `CI-pipeline`, `deploy-steg`, `Kafka-topicet`, `G
    obligatoriske feltverdier i skjemaet.
 
 ✅ Du må fylle ut alle påkrevde felt før du kan sende inn.
+```
+
+### README → rett på sak
+
+```
+❌ Dette prosjektet representerer et innovativt verktøy som
+   muliggjør effektiv håndtering av søknader. Det er utviklet
+   med tanke på å sette brukeren i sentrum.
+
+✅ Behandler søknader om foreldrepenger. Bygget med Kotlin/Ktor,
+   deployes til Nais.
+```
+
+### Unødvendig oppsummering → kutt
+
+```
+❌ Vi har nå gjennomgått de ulike aspektene ved migrasjonen.
+   Som vi har sett, er det flere viktige hensyn å ta. Oppsummert
+   kan man si at en vellykket migrering krever grundig planlegging.
+
+✅ (Kutt hele avsnittet. Leseren har allerede lest det du oppsummerer.)
 ```
 
 ## Grenser
