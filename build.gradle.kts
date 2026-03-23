@@ -20,7 +20,7 @@ val jakartaRsApiVersion = "4.0.0"
 val hikari = "7.0.2"
 val postgres = "42.7.10"
 val testcontainersVersion = "1.21.4"
-val kotestVersion = "6.1.6"
+val kotestVersion = "6.1.7"
 val springKotestExtensionVersion = "1.3.0"
 val jacksonVersion = "3.1.0"
 
