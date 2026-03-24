@@ -28,6 +28,7 @@ plugins {
     id("java")
     id("org.springframework.boot") version "4.0.3"
     id("io.spring.dependency-management") version "1.1.7"
+    id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
     kotlin("jvm") version "2.3.20"
     kotlin("plugin.spring") version "2.3.20"
 }
@@ -126,7 +127,9 @@ tasks {
     named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
         this.archiveFileName.set("app.jar")
     }
-
+    named("check") {
+        dependsOn("ktlintCheck")
+    }
     withType<Test> {
         useJUnitPlatform()
     }
