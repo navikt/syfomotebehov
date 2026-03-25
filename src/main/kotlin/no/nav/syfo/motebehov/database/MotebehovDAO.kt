@@ -267,9 +267,11 @@ class MotebehovDAO(
                     innmelderType = rs.getString("innmelder_type").let { MotebehovInnmelderType.valueOf(it) },
                     sykmeldtFnr = rs.getString("sm_fnr"),
                     opprettetAvFnr = rs.getString("opprettet_av_fnr"),
+                    /*
+                        If there was no JOIN with motebehov_form_values,
+                        the form_snapshot column will not be present in the result set.
+                     */
                     formSnapshot =
-                        // If there was no JOIN with motebehov_form_values, the form_snapshot column will not be present in the
-                        // result set.
                         if (hasColumn(rs, "form_snapshot")) {
                             rs.getString("form_snapshot")?.let { convertJsonStringToFormSnapshot(it) }
                         } else {

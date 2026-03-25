@@ -21,11 +21,11 @@ class ControllerExceptionHandler
     constructor(
         private val metric: Metric,
     ) {
-        private val BAD_REQUEST_MSG = "Vi kunne ikke tolke inndataene"
-        private val CONFLICT_MSG = "Dette oppsto en konflikt i tilstand"
-        private val FORBIDDEN_MSG = "Handling er forbudt"
-        private val UNAUTHORIZED_MSG = "Autorisasjonsfeil"
-        private val INTERNAL_MSG = "Det skjedde en uventet feil"
+        private val badRequestMsg = "Vi kunne ikke tolke inndataene"
+        private val conflictMsg = "Dette oppsto en konflikt i tilstand"
+        private val forbiddenMsg = "Handling er forbudt"
+        private val unauthorizedMsg = "Autorisasjonsfeil"
+        private val internalMsg = "Det skjedde en uventet feil"
 
         @ExceptionHandler(
             Exception::class,
@@ -59,7 +59,7 @@ class ControllerExceptionHandler
                 }
                 else -> {
                     val status = HttpStatus.INTERNAL_SERVER_ERROR
-                    handleExceptionInternal(ex, ApiError(status.value(), INTERNAL_MSG), headers, status, request)
+                    handleExceptionInternal(ex, ApiError(status.value(), internalMsg), headers, status, request)
                 }
             }
         }
@@ -71,7 +71,7 @@ class ControllerExceptionHandler
         ): ResponseEntity<ApiError> =
             handleExceptionInternal(
                 ex,
-                ApiError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_MSG),
+                ApiError(HttpStatus.UNAUTHORIZED.value(), unauthorizedMsg),
                 headers,
                 HttpStatus.UNAUTHORIZED,
                 request,
@@ -84,7 +84,7 @@ class ControllerExceptionHandler
         ): ResponseEntity<ApiError> =
             handleExceptionInternal(
                 ex,
-                ApiError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_MSG),
+                ApiError(HttpStatus.UNAUTHORIZED.value(), unauthorizedMsg),
                 headers,
                 HttpStatus.UNAUTHORIZED,
                 request,
@@ -95,21 +95,21 @@ class ControllerExceptionHandler
             headers: HttpHeaders,
             request: WebRequest,
         ): ResponseEntity<ApiError> =
-            handleExceptionInternal(ex, ApiError(HttpStatus.FORBIDDEN.value(), FORBIDDEN_MSG), headers, HttpStatus.FORBIDDEN, request)
+            handleExceptionInternal(ex, ApiError(HttpStatus.FORBIDDEN.value(), forbiddenMsg), headers, HttpStatus.FORBIDDEN, request)
 
         private fun handleIllegalArgumentException(
             ex: IllegalArgumentException,
             headers: HttpHeaders,
             request: WebRequest,
         ): ResponseEntity<ApiError> =
-            handleExceptionInternal(ex, ApiError(HttpStatus.BAD_REQUEST.value(), BAD_REQUEST_MSG), headers, HttpStatus.BAD_REQUEST, request)
+            handleExceptionInternal(ex, ApiError(HttpStatus.BAD_REQUEST.value(), badRequestMsg), headers, HttpStatus.BAD_REQUEST, request)
 
         private fun handleConstraintViolationException(
             ex: ConstraintViolationException,
             headers: HttpHeaders,
             request: WebRequest,
         ): ResponseEntity<ApiError> =
-            handleExceptionInternal(ex, ApiError(HttpStatus.BAD_REQUEST.value(), BAD_REQUEST_MSG), headers, HttpStatus.BAD_REQUEST, request)
+            handleExceptionInternal(ex, ApiError(HttpStatus.BAD_REQUEST.value(), badRequestMsg), headers, HttpStatus.BAD_REQUEST, request)
 
         private fun handleConflictException(
             ex: ConflictException,
@@ -117,7 +117,7 @@ class ControllerExceptionHandler
             request: WebRequest,
         ): ResponseEntity<ApiError> {
             val status = HttpStatus.CONFLICT
-            return handleExceptionInternal(ex, ApiError(status.value(), CONFLICT_MSG), headers, status, request)
+            return handleExceptionInternal(ex, ApiError(status.value(), conflictMsg), headers, status, request)
         }
 
         private fun handleExceptionInternal(
