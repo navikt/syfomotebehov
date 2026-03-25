@@ -8,7 +8,7 @@ import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import java.io.Serializable
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 data class Motebehov(
     val id: UUID,

@@ -4,7 +4,9 @@ import org.apache.commons.text.StringEscapeUtils
 import org.owasp.html.HtmlPolicyBuilder
 import org.slf4j.LoggerFactory
 import java.sql.Timestamp
-import java.time.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 const val MOTEBEHOVSVAR_GYLDIGHET_DAGER = 78 * 7
 

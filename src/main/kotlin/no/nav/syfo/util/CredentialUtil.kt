@@ -1,6 +1,6 @@
 package no.nav.syfo.util
 
-import java.util.*
+import java.util.Base64
 
 fun basicCredentials(
     credentialUsername: String,

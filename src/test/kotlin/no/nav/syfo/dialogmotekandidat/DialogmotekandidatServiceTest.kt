@@ -19,7 +19,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.annotation.DirtiesContext
 import java.time.OffsetDateTime
 import java.time.ZoneId
-import java.util.*
+import java.util.UUID
 
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])

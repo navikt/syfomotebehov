@@ -2,7 +2,7 @@ package no.nav.syfo.oppfolgingstilfelle.database
 
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 data class PPersonOppfolgingstilfelle(
     val uuid: UUID,

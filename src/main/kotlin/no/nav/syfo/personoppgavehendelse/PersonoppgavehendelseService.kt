@@ -3,7 +3,7 @@ package no.nav.syfo.personoppgavehendelse
 import no.nav.syfo.personoppgavehendelse.domain.KPersonoppgavehendelse
 import no.nav.syfo.personoppgavehendelse.domain.PersonoppgavehendelseType
 import org.springframework.stereotype.Service
-import java.util.*
+import java.util.UUID
 import javax.inject.Inject
 
 @Service

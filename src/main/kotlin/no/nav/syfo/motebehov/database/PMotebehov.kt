@@ -8,7 +8,7 @@ import no.nav.syfo.motebehov.formSnapshot.LegacyMotebehovToFormSnapshotHelper
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import java.io.Serializable
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 data class PMotebehov(
     val uuid: UUID,

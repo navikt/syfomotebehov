@@ -1,7 +1,7 @@
 package no.nav.syfo.dialogmote.database
 
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 data class Dialogmote(
     val uuid: UUID,

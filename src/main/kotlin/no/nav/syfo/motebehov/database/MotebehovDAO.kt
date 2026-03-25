@@ -21,7 +21,7 @@ import java.sql.ResultSet
 import java.sql.Types
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 @Service
 @Transactional

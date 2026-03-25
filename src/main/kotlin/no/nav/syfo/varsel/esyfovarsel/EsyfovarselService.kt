@@ -2,9 +2,12 @@ package no.nav.syfo.varsel.esyfovarsel
 
 import no.nav.syfo.motebehov.Motebehov
 import no.nav.syfo.motebehov.MotebehovTilbakemelding
-import no.nav.syfo.varsel.esyfovarsel.domain.*
+import no.nav.syfo.varsel.esyfovarsel.domain.ArbeidstakerHendelse
+import no.nav.syfo.varsel.esyfovarsel.domain.HendelseType
 import no.nav.syfo.varsel.esyfovarsel.domain.HendelseType.NL_DIALOGMOTE_SVAR_MOTEBEHOV
 import no.nav.syfo.varsel.esyfovarsel.domain.HendelseType.SM_DIALOGMOTE_SVAR_MOTEBEHOV
+import no.nav.syfo.varsel.esyfovarsel.domain.NarmesteLederHendelse
+import no.nav.syfo.varsel.esyfovarsel.domain.VarselDataMotebehovTilbakemelding
 import org.springframework.stereotype.Service
 
 @Service

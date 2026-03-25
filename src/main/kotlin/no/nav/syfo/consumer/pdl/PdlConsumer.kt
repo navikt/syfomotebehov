@@ -2,13 +2,18 @@ package no.nav.syfo.consumer.pdl
 
 import no.nav.syfo.consumer.azuread.v2.IAzureAdV2TokenConsumer
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.util.*
+import no.nav.syfo.util.BEHANDLINGSNUMMER_MOTEBEHOV
+import no.nav.syfo.util.PDL_BEHANDLINGSNUMMER_HEADER
+import no.nav.syfo.util.bearerCredentials
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.*
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
+import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestTemplate

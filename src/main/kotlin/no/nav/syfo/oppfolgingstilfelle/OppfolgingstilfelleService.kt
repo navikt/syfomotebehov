@@ -1,7 +1,13 @@
 package no.nav.syfo.oppfolgingstilfelle
 
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.oppfolgingstilfelle.database.*
+import no.nav.syfo.oppfolgingstilfelle.database.OppfolgingstilfelleDAO
+import no.nav.syfo.oppfolgingstilfelle.database.PPersonOppfolgingstilfelle
+import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
+import no.nav.syfo.oppfolgingstilfelle.database.PersonVirksomhetOppfolgingstilfelle
+import no.nav.syfo.oppfolgingstilfelle.database.isSykmeldtLast16Days
+import no.nav.syfo.oppfolgingstilfelle.database.mapToPersonOppfolgingstilfelle
+import no.nav.syfo.oppfolgingstilfelle.database.mapToPersonVirksomhetOppfolgingstilfelle
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfellePerson
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.previouslyProcessed
 import org.slf4j.LoggerFactory

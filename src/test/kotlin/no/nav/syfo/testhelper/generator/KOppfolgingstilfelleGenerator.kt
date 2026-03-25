@@ -8,7 +8,7 @@ import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.UUID
 
 fun generateOppfolgingstilfellePerson(
     start: LocalDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV),

@@ -21,7 +21,7 @@ import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.util.MOTEBEHOVSVAR_GYLDIGHET_DAGER
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class MotebehovGenerator {
     private val motebehov =

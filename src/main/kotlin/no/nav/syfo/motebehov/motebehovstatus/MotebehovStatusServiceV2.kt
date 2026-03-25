@@ -2,7 +2,8 @@ package no.nav.syfo.motebehov.motebehovstatus
 
 import no.nav.syfo.dialogmote.DialogmoteStatusService
 import no.nav.syfo.dialogmotekandidat.DialogmotekandidatService
-import no.nav.syfo.motebehov.*
+import no.nav.syfo.motebehov.Motebehov
+import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import org.springframework.stereotype.Service
