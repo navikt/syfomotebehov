@@ -12,66 +12,69 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class NarmesteLederServiceTest : DescribeSpec({
-    val narmesteLederClient: NarmesteLederClient = mockk()
-    val narmesteLederService = NarmesteLederService(narmesteLederClient)
+class NarmesteLederServiceTest :
+    DescribeSpec({
+        val narmesteLederClient: NarmesteLederClient = mockk()
+        val narmesteLederService = NarmesteLederService(narmesteLederClient)
 
-    it("duplicate nærmesteleadere should be merged") {
-        val relasjoner = listOf(
-            createNarmesteLederRelasjonDTO(
-                virksomhetsnummer = VIRKSOMHETSNUMMER,
-                arbeidstakerPersonIdentNumber = ARBEIDSTAKER_FNR,
-                narmesteLederPersonIdentNumber = LEDER_FNR,
-                status = NarmesteLederRelasjonStatus.INNMELDT_AKTIV
-            ),
-            createNarmesteLederRelasjonDTO(
-                virksomhetsnummer = VIRKSOMHETSNUMMER,
-                arbeidstakerPersonIdentNumber = ARBEIDSTAKER_FNR,
-                narmesteLederPersonIdentNumber = LEDER_FNR,
-                status = NarmesteLederRelasjonStatus.INNMELDT_AKTIV
-            )
-        )
+        it("duplicate nærmesteleadere should be merged") {
+            val relasjoner =
+                listOf(
+                    createNarmesteLederRelasjonDTO(
+                        virksomhetsnummer = VIRKSOMHETSNUMMER,
+                        arbeidstakerPersonIdentNumber = ARBEIDSTAKER_FNR,
+                        narmesteLederPersonIdentNumber = LEDER_FNR,
+                        status = NarmesteLederRelasjonStatus.INNMELDT_AKTIV,
+                    ),
+                    createNarmesteLederRelasjonDTO(
+                        virksomhetsnummer = VIRKSOMHETSNUMMER,
+                        arbeidstakerPersonIdentNumber = ARBEIDSTAKER_FNR,
+                        narmesteLederPersonIdentNumber = LEDER_FNR,
+                        status = NarmesteLederRelasjonStatus.INNMELDT_AKTIV,
+                    ),
+                )
 
-        every { narmesteLederClient.getNarmesteledere(any()) } returns relasjoner
+            every { narmesteLederClient.getNarmesteledere(any()) } returns relasjoner
 
-        val allNarmesteLederRelations =
-            narmesteLederService.getAllNarmesteLederRelations(ARBEIDSTAKER_FNR)
+            val allNarmesteLederRelations =
+                narmesteLederService.getAllNarmesteLederRelations(ARBEIDSTAKER_FNR)
 
-        allNarmesteLederRelations?.size shouldBe 1
-    }
+            allNarmesteLederRelations?.size shouldBe 1
+        }
 
-    it("will only get the nærmesteleder for the sykmeldte") {
-        val relasjoner = listOf(
-            createNarmesteLederRelasjonDTO(
-                virksomhetsnummer = VIRKSOMHETSNUMMER,
-                arbeidstakerPersonIdentNumber = ARBEIDSTAKER_FNR,
-                narmesteLederPersonIdentNumber = LEDER_FNR,
-                status = NarmesteLederRelasjonStatus.INNMELDT_AKTIV
-            ),
-            createNarmesteLederRelasjonDTO(
-                virksomhetsnummer = VIRKSOMHETSNUMMER,
-                arbeidstakerPersonIdentNumber = ARBEIDSTAKER_FNR_2, // Den sykmeldte er NL for denne
-                narmesteLederPersonIdentNumber = ARBEIDSTAKER_FNR,
-                status = NarmesteLederRelasjonStatus.INNMELDT_AKTIV
-            )
-        )
+        it("will only get the nærmesteleder for the sykmeldte") {
+            val relasjoner =
+                listOf(
+                    createNarmesteLederRelasjonDTO(
+                        virksomhetsnummer = VIRKSOMHETSNUMMER,
+                        arbeidstakerPersonIdentNumber = ARBEIDSTAKER_FNR,
+                        narmesteLederPersonIdentNumber = LEDER_FNR,
+                        status = NarmesteLederRelasjonStatus.INNMELDT_AKTIV,
+                    ),
+                    createNarmesteLederRelasjonDTO(
+                        virksomhetsnummer = VIRKSOMHETSNUMMER,
+                        arbeidstakerPersonIdentNumber = ARBEIDSTAKER_FNR_2, // Den sykmeldte er NL for denne
+                        narmesteLederPersonIdentNumber = ARBEIDSTAKER_FNR,
+                        status = NarmesteLederRelasjonStatus.INNMELDT_AKTIV,
+                    ),
+                )
 
-        every { narmesteLederClient.getNarmesteledere(any()) } returns relasjoner
+            every { narmesteLederClient.getNarmesteledere(any()) } returns relasjoner
 
-        val allNarmesteLederRelations =
-            narmesteLederService.getAllNarmesteLederRelations(ARBEIDSTAKER_FNR)
+            val allNarmesteLederRelations =
+                narmesteLederService.getAllNarmesteLederRelations(ARBEIDSTAKER_FNR)
 
-        allNarmesteLederRelations?.size shouldBe 1
-    }
-})
+            allNarmesteLederRelations?.size shouldBe 1
+        }
+    })
 
 fun createNarmesteLederRelasjonDTO(
     virksomhetsnummer: String,
     arbeidstakerPersonIdentNumber: String,
     narmesteLederPersonIdentNumber: String,
-    status: NarmesteLederRelasjonStatus
-): NarmesteLederRelasjonDTO {
-    return NarmesteLederRelasjonDTO(
+    status: NarmesteLederRelasjonStatus,
+): NarmesteLederRelasjonDTO =
+    NarmesteLederRelasjonDTO(
         uuid = UUID.randomUUID().toString(),
         arbeidstakerPersonIdentNumber = arbeidstakerPersonIdentNumber,
         virksomhetsnavn = "Yolomasters",
@@ -84,6 +87,5 @@ fun createNarmesteLederRelasjonDTO(
         aktivTom = null,
         arbeidsgiverForskutterer = null,
         timestamp = LocalDateTime.now(),
-        status = status
+        status = status,
     )
-}

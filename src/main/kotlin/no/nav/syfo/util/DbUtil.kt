@@ -8,9 +8,8 @@ import java.time.*
 
 const val MOTEBEHOVSVAR_GYLDIGHET_DAGER = 78 * 7
 
-fun hentTidligsteDatoForGyldigMotebehovSvar(): Timestamp {
-    return convert(LocalDateTime.of(LocalDate.now().minusDays(MOTEBEHOVSVAR_GYLDIGHET_DAGER.toLong()), LocalTime.MIN))
-}
+fun hentTidligsteDatoForGyldigMotebehovSvar(): Timestamp =
+    convert(LocalDateTime.of(LocalDate.now().minusDays(MOTEBEHOVSVAR_GYLDIGHET_DAGER.toLong()), LocalTime.MIN))
 
 object DbUtil {
     private val LOG = LoggerFactory.getLogger(DbUtil::class.java)
@@ -23,11 +22,12 @@ object DbUtil {
         if (sanitizedInput != userinput && userinput != null) {
             LOG.warn(
                 """
-    Dette er ikke en feil, men burde vært stoppet av regexen i frontend. Finn ut hvorfor og evt. oppdater regex. 
-    Det ble strippet vekk innhold slik at denne teksten: {} 
-    ble til denne teksten: {}
+                Dette er ikke en feil, men burde vært stoppet av regexen i frontend. Finn ut hvorfor og evt. oppdater regex. 
+                Det ble strippet vekk innhold slik at denne teksten: {} 
+                ble til denne teksten: {}
                 """.trimIndent(),
-                userinput, sanitizedInput
+                userinput,
+                sanitizedInput,
             )
         }
         return sanitizedInput

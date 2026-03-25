@@ -6,7 +6,6 @@ import no.nav.syfo.varsel.esyfovarsel.domain.EsyfovarselHendelse
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
@@ -23,9 +22,10 @@ class LocalKafkaContainer {
     fun kafkaContainer(): KafkaContainer = KafkaContainer("apache/kafka").also { it.start() }
 
     @Bean
-    fun kafkaProperties(kafkaContainer: KafkaContainer) = DynamicPropertyRegistrar { registry ->
-        registry.add("spring.kafka.bootstrap-servers") { kafkaContainer.bootstrapServers }
-    }
+    fun kafkaProperties(kafkaContainer: KafkaContainer) =
+        DynamicPropertyRegistrar { registry ->
+            registry.add("spring.kafka.bootstrap-servers") { kafkaContainer.bootstrapServers }
+        }
 
     @Bean("EsyfovarselProducerFactory")
     fun esyfovarselProducerFactory(kafkaContainer: KafkaContainer): ProducerFactory<String, EsyfovarselHendelse> =
@@ -34,12 +34,12 @@ class LocalKafkaContainer {
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaContainer.bootstrapServers,
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to JacksonKafkaSerializer::class.java,
-            )
+            ),
         )
 
     @Bean("EsyfovarselKafkaTemplate")
     fun esyfovarselKafkaTemplate(
-        @Qualifier("EsyfovarselProducerFactory") producerFactory: ProducerFactory<String, EsyfovarselHendelse>
+        @Qualifier("EsyfovarselProducerFactory") producerFactory: ProducerFactory<String, EsyfovarselHendelse>,
     ): KafkaTemplate<String, EsyfovarselHendelse> = KafkaTemplate(producerFactory)
 
     @Bean("PersonoppgavehendelseProducerFactory")
@@ -49,11 +49,11 @@ class LocalKafkaContainer {
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaContainer.bootstrapServers,
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to JacksonKafkaSerializer::class.java,
-            )
+            ),
         )
 
     @Bean("PersonoppgavehendelseTemplate")
     fun personoppgavehendelseTemplate(
-        @Qualifier("PersonoppgavehendelseProducerFactory") producerFactory: ProducerFactory<String, KPersonoppgavehendelse>
+        @Qualifier("PersonoppgavehendelseProducerFactory") producerFactory: ProducerFactory<String, KPersonoppgavehendelse>,
     ): KafkaTemplate<String, KPersonoppgavehendelse> = KafkaTemplate(producerFactory)
 }

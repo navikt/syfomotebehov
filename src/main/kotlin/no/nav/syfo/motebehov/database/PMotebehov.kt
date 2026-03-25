@@ -29,10 +29,8 @@ data class PMotebehov(
     val formSnapshot: FormSnapshot? = null,
 ) : Serializable
 
-fun PMotebehov.toMotebehov(
-    arbeidstakerFnr: String? = null,
-): Motebehov {
-    return Motebehov(
+fun PMotebehov.toMotebehov(arbeidstakerFnr: String? = null): Motebehov =
+    Motebehov(
         id = this.uuid,
         opprettetDato = this.opprettetDato,
         aktorId = this.aktoerId,
@@ -47,25 +45,25 @@ fun PMotebehov.toMotebehov(
         innmelderType = this.innmelderType,
         formSubmission = this.createMotebehovFormSubmissionFromPMotebehov(),
     )
-}
 
 private fun PMotebehov.createMotebehovFormSubmissionFromPMotebehov(): MotebehovFormSubmissionDTO {
     val isLegacyMotebehov = this.formSnapshot == null
 
-    val formSnapshot = if (isLegacyMotebehov) {
-        val helper = LegacyMotebehovToFormSnapshotHelper()
-        helper.createFormSnapshotFromLegacyMotebehovValues(
-            this.harMotebehov,
-            this.forklaring,
-            this.skjemaType,
-            innmelderType,
-        )
-    } else {
-        this.formSnapshot
-    }
+    val formSnapshot =
+        if (isLegacyMotebehov) {
+            val helper = LegacyMotebehovToFormSnapshotHelper()
+            helper.createFormSnapshotFromLegacyMotebehovValues(
+                this.harMotebehov,
+                this.forklaring,
+                this.skjemaType,
+                innmelderType,
+            )
+        } else {
+            this.formSnapshot
+        }
 
     return MotebehovFormSubmissionDTO(
         harMotebehov = this.harMotebehov,
-        formSnapshot = formSnapshot
+        formSnapshot = formSnapshot,
     )
 }

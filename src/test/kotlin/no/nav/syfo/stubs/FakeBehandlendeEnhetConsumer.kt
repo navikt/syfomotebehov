@@ -16,7 +16,10 @@ class FakeBehandlendeEnhetConsumer : IBehandlendeEnhetConsumer {
         logger.warn("!! ----- Running with fake BehandlendeEnhetConsumer  ----- !!")
     }
 
-    override fun getBehandlendeEnhet(fnr: String, callId: String?): BehandlendeEnhet =
+    override fun getBehandlendeEnhet(
+        fnr: String,
+        callId: String?,
+    ): BehandlendeEnhet =
         BehandlendeEnhet(
             geografiskEnhet = EnhetDTO("0330", "Bjerke"),
             oppfolgingsenhetDTO = null,

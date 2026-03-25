@@ -20,34 +20,45 @@ class BehandlendeEnhetConsumer(
     private val metric: Metric,
     @Value("\${syfobehandlendeenhet.client.id}") private val syfobehandlendeenhetClientId: String,
     @Value("\${syfobehandlendeenhet.url}") private val baseUrl: String,
-    private val restTemplate: RestTemplate
+    private val restTemplate: RestTemplate,
 ) : IBehandlendeEnhetConsumer {
-
     @Cacheable(cacheNames = [CacheConfig.CACHENAME_BEHANDLENDEENHET_FNR], key = "#fnr", condition = "#fnr != null")
-    override fun getBehandlendeEnhet(fnr: String, callId: String?): BehandlendeEnhet {
-        val bearer = azureAdV2TokenConsumer.getSystemToken(
-            scopeClientId = syfobehandlendeenhetClientId
-        )
+    override fun getBehandlendeEnhet(
+        fnr: String,
+        callId: String?,
+    ): BehandlendeEnhet {
+        val bearer =
+            azureAdV2TokenConsumer.getSystemToken(
+                scopeClientId = syfobehandlendeenhetClientId,
+            )
 
         val httpEntity = entity(callId, bearer, fnr)
         try {
-            val response = restTemplate.exchange(
-                "$baseUrl$BEHANDLENDEENHET_PATH",
-                HttpMethod.GET,
-                httpEntity,
-                BehandlendeEnhet::class.java
-            )
+            val response =
+                restTemplate.exchange(
+                    "$baseUrl$BEHANDLENDEENHET_PATH",
+                    HttpMethod.GET,
+                    httpEntity,
+                    BehandlendeEnhet::class.java,
+                )
             val responseBody = response.body!!
             metric.countOutgoingReponses(METRIC_CALL_BEHANDLENDEENHET, response.statusCode.value())
             return responseBody
         } catch (e: RestClientResponseException) {
-            LOG.error("Error requesting BehandlendeEnhet from syfobehandlendeenhet with callId ${httpEntity.headers[NAV_CALL_ID_HEADER]}: ", e)
+            LOG.error(
+                "Error requesting BehandlendeEnhet from syfobehandlendeenhet with callId ${httpEntity.headers[NAV_CALL_ID_HEADER]}: ",
+                e,
+            )
             metric.countOutgoingReponses(METRIC_CALL_BEHANDLENDEENHET, e.statusCode.value())
             throw e
         }
     }
 
-    private fun entity(callId: String?, token: String, fnr: String): HttpEntity<String> {
+    private fun entity(
+        callId: String?,
+        token: String,
+        fnr: String,
+    ): HttpEntity<String> {
         val credentials = bearerCredentials(token)
         val headers = HttpHeaders()
         headers[HttpHeaders.AUTHORIZATION] = credentials

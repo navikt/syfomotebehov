@@ -2,7 +2,6 @@ package no.nav.syfo.dialogmotekandidat
 
 import com.ninjasquad.springmockk.MockkBean
 import io.kotest.core.extensions.ApplyExtension
-import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.mockk.verify
 import no.nav.syfo.IntegrationTest
@@ -27,7 +26,6 @@ import java.util.*
 @ApplyExtension(SpringExtension::class)
 @DirtiesContext
 internal class DialogmotekandidatServiceTest : IntegrationTest() {
-
     @MockkBean(relaxed = true)
     private lateinit var varselServiceV2: VarselServiceV2
 
@@ -40,7 +38,6 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
     @Autowired
     private lateinit var dialogmotekandidatService: DialogmotekandidatService
 
-
     init {
         beforeTest {
             val sqlDeleteAll = "DELETE FROM DIALOGMOTEKANDIDAT"
@@ -48,9 +45,10 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
         }
 
         it("skalLagreNyKandidatEndring") {
-            val existingKandidat = dialogmotekandidatDAO.get(
-                UserConstants.ARBEIDSTAKER_FNR
-            )
+            val existingKandidat =
+                dialogmotekandidatDAO.get(
+                    UserConstants.ARBEIDSTAKER_FNR,
+                )
 
             assertThat(existingKandidat).isNull()
 
@@ -58,13 +56,14 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
                 generateDialogmotekandidatEndring(
                     kandidat = true,
                     arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
-                    null
-                )
+                    null,
+                ),
             )
 
-            val kandidatAfterKafkaMessage = dialogmotekandidatDAO.get(
-                UserConstants.ARBEIDSTAKER_FNR
-            )
+            val kandidatAfterKafkaMessage =
+                dialogmotekandidatDAO.get(
+                    UserConstants.ARBEIDSTAKER_FNR,
+                )
 
             assertThat(kandidatAfterKafkaMessage).isNotNull
             assertThat(kandidatAfterKafkaMessage?.databaseUpdatedAt).isNotNull
@@ -78,13 +77,14 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
                 generateDialogmotekandidatEndring(
                     kandidat = true,
                     arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
-                    null
-                )
+                    null,
+                ),
             )
 
-            val existingKandidat = dialogmotekandidatDAO.get(
-                UserConstants.ARBEIDSTAKER_FNR
-            )
+            val existingKandidat =
+                dialogmotekandidatDAO.get(
+                    UserConstants.ARBEIDSTAKER_FNR,
+                )
 
             assertThat(existingKandidat).isNotNull
             assertThat(existingKandidat?.kandidat).isTrue
@@ -94,13 +94,14 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
                 generateDialogmotekandidatEndring(
                     kandidat = false,
                     arsak = DialogmotekandidatEndringArsak.UNNTAK.name,
-                    null
-                )
+                    null,
+                ),
             )
 
-            val updatedKandidat = dialogmotekandidatDAO.get(
-                UserConstants.ARBEIDSTAKER_FNR
-            )
+            val updatedKandidat =
+                dialogmotekandidatDAO.get(
+                    UserConstants.ARBEIDSTAKER_FNR,
+                )
 
             assertThat(updatedKandidat).isNotNull
             assertThat(updatedKandidat?.kandidat).isFalse
@@ -108,30 +109,34 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
         }
 
         it("rekjoringIGalRekkefolgeSkalOgsaaFungere") {
-            val forsteKandidatMelding = generateDialogmotekandidatEndring(
-                kandidat = true,
-                arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
-                OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
-            )
-            val andreKandidatMelding = generateDialogmotekandidatEndring(
-                kandidat = false,
-                arsak = DialogmotekandidatEndringArsak.UNNTAK.name,
-                OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(6)
-            )
-            val tredjeKandidatMelding = generateDialogmotekandidatEndring(
-                kandidat = false,
-                arsak = DialogmotekandidatEndringArsak.DIALOGMOTE_FERDIGSTILT.name,
-                OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(1)
-            )
+            val forsteKandidatMelding =
+                generateDialogmotekandidatEndring(
+                    kandidat = true,
+                    arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
+                    OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10),
+                )
+            val andreKandidatMelding =
+                generateDialogmotekandidatEndring(
+                    kandidat = false,
+                    arsak = DialogmotekandidatEndringArsak.UNNTAK.name,
+                    OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(6),
+                )
+            val tredjeKandidatMelding =
+                generateDialogmotekandidatEndring(
+                    kandidat = false,
+                    arsak = DialogmotekandidatEndringArsak.DIALOGMOTE_FERDIGSTILT.name,
+                    OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(1),
+                )
 
             // Mottar meldingene i omvendt rekkefølge
             dialogmotekandidatService.receiveDialogmotekandidatEndring(tredjeKandidatMelding)
             dialogmotekandidatService.receiveDialogmotekandidatEndring(andreKandidatMelding)
             dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteKandidatMelding)
 
-            val kandidatStatus = dialogmotekandidatDAO.get(
-                UserConstants.ARBEIDSTAKER_FNR
-            )
+            val kandidatStatus =
+                dialogmotekandidatDAO.get(
+                    UserConstants.ARBEIDSTAKER_FNR,
+                )
 
             // Nyeste melding er den som har blitt persistert
             assertThat(kandidatStatus).isNotNull
@@ -140,11 +145,12 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
         }
 
         it("skalSendeVarselDersomNyKandidat") {
-            val forsteGangKandidat = generateDialogmotekandidatEndring(
-                kandidat = true,
-                arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
-                OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
-            )
+            val forsteGangKandidat =
+                generateDialogmotekandidatEndring(
+                    kandidat = true,
+                    arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
+                    OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10),
+                )
 
             dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
 
@@ -153,11 +159,12 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
         }
 
         it("skalIkkeSendeVarselDersomIkkeKandidat") {
-            val forsteGangKandidat = generateDialogmotekandidatEndring(
-                kandidat = false,
-                arsak = DialogmotekandidatEndringArsak.UNNTAK.name,
-                OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
-            )
+            val forsteGangKandidat =
+                generateDialogmotekandidatEndring(
+                    kandidat = false,
+                    arsak = DialogmotekandidatEndringArsak.UNNTAK.name,
+                    OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10),
+                )
 
             dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
 
@@ -165,11 +172,12 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
         }
 
         it("skalIkkeSendeVarselDersomIkkeAktuellKandidat") {
-            val forsteGangKandidat = generateDialogmotekandidatEndring(
-                kandidat = false,
-                arsak = DialogmotekandidatEndringArsak.IKKE_AKTUELL.name,
-                OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
-            )
+            val forsteGangKandidat =
+                generateDialogmotekandidatEndring(
+                    kandidat = false,
+                    arsak = DialogmotekandidatEndringArsak.IKKE_AKTUELL.name,
+                    OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10),
+                )
 
             dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
 
@@ -177,11 +185,12 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
         }
 
         it("skalIkkeSendeVarselDersomLukketKandidat") {
-            val forsteGangKandidat = generateDialogmotekandidatEndring(
-                kandidat = false,
-                arsak = DialogmotekandidatEndringArsak.LUKKET.name,
-                OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
-            )
+            val forsteGangKandidat =
+                generateDialogmotekandidatEndring(
+                    kandidat = false,
+                    arsak = DialogmotekandidatEndringArsak.LUKKET.name,
+                    OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10),
+                )
 
             dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
 
@@ -189,19 +198,21 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
         }
 
         it("skalFerdigsstilleVarselDersomIkkeKandidat") {
-            val forsteGangKandidat = generateDialogmotekandidatEndring(
-                kandidat = true,
-                arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
-                OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
-            )
+            val forsteGangKandidat =
+                generateDialogmotekandidatEndring(
+                    kandidat = true,
+                    arsak = DialogmotekandidatEndringArsak.STOPPUNKT.name,
+                    OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10),
+                )
 
             dialogmotekandidatService.receiveDialogmotekandidatEndring(forsteGangKandidat)
 
-            val unntak = generateDialogmotekandidatEndring(
-                kandidat = false,
-                arsak = DialogmotekandidatEndringArsak.UNNTAK.name,
-                OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10)
-            )
+            val unntak =
+                generateDialogmotekandidatEndring(
+                    kandidat = false,
+                    arsak = DialogmotekandidatEndringArsak.UNNTAK.name,
+                    OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusDays(10),
+                )
 
             dialogmotekandidatService.receiveDialogmotekandidatEndring(unntak)
 
@@ -213,14 +224,13 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
     private fun generateDialogmotekandidatEndring(
         kandidat: Boolean,
         arsak: String,
-        createdAt: OffsetDateTime?
-    ): KafkaDialogmotekandidatEndring {
-        return KafkaDialogmotekandidatEndring(
+        createdAt: OffsetDateTime?,
+    ): KafkaDialogmotekandidatEndring =
+        KafkaDialogmotekandidatEndring(
             UUID.randomUUID().toString(),
             createdAt ?: OffsetDateTime.now(ZoneId.of("Europe/Oslo")).minusMinutes(1),
             UserConstants.ARBEIDSTAKER_FNR,
             kandidat,
-            arsak
+            arsak,
         )
-    }
 }

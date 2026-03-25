@@ -6,5 +6,5 @@ data class NyttMotebehovArbeidsgiverDTO(
     val arbeidstakerFnr: String,
     val virksomhetsnummer: @NotEmpty String,
     val formSubmission: MotebehovFormSubmissionDTO,
-    val tildeltEnhet: String? = null
+    val tildeltEnhet: String? = null,
 )

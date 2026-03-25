@@ -7,8 +7,9 @@ import org.springframework.stereotype.Component
 
 @Profile("local & !remote")
 @Component
-class FakeVeilederTilgangConsumer: IVeilederTilgangConsumer {
+class FakeVeilederTilgangConsumer : IVeilederTilgangConsumer {
     private val logger = LoggerFactory.getLogger(this.javaClass)
+
     init {
         logger.warn("!! ----- Running with fake VeilederTilgangConsumer  ----- !!")
     }

@@ -12,12 +12,12 @@ import org.springframework.stereotype.Component
 @Profile("remote")
 @Component
 class DialogmotekandidatListener(
-    private val dialogmotekandidatService: DialogmotekandidatService
+    private val dialogmotekandidatService: DialogmotekandidatService,
 ) {
     @KafkaListener(topics = [DIALOGMOTEKANDIDAT_TOPIC], containerFactory = "DialogmotekandidatListenerContainerFactory")
     fun dialogmoteStatusEndringListener(
         consumerRecord: ConsumerRecord<String, KafkaDialogmotekandidatEndring>,
-        acknowledgment: Acknowledgment
+        acknowledgment: Acknowledgment,
     ) {
         log.info("Got record from $DIALOGMOTEKANDIDAT_TOPIC topic for uuid: ${consumerRecord.value().uuid}")
         try {

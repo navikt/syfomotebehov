@@ -13,21 +13,21 @@ import java.util.*
 fun generateOppfolgingstilfellePerson(
     start: LocalDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV),
     end: LocalDate = LocalDate.now().plusDays(DAYS_END_SVAR_BEHOV),
-    virksomhetsnummerList: List<String> = listOf(VIRKSOMHETSNUMMER)
-): KafkaOppfolgingstilfellePerson {
-    return KafkaOppfolgingstilfellePerson(
+    virksomhetsnummerList: List<String> = listOf(VIRKSOMHETSNUMMER),
+): KafkaOppfolgingstilfellePerson =
+    KafkaOppfolgingstilfellePerson(
         uuid = UUID.randomUUID().toString(),
         createdAt = OffsetDateTime.now(),
         personIdentNumber = ARBEIDSTAKER_FNR,
-        oppfolgingstilfelleList = listOf(
-            KafkaOppfolgingstilfelle(
-                arbeidstakerAtTilfelleEnd = true,
-                start = start,
-                end = end,
-                virksomhetsnummerList = virksomhetsnummerList
-            )
-        ),
+        oppfolgingstilfelleList =
+            listOf(
+                KafkaOppfolgingstilfelle(
+                    arbeidstakerAtTilfelleEnd = true,
+                    start = start,
+                    end = end,
+                    virksomhetsnummerList = virksomhetsnummerList,
+                ),
+            ),
         referanseTilfelleBitUuid = UUID.randomUUID().toString(),
-        referanseTilfelleBitInntruffet = OffsetDateTime.now()
+        referanseTilfelleBitInntruffet = OffsetDateTime.now(),
     ).copy()
-}

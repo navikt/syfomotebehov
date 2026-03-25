@@ -23,20 +23,22 @@ class NarmesteLederClient(
     private val azureAdV2TokenConsumer: IAzureAdV2TokenConsumer,
     @Value("\${isnarmesteleder.url}") private val baseUrl: String,
     @Value("\${isnarmesteleder.client.id}") private val targetApp: String,
-    private val restTemplate: RestTemplate
+    private val restTemplate: RestTemplate,
 ) {
     fun getNarmesteledere(fnr: String): List<NarmesteLederRelasjonDTO>? {
         try {
-            val token = azureAdV2TokenConsumer.getSystemToken(
-                scopeClientId = targetApp
-            )
+            val token =
+                azureAdV2TokenConsumer.getSystemToken(
+                    scopeClientId = targetApp,
+                )
 
-            val response: ResponseEntity<List<NarmesteLederRelasjonDTO>> = restTemplate.exchange(
-                "$baseUrl/api/system/v1/narmestelederrelasjoner",
-                HttpMethod.GET,
-                entity(token, fnr),
-                object : ParameterizedTypeReference<List<NarmesteLederRelasjonDTO>>() {}
-            )
+            val response: ResponseEntity<List<NarmesteLederRelasjonDTO>> =
+                restTemplate.exchange(
+                    "$baseUrl/api/system/v1/narmestelederrelasjoner",
+                    HttpMethod.GET,
+                    entity(token, fnr),
+                    object : ParameterizedTypeReference<List<NarmesteLederRelasjonDTO>>() {},
+                )
 
             return response.body
         } catch (e: Exception) {
@@ -45,7 +47,10 @@ class NarmesteLederClient(
         }
     }
 
-    private fun entity(token: String, fnr: String): HttpEntity<String> {
+    private fun entity(
+        token: String,
+        fnr: String,
+    ): HttpEntity<String> {
         val headers = HttpHeaders()
         headers[HttpHeaders.AUTHORIZATION] = "Bearer $token"
         headers[NAV_CALL_ID_HEADER] = UUID.randomUUID().toString()

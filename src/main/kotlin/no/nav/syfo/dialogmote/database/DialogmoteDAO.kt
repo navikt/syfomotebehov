@@ -1,9 +1,5 @@
 package no.nav.syfo.dialogmote.database
 
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
-import javax.inject.Inject
 import no.nav.syfo.util.convert
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -11,151 +7,177 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
+import javax.inject.Inject
 
 @Service
 @Transactional
 @Repository
-class DialogmoteDAO @Inject constructor(
-    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
-) {
-    fun get(fnr: String, virksomhetsnummer: String, dialogmoteExternUUID: String): List<Dialogmote> {
-        val query = """
-            SELECT *
-            FROM dialogmote
-            WHERE person_ident = :person_ident AND virksomhetsnummer = :virksomhetsnummer AND dialogmote_extern_uuid = :dialogmoteExternUUID
-        """.trimIndent()
-        val mapSql = MapSqlParameterSource()
-            .addValue("person_ident", fnr)
-            .addValue("virksomhetsnummer", virksomhetsnummer)
-            .addValue("dialogmoteExternUUID", dialogmoteExternUUID)
-        return namedParameterJdbcTemplate.query(
-            query,
-            mapSql,
-            dialogmoteRowMapper,
-        )
-    }
-
-    fun update(
-        fnr: String,
-        virksomhetsnummer: String,
-        dialogmoteExternUUID: String,
-        statusEndringType: String,
-        statusEndringTidspunkt: LocalDateTime,
+class DialogmoteDAO
+    @Inject
+    constructor(
+        private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
     ) {
-        val query = """
-            UPDATE dialogmote
-            SET db_endring_tidspunkt = :db_endring_tidspunkt, status_endring_type = :statusEndringType, status_endring_tidspunkt = :statusEndringTidspunkt
-            WHERE person_ident = :fnr AND virksomhetsnummer = :virksomhetsnummer AND dialogmote_extern_uuid = :dialogmoteExternUUID
-        """.trimIndent()
-        val mapSaveSql = MapSqlParameterSource()
-            .addValue("db_endring_tidspunkt", convert(LocalDateTime.now()))
-            .addValue("statusEndringType", statusEndringType)
-            .addValue("fnr", fnr)
-            .addValue("virksomhetsnummer", virksomhetsnummer)
-            .addValue("dialogmoteExternUUID", dialogmoteExternUUID)
-            .addValue("statusEndringTidspunkt", statusEndringTidspunkt)
-        namedParameterJdbcTemplate.update(query, mapSaveSql)
-    }
-
-    fun create(
-        moteExternUUID: String,
-        dialogmoteTidspunkt: LocalDateTime,
-        statusEndringTidspunkt: LocalDateTime,
-        statusEndringType: String,
-        fnr: String,
-        virksomhetsnummer: String,
-    ): UUID {
-        val uuid = UUID.randomUUID()
-        val query = """
-             INSERT INTO dialogmote (uuid, dialogmote_extern_uuid, dialogmote_tidspunkt, status_endring_tidspunkt, db_endring_tidspunkt, status_endring_type, person_ident, virksomhetsnummer)
-             VALUES (:uuid, :moteExternUUID, :dialogmoteTidspunkt, :statusEndringTidspunkt, :dbEndringTidspunkt, :statusEndringType, :fnr, :virksomhetsnummer)
-        """.trimIndent()
-        val mapSaveSql = MapSqlParameterSource()
-            .addValue("uuid", uuid.toString())
-            .addValue("moteExternUUID", moteExternUUID)
-            .addValue("dialogmoteTidspunkt", convert(dialogmoteTidspunkt))
-            .addValue("statusEndringTidspunkt", convert(statusEndringTidspunkt))
-            .addValue("dbEndringTidspunkt", convert(LocalDateTime.now()))
-            .addValue("statusEndringType", statusEndringType)
-            .addValue("fnr", fnr)
-            .addValue("virksomhetsnummer", virksomhetsnummer)
-        namedParameterJdbcTemplate.update(query, mapSaveSql)
-        return uuid
-    }
-
-    fun delete(fnr: String, virksomhetsnummer: String, moteExternUUID: String): Int {
-        val dialogmoter = get(fnr, virksomhetsnummer, moteExternUUID)
-        return if (dialogmoter.isNotEmpty()) {
-            val dialogmoteIder: List<String> = dialogmoter.map {
-                "${it.uuid}"
-            }
-            namedParameterJdbcTemplate.update(
-                "DELETE FROM dialogmote WHERE uuid IN (:dialogmoteIder)",
+        fun get(
+            fnr: String,
+            virksomhetsnummer: String,
+            dialogmoteExternUUID: String,
+        ): List<Dialogmote> {
+            val query =
+                """
+                SELECT *
+                FROM dialogmote
+                WHERE person_ident = :person_ident AND virksomhetsnummer = :virksomhetsnummer AND dialogmote_extern_uuid = :dialogmoteExternUUID
+                """.trimIndent()
+            val mapSql =
                 MapSqlParameterSource()
-                    .addValue("dialogmoteIder", dialogmoteIder),
+                    .addValue("person_ident", fnr)
+                    .addValue("virksomhetsnummer", virksomhetsnummer)
+                    .addValue("dialogmoteExternUUID", dialogmoteExternUUID)
+            return namedParameterJdbcTemplate.query(
+                query,
+                mapSql,
+                dialogmoteRowMapper,
             )
-        } else {
-            0
         }
-    }
 
-    fun getAktiveDialogmoterPaVirksomhetEtterDato(
-        fnr: String,
-        virksomhetsnummer: String,
-        dialogmoteTidspunkt: LocalDate,
-    ): List<Dialogmote> {
-        val query = """
-            SELECT *
-            FROM dialogmote
-            WHERE person_ident = :person_ident AND virksomhetsnummer = :virksomhetsnummer AND (CAST (dialogmote_tidspunkt AS DATE) = :dialogmoteTidspunkt OR CAST (dialogmote_tidspunkt AS DATE) > :dialogmoteTidspunkt)
-        """.trimIndent()
-        val mapSql = MapSqlParameterSource()
-            .addValue("person_ident", fnr)
-            .addValue("virksomhetsnummer", virksomhetsnummer)
-            .addValue("dialogmoteTidspunkt", convert(dialogmoteTidspunkt))
-        return namedParameterJdbcTemplate.query(
-            query,
-            mapSql,
-            dialogmoteRowMapper,
-        )
-    }
+        fun update(
+            fnr: String,
+            virksomhetsnummer: String,
+            dialogmoteExternUUID: String,
+            statusEndringType: String,
+            statusEndringTidspunkt: LocalDateTime,
+        ) {
+            val query =
+                """
+                UPDATE dialogmote
+                SET db_endring_tidspunkt = :db_endring_tidspunkt, status_endring_type = :statusEndringType, status_endring_tidspunkt = :statusEndringTidspunkt
+                WHERE person_ident = :fnr AND virksomhetsnummer = :virksomhetsnummer AND dialogmote_extern_uuid = :dialogmoteExternUUID
+                """.trimIndent()
+            val mapSaveSql =
+                MapSqlParameterSource()
+                    .addValue("db_endring_tidspunkt", convert(LocalDateTime.now()))
+                    .addValue("statusEndringType", statusEndringType)
+                    .addValue("fnr", fnr)
+                    .addValue("virksomhetsnummer", virksomhetsnummer)
+                    .addValue("dialogmoteExternUUID", dialogmoteExternUUID)
+                    .addValue("statusEndringTidspunkt", statusEndringTidspunkt)
+            namedParameterJdbcTemplate.update(query, mapSaveSql)
+        }
 
-    fun getAktiveDialogmoterEtterDato(
-        fnr: String,
-        dialogmoteTidspunkt: LocalDate,
-    ): List<Dialogmote> {
-        val query = """
-            SELECT *
-            FROM dialogmote
-            WHERE person_ident = :person_ident AND (CAST (dialogmote_tidspunkt AS DATE) = :dialogmoteTidspunkt OR CAST (dialogmote_tidspunkt AS DATE) > :dialogmoteTidspunkt)
-        """.trimIndent()
-        val mapSql = MapSqlParameterSource()
-            .addValue("person_ident", fnr)
-            .addValue("dialogmoteTidspunkt", convert(dialogmoteTidspunkt))
-        return namedParameterJdbcTemplate.query(
-            query,
-            mapSql,
-            dialogmoteRowMapper,
-        )
-    }
+        fun create(
+            moteExternUUID: String,
+            dialogmoteTidspunkt: LocalDateTime,
+            statusEndringTidspunkt: LocalDateTime,
+            statusEndringType: String,
+            fnr: String,
+            virksomhetsnummer: String,
+        ): UUID {
+            val uuid = UUID.randomUUID()
+            val query =
+                """
+                INSERT INTO dialogmote (uuid, dialogmote_extern_uuid, dialogmote_tidspunkt, status_endring_tidspunkt, db_endring_tidspunkt, status_endring_type, person_ident, virksomhetsnummer)
+                VALUES (:uuid, :moteExternUUID, :dialogmoteTidspunkt, :statusEndringTidspunkt, :dbEndringTidspunkt, :statusEndringType, :fnr, :virksomhetsnummer)
+                """.trimIndent()
+            val mapSaveSql =
+                MapSqlParameterSource()
+                    .addValue("uuid", uuid.toString())
+                    .addValue("moteExternUUID", moteExternUUID)
+                    .addValue("dialogmoteTidspunkt", convert(dialogmoteTidspunkt))
+                    .addValue("statusEndringTidspunkt", convert(statusEndringTidspunkt))
+                    .addValue("dbEndringTidspunkt", convert(LocalDateTime.now()))
+                    .addValue("statusEndringType", statusEndringType)
+                    .addValue("fnr", fnr)
+                    .addValue("virksomhetsnummer", virksomhetsnummer)
+            namedParameterJdbcTemplate.update(query, mapSaveSql)
+            return uuid
+        }
 
-    fun nullstillDialogmoter(fnr: String) {
-        namedParameterJdbcTemplate.update(
-            "DELETE FROM dialogmote WHERE person_ident = :fnr",
-            MapSqlParameterSource()
-                .addValue("fnr", fnr),
-        )
-    }
+        fun delete(
+            fnr: String,
+            virksomhetsnummer: String,
+            moteExternUUID: String,
+        ): Int {
+            val dialogmoter = get(fnr, virksomhetsnummer, moteExternUUID)
+            return if (dialogmoter.isNotEmpty()) {
+                val dialogmoteIder: List<String> =
+                    dialogmoter.map {
+                        "${it.uuid}"
+                    }
+                namedParameterJdbcTemplate.update(
+                    "DELETE FROM dialogmote WHERE uuid IN (:dialogmoteIder)",
+                    MapSqlParameterSource()
+                        .addValue("dialogmoteIder", dialogmoteIder),
+                )
+            } else {
+                0
+            }
+        }
 
-    val dialogmoteRowMapper = RowMapper { resultSet, _ ->
-        Dialogmote(
-            uuid = UUID.fromString(resultSet.getString("uuid")),
-            dialogmoteExternUuid = UUID.fromString(resultSet.getString("dialogmote_extern_uuid")),
-            moteTidspunkt = resultSet.getTimestamp("dialogmote_tidspunkt").toLocalDateTime(),
-            statusEndringTidspunkt = resultSet.getTimestamp("status_endring_tidspunkt").toLocalDateTime(),
-            statusEndringType = DialogmoteStatusEndringType.valueOf(resultSet.getString("status_endring_type")),
-            personIdent = resultSet.getString("person_ident"),
-            virksomhetsnummer = resultSet.getString("virksomhetsnummer"),
-        )
+        fun getAktiveDialogmoterPaVirksomhetEtterDato(
+            fnr: String,
+            virksomhetsnummer: String,
+            dialogmoteTidspunkt: LocalDate,
+        ): List<Dialogmote> {
+            val query =
+                """
+                SELECT *
+                FROM dialogmote
+                WHERE person_ident = :person_ident AND virksomhetsnummer = :virksomhetsnummer AND (CAST (dialogmote_tidspunkt AS DATE) = :dialogmoteTidspunkt OR CAST (dialogmote_tidspunkt AS DATE) > :dialogmoteTidspunkt)
+                """.trimIndent()
+            val mapSql =
+                MapSqlParameterSource()
+                    .addValue("person_ident", fnr)
+                    .addValue("virksomhetsnummer", virksomhetsnummer)
+                    .addValue("dialogmoteTidspunkt", convert(dialogmoteTidspunkt))
+            return namedParameterJdbcTemplate.query(
+                query,
+                mapSql,
+                dialogmoteRowMapper,
+            )
+        }
+
+        fun getAktiveDialogmoterEtterDato(
+            fnr: String,
+            dialogmoteTidspunkt: LocalDate,
+        ): List<Dialogmote> {
+            val query =
+                """
+                SELECT *
+                FROM dialogmote
+                WHERE person_ident = :person_ident AND (CAST (dialogmote_tidspunkt AS DATE) = :dialogmoteTidspunkt OR CAST (dialogmote_tidspunkt AS DATE) > :dialogmoteTidspunkt)
+                """.trimIndent()
+            val mapSql =
+                MapSqlParameterSource()
+                    .addValue("person_ident", fnr)
+                    .addValue("dialogmoteTidspunkt", convert(dialogmoteTidspunkt))
+            return namedParameterJdbcTemplate.query(
+                query,
+                mapSql,
+                dialogmoteRowMapper,
+            )
+        }
+
+        fun nullstillDialogmoter(fnr: String) {
+            namedParameterJdbcTemplate.update(
+                "DELETE FROM dialogmote WHERE person_ident = :fnr",
+                MapSqlParameterSource()
+                    .addValue("fnr", fnr),
+            )
+        }
+
+        val dialogmoteRowMapper =
+            RowMapper { resultSet, _ ->
+                Dialogmote(
+                    uuid = UUID.fromString(resultSet.getString("uuid")),
+                    dialogmoteExternUuid = UUID.fromString(resultSet.getString("dialogmote_extern_uuid")),
+                    moteTidspunkt = resultSet.getTimestamp("dialogmote_tidspunkt").toLocalDateTime(),
+                    statusEndringTidspunkt = resultSet.getTimestamp("status_endring_tidspunkt").toLocalDateTime(),
+                    statusEndringType = DialogmoteStatusEndringType.valueOf(resultSet.getString("status_endring_type")),
+                    personIdent = resultSet.getString("person_ident"),
+                    virksomhetsnummer = resultSet.getString("virksomhetsnummer"),
+                )
+            }
     }
-}

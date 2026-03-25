@@ -10,7 +10,7 @@ data class DialogmoteKandidatEndring(
     val kandidat: Boolean,
     val arsak: DialogmotekandidatEndringArsak,
     val createdAt: LocalDateTime,
-    val databaseUpdatedAt: LocalDateTime
+    val databaseUpdatedAt: LocalDateTime,
 )
 
 enum class DialogmotekandidatEndringArsak {

@@ -18,15 +18,13 @@ class EsyfovarselKafkaConfig(
     private val kafkaAivenConfig: KafkaAivenConfig,
 ) {
     @Bean("EsyfovarselProducerFactory")
-    fun producerFactory(): ProducerFactory<String, EsyfovarselHendelse> {
-
-        return DefaultKafkaProducerFactory(
+    fun producerFactory(): ProducerFactory<String, EsyfovarselHendelse> =
+        DefaultKafkaProducerFactory(
             kafkaAivenConfig.commonKafkaAivenProducerConfig(),
         )
-    }
 
     @Bean("EsyfovarselKafkaTemplate")
-    fun kafkaTemplate(@Qualifier("EsyfovarselProducerFactory") producerFactory: ProducerFactory<String, EsyfovarselHendelse>): KafkaTemplate<String, EsyfovarselHendelse> {
-        return KafkaTemplate(producerFactory)
-    }
+    fun kafkaTemplate(
+        @Qualifier("EsyfovarselProducerFactory") producerFactory: ProducerFactory<String, EsyfovarselHendelse>,
+    ): KafkaTemplate<String, EsyfovarselHendelse> = KafkaTemplate(producerFactory)
 }

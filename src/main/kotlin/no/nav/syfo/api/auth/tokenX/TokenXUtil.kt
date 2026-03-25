@@ -20,9 +20,7 @@ object TokenXUtil {
         return claims
     }
 
-    fun JwtTokenClaims.fnrFromIdportenTokenX(): String {
-        return this.getStringClaim("pid")
-    }
+    fun JwtTokenClaims.fnrFromIdportenTokenX(): String = this.getStringClaim("pid")
 
     fun fnrFromIdportenTokenX(contextHolder: TokenValidationContextHolder): String {
         val context = contextHolder.tokenValidationContext

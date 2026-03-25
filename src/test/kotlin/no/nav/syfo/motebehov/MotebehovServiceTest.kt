@@ -7,6 +7,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.every
+import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.motebehov.database.MotebehovDAO
@@ -28,12 +29,10 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
-import no.nav.syfo.IntegrationTest
 
 @SpringBootTest(classes = [LocalApplication::class])
 @ApplyExtension(SpringExtension::class)
 class MotebehovServiceTest : IntegrationTest() {
-
     @Value("\${azure.openid.config.token.endpoint}")
     private lateinit var azureTokenEndpoint: String
 
@@ -78,10 +77,11 @@ class MotebehovServiceTest : IntegrationTest() {
             it("skalFerdigstilleMotebehovOpprettetForDato") {
                 val pMotebehov = MotebehovGenerator().generatePmotebehov()
                 val uuid = motebehovDAO.create(pMotebehov)
-                val count = motebehovService.behandleUbehandledeMotebehovOpprettetTidligereEnnDato(
-                    LocalDate.now().plusWeeks(1),
-                    veilederIdent
-                )
+                val count =
+                    motebehovService.behandleUbehandledeMotebehovOpprettetTidligereEnnDato(
+                        LocalDate.now().plusWeeks(1),
+                        veilederIdent,
+                    )
                 val motebehov = motebehovDAO.hentMotebehov(uuid.toString())
                 count shouldBe 1
                 motebehov.first().behandletVeilederIdent shouldBe veilederIdent
@@ -91,10 +91,11 @@ class MotebehovServiceTest : IntegrationTest() {
             it("skalIkkeFerdigstilleMotebehovOpprettetEtterDato") {
                 val pMotebehov = MotebehovGenerator().generatePmotebehov()
                 val uuid = motebehovDAO.create(pMotebehov)
-                val count = motebehovService.behandleUbehandledeMotebehovOpprettetTidligereEnnDato(
-                    LocalDate.now().minusWeeks(1),
-                    veilederIdent
-                )
+                val count =
+                    motebehovService.behandleUbehandledeMotebehovOpprettetTidligereEnnDato(
+                        LocalDate.now().minusWeeks(1),
+                        veilederIdent,
+                    )
                 val motebehov = motebehovDAO.hentMotebehov(uuid.toString())
                 count shouldBe 0
                 motebehov.first().behandletVeilederIdent.shouldBeNull()
@@ -118,17 +119,18 @@ class MotebehovServiceTest : IntegrationTest() {
                 every { pdlConsumer.aktorid(LEDER_FNR) } returns LEDER_AKTORID
 
                 // Act
-                val uuid = motebehovService.lagreMotebehov(
-                    LEDER_FNR,
-                    ARBEIDSTAKER_FNR,
-                    VIRKSOMHETSNUMMER,
-                    MotebehovSkjemaType.SVAR_BEHOV,
-                    MotebehovInnmelderType.ARBEIDSGIVER,
-                    MotebehovFormSubmissionDTO(
-                        true,
-                        mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
+                val uuid =
+                    motebehovService.lagreMotebehov(
+                        LEDER_FNR,
+                        ARBEIDSTAKER_FNR,
+                        VIRKSOMHETSNUMMER,
+                        MotebehovSkjemaType.SVAR_BEHOV,
+                        MotebehovInnmelderType.ARBEIDSGIVER,
+                        MotebehovFormSubmissionDTO(
+                            true,
+                            mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
+                        ),
                     )
-                )
 
                 val retrievedMotebehov = motebehovService.hentMotebehov(uuid.toString())
 

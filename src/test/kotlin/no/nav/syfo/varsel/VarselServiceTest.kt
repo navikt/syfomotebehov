@@ -24,136 +24,140 @@ import java.time.LocalDateTime.now
 import java.util.UUID.randomUUID
 
 @DirtiesContext
-class VarselServiceTest : DescribeSpec({
+class VarselServiceTest :
+    DescribeSpec({
 
-    val motebehovService: MotebehovService = mockk<MotebehovService>()
+        val motebehovService: MotebehovService = mockk<MotebehovService>()
 
-    val oppfolgingstilfelleService: OppfolgingstilfelleService = mockk<OppfolgingstilfelleService>()
+        val oppfolgingstilfelleService: OppfolgingstilfelleService = mockk<OppfolgingstilfelleService>()
 
-    val esyfovarselService: EsyfovarselService = mockk<EsyfovarselService>(relaxed = true)
+        val esyfovarselService: EsyfovarselService = mockk<EsyfovarselService>(relaxed = true)
 
-    val dialogmoteDAO: DialogmoteDAO = mockk<DialogmoteDAO>()
+        val dialogmoteDAO: DialogmoteDAO = mockk<DialogmoteDAO>()
 
-    val narmesteLederService: NarmesteLederService = mockk<NarmesteLederService>()
-    val metric = mockk<Metric>()
-    val motebehovStatusHelper = mockk<MotebehovStatusHelper>()
-    val varselService = VarselServiceV2(
-        metric,
-        motebehovService,
-        motebehovStatusHelper,
-        oppfolgingstilfelleService,
-        esyfovarselService,
-        narmesteLederService,
-        dialogmoteDAO,
-    )
-
-    val userFnr = UserConstants.ARBEIDSTAKER_FNR
-
-    beforeTest {
-        clearMocks(
-            motebehovService,
-            oppfolgingstilfelleService,
-            esyfovarselService,
-            dialogmoteDAO,
-            narmesteLederService,
-            metric,
-            motebehovStatusHelper
-        )
-        every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(any()) } returns createOppfolgingstilfelle()
-        every {
-            oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
-                any(),
-                any(),
+        val narmesteLederService: NarmesteLederService = mockk<NarmesteLederService>()
+        val metric = mockk<Metric>()
+        val motebehovStatusHelper = mockk<MotebehovStatusHelper>()
+        val varselService =
+            VarselServiceV2(
+                metric,
+                motebehovService,
+                motebehovStatusHelper,
+                oppfolgingstilfelleService,
+                esyfovarselService,
+                narmesteLederService,
+                dialogmoteDAO,
             )
-        } returns createOppfolgingstilfelle()
-        every { dialogmoteDAO.getAktiveDialogmoterEtterDato(any(), any()) } returns emptyList()
-        every {
-            motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
-                any(),
-                any(),
-                any(),
+
+        val userFnr = UserConstants.ARBEIDSTAKER_FNR
+
+        beforeTest {
+            clearMocks(
+                motebehovService,
+                oppfolgingstilfelleService,
+                esyfovarselService,
+                dialogmoteDAO,
+                narmesteLederService,
+                metric,
+                motebehovStatusHelper,
             )
-        } returns emptyList()
-        every { motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(any()) } returns emptyList()
-        every { narmesteLederService.getAllNarmesteLederRelations(userFnr) } returns createNarmesteLederRelations()
-        every { motebehovStatusHelper.isSvarBehovVarselAvailable(any(), any()) } returns true
-        every { metric.tellHendelse(any()) } returns Unit
-    }
-
-    describe("Varsel service") {
-        it("skalSendeVarselTilDenSykmeldteOgAlleNarmesteLedereMedAktivtOppfolgingstilfelle") {
-            varselService.sendSvarBehovVarsel(userFnr, "")
-
-            verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
-            verify(exactly = 2) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), userFnr, any()) }
-        }
-
-        it("senderIkkeVarselOmIkkeAktivtOppfolgingstilfelle") {
+            every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(any()) } returns createOppfolgingstilfelle()
             every {
                 oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
-                    userFnr,
-                    virksomhetsnummer2
+                    any(),
+                    any(),
                 )
-            } returns null
-            every { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), any(), any()) } returns Unit
-            varselService.sendSvarBehovVarsel(userFnr, "")
-
-            verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
-            verify(exactly = 1) {
-                esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(
-                    narmesteLederFnr1,
-                    userFnr,
-                    virksomhetsnummer1
-                )
-            }
-        }
-
-        it("senderIkkeVarselOmIkkeSykmeldtLenger") {
+            } returns createOppfolgingstilfelle()
+            every { dialogmoteDAO.getAktiveDialogmoterEtterDato(any(), any()) } returns emptyList()
             every {
-                oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
-                    userFnr,
-                    virksomhetsnummer2
+                motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
+                    any(),
+                    any(),
+                    any(),
                 )
-            } returns PersonOppfolgingstilfelle(
-                userFnr,
-                LocalDate.now().minusMonths(4),
-                LocalDate.now().minusDays(1),
-            )
+            } returns emptyList()
+            every { motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(any()) } returns emptyList()
+            every { narmesteLederService.getAllNarmesteLederRelations(userFnr) } returns createNarmesteLederRelations()
+            every { motebehovStatusHelper.isSvarBehovVarselAvailable(any(), any()) } returns true
+            every { metric.tellHendelse(any()) } returns Unit
+        }
 
-            varselService.sendSvarBehovVarsel(userFnr, "")
+        describe("Varsel service") {
+            it("skalSendeVarselTilDenSykmeldteOgAlleNarmesteLedereMedAktivtOppfolgingstilfelle") {
+                varselService.sendSvarBehovVarsel(userFnr, "")
 
-            verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
-            verify(exactly = 1) {
-                esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(
-                    narmesteLederFnr2,
-                    userFnr,
-                    any()
-                )
+                verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
+                verify(exactly = 2) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), userFnr, any()) }
+            }
+
+            it("senderIkkeVarselOmIkkeAktivtOppfolgingstilfelle") {
+                every {
+                    oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
+                        userFnr,
+                        virksomhetsnummer2,
+                    )
+                } returns null
+                every { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), any(), any()) } returns Unit
+                varselService.sendSvarBehovVarsel(userFnr, "")
+
+                verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
+                verify(exactly = 1) {
+                    esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(
+                        narmesteLederFnr1,
+                        userFnr,
+                        virksomhetsnummer1,
+                    )
+                }
+            }
+
+            it("senderIkkeVarselOmIkkeSykmeldtLenger") {
+                every {
+                    oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
+                        userFnr,
+                        virksomhetsnummer2,
+                    )
+                } returns
+                    PersonOppfolgingstilfelle(
+                        userFnr,
+                        LocalDate.now().minusMonths(4),
+                        LocalDate.now().minusDays(1),
+                    )
+
+                varselService.sendSvarBehovVarsel(userFnr, "")
+
+                verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
+                verify(exactly = 1) {
+                    esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(
+                        narmesteLederFnr2,
+                        userFnr,
+                        any(),
+                    )
+                }
+            }
+
+            it("senderIkkeVarselDersomDialogmotePlanlagt") {
+                every { dialogmoteDAO.getAktiveDialogmoterEtterDato(any(), any()) } returns
+                    listOf(
+                        Dialogmote(
+                            randomUUID(),
+                            randomUUID(),
+                            now(),
+                            now(),
+                            DialogmoteStatusEndringType.INNKALT,
+                            userFnr,
+                            virksomhetsnummer1,
+                        ),
+                    )
+                every { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(any()) } returns Unit
+                every { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), any(), any()) } returns Unit
+
+                varselService.sendSvarBehovVarsel(userFnr, "")
+
+                verify(exactly = 0) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
+                verify(exactly = 0) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), userFnr, any()) }
             }
         }
-
-        it("senderIkkeVarselDersomDialogmotePlanlagt") {
-            every { dialogmoteDAO.getAktiveDialogmoterEtterDato(any(), any()) } returns listOf(
-                Dialogmote(
-                    randomUUID(),
-                    randomUUID(),
-                    now(),
-                    now(),
-                    DialogmoteStatusEndringType.INNKALT,
-                    userFnr,
-                    virksomhetsnummer1,
-                ),
-            )
-            every { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(any()) } returns Unit
-            every { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), any(), any()) } returns Unit
-
-            varselService.sendSvarBehovVarsel(userFnr, "")
-
-            verify(exactly = 0) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
-            verify(exactly = 0) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), userFnr, any()) }
-        }
-    }
-}) {
+    }) {
     companion object {
         val userFnr = UserConstants.ARBEIDSTAKER_FNR
         const val narmesteLederFnr1 = "11111111111"
@@ -161,16 +165,15 @@ class VarselServiceTest : DescribeSpec({
         const val virksomhetsnummer1 = "777888555"
         const val virksomhetsnummer2 = "222222222"
 
-        fun createOppfolgingstilfelle(): PersonOppfolgingstilfelle {
-            return PersonOppfolgingstilfelle(
+        fun createOppfolgingstilfelle(): PersonOppfolgingstilfelle =
+            PersonOppfolgingstilfelle(
                 userFnr,
                 LocalDate.now().minusMonths(4),
                 LocalDate.now().plusWeeks(2),
             )
-        }
 
-        fun createNarmesteLederRelations(): List<NarmesteLederRelasjonDTO> {
-            return listOf(
+        fun createNarmesteLederRelations(): List<NarmesteLederRelasjonDTO> =
+            listOf(
                 NarmesteLederRelasjonDTO(
                     uuid = "123",
                     arbeidstakerPersonIdentNumber = userFnr,
@@ -202,6 +205,5 @@ class VarselServiceTest : DescribeSpec({
                     status = NarmesteLederRelasjonStatus.INNMELDT_AKTIV,
                 ),
             )
-        }
     }
 }

@@ -5,50 +5,50 @@ import java.io.Serializable
 
 data class PdlPersonResponse(
     val errors: List<PdlError>?,
-    val data: PdlHentPerson?
+    val data: PdlHentPerson?,
 )
 
 data class PdlError(
     val message: String,
     val locations: List<PdlErrorLocation>,
     val path: List<String>?,
-    val extensions: PdlErrorExtension
+    val extensions: PdlErrorExtension,
 )
 
 data class PdlErrorLocation(
     val line: Int?,
-    val column: Int?
+    val column: Int?,
 )
 
 data class PdlErrorExtension(
     val code: String?,
-    val classification: String
+    val classification: String,
 )
 
 data class PdlHentPerson(
-    val hentPerson: PdlPerson?
+    val hentPerson: PdlPerson?,
 ) : Serializable
 
 data class PdlPerson(
     val navn: List<PdlPersonNavn>,
-    val adressebeskyttelse: List<Adressebeskyttelse>?
+    val adressebeskyttelse: List<Adressebeskyttelse>?,
 ) : Serializable
 
 data class PdlPersonNavn(
     val fornavn: String,
     val mellomnavn: String?,
-    val etternavn: String
+    val etternavn: String,
 ) : Serializable
 
 data class Adressebeskyttelse(
-    val gradering: Gradering
+    val gradering: Gradering,
 ) : Serializable
 
 enum class Gradering : Serializable {
     STRENGT_FORTROLIG_UTLAND,
     STRENGT_FORTROLIG,
     FORTROLIG,
-    UGRADERT
+    UGRADERT,
 }
 
 fun PdlHentPerson.isKode6(): Boolean {
@@ -62,9 +62,8 @@ fun PdlHentPerson.isKode6(): Boolean {
     }
 }
 
-fun Adressebeskyttelse.isKode6(): Boolean {
-    return this.gradering == Gradering.STRENGT_FORTROLIG || this.gradering == Gradering.STRENGT_FORTROLIG_UTLAND
-}
+fun Adressebeskyttelse.isKode6(): Boolean =
+    this.gradering == Gradering.STRENGT_FORTROLIG || this.gradering == Gradering.STRENGT_FORTROLIG_UTLAND
 
 fun PdlHentPerson.fullName(): String? {
     val nameList = this.hentPerson?.navn
@@ -84,6 +83,4 @@ fun PdlHentPerson.fullName(): String? {
     }
 }
 
-fun PdlError.errorMessage(): String {
-    return "${this.message} with code: ${extensions.code} and classification: ${extensions.classification}"
-}
+fun PdlError.errorMessage(): String = "${this.message} with code: ${extensions.code} and classification: ${extensions.classification}"

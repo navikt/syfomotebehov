@@ -1,7 +1,6 @@
 package no.nav.syfo
 
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.fromApplication
 import org.springframework.boot.test.context.TestConfiguration
@@ -14,8 +13,8 @@ import org.testcontainers.utility.DockerImageName
 @TestConfiguration(proxyBeanMethods = false)
 @EnableMockOAuth2Server
 class LocalApplication {
- @Value("\${mock-oauth2-server.port}")
- lateinit var oauth2Port: String
+    @Value("\${mock-oauth2-server.port}")
+    lateinit var oauth2Port: String
 
     @Bean
     @ServiceConnection
@@ -24,11 +23,10 @@ class LocalApplication {
             withDatabaseName("syfomotebehov")
             withUsername("postgres")
             withPassword("postgres")
-            if(environment.activeProfiles.contains("local")) {
+            if (environment.activeProfiles.contains("local")) {
                 withReuse(true)
             }
         }
-
 }
 
 fun main(args: Array<String>) {

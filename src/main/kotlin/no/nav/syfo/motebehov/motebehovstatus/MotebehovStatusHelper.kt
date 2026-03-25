@@ -15,7 +15,6 @@ const val DAYS_END_SVAR_BEHOV = WEEKS_END_SVAR_BEHOV * 7L
 
 @Component
 class MotebehovStatusHelper {
-
     fun motebehovStatus(
         hasUpcomingDialogmote: Boolean,
         oppfolgingstilfelle: PersonOppfolgingstilfelle?,
@@ -58,12 +57,13 @@ class MotebehovStatusHelper {
                 return false
             }
 
-            val motebehovStatus = motebehovStatus(
-                false,
-                oppfolgingstilfelle,
-                true,
-                motebehovList,
-            )
+            val motebehovStatus =
+                motebehovStatus(
+                    false,
+                    oppfolgingstilfelle,
+                    true,
+                    motebehovList,
+                )
 
             return getNewestMotebehovInOppfolgingstilfelle(oppfolgingstilfelle, motebehovList)
                 ?.let { newestMotebehov ->

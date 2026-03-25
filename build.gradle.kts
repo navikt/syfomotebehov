@@ -78,7 +78,7 @@ dependencies {
 
     implementation("io.confluent:kafka-avro-serializer:$confluent")
     implementation("io.confluent:kafka-schema-registry:$confluent") {
-        exclude(module="slf4j-reload4j") // Conflicts with logback slf4j provider
+        exclude(module = "slf4j-reload4j") // Conflicts with logback slf4j provider
     }
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:$isdialogmoteSchema")
     implementation("javax.inject:javax.inject:$javaxInjectVersion")
@@ -116,7 +116,6 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-property:$kotestVersion")
     testImplementation("io.kotest:kotest-extensions-wiremock:$kotestVersion")
-
 }
 
 java.toolchain {

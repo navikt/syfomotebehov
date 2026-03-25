@@ -134,7 +134,8 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
         describe("Møtebehov arbeidstaker controller V4") {
             it("get MotebehovStatus With No Oppfolgingstilfelle") {
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidstakerController
+                    .motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(expVisMotebehov = false)
             }
 
@@ -148,7 +149,8 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidstakerController
+                    .motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(expVisMotebehov = false)
             }
 
@@ -162,13 +164,14 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidstakerController
+                    .motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(expVisMotebehov = false)
             }
 
             it(
                 "get MotebehovStatus With Today Inside Oppfolgingstilfelle Merged By Active And" +
-                    " Expired Oppfolgingstilfelle No Overlap"
+                    " Expired Oppfolgingstilfelle No Overlap",
             ) {
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
                 val activeOppfolgingstilfelleStartDate = LocalDate.now().minusDays(DAYS_START_SVAR_BEHOV).plusDays(1)
@@ -191,13 +194,14 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidstakerController
+                    .motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(expVisMotebehov = true, expSkjemaType = MotebehovSkjemaType.MELD_BEHOV)
             }
 
             it(
                 "getMotebehovStatus With Today Inside Oppfolgingstilfelle Merged By Active And" +
-                    " Expired Oppfolgingstilfelle With Overlap"
+                    " Expired Oppfolgingstilfelle With Overlap",
             ) {
                 createKandidatInDB()
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
@@ -222,7 +226,8 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidstakerController
+                    .motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(expVisMotebehov = true, expSkjemaType = MotebehovSkjemaType.SVAR_BEHOV)
             }
 
@@ -246,7 +251,8 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidstakerController
+                    .motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(expVisMotebehov = true, expSkjemaType = MotebehovSkjemaType.MELD_BEHOV)
             }
 
@@ -259,7 +265,8 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                         end = LocalDate.now(),
                     ),
                 )
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidstakerController
+                    .motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(expVisMotebehov = true, expSkjemaType = MotebehovSkjemaType.MELD_BEHOV)
             }
 
@@ -273,7 +280,8 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidstakerController
+                    .motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(expVisMotebehov = true, expSkjemaType = MotebehovSkjemaType.MELD_BEHOV)
             }
 
@@ -287,7 +295,8 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidstakerController
+                    .motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(expVisMotebehov = true, expSkjemaType = MotebehovSkjemaType.MELD_BEHOV)
             }
 
@@ -313,13 +322,14 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                 resetMockRestServers()
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidstakerController
+                    .motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(expVisMotebehov = true, expSkjemaType = MotebehovSkjemaType.MELD_BEHOV)
             }
 
             it(
                 "get MotebehovStatus With Today Inside Oppfolgingstilfelle MeldBehov," +
-                    " Moteplanlegger Active, MeldBehov Submitted"
+                    " Moteplanlegger Active, MeldBehov Submitted",
             ) {
                 tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
                 dbCreateOppfolgingstilfelle(
@@ -336,12 +346,14 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
 
                 mockRestServiceServer.reset()
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidstakerController
+                    .motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(
                         expVisMotebehov = true,
                         expSkjemaType = MotebehovSkjemaType.MELD_BEHOV,
-                        expMotebehovFormValues = motebehovFormSubmissionDTO
-                            .toMotebehovFormValuesOutputDTO()
+                        expMotebehovFormValues =
+                            motebehovFormSubmissionDTO
+                                .toMotebehovFormValuesOutputDTO(),
                     )
             }
 
@@ -355,7 +367,8 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidstakerController
+                    .motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(expVisMotebehov = true, expSkjemaType = MotebehovSkjemaType.MELD_BEHOV)
             }
 
@@ -369,7 +382,8 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidstakerController
+                    .motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(expVisMotebehov = true, expSkjemaType = MotebehovSkjemaType.MELD_BEHOV)
             }
 
@@ -385,7 +399,8 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidstakerController
+                    .motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(expVisMotebehov = true, expSkjemaType = MotebehovSkjemaType.SVAR_BEHOV)
             }
 
@@ -409,12 +424,14 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
 
                 mockRestServiceServer.reset()
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidstakerController
+                    .motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(
                         expVisMotebehov = true,
                         expSkjemaType = MotebehovSkjemaType.SVAR_BEHOV,
-                        expMotebehovFormValues = motebehovFormSubmissionDTO
-                            .toMotebehovFormValuesOutputDTO()
+                        expMotebehovFormValues =
+                            motebehovFormSubmissionDTO
+                                .toMotebehovFormValuesOutputDTO(),
                     )
             }
 
@@ -430,7 +447,8 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                     ),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidstakerController
+                    .motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(expVisMotebehov = true, expSkjemaType = MotebehovSkjemaType.SVAR_BEHOV)
             }
 
@@ -443,7 +461,8 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                     generateOppfolgingstilfellePerson(),
                 )
 
-                motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
+                motebehovArbeidstakerController
+                    .motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(expVisMotebehov = true, expSkjemaType = MotebehovSkjemaType.SVAR_BEHOV)
             }
 

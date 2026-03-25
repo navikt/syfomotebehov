@@ -24,13 +24,16 @@ fun mockAndExpectBehandlendeEnhetRequest(
     behandlendeenhetUrl: String,
     fnr: String,
 ) {
-    val uriString = UriComponentsBuilder.fromUriString(behandlendeenhetUrl)
-        .path(BEHANDLENDEENHET_PATH)
-        .toUriString()
-    val behandlendeEnhet = BehandlendeEnhet(
-        geografiskEnhet = EnhetDTO(UserConstants.NAV_ENHET, UserConstants.NAV_ENHET_NAVN),
-        oppfolgingsenhetDTO = null,
-    )
+    val uriString =
+        UriComponentsBuilder
+            .fromUriString(behandlendeenhetUrl)
+            .path(BEHANDLENDEENHET_PATH)
+            .toUriString()
+    val behandlendeEnhet =
+        BehandlendeEnhet(
+            geografiskEnhet = EnhetDTO(UserConstants.NAV_ENHET, UserConstants.NAV_ENHET_NAVN),
+            oppfolgingsenhetDTO = null,
+        )
 
     val systemToken = generateAzureAdV2TokenResponse()
 
@@ -39,7 +42,8 @@ fun mockAndExpectBehandlendeEnhetRequest(
     try {
         val json = ObjectMapper().writeValueAsString(behandlendeEnhet)
 
-        mockRestServiceServer.expect(ExpectedCount.once(), MockRestRequestMatchers.requestTo(uriString))
+        mockRestServiceServer
+            .expect(ExpectedCount.once(), MockRestRequestMatchers.requestTo(uriString))
             .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
             .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, bearerCredentials(systemToken.access_token)))
             .andExpect(MockRestRequestMatchers.header(NAV_PERSONIDENT_HEADER, fnr))
@@ -57,13 +61,16 @@ fun mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll(
     tilgangskontrollUrl: String,
     fnr: String,
 ) {
-    val uriString = UriComponentsBuilder.fromUriString(behandlendeenhetUrl)
-        .path(BEHANDLENDEENHET_PATH)
-        .toUriString()
-    val behandlendeEnhet = BehandlendeEnhet(
-        geografiskEnhet = EnhetDTO(UserConstants.NAV_ENHET, UserConstants.NAV_ENHET_NAVN),
-        oppfolgingsenhetDTO = null,
-    )
+    val uriString =
+        UriComponentsBuilder
+            .fromUriString(behandlendeenhetUrl)
+            .path(BEHANDLENDEENHET_PATH)
+            .toUriString()
+    val behandlendeEnhet =
+        BehandlendeEnhet(
+            geografiskEnhet = EnhetDTO(UserConstants.NAV_ENHET, UserConstants.NAV_ENHET_NAVN),
+            oppfolgingsenhetDTO = null,
+        )
 
     val systemToken = generateAzureAdV2TokenResponse()
 
@@ -80,7 +87,8 @@ fun mockAndExpectBehandlendeEnhetRequestWithTilgangskontroll(
     try {
         val json = ObjectMapper().writeValueAsString(behandlendeEnhet)
 
-        mockRestServiceServer.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(uriString))
+        mockRestServiceServer
+            .expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(uriString))
             .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
             .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, bearerCredentials(systemToken.access_token)))
             .andExpect(MockRestRequestMatchers.header(NAV_PERSONIDENT_HEADER, fnr))

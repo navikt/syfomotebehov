@@ -35,87 +35,91 @@ import javax.validation.constraints.Pattern
 @RestController
 @ProtectedWithClaims(issuer = INTERN_AZUREAD_V2)
 @RequestMapping(value = ["/api/internad/v4/veileder"])
-class MotebehovVeilederADControllerV4 @Inject constructor(
-    private val contextHolder: TokenValidationContextHolder,
-    private val metric: Metric,
-    private val historikkService: HistorikkService,
-    private val motebehovService: MotebehovService,
-    private val pdlConsumer: IPdlConsumer,
-    private val veilederTilgangConsumer: IVeilederTilgangConsumer,
-    private val esyfovarselService: EsyfovarselService,
-) {
-    @GetMapping(value = ["/motebehov"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun hentMotebehovListe(
-        @RequestHeader(name = NAV_PERSONIDENT_HEADER) personident:
-        @Pattern(regexp = "^[0-9]{11}$")
-        String
-    ): List<MotebehovVeilederDTO> {
-        metric.tellEndepunktKall("veileder_hent_motebehov")
+class MotebehovVeilederADControllerV4
+    @Inject
+    constructor(
+        private val contextHolder: TokenValidationContextHolder,
+        private val metric: Metric,
+        private val historikkService: HistorikkService,
+        private val motebehovService: MotebehovService,
+        private val pdlConsumer: IPdlConsumer,
+        private val veilederTilgangConsumer: IVeilederTilgangConsumer,
+        private val esyfovarselService: EsyfovarselService,
+    ) {
+        @GetMapping(value = ["/motebehov"], produces = [MediaType.APPLICATION_JSON_VALUE])
+        fun hentMotebehovListe(
+            @RequestHeader(name = NAV_PERSONIDENT_HEADER) personident:
+                @Pattern(regexp = "^[0-9]{11}$")
+                String,
+        ): List<MotebehovVeilederDTO> {
+            metric.tellEndepunktKall("veileder_hent_motebehov")
 
-        kastExceptionHvisIkkeTilgang(personident)
-        val motebehovVeilederDTOList = motebehovService.hentMotebehovListe(personident)
-            .toMotebehovVeilederDTOv4List()
-            .map { motebehovVeilederDTO ->
-                val opprettetAvAktorId = motebehovVeilederDTO.opprettetAv
-                motebehovVeilederDTO.copy(
-                    opprettetAvNavn = pdlConsumer.person(opprettetAvAktorId)?.fullName()
-                )
+            kastExceptionHvisIkkeTilgang(personident)
+            val motebehovVeilederDTOList =
+                motebehovService
+                    .hentMotebehovListe(personident)
+                    .toMotebehovVeilederDTOv4List()
+                    .map { motebehovVeilederDTO ->
+                        val opprettetAvAktorId = motebehovVeilederDTO.opprettetAv
+                        motebehovVeilederDTO.copy(
+                            opprettetAvNavn = pdlConsumer.person(opprettetAvAktorId)?.fullName(),
+                        )
+                    }
+            return motebehovVeilederDTOList
+        }
+
+        @GetMapping(value = ["/historikk"], produces = [MediaType.APPLICATION_JSON_VALUE])
+        fun hentMotebehovHistorikk(
+            @RequestHeader(name = NAV_PERSONIDENT_HEADER) personident:
+                @Pattern(regexp = "^[0-9]{11}$")
+                String,
+        ): List<Historikk> {
+            metric.tellEndepunktKall("veileder_hent_motebehov_historikk")
+            kastExceptionHvisIkkeTilgang(personident)
+            return historikkService.hentHistorikkListe(personident)
+        }
+
+        @PostMapping(
+            value = ["/motebehov/tilbakemelding"],
+            consumes = [MediaType.APPLICATION_JSON_VALUE],
+            produces = [MediaType.APPLICATION_JSON_VALUE],
+        )
+        fun sendTilbakemelding(
+            @RequestBody tilbakemelding: @Valid MotebehovTilbakemelding,
+        ) {
+            metric.tellEndepunktKall("veileder_motebehov-tilbakemelding_call")
+
+            val motebehov = motebehovService.hentMotebehov(tilbakemelding.motebehovId)
+
+            if (motebehov === null) {
+                throw NotFoundException()
             }
-        return motebehovVeilederDTOList
-    }
 
-    @GetMapping(value = ["/historikk"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun hentMotebehovHistorikk(
-        @RequestHeader(name = NAV_PERSONIDENT_HEADER) personident:
-        @Pattern(regexp = "^[0-9]{11}$")
-        String
-    ): List<Historikk> {
-        metric.tellEndepunktKall("veileder_hent_motebehov_historikk")
-        kastExceptionHvisIkkeTilgang(personident)
-        return historikkService.hentHistorikkListe(personident)
-    }
+            kastExceptionHvisIkkeTilgang(motebehov.arbeidstakerFnr)
 
-    @PostMapping(
-        value = ["/motebehov/tilbakemelding"],
-        consumes = [MediaType.APPLICATION_JSON_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
-    fun sendTilbakemelding(
-        @RequestBody tilbakemelding: @Valid MotebehovTilbakemelding,
-    ) {
-        metric.tellEndepunktKall("veileder_motebehov-tilbakemelding_call")
+            if (!Jsoup.isValid(tilbakemelding.varseltekst, Safelist.none())) {
+                throw BadRequestException("Invalid input")
+            }
 
-        val motebehov = motebehovService.hentMotebehov(tilbakemelding.motebehovId)
-
-        if (motebehov === null) {
-            throw NotFoundException()
+            esyfovarselService.sendTilbakemeldingsvarsel(tilbakemelding, motebehov)
+            metric.tellEndepunktKall("veileder_motebehov-tilbakemelding_call_success")
         }
 
-        kastExceptionHvisIkkeTilgang(motebehov.arbeidstakerFnr)
-
-        if (!Jsoup.isValid(tilbakemelding.varseltekst, Safelist.none())) {
-            throw BadRequestException("Invalid input")
+        @PostMapping(value = ["/motebehov/behandle"])
+        fun behandleMotebehov(
+            @RequestHeader(name = NAV_PERSONIDENT_HEADER) personident:
+                @Pattern(regexp = "^[0-9]{11}$")
+                String,
+        ) {
+            metric.tellEndepunktKall("veileder_behandle_motebehov_call")
+            kastExceptionHvisIkkeTilgang(personident)
+            motebehovService.behandleUbehandledeMotebehov(personident, getSubjectInternADV2(contextHolder))
+            metric.tellEndepunktKall("veileder_behandle_motebehov_success")
         }
 
-        esyfovarselService.sendTilbakemeldingsvarsel(tilbakemelding, motebehov)
-        metric.tellEndepunktKall("veileder_motebehov-tilbakemelding_call_success")
-    }
-
-    @PostMapping(value = ["/motebehov/behandle"])
-    fun behandleMotebehov(
-        @RequestHeader(name = NAV_PERSONIDENT_HEADER) personident:
-        @Pattern(regexp = "^[0-9]{11}$")
-        String
-    ) {
-        metric.tellEndepunktKall("veileder_behandle_motebehov_call")
-        kastExceptionHvisIkkeTilgang(personident)
-        motebehovService.behandleUbehandledeMotebehov(personident, getSubjectInternADV2(contextHolder))
-        metric.tellEndepunktKall("veileder_behandle_motebehov_success")
-    }
-
-    private fun kastExceptionHvisIkkeTilgang(fnr: String) {
-        if (!veilederTilgangConsumer.sjekkVeiledersTilgangTilPersonMedOBO(fnr)) {
-            throw ForbiddenException("Veilederen har ikke tilgang til denne personen")
+        private fun kastExceptionHvisIkkeTilgang(fnr: String) {
+            if (!veilederTilgangConsumer.sjekkVeiledersTilgangTilPersonMedOBO(fnr)) {
+                throw ForbiddenException("Veilederen har ikke tilgang til denne personen")
+            }
         }
     }
-}

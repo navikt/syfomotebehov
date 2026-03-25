@@ -6,5 +6,5 @@ data class PersonVirksomhetOppfolgingstilfelle(
     val fnr: String,
     val virksomhetsnummer: String,
     val fom: LocalDate,
-    val tom: LocalDate
+    val tom: LocalDate,
 )

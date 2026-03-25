@@ -33,7 +33,6 @@ import java.util.UUID
 @SpringBootTest(classes = [LocalApplication::class])
 @ApplyExtension(SpringExtension::class)
 class TestdataResetServiceTest : IntegrationTest() {
-
     @MockkBean(relaxed = true)
     private lateinit var pdlConsumer: PdlConsumer
 
@@ -69,7 +68,7 @@ class TestdataResetServiceTest : IntegrationTest() {
                         true,
                         skjemaType = MotebehovSkjemaType.MELD_BEHOV,
                         innmelderType = MotebehovInnmelderType.ARBEIDSGIVER,
-                    )
+                    ),
                 )
                 assertThat(motebehovDAO.hentMotebehovListeForAktoer(ARBEIDSTAKER_AKTORID).size).isEqualTo(1)
                 dialogmotekandidatDAO.create(
@@ -77,7 +76,7 @@ class TestdataResetServiceTest : IntegrationTest() {
                     LocalDateTime.now(),
                     ARBEIDSTAKER_FNR,
                     true,
-                    DialogmotekandidatEndringArsak.STOPPUNKT.name
+                    DialogmotekandidatEndringArsak.STOPPUNKT.name,
                 )
                 assertThat(dialogmotekandidatDAO.get(ARBEIDSTAKER_FNR)).isNotNull()
                 oppfolgingstilfelleDAO.create(
@@ -86,7 +85,7 @@ class TestdataResetServiceTest : IntegrationTest() {
                         true,
                         LocalDate.now().minusDays(1),
                         LocalDate.now(),
-                        listOf(VIRKSOMHETSNUMMER)
+                        listOf(VIRKSOMHETSNUMMER),
                     ),
                     VIRKSOMHETSNUMMER,
                 )
@@ -97,13 +96,13 @@ class TestdataResetServiceTest : IntegrationTest() {
                     LocalDateTime.now(),
                     DialogmoteStatusEndringType.INNKALT.name,
                     ARBEIDSTAKER_FNR,
-                    VIRKSOMHETSNUMMER
+                    VIRKSOMHETSNUMMER,
                 )
                 assertThat(
                     dialogmoteDAO.getAktiveDialogmoterEtterDato(
                         ARBEIDSTAKER_FNR,
-                        LocalDate.now().minusDays(1)
-                    )
+                        LocalDate.now().minusDays(1),
+                    ),
                 ).isNotEmpty()
                 testdataResetService.resetTestdata(ARBEIDSTAKER_FNR)
 
@@ -113,8 +112,8 @@ class TestdataResetServiceTest : IntegrationTest() {
                 assertThat(
                     dialogmoteDAO.getAktiveDialogmoterEtterDato(
                         ARBEIDSTAKER_FNR,
-                        LocalDate.now().minusDays(1)
-                    )
+                        LocalDate.now().minusDays(1),
+                    ),
                 ).isEmpty()
             }
         }

@@ -28,25 +28,27 @@ fun mockSvarFraIstilgangskontrollTilgangTilBruker(
 
     val oboToken = generateAzureAdV2TokenResponse().access_token
 
-    val uriString = UriComponentsBuilder.fromUriString(tilgangskontrollUrl)
-        .path(VeilederTilgangConsumer.TILGANGSKONTROLL_PERSON_PATH)
-        .toUriString()
-    mockRestServiceServer.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(uriString))
+    val uriString =
+        UriComponentsBuilder
+            .fromUriString(tilgangskontrollUrl)
+            .path(VeilederTilgangConsumer.TILGANGSKONTROLL_PERSON_PATH)
+            .toUriString()
+    mockRestServiceServer
+        .expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(uriString))
         .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
         .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer $oboToken"))
         .andExpect(MockRestRequestMatchers.header(NAV_PERSONIDENT_HEADER, fnr))
         .andRespond(response(status))
 }
 
-private fun response(status: HttpStatus): ResponseCreator {
-    return if (status == HttpStatus.OK) {
+private fun response(status: HttpStatus): ResponseCreator =
+    if (status == HttpStatus.OK) {
         MockRestResponseCreators.withSuccess(tilgangAsJsonString(), MediaType.APPLICATION_JSON)
     } else {
         MockRestResponseCreators.withStatus(
             status,
         )
     }
-}
 
 private fun tilgangAsJsonString(): String {
     val objectMapper = ObjectMapper()

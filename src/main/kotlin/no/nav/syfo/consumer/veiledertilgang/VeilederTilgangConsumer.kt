@@ -27,21 +27,23 @@ class VeilederTilgangConsumer(
 
     override fun sjekkVeiledersTilgangTilPersonMedOBO(fnr: String): Boolean {
         val token = OIDCUtil.tokenFraOIDC(oidcContextHolder, OIDCIssuer.INTERN_AZUREAD_V2)
-        val oboToken = azureAdV2TokenConsumer.getOnBehalfOfToken(
-            scopeClientId = istilgangskontrollClientId,
-            token = token,
-        )
+        val oboToken =
+            azureAdV2TokenConsumer.getOnBehalfOfToken(
+                scopeClientId = istilgangskontrollClientId,
+                token = token,
+            )
 
         return try {
-            val tilgang = template.exchange(
-                tilgangskontrollPersonUrl,
-                HttpMethod.GET,
-                entity(
-                    personIdentNumber = fnr,
-                    token = oboToken,
-                ),
-                Tilgang::class.java,
-            )
+            val tilgang =
+                template.exchange(
+                    tilgangskontrollPersonUrl,
+                    HttpMethod.GET,
+                    entity(
+                        personIdentNumber = fnr,
+                        token = oboToken,
+                    ),
+                    Tilgang::class.java,
+                )
             tilgang.body!!.erGodkjent
         } catch (e: HttpClientErrorException) {
             if (e.statusCode.value() == 403) {

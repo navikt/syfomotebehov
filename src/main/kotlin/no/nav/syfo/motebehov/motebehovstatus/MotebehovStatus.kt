@@ -11,26 +11,23 @@ data class MotebehovStatus(
     val visMotebehov: Boolean,
     // Indikerer hvilket skjema bruker skal få opp når visMotebehov er true og motebehov er null.
     val skjemaType: MotebehovSkjemaType,
-    val motebehov: Motebehov? = null
+    val motebehov: Motebehov? = null,
 ) : Serializable
 
-fun MotebehovStatus.isSvarBehovVarselAvailable(): Boolean {
-    return this.visMotebehov &&
+fun MotebehovStatus.isSvarBehovVarselAvailable(): Boolean =
+    this.visMotebehov &&
         this.skjemaType == MotebehovSkjemaType.SVAR_BEHOV &&
         this.motebehov == null
-}
 
-fun MotebehovStatus.isSvarBehovVarselAvailable(newestMotebehov: Motebehov): Boolean {
-    return this.visMotebehov &&
+fun MotebehovStatus.isSvarBehovVarselAvailable(newestMotebehov: Motebehov): Boolean =
+    this.visMotebehov &&
         this.skjemaType == MotebehovSkjemaType.SVAR_BEHOV &&
         this.motebehov == null &&
         !newestMotebehov.isUbehandlet()
-}
 
-fun MotebehovStatus.isMotebehovAvailableForAnswer(): Boolean {
-    return this.visMotebehov &&
+fun MotebehovStatus.isMotebehovAvailableForAnswer(): Boolean =
+    this.visMotebehov &&
         this.motebehov == null
-}
 
 data class MotebehovStatusWithFormValuesDTO(
     val visMotebehov: Boolean,
@@ -38,10 +35,9 @@ data class MotebehovStatusWithFormValuesDTO(
     val motebehov: MotebehovWithFormValuesOutputDTO? = null,
 )
 
-fun MotebehovStatus.toMotebehovStatusWithFormValuesDTO(): MotebehovStatusWithFormValuesDTO {
-    return MotebehovStatusWithFormValuesDTO(
+fun MotebehovStatus.toMotebehovStatusWithFormValuesDTO(): MotebehovStatusWithFormValuesDTO =
+    MotebehovStatusWithFormValuesDTO(
         visMotebehov = this.visMotebehov,
         skjemaType = this.skjemaType,
-        motebehov = this.motebehov?.toMotebehovWithFormValuesOutputDTO()
+        motebehov = this.motebehov?.toMotebehovWithFormValuesOutputDTO(),
     )
-}

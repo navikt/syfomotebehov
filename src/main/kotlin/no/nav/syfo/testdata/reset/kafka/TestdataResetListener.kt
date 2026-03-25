@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component
 class TestdataResetListener(
     private val testdataResetService: TestdataResetService,
 ) {
-
     @KafkaListener(
         topics = [TESTDATA_RESET_TOPIC],
         containerFactory = "TestdataResetListenerContainerFactory",

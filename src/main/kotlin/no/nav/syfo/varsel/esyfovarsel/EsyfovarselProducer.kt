@@ -10,29 +10,30 @@ import org.springframework.stereotype.Component
 import java.util.*
 
 @Component
-class EsyfovarselProducer @Autowired constructor(
-    @Qualifier("EsyfovarselKafkaTemplate") private val kafkaTemplate: KafkaTemplate<String, EsyfovarselHendelse>,
-) {
-    fun sendVarselTilEsyfovarsel(
-        esyfovarselHendelse: EsyfovarselHendelse,
+class EsyfovarselProducer
+    @Autowired
+    constructor(
+        @Qualifier("EsyfovarselKafkaTemplate") private val kafkaTemplate: KafkaTemplate<String, EsyfovarselHendelse>,
     ) {
-        try {
-            log.info("EsyfovarselProducer: Sender varsel av type ${esyfovarselHendelse.type.name}")
-            kafkaTemplate.send(
-                ProducerRecord(
-                    ESYFOVARSEL_TOPIC,
-                    UUID.randomUUID().toString(),
-                    esyfovarselHendelse,
-                )
-            ).get()
-        } catch (e: Exception) {
-            log.error("Exception was thrown when attempting to send varsel to esyfovarsel. ${e.message}")
-            throw e
+        fun sendVarselTilEsyfovarsel(esyfovarselHendelse: EsyfovarselHendelse) {
+            try {
+                log.info("EsyfovarselProducer: Sender varsel av type ${esyfovarselHendelse.type.name}")
+                kafkaTemplate
+                    .send(
+                        ProducerRecord(
+                            ESYFOVARSEL_TOPIC,
+                            UUID.randomUUID().toString(),
+                            esyfovarselHendelse,
+                        ),
+                    ).get()
+            } catch (e: Exception) {
+                log.error("Exception was thrown when attempting to send varsel to esyfovarsel. ${e.message}")
+                throw e
+            }
+        }
+
+        companion object {
+            const val ESYFOVARSEL_TOPIC = "team-esyfo.varselbus"
+            private val log = LoggerFactory.getLogger(EsyfovarselProducer::class.java)
         }
     }
-
-    companion object {
-        const val ESYFOVARSEL_TOPIC = "team-esyfo.varselbus"
-        private val log = LoggerFactory.getLogger(EsyfovarselProducer::class.java)
-    }
-}

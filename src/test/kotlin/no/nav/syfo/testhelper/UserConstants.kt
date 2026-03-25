@@ -23,7 +23,5 @@ object UserConstants {
     const val PERSON_NAME_LAST = "Last"
     const val PERSON_FULL_NAME = "$PERSON_NAME_FIRST $PERSON_NAME_MIDDLE $PERSON_NAME_LAST"
 
-    fun mockAktorId(fnr: String): String {
-        return "$MOCK_AKTORID_PREFIX$fnr"
-    }
+    fun mockAktorId(fnr: String): String = "$MOCK_AKTORID_PREFIX$fnr"
 }

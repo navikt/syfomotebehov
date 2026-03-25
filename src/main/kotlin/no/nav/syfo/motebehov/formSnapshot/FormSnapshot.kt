@@ -52,14 +52,16 @@ data class FormSnapshot(
     @get:JsonDeserialize(contentUsing = FieldSnapshotDeserializer::class)
     val fieldSnapshots: List<FieldSnapshot>,
 ) {
-    fun fieldvaluesToMap() = fieldSnapshots.associate { fieldSnapshot ->
-        fieldSnapshot.fieldId to when (fieldSnapshot) {
-            is TextFieldSnapshot -> fieldSnapshot.value
-            is SingleCheckboxFieldSnapshot -> fieldSnapshot.value
-            is RadioGroupFieldSnapshot -> fieldSnapshot.selectedOptionId
-            else -> throw IllegalArgumentException("Unknown field type: ${fieldSnapshot.fieldType}")
+    fun fieldvaluesToMap() =
+        fieldSnapshots.associate { fieldSnapshot ->
+            fieldSnapshot.fieldId to
+                when (fieldSnapshot) {
+                    is TextFieldSnapshot -> fieldSnapshot.value
+                    is SingleCheckboxFieldSnapshot -> fieldSnapshot.value
+                    is RadioGroupFieldSnapshot -> fieldSnapshot.selectedOptionId
+                    else -> throw IllegalArgumentException("Unknown field type: ${fieldSnapshot.fieldType}")
+                }
         }
-    }
 }
 
 abstract class FieldSnapshot(
@@ -114,8 +116,10 @@ data class FormSnapshotFieldOption(
     val wasSelected: Boolean = false,
 )
 
-enum class FormSnapshotFieldType(val type: String) {
+enum class FormSnapshotFieldType(
+    val type: String,
+) {
     TEXT("text"),
     CHECKBOX_SINGLE("checkboxSingle"),
-    RADIO_GROUP("radioGroup")
+    RADIO_GROUP("radioGroup"),
 }

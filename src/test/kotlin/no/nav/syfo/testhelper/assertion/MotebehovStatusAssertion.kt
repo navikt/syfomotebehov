@@ -9,7 +9,7 @@ import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusWithFormValuesDTO
 fun MotebehovStatusWithFormValuesDTO.assertMotebehovStatus(
     expVisMotebehov: Boolean,
     expSkjemaType: MotebehovSkjemaType? = null,
-    expMotebehovFormValues: MotebehovFormValuesOutputDTO? = null
+    expMotebehovFormValues: MotebehovFormValuesOutputDTO? = null,
 ) {
     this.visMotebehov shouldBe expVisMotebehov
 

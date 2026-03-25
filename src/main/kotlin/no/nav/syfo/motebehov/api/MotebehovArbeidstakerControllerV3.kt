@@ -22,52 +22,63 @@ import javax.inject.Inject
 @ProtectedWithClaims(
     issuer = TokenXIssuer.TOKENX,
     claimMap = ["acr=Level4", "acr=idporten-loa-high"],
-    combineWithOr = true
+    combineWithOr = true,
 )
 @RequestMapping(value = ["/api/v3/arbeidstaker"])
-class MotebehovArbeidstakerControllerV3 @Inject constructor(
-    private val contextHolder: TokenValidationContextHolder,
-    private val metric: Metric,
-    @Value("\${ditt.sykefravaer.frontend.client.id}")
-    val dittSykefravaerClientId: String,
-) {
-    @GetMapping(
-        value = ["/motebehov"],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
-    fun motebehovStatusArbeidstaker(): MotebehovStatus {
-        TokenXUtil.validateTokenXClaims(
-            contextHolder,
-            dittSykefravaerClientId,
+class MotebehovArbeidstakerControllerV3
+    @Inject
+    constructor(
+        private val contextHolder: TokenValidationContextHolder,
+        private val metric: Metric,
+        @Value("\${ditt.sykefravaer.frontend.client.id}")
+        val dittSykefravaerClientId: String,
+    ) {
+        @GetMapping(
+            value = ["/motebehov"],
+            produces = [MediaType.APPLICATION_JSON_VALUE],
         )
-            .fnrFromIdportenTokenX()
+        fun motebehovStatusArbeidstaker(): MotebehovStatus {
+            TokenXUtil
+                .validateTokenXClaims(
+                    contextHolder,
+                    dittSykefravaerClientId,
+                ).fnrFromIdportenTokenX()
 
-        // This endpoint is only used by Ditt sykefravær.
-        // Should be removed when they stop calling it.
-        // Until then, return empty result
-        metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker_v3")
-        return MotebehovStatus(
-            false,
-            MotebehovSkjemaType.MELD_BEHOV,
-            null,
-        )
+            // This endpoint is only used by Ditt sykefravær.
+            // Should be removed when they stop calling it.
+            // Until then, return empty result
+            metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker_v3")
+            return MotebehovStatus(
+                false,
+                MotebehovSkjemaType.MELD_BEHOV,
+                null,
+            )
+        }
+
+        @GetMapping("/motebehov/all")
+        fun motebehovStatusArbeidstakerWithCodeSixUsers() =
+            ResponseEntity
+                .status(HttpStatus.MOVED_PERMANENTLY)
+                .build<Void>()
+                .also {
+                    metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker_all_v3")
+                }
+
+        @PostMapping("/motebehov")
+        fun submitMotebehovArbeidstaker() =
+            ResponseEntity
+                .status(HttpStatus.MOVED_PERMANENTLY)
+                .build<Void>()
+                .also {
+                    metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker_v3")
+                }
+
+        @PostMapping("/motebehov/ferdigstill")
+        fun ferdigstillMotebehovArbeidstaker(): ResponseEntity<Void> =
+            ResponseEntity
+                .status(HttpStatus.MOVED_PERMANENTLY)
+                .build<Void>()
+                .also {
+                    metric.tellEndepunktKall("call_endpoint_ferdigstill_motebehov_arbeidstaker_v3")
+                }
     }
-
-    @GetMapping("/motebehov/all")
-    fun motebehovStatusArbeidstakerWithCodeSixUsers() = ResponseEntity
-        .status(HttpStatus.MOVED_PERMANENTLY).build<Void>().also {
-            metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker_all_v3")
-        }
-
-    @PostMapping("/motebehov")
-    fun submitMotebehovArbeidstaker() = ResponseEntity
-        .status(HttpStatus.MOVED_PERMANENTLY).build<Void>().also {
-            metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidstaker_v3")
-        }
-
-    @PostMapping("/motebehov/ferdigstill")
-    fun ferdigstillMotebehovArbeidstaker(): ResponseEntity<Void> = ResponseEntity
-        .status(HttpStatus.MOVED_PERMANENTLY).build<Void>().also {
-            metric.tellEndepunktKall("call_endpoint_ferdigstill_motebehov_arbeidstaker_v3")
-        }
-}
