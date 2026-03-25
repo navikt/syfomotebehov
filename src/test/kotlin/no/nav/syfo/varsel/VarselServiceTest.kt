@@ -94,7 +94,7 @@ class VarselServiceTest :
                 every {
                     oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
                         userFnr,
-                        virksomhetsnummer2,
+                        VIRKSOMHETSNUMMER_2,
                     )
                 } returns null
                 every { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), any(), any()) } returns Unit
@@ -103,9 +103,9 @@ class VarselServiceTest :
                 verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
                 verify(exactly = 1) {
                     esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(
-                        narmesteLederFnr1,
+                        NARMESTE_LEDER_FNR_1,
                         userFnr,
-                        virksomhetsnummer1,
+                        VIRKSOMHETSNUMMER_1,
                     )
                 }
             }
@@ -114,7 +114,7 @@ class VarselServiceTest :
                 every {
                     oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
                         userFnr,
-                        virksomhetsnummer2,
+                        VIRKSOMHETSNUMMER_2,
                     )
                 } returns
                     PersonOppfolgingstilfelle(
@@ -128,7 +128,7 @@ class VarselServiceTest :
                 verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
                 verify(exactly = 1) {
                     esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(
-                        narmesteLederFnr2,
+                        NARMESTE_LEDER_FNR_2,
                         userFnr,
                         any(),
                     )
@@ -145,7 +145,7 @@ class VarselServiceTest :
                             now(),
                             DialogmoteStatusEndringType.INNKALT,
                             userFnr,
-                            virksomhetsnummer1,
+                            VIRKSOMHETSNUMMER_1,
                         ),
                     )
                 every { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(any()) } returns Unit
@@ -160,10 +160,10 @@ class VarselServiceTest :
     }) {
     companion object {
         val userFnr = UserConstants.ARBEIDSTAKER_FNR
-        const val narmesteLederFnr1 = "11111111111"
-        const val narmesteLederFnr2 = "33333333333"
-        const val virksomhetsnummer1 = "777888555"
-        const val virksomhetsnummer2 = "222222222"
+        const val NARMESTE_LEDER_FNR_1 = "11111111111"
+        const val NARMESTE_LEDER_FNR_2 = "33333333333"
+        const val VIRKSOMHETSNUMMER_1 = "777888555"
+        const val VIRKSOMHETSNUMMER_2 = "222222222"
 
         fun createOppfolgingstilfelle(): PersonOppfolgingstilfelle =
             PersonOppfolgingstilfelle(
@@ -178,8 +178,8 @@ class VarselServiceTest :
                     uuid = "123",
                     arbeidstakerPersonIdentNumber = userFnr,
                     virksomhetsnavn = "Yolomaster AS",
-                    virksomhetsnummer = virksomhetsnummer1,
-                    narmesteLederPersonIdentNumber = narmesteLederFnr1,
+                    virksomhetsnummer = VIRKSOMHETSNUMMER_1,
+                    narmesteLederPersonIdentNumber = NARMESTE_LEDER_FNR_1,
                     narmesteLederTelefonnummer = "123",
                     narmesteLederEpost = "123@123.no",
                     narmesteLederNavn = "Grebb",
@@ -193,8 +193,8 @@ class VarselServiceTest :
                     uuid = "234",
                     arbeidstakerPersonIdentNumber = userFnr,
                     virksomhetsnavn = "Kakemester AS",
-                    virksomhetsnummer = virksomhetsnummer2,
-                    narmesteLederPersonIdentNumber = narmesteLederFnr2,
+                    virksomhetsnummer = VIRKSOMHETSNUMMER_2,
+                    narmesteLederPersonIdentNumber = NARMESTE_LEDER_FNR_2,
                     narmesteLederTelefonnummer = "333",
                     narmesteLederEpost = "234@234.no",
                     narmesteLederNavn = "Labben",
