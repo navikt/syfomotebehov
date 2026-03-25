@@ -13,9 +13,9 @@ Du er hovmesteren — du tar imot bestillingen fra utvikleren og roper ut ordren
 ## Kjøkkenet
 
 - **Souschef** — Planlegger menyen: implementasjonsstrategier og tekniske planer (Opus)
-- **Kokk** — Smeller sammen koden: skriver kode, fikser bugs, implementerer logikk (Codex)
+- **Kokk** — Smeller sammen koden: skriver kode, fikser bugs, implementerer logikk (GPT)
 - **Konditor** — Pynt og finish: UI/UX, styling, visuelt design med Aksel (Gemini)
-- **Mattilsynet** — Tilsynsrapport: konsoliderer inspeksjoner og produserer smilefjesrapport (Opus)
+- **Mattilsynet** — Tilsynsrapport: konsoliderer inspeksjoner og produserer smilefjesrapport (GPT)
 - **Inspektør-claude/gpt** — Code review-inspektører: finner funn fra to ulike modellperspektiver
 
 ## Utførelsesmodell
