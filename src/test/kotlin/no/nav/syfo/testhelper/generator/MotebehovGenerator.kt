@@ -21,115 +21,113 @@ import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.util.MOTEBEHOVSVAR_GYLDIGHET_DAGER
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class MotebehovGenerator {
-    private val motebehov = Motebehov(
-        id = UUID.randomUUID(),
-        arbeidstakerFnr = ARBEIDSTAKER_FNR,
-        aktorId = ARBEIDSTAKER_AKTORID,
-        virksomhetsnummer = VIRKSOMHETSNUMMER,
-        opprettetAv = LEDER_AKTORID,
-        opprettetDato = LocalDateTime.now().minusMinutes(2L),
-        formSubmission = MotebehovFormSubmissionDTO(
-            harMotebehov = true,
-            formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
-        ),
-        tildeltEnhet = NAV_ENHET,
-        behandletVeilederIdent = VEILEDER_ID,
-        behandletTidspunkt = LocalDateTime.now(),
-        opprettetAvFnr = LEDER_FNR,
-        skjemaType = MotebehovSkjemaType.SVAR_BEHOV,
-        innmelderType = MotebehovInnmelderType.ARBEIDSGIVER,
-    )
+    private val motebehov =
+        Motebehov(
+            id = UUID.randomUUID(),
+            arbeidstakerFnr = ARBEIDSTAKER_FNR,
+            aktorId = ARBEIDSTAKER_AKTORID,
+            virksomhetsnummer = VIRKSOMHETSNUMMER,
+            opprettetAv = LEDER_AKTORID,
+            opprettetDato = LocalDateTime.now().minusMinutes(2L),
+            formSubmission =
+                MotebehovFormSubmissionDTO(
+                    harMotebehov = true,
+                    formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
+                ),
+            tildeltEnhet = NAV_ENHET,
+            behandletVeilederIdent = VEILEDER_ID,
+            behandletTidspunkt = LocalDateTime.now(),
+            opprettetAvFnr = LEDER_FNR,
+            skjemaType = MotebehovSkjemaType.SVAR_BEHOV,
+            innmelderType = MotebehovInnmelderType.ARBEIDSGIVER,
+        )
 
-    private val nyttMotebehovArbeidsgiverFormSubmissionInput = NyttMotebehovArbeidsgiverDTO(
-        arbeidstakerFnr = ARBEIDSTAKER_FNR,
-        virksomhetsnummer = VIRKSOMHETSNUMMER,
-        formSubmission = MotebehovFormSubmissionDTO(
-            harMotebehov = true,
-            formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
-        ),
-        tildeltEnhet = NAV_ENHET,
-    )
+    private val nyttMotebehovArbeidsgiverFormSubmissionInput =
+        NyttMotebehovArbeidsgiverDTO(
+            arbeidstakerFnr = ARBEIDSTAKER_FNR,
+            virksomhetsnummer = VIRKSOMHETSNUMMER,
+            formSubmission =
+                MotebehovFormSubmissionDTO(
+                    harMotebehov = true,
+                    formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
+                ),
+            tildeltEnhet = NAV_ENHET,
+        )
 
-    fun lagFormSubmissionArbeidstakerSvarJaDTO(): MotebehovFormSubmissionDTO {
-        return MotebehovFormSubmissionDTO(
+    fun lagFormSubmissionArbeidstakerSvarJaDTO(): MotebehovFormSubmissionDTO =
+        MotebehovFormSubmissionDTO(
             harMotebehov = true,
             formSnapshot = mockArbeidstakerSvarJaFormSnapshot,
         )
-    }
 
-    fun lagFormSubmissionArbeidstakerSvarNeiDTO(): MotebehovFormSubmissionDTO {
-        return MotebehovFormSubmissionDTO(
+    fun lagFormSubmissionArbeidstakerSvarNeiDTO(): MotebehovFormSubmissionDTO =
+        MotebehovFormSubmissionDTO(
             harMotebehov = false,
             formSnapshot = mockArbeidstakerSvarNeiFormSnapshot,
         )
-    }
 
-    fun lagFormSubmissionArbeidstakerMeldDTO(): MotebehovFormSubmissionDTO {
-        return MotebehovFormSubmissionDTO(
+    fun lagFormSubmissionArbeidstakerMeldDTO(): MotebehovFormSubmissionDTO =
+        MotebehovFormSubmissionDTO(
             harMotebehov = true,
             formSnapshot = mockArbeidstakerMeldSnapshot,
         )
-    }
 
-    fun lagNyArbeidsgiverFormSubmissionSvarJa(): NyttMotebehovArbeidsgiverDTO {
-        return nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
-            formSubmission = MotebehovFormSubmissionDTO(
-                harMotebehov = true,
-                formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
-            )
+    fun lagNyArbeidsgiverFormSubmissionSvarJa(): NyttMotebehovArbeidsgiverDTO =
+        nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
+            formSubmission =
+                MotebehovFormSubmissionDTO(
+                    harMotebehov = true,
+                    formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
+                ),
         )
-    }
 
-    fun lagNyArbeidsgiverFormSubmissionSvarNei(): NyttMotebehovArbeidsgiverDTO {
-        return nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
-            formSubmission = MotebehovFormSubmissionDTO(
-                harMotebehov = false,
-                formSnapshot = mockArbeidsgiverSvarNeiFormSnapshot,
-            )
+    fun lagNyArbeidsgiverFormSubmissionSvarNei(): NyttMotebehovArbeidsgiverDTO =
+        nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
+            formSubmission =
+                MotebehovFormSubmissionDTO(
+                    harMotebehov = false,
+                    formSnapshot = mockArbeidsgiverSvarNeiFormSnapshot,
+                ),
         )
-    }
 
-    fun lagNyArbeidsgiverFormSubmissionMeld(): NyttMotebehovArbeidsgiverDTO {
-        return nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
-            formSubmission = MotebehovFormSubmissionDTO(
-                harMotebehov = true,
-                formSnapshot = mockArbeidsgiverMeldOnskerSykmelderOgTolkFormSnapshot,
-            )
+    fun lagNyArbeidsgiverFormSubmissionMeld(): NyttMotebehovArbeidsgiverDTO =
+        nyttMotebehovArbeidsgiverFormSubmissionInput.copy(
+            formSubmission =
+                MotebehovFormSubmissionDTO(
+                    harMotebehov = true,
+                    formSnapshot = mockArbeidsgiverMeldOnskerSykmelderOgTolkFormSnapshot,
+                ),
         )
-    }
 
-    private val nyttPMotebehov = PMotebehov(
-        uuid = UUID.randomUUID(),
-        opprettetDato = getOpprettetDato(true),
-        opprettetAv = LEDER_AKTORID,
-        aktoerId = ARBEIDSTAKER_AKTORID,
-        virksomhetsnummer = VIRKSOMHETSNUMMER,
-        forklaring = null,
-        harMotebehov = true,
-        tildeltEnhet = NAV_ENHET,
-        sykmeldtFnr = ARBEIDSTAKER_FNR,
-        skjemaType = MotebehovSkjemaType.SVAR_BEHOV,
-        innmelderType = MotebehovInnmelderType.ARBEIDSGIVER,
-        formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
-    )
+    private val nyttPMotebehov =
+        PMotebehov(
+            uuid = UUID.randomUUID(),
+            opprettetDato = getOpprettetDato(true),
+            opprettetAv = LEDER_AKTORID,
+            aktoerId = ARBEIDSTAKER_AKTORID,
+            virksomhetsnummer = VIRKSOMHETSNUMMER,
+            forklaring = null,
+            harMotebehov = true,
+            tildeltEnhet = NAV_ENHET,
+            sykmeldtFnr = ARBEIDSTAKER_FNR,
+            skjemaType = MotebehovSkjemaType.SVAR_BEHOV,
+            innmelderType = MotebehovInnmelderType.ARBEIDSGIVER,
+            formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
+        )
 
-    fun getOpprettetDato(erGyldig: Boolean): LocalDateTime {
-        return if (erGyldig) {
+    fun getOpprettetDato(erGyldig: Boolean): LocalDateTime =
+        if (erGyldig) {
             LocalDateTime.now().minusDays(MOTEBEHOVSVAR_GYLDIGHET_DAGER.toLong())
         } else {
-            LocalDateTime.now()
+            LocalDateTime
+                .now()
                 .minusDays(MOTEBEHOVSVAR_GYLDIGHET_DAGER + 1.toLong())
         }
-    }
 
-    fun generatePmotebehov(): PMotebehov {
-        return nyttPMotebehov.copy()
-    }
+    fun generatePmotebehov(): PMotebehov = nyttPMotebehov.copy()
 
-    fun generateMotebehov(): Motebehov {
-        return motebehov.copy()
-    }
+    fun generateMotebehov(): Motebehov = motebehov.copy()
 }

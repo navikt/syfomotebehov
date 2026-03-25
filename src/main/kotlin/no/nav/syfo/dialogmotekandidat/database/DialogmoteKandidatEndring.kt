@@ -1,7 +1,7 @@
 package no.nav.syfo.dialogmotekandidat.database
 
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 data class DialogmoteKandidatEndring(
     val uuid: UUID,
@@ -10,7 +10,7 @@ data class DialogmoteKandidatEndring(
     val kandidat: Boolean,
     val arsak: DialogmotekandidatEndringArsak,
     val createdAt: LocalDateTime,
-    val databaseUpdatedAt: LocalDateTime
+    val databaseUpdatedAt: LocalDateTime,
 )
 
 enum class DialogmotekandidatEndringArsak {

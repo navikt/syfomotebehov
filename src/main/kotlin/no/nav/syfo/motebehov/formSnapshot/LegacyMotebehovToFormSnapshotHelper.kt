@@ -9,10 +9,11 @@ import org.springframework.stereotype.Component
  */
 @Component
 class LegacyMotebehovToFormSnapshotHelper {
-
     private val legacyFormsSemanticVersion = "0.1.0"
 
-    enum class MotebehovLegacyFormLabel(val label: String) {
+    enum class MotebehovLegacyFormLabel(
+        val label: String,
+    ) {
         SVAR_ARBEIDSGIVER_HAR_BEHOV_FIELD("Har dere behov for et møte med NAV?"),
         SVAR_ARBEIDSTAKER_HAR_BEHOV_FIELD("Har du behov for et møte med NAV og arbeidsgiveren din?"),
         SVAR_HAR_BEHOV_RADIO_OPTION_YES("Ja, jeg mener det er behov for et møte"),
@@ -20,22 +21,23 @@ class LegacyMotebehovToFormSnapshotHelper {
         MELD_ARBEIDSGIVER_ONSKER_MOTE_CHECKBOX("Jeg ønsker et møte med NAV og den ansatte"),
         MELD_ARBEIDSTAKER_ONSKER_MOTE_CHECKBOX("Jeg ønsker et møte med NAV og arbeidsgiveren min."),
         MELD_ARBEIDSGIVER_ONSKER_SYKMELDER_DELTAR_CHECKBOX(
-            "Jeg ønsker at den som sykmelder arbeidstakeren, også skal delta i møtet."
+            "Jeg ønsker at den som sykmelder arbeidstakeren, også skal delta i møtet.",
         ),
         MELD_ARBEIDSTAKER_ONSKER_SYKMELDER_DELTAR_CHECKBOX(
-            "Jeg ønsker at den som sykmelder meg, også skal delta i møtet."
+            "Jeg ønsker at den som sykmelder meg, også skal delta i møtet.",
         ),
-        BEGRUNNELSE_TEXT_FIELD("Begrunnelse")
+        BEGRUNNELSE_TEXT_FIELD("Begrunnelse"),
     }
 
-    private val formSnapshotOptionIds = mapOf(
-        "svarHarBehovRadioOptionYes" to "ja",
-        "svarHarBehovRadioOptionNo" to "nei"
-    )
+    private val formSnapshotOptionIds =
+        mapOf(
+            "svarHarBehovRadioOptionYes" to "ja",
+            "svarHarBehovRadioOptionNo" to "nei",
+        )
 
     data class ExtractedFromLegacyForklaring(
         val actualBegrunnelse: String,
-        val onskerSykmelderDeltar: Boolean
+        val onskerSykmelderDeltar: Boolean,
     )
 
     /**
@@ -48,7 +50,7 @@ class LegacyMotebehovToFormSnapshotHelper {
         harMotebehov: Boolean,
         forklaring: String?,
         skjemaType: MotebehovSkjemaType,
-        motebehovInnmelderType: MotebehovInnmelderType
+        motebehovInnmelderType: MotebehovInnmelderType,
     ): FormSnapshot {
         val fieldSnapshots = mutableListOf<FieldSnapshot>()
 
@@ -56,14 +58,14 @@ class LegacyMotebehovToFormSnapshotHelper {
             fieldSnapshots.add(
                 createLegacySvarBehovRadioGroupField(
                     harMotebehov,
-                    motebehovInnmelderType
-                )
+                    motebehovInnmelderType,
+                ),
             )
         } else if (skjemaType == MotebehovSkjemaType.MELD_BEHOV) {
             fieldSnapshots.add(
                 createLegacyMeldOnskerMoteCheckboxField(
-                    motebehovInnmelderType
-                )
+                    motebehovInnmelderType,
+                ),
             )
         }
 
@@ -75,26 +77,27 @@ class LegacyMotebehovToFormSnapshotHelper {
             fieldSnapshots.add(
                 createLegacyOnskerSykmelderDeltarCheckboxField(
                     onskerAtSykmelderDeltar,
-                    motebehovInnmelderType
-                )
+                    motebehovInnmelderType,
+                ),
             )
         }
 
         fieldSnapshots.add(createLegacyBegrunnelseTextField(actualBegrunnelse, harMotebehov, skjemaType))
 
-        val formIdentifier = when (motebehovInnmelderType) {
-            MotebehovInnmelderType.ARBEIDSGIVER ->
-                when (skjemaType) {
-                    MotebehovSkjemaType.SVAR_BEHOV -> MotebehovFormIdentifier.ARBEIDSGIVER_SVAR
-                    MotebehovSkjemaType.MELD_BEHOV -> MotebehovFormIdentifier.ARBEIDSGIVER_MELD
-                }
+        val formIdentifier =
+            when (motebehovInnmelderType) {
+                MotebehovInnmelderType.ARBEIDSGIVER ->
+                    when (skjemaType) {
+                        MotebehovSkjemaType.SVAR_BEHOV -> MotebehovFormIdentifier.ARBEIDSGIVER_SVAR
+                        MotebehovSkjemaType.MELD_BEHOV -> MotebehovFormIdentifier.ARBEIDSGIVER_MELD
+                    }
 
-            MotebehovInnmelderType.ARBEIDSTAKER ->
-                when (skjemaType) {
-                    MotebehovSkjemaType.SVAR_BEHOV -> MotebehovFormIdentifier.ARBEIDSTAKER_SVAR
-                    MotebehovSkjemaType.MELD_BEHOV -> MotebehovFormIdentifier.ARBEIDSTAKER_MELD
-                }
-        }
+                MotebehovInnmelderType.ARBEIDSTAKER ->
+                    when (skjemaType) {
+                        MotebehovSkjemaType.SVAR_BEHOV -> MotebehovFormIdentifier.ARBEIDSTAKER_SVAR
+                        MotebehovSkjemaType.MELD_BEHOV -> MotebehovFormIdentifier.ARBEIDSTAKER_MELD
+                    }
+            }
 
         return FormSnapshot(formIdentifier, legacyFormsSemanticVersion, fieldSnapshots)
     }
@@ -103,17 +106,18 @@ class LegacyMotebehovToFormSnapshotHelper {
         begrunnelseTextValue: String,
         harMotebehov: Boolean,
         skjemaType: MotebehovSkjemaType?,
-    ): TextFieldSnapshot = TextFieldSnapshot(
-        fieldId = BEGRUNNELSE_TEXT_FIELD_ID,
-        label = MotebehovLegacyFormLabel.BEGRUNNELSE_TEXT_FIELD.label,
-        null,
-        value = begrunnelseTextValue,
-        wasRequired = skjemaType == MotebehovSkjemaType.SVAR_BEHOV && !harMotebehov
-    )
+    ): TextFieldSnapshot =
+        TextFieldSnapshot(
+            fieldId = BEGRUNNELSE_TEXT_FIELD_ID,
+            label = MotebehovLegacyFormLabel.BEGRUNNELSE_TEXT_FIELD.label,
+            null,
+            value = begrunnelseTextValue,
+            wasRequired = skjemaType == MotebehovSkjemaType.SVAR_BEHOV && !harMotebehov,
+        )
 
     private fun createLegacySvarBehovRadioGroupField(
         harMotebehov: Boolean,
-        motebehovInnmelderType: MotebehovInnmelderType
+        motebehovInnmelderType: MotebehovInnmelderType,
     ): RadioGroupFieldSnapshot {
         val optionIdYes = formSnapshotOptionIds["svarHarBehovRadioOptionYes"]!!
         val optionIdNo = formSnapshotOptionIds["svarHarBehovRadioOptionNo"]!!
@@ -126,92 +130,100 @@ class LegacyMotebehovToFormSnapshotHelper {
 
         return RadioGroupFieldSnapshot(
             fieldId = SVAR_HAR_BEHOV_RADIO_GROUP_FIELD_ID,
-            label = motebehovInnmelderType.let {
-                when (it) {
-                    MotebehovInnmelderType.ARBEIDSGIVER ->
-                        MotebehovLegacyFormLabel.SVAR_ARBEIDSGIVER_HAR_BEHOV_FIELD.label
-                    MotebehovInnmelderType.ARBEIDSTAKER ->
-                        MotebehovLegacyFormLabel.SVAR_ARBEIDSTAKER_HAR_BEHOV_FIELD.label
-                }
-            },
+            label =
+                motebehovInnmelderType.let {
+                    when (it) {
+                        MotebehovInnmelderType.ARBEIDSGIVER ->
+                            MotebehovLegacyFormLabel.SVAR_ARBEIDSGIVER_HAR_BEHOV_FIELD.label
+                        MotebehovInnmelderType.ARBEIDSTAKER ->
+                            MotebehovLegacyFormLabel.SVAR_ARBEIDSTAKER_HAR_BEHOV_FIELD.label
+                    }
+                },
             null,
             selectedOptionId,
             selectedOptionLabel,
-            options = listOf(
-                FormSnapshotFieldOption(
-                    optionId = optionIdYes,
-                    optionLabel = optionLabelYes,
-                    wasSelected = harMotebehov
+            options =
+                listOf(
+                    FormSnapshotFieldOption(
+                        optionId = optionIdYes,
+                        optionLabel = optionLabelYes,
+                        wasSelected = harMotebehov,
+                    ),
+                    FormSnapshotFieldOption(
+                        optionId = optionIdNo,
+                        optionLabel = optionLabelNo,
+                        wasSelected = !harMotebehov,
+                    ),
                 ),
-                FormSnapshotFieldOption(
-                    optionId = optionIdNo,
-                    optionLabel = optionLabelNo,
-                    wasSelected = !harMotebehov
-                )
-            )
         )
     }
 
-    private fun createLegacyMeldOnskerMoteCheckboxField(
-        motebehovInnmelderType: MotebehovInnmelderType
-    ): SingleCheckboxFieldSnapshot = SingleCheckboxFieldSnapshot(
-        fieldId = MELD_HAR_BEHOV_LEGACY_CHECKBOX_FIELD_ID,
-        label = motebehovInnmelderType.let {
-            when (it) {
-                MotebehovInnmelderType.ARBEIDSGIVER ->
-                    MotebehovLegacyFormLabel.MELD_ARBEIDSGIVER_ONSKER_MOTE_CHECKBOX.label
-                MotebehovInnmelderType.ARBEIDSTAKER ->
-                    MotebehovLegacyFormLabel.MELD_ARBEIDSTAKER_ONSKER_MOTE_CHECKBOX.label
-            }
-        },
-        null,
-        value = true,
-    )
+    private fun createLegacyMeldOnskerMoteCheckboxField(motebehovInnmelderType: MotebehovInnmelderType): SingleCheckboxFieldSnapshot =
+        SingleCheckboxFieldSnapshot(
+            fieldId = MELD_HAR_BEHOV_LEGACY_CHECKBOX_FIELD_ID,
+            label =
+                motebehovInnmelderType.let {
+                    when (it) {
+                        MotebehovInnmelderType.ARBEIDSGIVER ->
+                            MotebehovLegacyFormLabel.MELD_ARBEIDSGIVER_ONSKER_MOTE_CHECKBOX.label
+                        MotebehovInnmelderType.ARBEIDSTAKER ->
+                            MotebehovLegacyFormLabel.MELD_ARBEIDSTAKER_ONSKER_MOTE_CHECKBOX.label
+                    }
+                },
+            null,
+            value = true,
+        )
 
     private fun createLegacyOnskerSykmelderDeltarCheckboxField(
         onskerSykmelderDeltar: Boolean,
         motebehovInnmelderType: MotebehovInnmelderType,
-    ): SingleCheckboxFieldSnapshot = SingleCheckboxFieldSnapshot(
-        fieldId = ONSKER_SYKMELDER_DELTAR_CHECKBOX_FIELD_ID,
-        label = motebehovInnmelderType.let {
-            when (it) {
-                MotebehovInnmelderType.ARBEIDSGIVER ->
-                    MotebehovLegacyFormLabel.MELD_ARBEIDSGIVER_ONSKER_SYKMELDER_DELTAR_CHECKBOX.label
+    ): SingleCheckboxFieldSnapshot =
+        SingleCheckboxFieldSnapshot(
+            fieldId = ONSKER_SYKMELDER_DELTAR_CHECKBOX_FIELD_ID,
+            label =
+                motebehovInnmelderType.let {
+                    when (it) {
+                        MotebehovInnmelderType.ARBEIDSGIVER ->
+                            MotebehovLegacyFormLabel.MELD_ARBEIDSGIVER_ONSKER_SYKMELDER_DELTAR_CHECKBOX.label
 
-                MotebehovInnmelderType.ARBEIDSTAKER ->
-                    MotebehovLegacyFormLabel.MELD_ARBEIDSTAKER_ONSKER_SYKMELDER_DELTAR_CHECKBOX.label
-            }
-        },
-        null,
-        value = onskerSykmelderDeltar,
-    )
+                        MotebehovInnmelderType.ARBEIDSTAKER ->
+                            MotebehovLegacyFormLabel.MELD_ARBEIDSTAKER_ONSKER_SYKMELDER_DELTAR_CHECKBOX.label
+                    }
+                },
+            null,
+            value = onskerSykmelderDeltar,
+        )
 
     // When a user checked the checkbox for onskerSykmelderDeltar in the legacy form, the text in the forklaring field
     // submitted from the frontend would contain the label text for that checkbox concatenated with the text value of
     // the begrunnelse text field.
     private fun extractActualUserBegrunnelseAndOnskerSykmelderDeltarFromLegacyForklaring(
-        legacyForklaring: String?
+        legacyForklaring: String?,
     ): ExtractedFromLegacyForklaring {
         if (legacyForklaring == null) return ExtractedFromLegacyForklaring("", false)
 
         var onskerSykmelderDeltar = false
 
         if (legacyForklaring.contains(
-                "Jeg ønsker at den som sykmelder arbeidstakeren, også skal delta i møtet"
-            ) || legacyForklaring.contains(
-                "Jeg ønsker at den som sykmelder meg, også skal delta i møtet"
+                "Jeg ønsker at den som sykmelder arbeidstakeren, også skal delta i møtet",
+            ) ||
+            legacyForklaring.contains(
+                "Jeg ønsker at den som sykmelder meg, også skal delta i møtet",
             )
         ) {
             onskerSykmelderDeltar = true
         }
 
-        var actualBegrunnelse = legacyForklaring.replace(
-            "Jeg ønsker at den som sykmelder arbeidstakeren, også skal delta i møtet (valgfri).",
-            ""
-        )
-        actualBegrunnelse = actualBegrunnelse.replace(
-            "Jeg ønsker at den som sykmelder meg, også skal delta i møtet (valgfri).", ""
-        )
+        var actualBegrunnelse =
+            legacyForklaring.replace(
+                "Jeg ønsker at den som sykmelder arbeidstakeren, også skal delta i møtet (valgfri).",
+                "",
+            )
+        actualBegrunnelse =
+            actualBegrunnelse.replace(
+                "Jeg ønsker at den som sykmelder meg, også skal delta i møtet (valgfri).",
+                "",
+            )
 
         // When the user didn't write anything in the begrunnelse text field, "undefined" would be appended to the
         // forklaring value, at least in some cases. We remove it here.

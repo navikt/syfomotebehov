@@ -8,7 +8,7 @@ import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import java.io.Serializable
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 data class Motebehov(
     val id: UUID,
@@ -42,11 +42,10 @@ data class MotebehovWithFormValuesOutputDTO(
     val formValues: MotebehovFormValuesOutputDTO,
 )
 
-fun List<Motebehov>.toMotebehovVeilederDTOv4List() =
-    this.map { it.toMotebehovVeilederDTOv4() }
+fun List<Motebehov>.toMotebehovVeilederDTOv4List() = this.map { it.toMotebehovVeilederDTOv4() }
 
-fun Motebehov.toMotebehovVeilederDTOv4(): MotebehovVeilederDTO {
-    return MotebehovVeilederDTO(
+fun Motebehov.toMotebehovVeilederDTOv4(): MotebehovVeilederDTO =
+    MotebehovVeilederDTO(
         id = this.id,
         opprettetDato = this.opprettetDato,
         opprettetAv = this.opprettetAv,
@@ -59,11 +58,8 @@ fun Motebehov.toMotebehovVeilederDTOv4(): MotebehovVeilederDTO {
         innmelderType = this.innmelderType,
         formValues = this.formSubmission.toMotebehovFormValuesOutputDTO(),
     )
-}
 
-fun Motebehov.isUbehandlet(): Boolean {
-    return this.formSubmission.harMotebehov && this.behandletVeilederIdent.isNullOrEmpty()
-}
+fun Motebehov.isUbehandlet(): Boolean = this.formSubmission.harMotebehov && this.behandletVeilederIdent.isNullOrEmpty()
 
 fun Motebehov.isCreatedInOppfolgingstilfelle(oppfolgingstilfelle: PersonOppfolgingstilfelle): Boolean {
     val createdDate = this.opprettetDato.toLocalDate()

@@ -10,7 +10,7 @@ import org.springframework.boot.runApplication
     exclude = [
         DataJpaRepositoriesAutoConfiguration::class,
         HibernateJpaAutoConfiguration::class,
-    ]
+    ],
 )
 @EnableJwtTokenValidation
 class Application

@@ -13,7 +13,6 @@ import org.springframework.web.reactive.function.client.WebClient
 @EnableTransactionManagement
 @EnableScheduling
 class ApplicationConfig {
-
     @Primary
     @Bean
     fun restTemplate() = RestTemplate()
@@ -23,7 +22,8 @@ class ApplicationConfig {
     fun restTemplateAzureAd() = RestTemplate()
 
     @Bean
-    fun webClient() = WebClient
-        .builder()
-        .build()
+    fun webClient() =
+        WebClient
+            .builder()
+            .build()
 }

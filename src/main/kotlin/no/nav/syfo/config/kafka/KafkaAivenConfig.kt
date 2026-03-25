@@ -23,96 +23,92 @@ class KafkaAivenConfig(
     @Value("\${app.name}") private val appName: String,
     @Value("\${kafka.env.name}") private val kafkaEnv: String,
 ) {
-
-    fun commonKafkaAivenConfig(): HashMap<String, Any> {
-        return HashMap<String, Any>().apply {
+    fun commonKafkaAivenConfig(): HashMap<String, Any> =
+        HashMap<String, Any>().apply {
             put(
                 SaslConfigs.SASL_MECHANISM,
-                "PLAIN"
+                "PLAIN",
             )
             put(
                 CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG,
-                aivenBrokers
+                aivenBrokers,
             )
             put(
                 CommonClientConfigs.SECURITY_PROTOCOL_CONFIG,
-                "SSL"
+                "SSL",
             )
             put(
                 SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG,
-                ""
+                "",
             )
             put(
                 SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG,
-                "jks"
+                "jks",
             )
             put(
                 SslConfigs.SSL_KEYSTORE_TYPE_CONFIG,
-                "PKCS12"
+                "PKCS12",
             )
             put(
                 SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG,
-                aivenTruststoreLocation
+                aivenTruststoreLocation,
             )
             put(
                 SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG,
-                aivenCredstorePassword
+                aivenCredstorePassword,
             )
             put(
                 SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG,
-                aivenKeystoreLocation
+                aivenKeystoreLocation,
             )
             put(
                 SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG,
-                aivenCredstorePassword
+                aivenCredstorePassword,
             )
             put(
                 SslConfigs.SSL_KEY_PASSWORD_CONFIG,
-                aivenCredstorePassword
+                aivenCredstorePassword,
             )
         }
-    }
 
-    fun commonKafkaAivenConsumerConfig(): HashMap<String, Any> {
-        return HashMap<String, Any>().apply {
+    fun commonKafkaAivenConsumerConfig(): HashMap<String, Any> =
+        HashMap<String, Any>().apply {
             put(
                 ConsumerConfig.GROUP_ID_CONFIG,
-                "$appName-$kafkaEnv"
+                "$appName-$kafkaEnv",
             )
             put(
                 ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
-                "false"
+                "false",
             )
             put(
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-                "earliest"
+                "earliest",
             )
             put(
                 ConsumerConfig.MAX_POLL_RECORDS_CONFIG,
-                "1"
+                "1",
             )
             put(
                 ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG,
-                "" + (10 * 1024 * 1024)
+                "" + (10 * 1024 * 1024),
             )
         }
-    }
 
-    fun commonKafkaAivenProducerConfig(): HashMap<String, Any> {
-        return HashMap<String, Any>().apply {
+    fun commonKafkaAivenProducerConfig(): HashMap<String, Any> =
+        HashMap<String, Any>().apply {
             putAll(commonKafkaAivenConfig())
             put(
                 ProducerConfig.ACKS_CONFIG,
-                "all"
+                "all",
             )
             put(
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-                StringSerializer::class.java
+                StringSerializer::class.java,
             )
             put(
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-                JacksonKafkaSerializer::class.java
+                JacksonKafkaSerializer::class.java,
             )
         }
-    }
 }

@@ -2,7 +2,7 @@ package no.nav.syfo.oppfolgingstilfelle.database
 
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 data class PPersonOppfolgingstilfelle(
     val uuid: UUID,
@@ -14,23 +14,20 @@ data class PPersonOppfolgingstilfelle(
     val tom: LocalDate,
 )
 
-fun PPersonOppfolgingstilfelle.mapToPersonOppfolgingstilfelle(): PersonOppfolgingstilfelle {
-    return PersonOppfolgingstilfelle(
+fun PPersonOppfolgingstilfelle.mapToPersonOppfolgingstilfelle(): PersonOppfolgingstilfelle =
+    PersonOppfolgingstilfelle(
         fnr = this.fnr,
         fom = this.fom,
         tom = this.tom,
     )
-}
 
-fun PPersonOppfolgingstilfelle.mapToPersonVirksomhetOppfolgingstilfelle(): PersonVirksomhetOppfolgingstilfelle {
-    return PersonVirksomhetOppfolgingstilfelle(
+fun PPersonOppfolgingstilfelle.mapToPersonVirksomhetOppfolgingstilfelle(): PersonVirksomhetOppfolgingstilfelle =
+    PersonVirksomhetOppfolgingstilfelle(
         fnr = this.fnr,
         virksomhetsnummer = this.virksomhetsnummer,
         fom = this.fom,
         tom = this.tom,
     )
-}
 
-fun PPersonOppfolgingstilfelle.isSykmeldtLast16Days(): Boolean {
-    return tom.isAfter(LocalDate.now().minusDays(16)) && fom.isBefore(LocalDate.now().plusDays(1))
-}
+fun PPersonOppfolgingstilfelle.isSykmeldtLast16Days(): Boolean =
+    tom.isAfter(LocalDate.now().minusDays(16)) && fom.isBefore(LocalDate.now().plusDays(1))

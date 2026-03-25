@@ -5,7 +5,7 @@ import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfellePers
 
 fun dbCreateOppfolgingstilfelle(
     oppfolgingstilfelleDAO: OppfolgingstilfelleDAO,
-    oppfolgingstilfellePerson: KafkaOppfolgingstilfellePerson
+    oppfolgingstilfellePerson: KafkaOppfolgingstilfellePerson,
 ) {
     val fodselsnummer = oppfolgingstilfellePerson.personIdentNumber
     val oppfolgingstilfelle = oppfolgingstilfellePerson.oppfolgingstilfelleList.first()
@@ -14,6 +14,6 @@ fun dbCreateOppfolgingstilfelle(
     oppfolgingstilfelleDAO.create(
         fodselsnummer,
         oppfolgingstilfelle,
-        virksomhetsnummer
+        virksomhetsnummer,
     )
 }

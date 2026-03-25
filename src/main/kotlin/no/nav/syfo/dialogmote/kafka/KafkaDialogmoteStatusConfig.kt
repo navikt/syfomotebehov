@@ -34,108 +34,105 @@ class KafkaDialogmoteStatusConfig(
 ) {
     @Bean
     fun dialogmoteStatusConsumerFactory(): ConsumerFactory<String, KDialogmoteStatusEndring> {
-        fun commonKafkaAivenConfig(): HashMap<String, Any> {
-            return HashMap<String, Any>().apply {
+        fun commonKafkaAivenConfig(): HashMap<String, Any> =
+            HashMap<String, Any>().apply {
                 put(
                     SaslConfigs.SASL_MECHANISM,
-                    "PLAIN"
+                    "PLAIN",
                 )
                 put(
                     CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG,
-                    aivenBrokers
+                    aivenBrokers,
                 )
                 put(
                     CommonClientConfigs.SECURITY_PROTOCOL_CONFIG,
-                    "SSL"
+                    "SSL",
                 )
                 put(
                     SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG,
-                    ""
+                    "",
                 )
                 put(
                     SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG,
-                    "jks"
+                    "jks",
                 )
                 put(
                     SslConfigs.SSL_KEYSTORE_TYPE_CONFIG,
-                    "PKCS12"
+                    "PKCS12",
                 )
                 put(
                     SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG,
-                    aivenTruststoreLocation
+                    aivenTruststoreLocation,
                 )
                 put(
                     SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG,
-                    aivenCredstorePassword
+                    aivenCredstorePassword,
                 )
                 put(
                     SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG,
-                    aivenKeystoreLocation
+                    aivenKeystoreLocation,
                 )
                 put(
                     SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG,
-                    aivenCredstorePassword
+                    aivenCredstorePassword,
                 )
                 put(
                     SslConfigs.SSL_KEY_PASSWORD_CONFIG,
-                    aivenCredstorePassword
+                    aivenCredstorePassword,
                 )
             }
-        }
 
-        fun commonKafkaAivenConsumerConfig(): HashMap<String, Any> {
-            return HashMap<String, Any>().apply {
+        fun commonKafkaAivenConsumerConfig(): HashMap<String, Any> =
+            HashMap<String, Any>().apply {
                 put(
                     ConsumerConfig.GROUP_ID_CONFIG,
-                    "$appName-isdialogmote-dialogmote-statusendring-$kafkaEnv-group-v2"
+                    "$appName-isdialogmote-dialogmote-statusendring-$kafkaEnv-group-v2",
                 )
                 put(
                     ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
-                    "false"
+                    "false",
                 )
                 put(
                     ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-                    "earliest"
+                    "earliest",
                 )
                 put(
                     ConsumerConfig.MAX_POLL_RECORDS_CONFIG,
-                    "1"
+                    "1",
                 )
                 put(
                     ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG,
-                    "" + (10 * 1024 * 1024)
+                    "" + (10 * 1024 * 1024),
                 )
             }
-        }
 
-        fun kafkaDialogmoteStatusEndringConsumerConfig(): HashMap<String, Any> {
-            return HashMap<String, Any>().apply {
+        fun kafkaDialogmoteStatusEndringConsumerConfig(): HashMap<String, Any> =
+            HashMap<String, Any>().apply {
                 put(
                     ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                    StringDeserializer::class.java.canonicalName
+                    StringDeserializer::class.java.canonicalName,
                 )
                 put(
                     ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                    KafkaAvroDeserializer::class.java.canonicalName
+                    KafkaAvroDeserializer::class.java.canonicalName,
                 )
                 put(
                     KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG,
-                    aivenSchemaRegistryUrl
+                    aivenSchemaRegistryUrl,
                 )
                 put(
                     KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG,
-                    true
+                    true,
                 )
                 put(
                     KafkaAvroDeserializerConfig.USER_INFO_CONFIG,
-                    "$aivenRegistryUser:$aivenRegistryPassword"
+                    "$aivenRegistryUser:$aivenRegistryPassword",
                 )
                 put(
                     KafkaAvroDeserializerConfig.BASIC_AUTH_CREDENTIALS_SOURCE,
-                    "USER_INFO"
+                    "USER_INFO",
                 )
             }
-        }
 
         val factoryConfig =
             commonKafkaAivenConfig() + commonKafkaAivenConsumerConfig() + kafkaDialogmoteStatusEndringConsumerConfig()
@@ -147,9 +144,10 @@ class KafkaDialogmoteStatusConfig(
 
     @Bean("DialogmoteListenerContainerFactory")
     fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, KDialogmoteStatusEndring> =
-        ConcurrentKafkaListenerContainerFactory<String, KDialogmoteStatusEndring>().apply {
-            this.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
-        }.also {
-            it.setConsumerFactory(dialogmoteStatusConsumerFactory())
-        }
+        ConcurrentKafkaListenerContainerFactory<String, KDialogmoteStatusEndring>()
+            .apply {
+                this.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
+            }.also {
+                it.setConsumerFactory(dialogmoteStatusConsumerFactory())
+            }
 }

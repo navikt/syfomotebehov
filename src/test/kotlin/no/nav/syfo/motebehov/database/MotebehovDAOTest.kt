@@ -31,7 +31,6 @@ import java.time.temporal.ChronoUnit
 @ApplyExtension(SpringExtension::class)
 @Sql(statements = ["DELETE FROM MOTEBEHOV"])
 class MotebehovDAOTest : IntegrationTest() {
-
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
 
@@ -71,11 +70,12 @@ class MotebehovDAOTest : IntegrationTest() {
             }
 
             it("hentMotebehovListeForOgOpprettetAvArbeidstakerIkkeGyldig") {
-                val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
-                    opprettetDato = motebehovGenerator.getOpprettetDato(false),
-                    opprettetAv = ARBEIDSTAKER_AKTORID,
-                    innmelderType = MotebehovInnmelderType.ARBEIDSTAKER
-                )
+                val pMotebehov =
+                    motebehovGenerator.generatePmotebehov().copy(
+                        opprettetDato = motebehovGenerator.getOpprettetDato(false),
+                        opprettetAv = ARBEIDSTAKER_AKTORID,
+                        innmelderType = MotebehovInnmelderType.ARBEIDSTAKER,
+                    )
 
                 val uuid = motebehovDAO.create(pMotebehov)
                 dbUpdateOpprettetDato(uuid.toString(), pMotebehov.opprettetDato)
@@ -85,11 +85,12 @@ class MotebehovDAOTest : IntegrationTest() {
             }
 
             it("Hent møtebehov liste for og opprettet av arbeidstaker") {
-                val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
-                    opprettetDato = motebehovGenerator.getOpprettetDato(true),
-                    opprettetAv = ARBEIDSTAKER_AKTORID,
-                    innmelderType = MotebehovInnmelderType.ARBEIDSTAKER
-                )
+                val pMotebehov =
+                    motebehovGenerator.generatePmotebehov().copy(
+                        opprettetDato = motebehovGenerator.getOpprettetDato(true),
+                        opprettetAv = ARBEIDSTAKER_AKTORID,
+                        innmelderType = MotebehovInnmelderType.ARBEIDSTAKER,
+                    )
 
                 val uuid = motebehovDAO.create(pMotebehov)
                 dbUpdateOpprettetDato(uuid.toString(), pMotebehov.opprettetDato)
@@ -106,34 +107,38 @@ class MotebehovDAOTest : IntegrationTest() {
             }
 
             it("hentMotebehovListeForOgOpprettetAvLederIkkeGyldig") {
-                val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
-                    opprettetDato = motebehovGenerator.getOpprettetDato(false),
-                    opprettetAv = LEDER_AKTORID
-                )
+                val pMotebehov =
+                    motebehovGenerator.generatePmotebehov().copy(
+                        opprettetDato = motebehovGenerator.getOpprettetDato(false),
+                        opprettetAv = LEDER_AKTORID,
+                    )
                 val uuid = motebehovDAO.create(pMotebehov)
                 dbUpdateOpprettetDato(uuid.toString(), pMotebehov.opprettetDato)
 
-                val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
-                    ARBEIDSTAKER_AKTORID,
-                    false,
-                    VIRKSOMHETSNUMMER
-                )
+                val motebehovListe =
+                    motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
+                        ARBEIDSTAKER_AKTORID,
+                        false,
+                        VIRKSOMHETSNUMMER,
+                    )
                 motebehovListe.size shouldBe 0
             }
 
             it("hentMotebehovListeForArbeidstakerOpprettetAvLederGyldig") {
-                val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
-                    opprettetDato = motebehovGenerator.getOpprettetDato(true),
-                    opprettetAv = LEDER_AKTORID,
-                )
+                val pMotebehov =
+                    motebehovGenerator.generatePmotebehov().copy(
+                        opprettetDato = motebehovGenerator.getOpprettetDato(true),
+                        opprettetAv = LEDER_AKTORID,
+                    )
                 val uuid = motebehovDAO.create(pMotebehov)
                 dbUpdateOpprettetDato(uuid.toString(), pMotebehov.opprettetDato)
 
-                val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
-                    ARBEIDSTAKER_AKTORID,
-                    false,
-                    VIRKSOMHETSNUMMER
-                )
+                val motebehovListe =
+                    motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
+                        ARBEIDSTAKER_AKTORID,
+                        false,
+                        VIRKSOMHETSNUMMER,
+                    )
                 motebehovListe.size shouldBe 1
                 val motebehovFraDb = motebehovListe[0]
 
@@ -145,19 +150,21 @@ class MotebehovDAOTest : IntegrationTest() {
             }
 
             it("skalHenteAlleMotebehovForAktorDersomEgenLeder") {
-                val pMotebehov = motebehovGenerator.generatePmotebehov().copy(
-                    opprettetDato = motebehovGenerator.getOpprettetDato(true),
-                    opprettetAv = ARBEIDSTAKER_AKTORID,
-                    innmelderType = MotebehovInnmelderType.ARBEIDSTAKER,
-                )
+                val pMotebehov =
+                    motebehovGenerator.generatePmotebehov().copy(
+                        opprettetDato = motebehovGenerator.getOpprettetDato(true),
+                        opprettetAv = ARBEIDSTAKER_AKTORID,
+                        innmelderType = MotebehovInnmelderType.ARBEIDSTAKER,
+                    )
                 val uuid = motebehovDAO.create(pMotebehov)
                 dbUpdateOpprettetDato(uuid.toString(), pMotebehov.opprettetDato)
 
-                val motebehovListe = motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
-                    ARBEIDSTAKER_AKTORID,
-                    true,
-                    VIRKSOMHETSNUMMER
-                )
+                val motebehovListe =
+                    motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
+                        ARBEIDSTAKER_AKTORID,
+                        true,
+                        VIRKSOMHETSNUMMER,
+                    )
                 motebehovListe.size shouldBe 1
                 val motebehovFraDb = motebehovListe[0]
 
@@ -170,14 +177,15 @@ class MotebehovDAOTest : IntegrationTest() {
 
             it(
                 "should store the correct values in motebehov_form_values when creating a motebehov " +
-                    "with a formSnapshot"
+                    "with a formSnapshot",
             ) {
                 val motebehovToStore = motebehovGenerator.generatePmotebehov()
-                val motebehovToStoreFormSnapshotConvertedToJSON = motebehovToStore.formSnapshot?.let {
-                    convertFormSnapshotToJsonString(
-                        it
-                    )
-                }
+                val motebehovToStoreFormSnapshotConvertedToJSON =
+                    motebehovToStore.formSnapshot?.let {
+                        convertFormSnapshotToJsonString(
+                            it,
+                        )
+                    }
 
                 val uuid = motebehovDAO.create(motebehovToStore)
                 val motebehovFormValuesFromDb = dbSelectMotebehovFormValues(uuid.toString())
@@ -186,7 +194,7 @@ class MotebehovDAOTest : IntegrationTest() {
 
                 areStringsEqualAsSqlJsonbValues(
                     motebehovFormValuesFromDb.formSnapshotJSON,
-                    motebehovToStoreFormSnapshotConvertedToJSON ?: ""
+                    motebehovToStoreFormSnapshotConvertedToJSON ?: "",
                 ) shouldBe true
 
                 motebehovFormValuesFromDb.formIdentifier shouldBe
@@ -207,7 +215,10 @@ class MotebehovDAOTest : IntegrationTest() {
      * MotebehovDAO.create() sets opprettetDato to the current time, so this function can be used after create()
      * to update the opprettetDato to a specific time.
      */
-    private fun dbUpdateOpprettetDato(motebehovUUID: String, opprettetDato: LocalDateTime) {
+    private fun dbUpdateOpprettetDato(
+        motebehovUUID: String,
+        opprettetDato: LocalDateTime,
+    ) {
         val updateOprrettetDatoSql = "UPDATE motebehov SET opprettet_dato = ? WHERE motebehov_uuid = ?"
         jdbcTemplate.update(updateOprrettetDatoSql, opprettetDato, motebehovUUID)
     }
@@ -216,26 +227,32 @@ class MotebehovDAOTest : IntegrationTest() {
         val getRowIdFromMotebehovSql = "SELECT id FROM motebehov WHERE motebehov_uuid = ?"
         val motebehovRowId = jdbcTemplate.queryForObject(getRowIdFromMotebehovSql, Long::class.java, motebehovId)
 
-        val motebehovFormValuesRowMapper: RowMapper<PMotebehovFormValues> = RowMapper { rs: ResultSet, _: Int ->
-            PMotebehovFormValues(
-                formIdentifier = rs.getString("form_identifier"),
-                formSemanticVersion = rs.getString("form_semantic_version"),
-                formSnapshotJSON = rs.getString("form_snapshot"),
-                begrunnelse = rs.getString("begrunnelse")?.takeIf { it.isNotEmpty() },
-                onskerSykmelderDeltar = rs.getBoolean("onsker_sykmelder_deltar"),
-                onskerSykmelderDeltarBegrunnelse = rs.getString(
-                    "onsker_sykmelder_deltar_begrunnelse"
-                )?.takeIf { it.isNotEmpty() },
-                onskerTolk = rs.getBoolean("onsker_tolk"),
-                tolkSprak = rs.getString("tolk_sprak")?.takeIf { it.isNotEmpty() },
-            )
-        }
+        val motebehovFormValuesRowMapper: RowMapper<PMotebehovFormValues> =
+            RowMapper { rs: ResultSet, _: Int ->
+                PMotebehovFormValues(
+                    formIdentifier = rs.getString("form_identifier"),
+                    formSemanticVersion = rs.getString("form_semantic_version"),
+                    formSnapshotJSON = rs.getString("form_snapshot"),
+                    begrunnelse = rs.getString("begrunnelse")?.takeIf { it.isNotEmpty() },
+                    onskerSykmelderDeltar = rs.getBoolean("onsker_sykmelder_deltar"),
+                    onskerSykmelderDeltarBegrunnelse =
+                        rs
+                            .getString(
+                                "onsker_sykmelder_deltar_begrunnelse",
+                            )?.takeIf { it.isNotEmpty() },
+                    onskerTolk = rs.getBoolean("onsker_tolk"),
+                    tolkSprak = rs.getString("tolk_sprak")?.takeIf { it.isNotEmpty() },
+                )
+            }
 
         val motebehovFormValuesSql = "SELECT * FROM motebehov_form_values WHERE motebehov_row_id = ?"
         return jdbcTemplate.queryForObject(motebehovFormValuesSql, motebehovFormValuesRowMapper, motebehovRowId)
     }
 
-    fun areStringsEqualAsSqlJsonbValues(jsonb1: String, jsonb2: String): Boolean {
+    fun areStringsEqualAsSqlJsonbValues(
+        jsonb1: String,
+        jsonb2: String,
+    ): Boolean {
         val sql = "SELECT ?::jsonb = ?::jsonb"
         return jdbcTemplate.queryForObject(sql, Boolean::class.java, jsonb1, jsonb2) ?: false
     }

@@ -16,38 +16,40 @@ import javax.inject.Inject
 @Profile("!local")
 @EnableKafka
 @Configuration
-class DialogmotekandidatKafkaConfig @Inject constructor(
-    private val kafkaAivenConfig: KafkaAivenConfig
-) {
-    @Bean
-    fun dialogmotekandidatConsumerFactory(): ConsumerFactory<String, KafkaDialogmotekandidatEndring> {
+class DialogmotekandidatKafkaConfig
+    @Inject
+    constructor(
+        private val kafkaAivenConfig: KafkaAivenConfig,
+    ) {
+        @Bean
+        fun dialogmotekandidatConsumerFactory(): ConsumerFactory<String, KafkaDialogmotekandidatEndring> {
+            fun kafkaDialogmotekandidatConsumerConfig(): HashMap<String, Any> =
+                HashMap<String, Any>().apply {
+                    put(
+                        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                        StringDeserializer::class.java.canonicalName,
+                    )
+                    put(
+                        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                        KafkaDialogmotekandidatDeserializer::class.java.canonicalName,
+                    )
+                }
 
-        fun kafkaDialogmotekandidatConsumerConfig(): HashMap<String, Any> {
-            return HashMap<String, Any>().apply {
-                put(
-                    ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                    StringDeserializer::class.java.canonicalName
-                )
-                put(
-                    ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                    KafkaDialogmotekandidatDeserializer::class.java.canonicalName
-                )
-            }
+            val factoryConfig =
+                kafkaAivenConfig.commonKafkaAivenConfig() + kafkaAivenConfig.commonKafkaAivenConsumerConfig() +
+                    kafkaDialogmotekandidatConsumerConfig()
+
+            return DefaultKafkaConsumerFactory(
+                factoryConfig,
+            )
         }
 
-        val factoryConfig =
-            kafkaAivenConfig.commonKafkaAivenConfig() + kafkaAivenConfig.commonKafkaAivenConsumerConfig() + kafkaDialogmotekandidatConsumerConfig()
-
-        return DefaultKafkaConsumerFactory(
-            factoryConfig,
-        )
+        @Bean("DialogmotekandidatListenerContainerFactory")
+        fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, KafkaDialogmotekandidatEndring> =
+            ConcurrentKafkaListenerContainerFactory<String, KafkaDialogmotekandidatEndring>()
+                .apply {
+                    this.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
+                }.also {
+                    it.setConsumerFactory(dialogmotekandidatConsumerFactory())
+                }
     }
-
-    @Bean("DialogmotekandidatListenerContainerFactory")
-    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, KafkaDialogmotekandidatEndring> =
-        ConcurrentKafkaListenerContainerFactory<String, KafkaDialogmotekandidatEndring>().apply {
-            this.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
-        }.also {
-            it.setConsumerFactory(dialogmotekandidatConsumerFactory())
-        }
-}

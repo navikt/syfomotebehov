@@ -2,13 +2,18 @@ package no.nav.syfo.consumer.pdl
 
 import no.nav.syfo.consumer.azuread.v2.IAzureAdV2TokenConsumer
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.util.*
+import no.nav.syfo.util.BEHANDLINGSNUMMER_MOTEBEHOV
+import no.nav.syfo.util.PDL_BEHANDLINGSNUMMER_HEADER
+import no.nav.syfo.util.bearerCredentials
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.*
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
+import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestTemplate
@@ -25,15 +30,20 @@ class PdlConsumer(
     override fun person(ident: String): PdlHentPerson? {
         metric.tellHendelse("call_pdl")
 
-        val query = this::class.java.getResource("/pdl/hentPerson.graphql").readText().replace("[\n\r]", "")
+        val query =
+            this::class.java
+                .getResource("/pdl/hentPerson.graphql")
+                .readText()
+                .replace("[\n\r]", "")
         val entity = createRequestEntity(PdlRequest(query, Variables(ident)))
         try {
-            val pdlPerson = restTemplate.exchange(
-                pdlUrl,
-                HttpMethod.POST,
-                entity,
-                object : ParameterizedTypeReference<PdlPersonResponse>() {}
-            )
+            val pdlPerson =
+                restTemplate.exchange(
+                    pdlUrl,
+                    HttpMethod.POST,
+                    entity,
+                    object : ParameterizedTypeReference<PdlPersonResponse>() {},
+                )
 
             val pdlPersonReponse = pdlPerson.body!!
             return if (pdlPersonReponse.errors != null && pdlPersonReponse.errors.isNotEmpty()) {
@@ -56,17 +66,23 @@ class PdlConsumer(
     override fun aktorid(fnr: String): String {
         metric.tellHendelse("call_pdl")
 
-        val query = this::class.java.getResource("/pdl/hentIdenter.graphql").readText().replace("[\n\r]", "")
-        val entity = createRequestEntity(
-            PdlRequest(query, Variables(ident = fnr, grupper = IdentType.AKTORID.name))
-        )
-        try {
-            val pdlIdenter = restTemplate.exchange(
-                pdlUrl,
-                HttpMethod.POST,
-                entity,
-                object : ParameterizedTypeReference<PdlIdenterResponse>() {}
+        val query =
+            this::class.java
+                .getResource("/pdl/hentIdenter.graphql")
+                .readText()
+                .replace("[\n\r]", "")
+        val entity =
+            createRequestEntity(
+                PdlRequest(query, Variables(ident = fnr, grupper = IdentType.AKTORID.name)),
             )
+        try {
+            val pdlIdenter =
+                restTemplate.exchange(
+                    pdlUrl,
+                    HttpMethod.POST,
+                    entity,
+                    object : ParameterizedTypeReference<PdlIdenterResponse>() {},
+                )
 
             val pdlIdenterReponse = pdlIdenter.body!!
             if (pdlIdenterReponse.errors != null && pdlIdenterReponse.errors.isNotEmpty()) {
@@ -78,7 +94,12 @@ class PdlConsumer(
             } else {
                 metric.tellHendelse("call_pdl_success")
                 try {
-                    val aktorid = pdlIdenterReponse.data?.hentIdenter?.identer?.first()?.ident!!
+                    val aktorid =
+                        pdlIdenterReponse.data
+                            ?.hentIdenter
+                            ?.identer
+                            ?.first()
+                            ?.ident!!
                     return aktorid
                 } catch (e: NoSuchElementException) {
                     LOG.info("Error while requesting AKTORID from PDL. Empty list in hentIdenter response")
@@ -95,17 +116,23 @@ class PdlConsumer(
     override fun fnr(aktorid: String): String {
         metric.tellHendelse("call_pdl")
 
-        val query = this::class.java.getResource("/pdl/hentIdenter.graphql").readText().replace("[\n\r]", "")
-        val entity = createRequestEntity(
-            PdlRequest(query, Variables(ident = aktorid, grupper = IdentType.FOLKEREGISTERIDENT.name))
-        )
-        try {
-            val pdlIdenter = restTemplate.exchange(
-                pdlUrl,
-                HttpMethod.POST,
-                entity,
-                object : ParameterizedTypeReference<PdlIdenterResponse>() {}
+        val query =
+            this::class.java
+                .getResource("/pdl/hentIdenter.graphql")
+                .readText()
+                .replace("[\n\r]", "")
+        val entity =
+            createRequestEntity(
+                PdlRequest(query, Variables(ident = aktorid, grupper = IdentType.FOLKEREGISTERIDENT.name)),
             )
+        try {
+            val pdlIdenter =
+                restTemplate.exchange(
+                    pdlUrl,
+                    HttpMethod.POST,
+                    entity,
+                    object : ParameterizedTypeReference<PdlIdenterResponse>() {},
+                )
 
             val pdlIdenterReponse = pdlIdenter.body!!
             if (pdlIdenterReponse.errors != null && pdlIdenterReponse.errors.isNotEmpty()) {
@@ -117,7 +144,12 @@ class PdlConsumer(
             } else {
                 metric.tellHendelse("call_pdl_success")
                 try {
-                    val fnr = pdlIdenterReponse.data?.hentIdenter?.identer?.first()?.ident!!
+                    val fnr =
+                        pdlIdenterReponse.data
+                            ?.hentIdenter
+                            ?.identer
+                            ?.first()
+                            ?.ident!!
                     return fnr
                 } catch (e: NoSuchElementException) {
                     LOG.info("Error while requesting FNR from PDL. Empty list in hentIdenter response")
@@ -131,9 +163,7 @@ class PdlConsumer(
         }
     }
 
-    override fun isKode6(fnr: String): Boolean {
-        return person(fnr)?.isKode6() ?: throw PdlRequestFailedException()
-    }
+    override fun isKode6(fnr: String): Boolean = person(fnr)?.isKode6() ?: throw PdlRequestFailedException()
 
     private fun createRequestEntity(request: PdlRequest): HttpEntity<PdlRequest> {
         val token = azureAdV2TokenConsumer.getSystemToken(pdlClientId)

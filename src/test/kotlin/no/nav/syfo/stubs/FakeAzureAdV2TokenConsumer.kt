@@ -13,17 +13,16 @@ import org.springframework.util.MultiValueMap
 @Component
 class FakeAzureAdV2TokenConsumer : IAzureAdV2TokenConsumer {
     val logger = LoggerFactory.getLogger(this.javaClass)
-    override fun getOnBehalfOfToken(scopeClientId: String, token: String): String {
-        return token
-    }
 
-    override fun getSystemToken(scopeClientId: String): String {
-        return "token"
-    }
+    override fun getOnBehalfOfToken(
+        scopeClientId: String,
+        token: String,
+    ): String = token
 
-    override fun systemTokenRequestEntity(scopeClientId: String): HttpEntity<MultiValueMap<String, String>> {
-        return ResponseEntity.ok(LinkedMultiValueMap())
-    }
+    override fun getSystemToken(scopeClientId: String): String = "token"
+
+    override fun systemTokenRequestEntity(scopeClientId: String): HttpEntity<MultiValueMap<String, String>> =
+        ResponseEntity.ok(LinkedMultiValueMap())
 
     init {
         logger.warn("!! ----- Running with fake AzureAdV2TokenConsumer  ----- !!")

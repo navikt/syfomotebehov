@@ -1,6 +1,6 @@
 package no.nav.syfo.util
 
-import java.util.*
+import java.util.UUID
 
 const val NAV_CONSUMER_ID_HEADER = "Nav-Consumer-Id"
 const val APP_CONSUMER_ID = "syfomotebehov"

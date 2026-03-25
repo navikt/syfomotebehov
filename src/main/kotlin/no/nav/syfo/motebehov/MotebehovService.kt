@@ -15,178 +15,192 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 import java.util.stream.Collectors
 import javax.inject.Inject
 
 @Service
-class MotebehovService @Inject constructor(
-    private val metric: Metric,
-    private val behandlendeEnhetConsumer: IBehandlendeEnhetConsumer,
-    private val personoppgavehendelseService: PersonoppgavehendelseService,
-    private val motebehovDAO: MotebehovDAO,
-    private val pdlConsumer: IPdlConsumer,
-) {
-    @Transactional
-    fun behandleUbehandledeMotebehov(arbeidstakerFnr: String, veilederIdent: String) {
-        val arbeidstakerAktorId = pdlConsumer.aktorid(arbeidstakerFnr)
-        val pMotebehovUbehandletList = motebehovDAO.hentUbehandledeMotebehov(arbeidstakerAktorId)
-        if (pMotebehovUbehandletList.isNotEmpty()) {
-            pMotebehovUbehandletList.forEach { pMotebehov ->
-                val antallOppdatering =
-                    motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(pMotebehov.uuid, veilederIdent)
-                if (antallOppdatering == 1) {
-                    personoppgavehendelseService.sendPersonoppgaveHendelseBehandlet(pMotebehov.uuid, arbeidstakerFnr)
-                }
-            }
-        } else {
-            metric.tellHendelse("feil_behandle_motebehov_svar_eksiterer_ikke")
-            log.warn(
-                "Ugyldig tilstand: Veileder {} forsøkte å behandle motebehovsvar som ikke eksisterer. Kaster Http-409",
-                veilederIdent,
-            )
-            throw ConflictException()
-        }
-    }
-
-    @Transactional
-    fun behandleUbehandledeMotebehovOpprettetTidligereEnnDato(dato: LocalDate, veilederIdent: String): Int {
-        var updatedCount = 0
-        motebehovDAO.hentUbehandledeMotebehovEldreEnnDato(dato)
-            .forEach { pMotebehov ->
-                pMotebehov.sykmeldtFnr?.let {
+class MotebehovService
+    @Inject
+    constructor(
+        private val metric: Metric,
+        private val behandlendeEnhetConsumer: IBehandlendeEnhetConsumer,
+        private val personoppgavehendelseService: PersonoppgavehendelseService,
+        private val motebehovDAO: MotebehovDAO,
+        private val pdlConsumer: IPdlConsumer,
+    ) {
+        @Transactional
+        fun behandleUbehandledeMotebehov(
+            arbeidstakerFnr: String,
+            veilederIdent: String,
+        ) {
+            val arbeidstakerAktorId = pdlConsumer.aktorid(arbeidstakerFnr)
+            val pMotebehovUbehandletList = motebehovDAO.hentUbehandledeMotebehov(arbeidstakerAktorId)
+            if (pMotebehovUbehandletList.isNotEmpty()) {
+                pMotebehovUbehandletList.forEach { pMotebehov ->
                     val antallOppdatering =
                         motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(pMotebehov.uuid, veilederIdent)
                     if (antallOppdatering == 1) {
-                        personoppgavehendelseService.sendPersonoppgaveHendelseBehandlet(pMotebehov.uuid, it)
-                        updatedCount++
+                        personoppgavehendelseService.sendPersonoppgaveHendelseBehandlet(pMotebehov.uuid, arbeidstakerFnr)
                     }
                 }
-            }
-        return updatedCount
-    }
-
-    @Transactional
-    fun behandleUbehandletMotebehovMedId(motebehovId: String, veilederIdent: String): Boolean {
-        val motebehov = hentMotebehov(motebehovId)
-        motebehov?.let {
-            val rowsAffected =
-                motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(motebehov.id, veilederIdent)
-            if (rowsAffected == 1) {
-                personoppgavehendelseService.sendPersonoppgaveHendelseBehandlet(motebehov.id, motebehov.arbeidstakerFnr)
-                return true
+            } else {
+                metric.tellHendelse("feil_behandle_motebehov_svar_eksiterer_ikke")
+                log.warn(
+                    "Ugyldig tilstand: Veileder {} forsøkte å behandle motebehovsvar som ikke eksisterer. Kaster Http-409",
+                    veilederIdent,
+                )
+                throw ConflictException()
             }
         }
-        return false
-    }
 
-    fun hentMotebehovListe(arbeidstakerFnr: String): List<Motebehov> {
-        val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
-        return motebehovDAO.hentMotebehovListeForAktoer(arbeidstakerAktoerId)
-            .stream()
-            .map { it.toMotebehov(arbeidstakerFnr) }
-            .collect(Collectors.toList())
-    }
-
-    fun hentMotebehov(motebehovId: String): Motebehov? {
-        return motebehovDAO
-            .hentMotebehov(motebehovId)
-            .stream()
-            .map { it.toMotebehov() }
-            .collect(Collectors.toList())
-            .firstOrNull()
-    }
-
-    fun hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr: String): List<Motebehov> {
-        val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
-        return motebehovDAO.hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktoerId)
-            .stream()
-            .map { it.toMotebehov(arbeidstakerFnr) }
-            .collect(Collectors.toList())
-    }
-
-    fun hentMotebehovListeForArbeidstakerOpprettetAvLeder(
-        arbeidstakerFnr: String,
-        isOwnLeader: Boolean,
-        virksomhetsnummer: String,
-    ): List<Motebehov> {
-        val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
-        return motebehovDAO.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
-            arbeidstakerAktoerId,
-            isOwnLeader,
-            virksomhetsnummer,
-        )
-            .stream()
-            .map { it.toMotebehov(arbeidstakerFnr) }
-            .collect(Collectors.toList())
-    }
-
-    @Suppress("LongParameterList")
-    @Transactional
-    fun lagreMotebehov(
-        innloggetFNR: String,
-        arbeidstakerFnr: String,
-        virksomhetsnummer: String,
-        skjemaType: MotebehovSkjemaType,
-        innmelderType: MotebehovInnmelderType,
-        motebehovFormSubmission: MotebehovFormSubmissionDTO,
-    ): UUID {
-        val innloggetBrukerAktoerId = pdlConsumer.aktorid(innloggetFNR)
-        val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
-        val arbeidstakerBehandlendeEnhet =
-            behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr, null).getEnhetId()
-
-        val motebehov = Motebehov(
-            id = UUID.randomUUID(),
-            opprettetDato = LocalDateTime.now(),
-            aktorId = arbeidstakerAktoerId,
-            opprettetAv = innloggetBrukerAktoerId,
-            opprettetAvFnr = innloggetFNR,
-            arbeidstakerFnr = arbeidstakerFnr,
-            virksomhetsnummer = virksomhetsnummer,
-            formSubmission = motebehovFormSubmission,
-            tildeltEnhet = arbeidstakerBehandlendeEnhet,
-            skjemaType = skjemaType,
-            innmelderType = innmelderType,
-        )
-
-        val pMotebehov = motebehov.toPMotebehov()
-
-        val uuid: UUID
-
-        try {
-            uuid = motebehovDAO.create(pMotebehov)
-        } catch (ex: DataAccessException) {
-            metric.tellHendelse("feil_lagre_motebehov")
-
-            log.error(
-                "DataAccessException ved lagring av motebehov med skjemaType {} og innmelderType {}: {}",
-                skjemaType.name,
-                innmelderType.name,
-                ex.message,
-            )
-
-            throw ex
-        } catch (ex: IllegalStateException) {
-            metric.tellHendelse("feil_lagre_motebehov")
-
-            log.error(
-                "IllegalStateException ved lagring av motebehov med skjemaType {} og innmelderType {}: {}",
-                skjemaType.name,
-                innmelderType.name,
-                ex.message,
-            )
-
-            throw ex
+        @Transactional
+        fun behandleUbehandledeMotebehovOpprettetTidligereEnnDato(
+            dato: LocalDate,
+            veilederIdent: String,
+        ): Int {
+            var updatedCount = 0
+            motebehovDAO
+                .hentUbehandledeMotebehovEldreEnnDato(dato)
+                .forEach { pMotebehov ->
+                    pMotebehov.sykmeldtFnr?.let {
+                        val antallOppdatering =
+                            motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(pMotebehov.uuid, veilederIdent)
+                        if (antallOppdatering == 1) {
+                            personoppgavehendelseService.sendPersonoppgaveHendelseBehandlet(pMotebehov.uuid, it)
+                            updatedCount++
+                        }
+                    }
+                }
+            return updatedCount
         }
 
-        if (motebehovFormSubmission.harMotebehov) {
-            personoppgavehendelseService.sendPersonoppgaveHendelseMottatt(uuid, arbeidstakerFnr)
+        @Transactional
+        fun behandleUbehandletMotebehovMedId(
+            motebehovId: String,
+            veilederIdent: String,
+        ): Boolean {
+            val motebehov = hentMotebehov(motebehovId)
+            motebehov?.let {
+                val rowsAffected =
+                    motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(motebehov.id, veilederIdent)
+                if (rowsAffected == 1) {
+                    personoppgavehendelseService.sendPersonoppgaveHendelseBehandlet(motebehov.id, motebehov.arbeidstakerFnr)
+                    return true
+                }
+            }
+            return false
         }
-        return uuid
-    }
 
-    companion object {
-        private val log = LoggerFactory.getLogger(MotebehovService::class.java)
+        fun hentMotebehovListe(arbeidstakerFnr: String): List<Motebehov> {
+            val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
+            return motebehovDAO
+                .hentMotebehovListeForAktoer(arbeidstakerAktoerId)
+                .stream()
+                .map { it.toMotebehov(arbeidstakerFnr) }
+                .collect(Collectors.toList())
+        }
+
+        fun hentMotebehov(motebehovId: String): Motebehov? =
+            motebehovDAO
+                .hentMotebehov(motebehovId)
+                .stream()
+                .map { it.toMotebehov() }
+                .collect(Collectors.toList())
+                .firstOrNull()
+
+        fun hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerFnr: String): List<Motebehov> {
+            val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
+            return motebehovDAO
+                .hentMotebehovListeForOgOpprettetAvArbeidstaker(arbeidstakerAktoerId)
+                .stream()
+                .map { it.toMotebehov(arbeidstakerFnr) }
+                .collect(Collectors.toList())
+        }
+
+        fun hentMotebehovListeForArbeidstakerOpprettetAvLeder(
+            arbeidstakerFnr: String,
+            isOwnLeader: Boolean,
+            virksomhetsnummer: String,
+        ): List<Motebehov> {
+            val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
+            return motebehovDAO
+                .hentMotebehovListeForArbeidstakerOpprettetAvLeder(
+                    arbeidstakerAktoerId,
+                    isOwnLeader,
+                    virksomhetsnummer,
+                ).stream()
+                .map { it.toMotebehov(arbeidstakerFnr) }
+                .collect(Collectors.toList())
+        }
+
+        @Suppress("LongParameterList")
+        @Transactional
+        fun lagreMotebehov(
+            innloggetFNR: String,
+            arbeidstakerFnr: String,
+            virksomhetsnummer: String,
+            skjemaType: MotebehovSkjemaType,
+            innmelderType: MotebehovInnmelderType,
+            motebehovFormSubmission: MotebehovFormSubmissionDTO,
+        ): UUID {
+            val innloggetBrukerAktoerId = pdlConsumer.aktorid(innloggetFNR)
+            val arbeidstakerAktoerId = pdlConsumer.aktorid(arbeidstakerFnr)
+            val arbeidstakerBehandlendeEnhet =
+                behandlendeEnhetConsumer.getBehandlendeEnhet(arbeidstakerFnr, null).getEnhetId()
+
+            val motebehov =
+                Motebehov(
+                    id = UUID.randomUUID(),
+                    opprettetDato = LocalDateTime.now(),
+                    aktorId = arbeidstakerAktoerId,
+                    opprettetAv = innloggetBrukerAktoerId,
+                    opprettetAvFnr = innloggetFNR,
+                    arbeidstakerFnr = arbeidstakerFnr,
+                    virksomhetsnummer = virksomhetsnummer,
+                    formSubmission = motebehovFormSubmission,
+                    tildeltEnhet = arbeidstakerBehandlendeEnhet,
+                    skjemaType = skjemaType,
+                    innmelderType = innmelderType,
+                )
+
+            val pMotebehov = motebehov.toPMotebehov()
+
+            val uuid: UUID
+
+            try {
+                uuid = motebehovDAO.create(pMotebehov)
+            } catch (ex: DataAccessException) {
+                metric.tellHendelse("feil_lagre_motebehov")
+
+                log.error(
+                    "DataAccessException ved lagring av motebehov med skjemaType {} og innmelderType {}: {}",
+                    skjemaType.name,
+                    innmelderType.name,
+                    ex.message,
+                )
+
+                throw ex
+            } catch (ex: IllegalStateException) {
+                metric.tellHendelse("feil_lagre_motebehov")
+
+                log.error(
+                    "IllegalStateException ved lagring av motebehov med skjemaType {} og innmelderType {}: {}",
+                    skjemaType.name,
+                    innmelderType.name,
+                    ex.message,
+                )
+
+                throw ex
+            }
+
+            if (motebehovFormSubmission.harMotebehov) {
+                personoppgavehendelseService.sendPersonoppgaveHendelseMottatt(uuid, arbeidstakerFnr)
+            }
+            return uuid
+        }
+
+        companion object {
+            private val log = LoggerFactory.getLogger(MotebehovService::class.java)
+        }
     }
-}

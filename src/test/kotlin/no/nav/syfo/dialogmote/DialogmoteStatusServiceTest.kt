@@ -30,7 +30,6 @@ import java.util.UUID
 @ApplyExtension(SpringExtension::class)
 @DirtiesContext
 class DialogmoteStatusServiceTest : IntegrationTest() {
-
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
 
@@ -55,22 +54,29 @@ class DialogmoteStatusServiceTest : IntegrationTest() {
         describe("Dialogmøte status service") {
             it("will save new dialogmøte innkalling") {
 
-                val moteFraDBBefore = dialogmoteDAO.get(
-                    UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
-                )
+                val moteFraDBBefore =
+                    dialogmoteDAO.get(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        externMoteUUID,
+                    )
 
                 moteFraDBBefore.size shouldBe 0
 
                 dialogmoteStatusService.receiveKDialogmoteStatusendring(
                     generateInnkalling(
-                        externMoteUUID, DialogmoteStatusEndringType.INNKALT,
-                        null
-                    )
+                        externMoteUUID,
+                        DialogmoteStatusEndringType.INNKALT,
+                        null,
+                    ),
                 )
 
-                val moteFraDBAfter = dialogmoteDAO.get(
-                    UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
-                )
+                val moteFraDBAfter =
+                    dialogmoteDAO.get(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        externMoteUUID,
+                    )
 
                 moteFraDBAfter.size shouldBe 1
                 moteFraDBAfter[0].personIdent shouldBe UserConstants.ARBEIDSTAKER_FNR
@@ -80,22 +86,29 @@ class DialogmoteStatusServiceTest : IntegrationTest() {
             }
 
             it("will not save new dialogmøte HvisIkkeInnkallingEllerTidsendring") {
-                val moteFraDBBefore = dialogmoteDAO.get(
-                    UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
-                )
+                val moteFraDBBefore =
+                    dialogmoteDAO.get(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        externMoteUUID,
+                    )
 
                 assertThat(moteFraDBBefore.size).isEqualTo(0)
 
                 dialogmoteStatusService.receiveKDialogmoteStatusendring(
                     generateInnkalling(
-                        externMoteUUID, DialogmoteStatusEndringType.AVLYST,
-                        null
-                    )
+                        externMoteUUID,
+                        DialogmoteStatusEndringType.AVLYST,
+                        null,
+                    ),
                 )
 
-                val moteFraDBAfter = dialogmoteDAO.get(
-                    UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
-                )
+                val moteFraDBAfter =
+                    dialogmoteDAO.get(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        externMoteUUID,
+                    )
 
                 assertThat(moteFraDBAfter.isEmpty()).isTrue
             }
@@ -103,26 +116,34 @@ class DialogmoteStatusServiceTest : IntegrationTest() {
             it("will remove dialogmøte if new hendelse is avlyst or ferdigstilt") {
                 dialogmoteStatusService.receiveKDialogmoteStatusendring(
                     generateInnkalling(
-                        externMoteUUID, DialogmoteStatusEndringType.INNKALT,
-                        null
+                        externMoteUUID,
+                        DialogmoteStatusEndringType.INNKALT,
+                        null,
+                    ),
+                )
+                val moteFraDBBefore =
+                    dialogmoteDAO.get(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        externMoteUUID,
                     )
-                )
-                val moteFraDBBefore = dialogmoteDAO.get(
-                    UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
-                )
 
                 moteFraDBBefore.size shouldBe 1
                 moteFraDBBefore[0].personIdent shouldBe UserConstants.ARBEIDSTAKER_FNR
 
                 dialogmoteStatusService.receiveKDialogmoteStatusendring(
                     generateInnkalling(
-                        externMoteUUID, DialogmoteStatusEndringType.AVLYST,
-                        null
+                        externMoteUUID,
+                        DialogmoteStatusEndringType.AVLYST,
+                        null,
+                    ),
+                )
+                val moteFraDBAfter =
+                    dialogmoteDAO.get(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        externMoteUUID,
                     )
-                )
-                val moteFraDBAfter = dialogmoteDAO.get(
-                    UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
-                )
 
                 moteFraDBAfter.isEmpty() shouldBe true
             }
@@ -130,13 +151,17 @@ class DialogmoteStatusServiceTest : IntegrationTest() {
             it("will update dialogmøte status type hvis status type er innkalling eller nytt tid sted") {
                 dialogmoteStatusService.receiveKDialogmoteStatusendring(
                     generateInnkalling(
-                        externMoteUUID, DialogmoteStatusEndringType.INNKALT,
-                        null
+                        externMoteUUID,
+                        DialogmoteStatusEndringType.INNKALT,
+                        null,
+                    ),
+                )
+                val moteFraDBBefore =
+                    dialogmoteDAO.get(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        externMoteUUID,
                     )
-                )
-                val moteFraDBBefore = dialogmoteDAO.get(
-                    UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
-                )
 
                 moteFraDBBefore.size shouldBe 1
                 moteFraDBBefore[0].personIdent shouldBe UserConstants.ARBEIDSTAKER_FNR
@@ -144,13 +169,17 @@ class DialogmoteStatusServiceTest : IntegrationTest() {
 
                 dialogmoteStatusService.receiveKDialogmoteStatusendring(
                     generateInnkalling(
-                        externMoteUUID, DialogmoteStatusEndringType.NYTT_TID_STED,
-                        null
+                        externMoteUUID,
+                        DialogmoteStatusEndringType.NYTT_TID_STED,
+                        null,
+                    ),
+                )
+                val moteFraDBAfter =
+                    dialogmoteDAO.get(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        externMoteUUID,
                     )
-                )
-                val moteFraDBAfter = dialogmoteDAO.get(
-                    UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
-                )
 
                 moteFraDBAfter.size shouldBe 1
                 moteFraDBAfter[0].personIdent shouldBe UserConstants.ARBEIDSTAKER_FNR
@@ -160,29 +189,38 @@ class DialogmoteStatusServiceTest : IntegrationTest() {
             it("will not update dialogmøte status type hvis endrings tidspunkt er eldre enn i database") {
                 dialogmoteStatusService.receiveKDialogmoteStatusendring(
                     generateInnkalling(
-                        externMoteUUID, DialogmoteStatusEndringType.INNKALT,
-                        null
+                        externMoteUUID,
+                        DialogmoteStatusEndringType.INNKALT,
+                        null,
+                    ),
+                )
+                val moteFraDBBefore =
+                    dialogmoteDAO.get(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        externMoteUUID,
                     )
-                )
-                val moteFraDBBefore = dialogmoteDAO.get(
-                    UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
-                )
 
                 moteFraDBBefore.size shouldBe 1
                 moteFraDBBefore[0].personIdent shouldBe UserConstants.ARBEIDSTAKER_FNR
                 moteFraDBBefore[0].statusEndringType shouldBe DialogmoteStatusEndringType.INNKALT
 
-                val oldRecord = generateInnkalling(
-                    externMoteUUID, DialogmoteStatusEndringType.NYTT_TID_STED,
-                    null
-                )
+                val oldRecord =
+                    generateInnkalling(
+                        externMoteUUID,
+                        DialogmoteStatusEndringType.NYTT_TID_STED,
+                        null,
+                    )
 
                 oldRecord.setStatusEndringTidspunkt(convertLocalDateTimeToInstant(LocalDateTime.now().minusWeeks(99)))
 
                 dialogmoteStatusService.receiveKDialogmoteStatusendring(oldRecord)
-                val moteFraDBAfter = dialogmoteDAO.get(
-                    UserConstants.ARBEIDSTAKER_FNR, UserConstants.VIRKSOMHETSNUMMER, externMoteUUID
-                )
+                val moteFraDBAfter =
+                    dialogmoteDAO.get(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        externMoteUUID,
+                    )
 
                 moteFraDBAfter.size shouldBe 1
                 moteFraDBAfter[0].personIdent shouldBe UserConstants.ARBEIDSTAKER_FNR
@@ -192,16 +230,18 @@ class DialogmoteStatusServiceTest : IntegrationTest() {
             it("will return true if dialogmøte is planned after date") {
                 dialogmoteStatusService.receiveKDialogmoteStatusendring(
                     generateInnkalling(
-                        externMoteUUID, DialogmoteStatusEndringType.INNKALT,
-                        null
-                    )
+                        externMoteUUID,
+                        DialogmoteStatusEndringType.INNKALT,
+                        null,
+                    ),
                 )
 
-                val isMote = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
-                    UserConstants.ARBEIDSTAKER_FNR,
-                    UserConstants.VIRKSOMHETSNUMMER,
-                    LocalDate.now()
-                )
+                val isMote =
+                    dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        LocalDate.now(),
+                    )
 
                 isMote shouldBe true
             }
@@ -213,15 +253,16 @@ class DialogmoteStatusServiceTest : IntegrationTest() {
                     generateInnkalling(
                         externMoteUUID,
                         DialogmoteStatusEndringType.INNKALT,
-                        todayInstant
-                    )
+                        todayInstant,
+                    ),
                 )
 
-                val isMote = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
-                    UserConstants.ARBEIDSTAKER_FNR,
-                    UserConstants.VIRKSOMHETSNUMMER,
-                    todayLocalDateTime.toLocalDate()
-                )
+                val isMote =
+                    dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        todayLocalDateTime.toLocalDate(),
+                    )
 
                 isMote shouldBe true
             }
@@ -231,15 +272,16 @@ class DialogmoteStatusServiceTest : IntegrationTest() {
                     generateInnkalling(
                         externMoteUUID,
                         DialogmoteStatusEndringType.INNKALT,
-                        convertLocalDateTimeToInstant(LocalDateTime.now().minusWeeks(4))
-                    )
+                        convertLocalDateTimeToInstant(LocalDateTime.now().minusWeeks(4)),
+                    ),
                 )
 
-                val isMote = dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
-                    UserConstants.ARBEIDSTAKER_FNR,
-                    UserConstants.VIRKSOMHETSNUMMER,
-                    LocalDate.now()
-                )
+                val isMote =
+                    dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        LocalDate.now(),
+                    )
 
                 isMote shouldBe false
             }
@@ -250,8 +292,8 @@ class DialogmoteStatusServiceTest : IntegrationTest() {
         moteUUID: String?,
         dialogmoteStatusEndringType: DialogmoteStatusEndringType,
         motetidspunkt: Instant?,
-    ): KDialogmoteStatusEndring {
-        return KDialogmoteStatusEndring(
+    ): KDialogmoteStatusEndring =
+        KDialogmoteStatusEndring(
             moteUUID ?: UUID.randomUUID().toString(),
             motetidspunkt ?: dialogmotetidspunkt,
             dialogmoteStatusEndringType.name,
@@ -265,5 +307,4 @@ class DialogmoteStatusServiceTest : IntegrationTest() {
             false,
             false,
         )
-    }
 }

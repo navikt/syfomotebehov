@@ -10,13 +10,9 @@ import org.springframework.web.bind.annotation.RestController
 class PodController {
     @Unprotected
     @RequestMapping(value = ["/isAlive"], produces = [MediaType.TEXT_PLAIN_VALUE])
-    fun isAlive(): String {
-        return "Application is ready!"
-    }
+    fun isAlive(): String = "Application is ready!"
 
     @Unprotected
     @RequestMapping(value = ["/isReady"], produces = [MediaType.TEXT_PLAIN_VALUE])
-    fun isReady(): String {
-        return "Application is ready!"
-    }
+    fun isReady(): String = "Application is ready!"
 }

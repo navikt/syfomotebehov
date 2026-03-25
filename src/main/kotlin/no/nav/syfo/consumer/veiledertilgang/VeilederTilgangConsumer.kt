@@ -5,13 +5,22 @@ import no.nav.syfo.api.auth.OIDCIssuer
 import no.nav.syfo.api.auth.OIDCUtil
 import no.nav.syfo.consumer.azuread.v2.IAzureAdV2TokenConsumer
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.util.*
+import no.nav.syfo.util.APP_CONSUMER_ID
+import no.nav.syfo.util.NAV_CALL_ID_HEADER
+import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
+import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
+import no.nav.syfo.util.createCallId
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
-import org.springframework.http.*
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
-import org.springframework.web.client.*
+import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.HttpServerErrorException
+import org.springframework.web.client.RestTemplate
 
 @Service
 @Profile("!local")
@@ -27,21 +36,23 @@ class VeilederTilgangConsumer(
 
     override fun sjekkVeiledersTilgangTilPersonMedOBO(fnr: String): Boolean {
         val token = OIDCUtil.tokenFraOIDC(oidcContextHolder, OIDCIssuer.INTERN_AZUREAD_V2)
-        val oboToken = azureAdV2TokenConsumer.getOnBehalfOfToken(
-            scopeClientId = istilgangskontrollClientId,
-            token = token,
-        )
+        val oboToken =
+            azureAdV2TokenConsumer.getOnBehalfOfToken(
+                scopeClientId = istilgangskontrollClientId,
+                token = token,
+            )
 
         return try {
-            val tilgang = template.exchange(
-                tilgangskontrollPersonUrl,
-                HttpMethod.GET,
-                entity(
-                    personIdentNumber = fnr,
-                    token = oboToken,
-                ),
-                Tilgang::class.java,
-            )
+            val tilgang =
+                template.exchange(
+                    tilgangskontrollPersonUrl,
+                    HttpMethod.GET,
+                    entity(
+                        personIdentNumber = fnr,
+                        token = oboToken,
+                    ),
+                    Tilgang::class.java,
+                )
             tilgang.body!!.erGodkjent
         } catch (e: HttpClientErrorException) {
             if (e.statusCode.value() == 403) {

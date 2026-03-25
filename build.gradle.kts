@@ -28,8 +28,9 @@ plugins {
     id("java")
     id("org.springframework.boot") version "4.0.3"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "2.3.20"
-    kotlin("plugin.spring") version "2.3.20"
+    id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
+    kotlin("jvm") version "2.3.10"
+    kotlin("plugin.spring") version "2.3.10"
 }
 
 repositories {
@@ -77,7 +78,7 @@ dependencies {
 
     implementation("io.confluent:kafka-avro-serializer:$confluent")
     implementation("io.confluent:kafka-schema-registry:$confluent") {
-        exclude(module="slf4j-reload4j") // Conflicts with logback slf4j provider
+        exclude(module = "slf4j-reload4j") // Conflicts with logback slf4j provider
     }
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:$isdialogmoteSchema")
     implementation("javax.inject:javax.inject:$javaxInjectVersion")
@@ -115,7 +116,6 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-property:$kotestVersion")
     testImplementation("io.kotest:kotest-extensions-wiremock:$kotestVersion")
-
 }
 
 java.toolchain {
@@ -126,7 +126,9 @@ tasks {
     named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
         this.archiveFileName.set("app.jar")
     }
-
+    named("check") {
+        dependsOn("ktlintCheck")
+    }
     withType<Test> {
         useJUnitPlatform()
     }

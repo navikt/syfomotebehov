@@ -3,6 +3,7 @@ package no.nav.syfo.oppfolgingstilfelle.kafka
 import no.nav.syfo.config.kafka.KafkaAivenConfig
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
@@ -11,8 +12,6 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.listener.ContainerProperties
-
-import org.springframework.beans.factory.annotation.Value
 
 @Profile("!local")
 @EnableKafka
@@ -24,8 +23,8 @@ class KafkaTestdataResetConfig(
 ) {
     @Bean
     fun testdataResetConsumerFactory(): ConsumerFactory<String, String> {
-        fun kafkaTestdataResetConsumerConfig(): HashMap<String, Any> {
-            return HashMap<String, Any>().apply {
+        fun kafkaTestdataResetConsumerConfig(): HashMap<String, Any> =
+            HashMap<String, Any>().apply {
                 put(
                     ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
                     StringDeserializer::class.java.canonicalName,
@@ -39,10 +38,10 @@ class KafkaTestdataResetConfig(
                     "$appName-$kafkaEnv-testdata-reset",
                 )
             }
-        }
 
         val factoryConfig =
-            kafkaAivenConfig.commonKafkaAivenConfig() + kafkaAivenConfig.commonKafkaAivenConsumerConfig() + kafkaTestdataResetConsumerConfig()
+            kafkaAivenConfig.commonKafkaAivenConfig() + kafkaAivenConfig.commonKafkaAivenConsumerConfig() +
+                kafkaTestdataResetConsumerConfig()
 
         return DefaultKafkaConsumerFactory(
             factoryConfig,
@@ -51,10 +50,10 @@ class KafkaTestdataResetConfig(
 
     @Bean("TestdataResetListenerContainerFactory")
     fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String> =
-        ConcurrentKafkaListenerContainerFactory<String, String>().apply {
-            this.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
-        }.also {
-            it.setConsumerFactory(testdataResetConsumerFactory())
-        }
-
+        ConcurrentKafkaListenerContainerFactory<String, String>()
+            .apply {
+                this.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
+            }.also {
+                it.setConsumerFactory(testdataResetConsumerFactory())
+            }
 }

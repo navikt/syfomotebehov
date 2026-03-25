@@ -28,64 +28,69 @@ import javax.validation.constraints.Pattern
 @ProtectedWithClaims(
     issuer = TokenXIssuer.TOKENX,
     claimMap = ["acr=Level4", "acr=idporten-loa-high"],
-    combineWithOr = true
+    combineWithOr = true,
 )
 @RequestMapping(value = ["/api/v4"])
-class MotebehovArbeidsgiverControllerV4 @Inject constructor(
-    private val contextHolder: TokenValidationContextHolder,
-    private val metric: Metric,
-    private val motebehovOppfolgingstilfelleServiceV2: MotebehovOppfolgingstilfelleServiceV2,
-    private val motebehovStatusServiceV2: MotebehovStatusServiceV2,
-    private val brukertilgangService: BrukertilgangService,
-    @Value("\${dialogmote.frontend.client.id}")
-    val dialogmoteClientId: String,
-) {
-    @GetMapping(
-        value = ["/motebehov"],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
-    fun motebehovStatusArbeidsgiver(
-        @RequestParam(name = "fnr") arbeidstakerFnr:
-        @Pattern(regexp = "^[0-9]{11}$")
-        String,
-        @RequestParam(name = "virksomhetsnummer") virksomhetsnummer: String,
-    ): MotebehovStatusWithFormValuesDTO {
-        metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver")
-        TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)
-        brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(arbeidstakerFnr)
-
-        val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
-        val isOwnLeader = arbeidsgiverFnr == arbeidstakerFnr
-
-        return motebehovStatusServiceV2.motebehovStatusForArbeidsgiver(
-            arbeidstakerFnr,
-            isOwnLeader,
-            virksomhetsnummer
-        ).toMotebehovStatusWithFormValuesDTO()
-    }
-
-    @PostMapping(
-        value = ["/motebehov"],
-        consumes = [MediaType.APPLICATION_JSON_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
-    fun lagreMotebehovArbeidsgiver(
-        @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverDTO,
+class MotebehovArbeidsgiverControllerV4
+    @Inject
+    constructor(
+        private val contextHolder: TokenValidationContextHolder,
+        private val metric: Metric,
+        private val motebehovOppfolgingstilfelleServiceV2: MotebehovOppfolgingstilfelleServiceV2,
+        private val motebehovStatusServiceV2: MotebehovStatusServiceV2,
+        private val brukertilgangService: BrukertilgangService,
+        @Value("\${dialogmote.frontend.client.id}")
+        val dialogmoteClientId: String,
     ) {
-        metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
-        val innloggetFnr = TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)
-            .fnrFromIdportenTokenX()
-        val ansattFnr = nyttMotebehovDTO.arbeidstakerFnr
-        brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(ansattFnr)
-
-        val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
-        val isOwnLeader = arbeidsgiverFnr == ansattFnr
-
-        motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidgiver(
-            innloggetFnr,
-            ansattFnr,
-            isOwnLeader,
-            nyttMotebehovDTO,
+        @GetMapping(
+            value = ["/motebehov"],
+            produces = [MediaType.APPLICATION_JSON_VALUE],
         )
+        fun motebehovStatusArbeidsgiver(
+            @RequestParam(name = "fnr") arbeidstakerFnr:
+                @Pattern(regexp = "^[0-9]{11}$")
+                String,
+            @RequestParam(name = "virksomhetsnummer") virksomhetsnummer: String,
+        ): MotebehovStatusWithFormValuesDTO {
+            metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver")
+            TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)
+            brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(arbeidstakerFnr)
+
+            val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
+            val isOwnLeader = arbeidsgiverFnr == arbeidstakerFnr
+
+            return motebehovStatusServiceV2
+                .motebehovStatusForArbeidsgiver(
+                    arbeidstakerFnr,
+                    isOwnLeader,
+                    virksomhetsnummer,
+                ).toMotebehovStatusWithFormValuesDTO()
+        }
+
+        @PostMapping(
+            value = ["/motebehov"],
+            consumes = [MediaType.APPLICATION_JSON_VALUE],
+            produces = [MediaType.APPLICATION_JSON_VALUE],
+        )
+        fun lagreMotebehovArbeidsgiver(
+            @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverDTO,
+        ) {
+            metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
+            val innloggetFnr =
+                TokenXUtil
+                    .validateTokenXClaims(contextHolder, dialogmoteClientId)
+                    .fnrFromIdportenTokenX()
+            val ansattFnr = nyttMotebehovDTO.arbeidstakerFnr
+            brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(ansattFnr)
+
+            val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
+            val isOwnLeader = arbeidsgiverFnr == ansattFnr
+
+            motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidgiver(
+                innloggetFnr,
+                ansattFnr,
+                isOwnLeader,
+                nyttMotebehovDTO,
+            )
+        }
     }
-}

@@ -13,16 +13,15 @@ import org.springframework.stereotype.Component
 @Profile("remote")
 @Component
 class IsOppfolgingstilfelleListener(
-    private val oppfolgingstilfelleService: OppfolgingstilfelleService
+    private val oppfolgingstilfelleService: OppfolgingstilfelleService,
 ) {
-
     @KafkaListener(
         topics = [ISOPPFOLGINGSTILFELLE_TOPIC],
-        containerFactory = "IsOppfolgingstilfelleListenerContainerFactory"
+        containerFactory = "IsOppfolgingstilfelleListenerContainerFactory",
     )
     fun oppfolgingstilfellePekerListener(
         consumerRecord: ConsumerRecord<String, KafkaOppfolgingstilfellePerson>,
-        acknowledgment: Acknowledgment
+        acknowledgment: Acknowledgment,
     ) {
         try {
             val oppfolgingstilfellePerson = consumerRecord.value()

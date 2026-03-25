@@ -62,7 +62,6 @@ import java.util.function.Consumer
 @SpringBootTest(classes = [LocalApplication::class])
 @ApplyExtension(SpringExtension::class)
 class MotebehovVeilederADControllerV4Test : IntegrationTest() {
-
     @Value("\${azure.openid.config.token.endpoint}")
     private lateinit var azureTokenEndpoint: String
 
@@ -165,8 +164,9 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
                 motebehov.virksomhetsnummer shouldBe VIRKSOMHETSNUMMER
 
                 motebehov.formValues.harMotebehov shouldBe submitted.formSubmission.harMotebehov
-                motebehov.formValues shouldBe submitted.formSubmission
-                    .toMotebehovFormValuesOutputDTO()
+                motebehov.formValues shouldBe
+                    submitted.formSubmission
+                        .toMotebehovFormValuesOutputDTO()
             }
 
             it("arbeidstaker lagrer Motebehov og Veileder henter Motebehov") {
@@ -185,8 +185,9 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
                 motebehov.virksomhetsnummer shouldBe VIRKSOMHETSNUMMER
 
                 motebehov.formValues.harMotebehov shouldBe submitted.harMotebehov
-                motebehov.formValues shouldBe submitted
-                    .toMotebehovFormValuesOutputDTO()
+                motebehov.formValues shouldBe
+                    submitted
+                        .toMotebehovFormValuesOutputDTO()
             }
 
             it("hent Historikk") {
@@ -293,56 +294,70 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
     }
 
     private fun arbeidsgiverLoggerInnOgLagrerMotebehov(): NyttMotebehovArbeidsgiverDTO {
-        val formSubmission = MotebehovFormSubmissionDTO(
-            harMotebehov = true,
-            formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
-        )
-        val arbeidsgiverFormSubmission = NyttMotebehovArbeidsgiverDTO(
-            arbeidstakerFnr = ARBEIDSTAKER_FNR,
-            virksomhetsnummer = VIRKSOMHETSNUMMER,
-            formSubmission,
-        )
+        val formSubmission =
+            MotebehovFormSubmissionDTO(
+                harMotebehov = true,
+                formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
+            )
+        val arbeidsgiverFormSubmission =
+            NyttMotebehovArbeidsgiverDTO(
+                arbeidstakerFnr = ARBEIDSTAKER_FNR,
+                virksomhetsnummer = VIRKSOMHETSNUMMER,
+                formSubmission,
+            )
         tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
         motebehovArbeidsgiverControllerV4.lagreMotebehovArbeidsgiver(arbeidsgiverFormSubmission)
 
         return arbeidsgiverFormSubmission
     }
 
-    private fun sykmeldtLoggerInnOgLagrerMotebehov(
-        harBehov: Boolean,
-    ): MotebehovFormSubmissionDTO {
-        val motebehovFormSubmission = MotebehovFormSubmissionDTO(
-            harMotebehov = harBehov,
-            formSnapshot = if (harBehov) {
-                mockArbeidstakerSvarJaFormSnapshot
-            } else {
-                mockArbeidstakerSvarNeiFormSnapshot
-            },
-        )
+    private fun sykmeldtLoggerInnOgLagrerMotebehov(harBehov: Boolean): MotebehovFormSubmissionDTO {
+        val motebehovFormSubmission =
+            MotebehovFormSubmissionDTO(
+                harMotebehov = harBehov,
+                formSnapshot =
+                    if (harBehov) {
+                        mockArbeidstakerSvarJaFormSnapshot
+                    } else {
+                        mockArbeidstakerSvarNeiFormSnapshot
+                    },
+            )
         tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
         motebehovArbeidstakerControllerV4.submitMotebehovArbeidstaker(motebehovFormSubmission)
 
         return motebehovFormSubmission
     }
 
-    private fun behandleMotebehov(aktoerId: String, veileder: String) {
+    private fun behandleMotebehov(
+        aktoerId: String,
+        veileder: String,
+    ) {
         val ubehandledeMotebehov = motebehovDAO.hentUbehandledeMotebehov(aktoerId)
         ubehandledeMotebehov.forEach {
             motebehovDAO.oppdaterUbehandledeMotebehovTilBehandlet(it.uuid, veileder)
         }
     }
 
-    private fun loggInnOgKallBehandleMotebehov(fnr: String, veileder: String) {
+    private fun loggInnOgKallBehandleMotebehov(
+        fnr: String,
+        veileder: String,
+    ) {
         tokenValidationUtil.logInAsNavCounselor(veileder)
         motebehovVeilederController.behandleMotebehov(fnr)
     }
 
-    private fun loggInnOgKallHentMotebehovListe(fnr: String, veileder: String): List<MotebehovVeilederDTO> {
+    private fun loggInnOgKallHentMotebehovListe(
+        fnr: String,
+        veileder: String,
+    ): List<MotebehovVeilederDTO> {
         tokenValidationUtil.logInAsNavCounselor(veileder)
         return motebehovVeilederController.hentMotebehovListe(fnr)
     }
 
-    private fun loggInnOgKallHentMotebehovHistorikk(fnr: String, veileder: String): List<Historikk> {
+    private fun loggInnOgKallHentMotebehovHistorikk(
+        fnr: String,
+        veileder: String,
+    ): List<Historikk> {
         tokenValidationUtil.logInAsNavCounselor(veileder)
         return motebehovVeilederController.hentMotebehovHistorikk(fnr)
     }

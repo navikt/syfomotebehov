@@ -4,7 +4,7 @@ import no.nav.syfo.motebehov.MotebehovFormValuesOutputDTO
 import no.nav.syfo.motebehov.MotebehovInnmelderType
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 data class MotebehovVeilederDTO(
     val id: UUID,

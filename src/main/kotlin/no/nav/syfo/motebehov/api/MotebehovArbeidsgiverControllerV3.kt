@@ -14,12 +14,14 @@ class MotebehovArbeidsgiverControllerV3(
     private val metric: Metric,
 ) {
     @GetMapping("/motebehov")
-    fun motebehovStatusArbeidsgiver() = ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).build<Void>().also {
-        metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver_v3")
-    }
+    fun motebehovStatusArbeidsgiver() =
+        ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).build<Void>().also {
+            metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver_v3")
+        }
 
     @PostMapping("/motebehov")
-    fun lagreMotebehovArbeidsgiver() = ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).build<Void>().also {
-        metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver_v3")
-    }
+    fun lagreMotebehovArbeidsgiver() =
+        ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).build<Void>().also {
+            metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver_v3")
+        }
 }

@@ -7,3 +7,15 @@ SPRING_PROFILES_ACTIVE = 'local'
 [tasks.start]
 description = "Run syfomotebehov locally"
 run = "./gradlew bootRunLocal"
+
+[tasks.lint]
+description = "Run check with gradle"
+run = './gradlew ktlintCheck'
+
+[tasks.format]
+description = "Run ktlintFormat with gradle"
+run = './gradlew ktlintFormat'
+
+[tasks.test]
+description = "Run test with gradle"
+run = 'SPRING_PROFILES_ACTIVE=unittest ./gradlew test'

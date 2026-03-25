@@ -13,19 +13,21 @@ import org.springframework.test.web.client.response.MockRestResponseCreators
 fun mockAndExpectAzureADV2(
     mockRestServiceServer: MockRestServiceServer,
     url: String,
-    response: AzureAdV2TokenResponse
+    response: AzureAdV2TokenResponse,
 ) {
     val json = ObjectMapper().writeValueAsString(response)
 
-    mockRestServiceServer.expect(ExpectedCount.once(), MockRestRequestMatchers.requestTo(url))
+    mockRestServiceServer
+        .expect(ExpectedCount.once(), MockRestRequestMatchers.requestTo(url))
         .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
         .andRespond(MockRestResponseCreators.withSuccess(json, MediaType.APPLICATION_JSON))
 }
 
-fun generateAzureAdV2TokenResponse() = AzureAdV2TokenResponse(
-    access_token = "oboToken",
-    expires_in = 3600
-)
+fun generateAzureAdV2TokenResponse() =
+    AzureAdV2TokenResponse(
+        access_token = "oboToken",
+        expires_in = 3600,
+    )
 
 fun AzureAdV2TokenConsumer.Companion.clearCache() {
     this.systemTokenCache.clear()

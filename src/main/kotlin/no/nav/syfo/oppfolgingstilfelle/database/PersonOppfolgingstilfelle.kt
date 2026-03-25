@@ -9,10 +9,7 @@ data class PersonOppfolgingstilfelle(
     val tom: LocalDate,
 )
 
-fun PersonOppfolgingstilfelle.isDateInOppfolgingstilfelle(date: LocalDate): Boolean {
-    return date.isAfter(this.fom.minusDays(1)) && date.isBefore(this.tom.plusDays(1))
-}
+fun PersonOppfolgingstilfelle.isDateInOppfolgingstilfelle(date: LocalDate): Boolean =
+    date.isAfter(this.fom.minusDays(1)) && date.isBefore(this.tom.plusDays(1))
 
-fun PersonOppfolgingstilfelle.isSykmeldtNow(): Boolean {
-    return isDateInOppfolgingstilfelle(now())
-}
+fun PersonOppfolgingstilfelle.isSykmeldtNow(): Boolean = isDateInOppfolgingstilfelle(now())
