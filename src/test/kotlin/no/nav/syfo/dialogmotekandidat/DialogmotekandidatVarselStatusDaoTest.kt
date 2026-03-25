@@ -21,7 +21,6 @@ import java.util.UUID
 @SpringBootTest(classes = [LocalApplication::class])
 @ApplyExtension(SpringExtension::class)
 class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
-
     @Autowired
     private lateinit var dialogmotekandidatVarselStatusDao: DialogmotekandidatVarselStatusDao
 
@@ -71,7 +70,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL).shouldBeEmpty()
 
             jdbcTemplate.queryForObject<Int>(
-                "SELECT COUNT(*) FROM dialogkandidat_varsel_status WHERE status = 'SENT'"
+                "SELECT COUNT(*) FROM dialogkandidat_varsel_status WHERE status = 'SENT'",
             ) shouldBe 1
         }
 
@@ -86,7 +85,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             jdbcTemplate.queryForObject(
                 "SELECT retry_count FROM dialogkandidat_varsel_status WHERE kafka_melding_uuid = ?",
                 Int::class.java,
-                uuid
+                uuid,
             ) shouldBe 2
         }
 
@@ -110,20 +109,22 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             // Bakdaterer created_at til 2 dager siden
             jdbcTemplate.update(
                 "UPDATE dialogkandidat_varsel_status SET created_at = NOW() - INTERVAL '2 days' WHERE kafka_melding_uuid = ?",
-                uuid
+                uuid,
             )
 
-            val count = dialogmotekandidatVarselStatusDao.countPendingOlderThan(
-                DialogmotekandidatVarselType.VARSEL,
-                LocalDateTime.now().minusMinutes(1)
-            )
+            val count =
+                dialogmotekandidatVarselStatusDao.countPendingOlderThan(
+                    DialogmotekandidatVarselType.VARSEL,
+                    LocalDateTime.now().minusMinutes(1),
+                )
             count shouldBe 1
 
             // Rad som er ny skal ikke telles
-            val countNew = dialogmotekandidatVarselStatusDao.countPendingOlderThan(
-                DialogmotekandidatVarselType.VARSEL,
-                LocalDateTime.now().minusDays(3)
-            )
+            val countNew =
+                dialogmotekandidatVarselStatusDao.countPendingOlderThan(
+                    DialogmotekandidatVarselType.VARSEL,
+                    LocalDateTime.now().minusDays(3),
+                )
             countNew shouldBe 0
         }
 
@@ -135,14 +136,14 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             // Bakdaterer updated_at slik at raden er eldre enn cutoff
             jdbcTemplate.update(
                 "UPDATE dialogkandidat_varsel_status SET updated_at = NOW() - INTERVAL '2 days' WHERE kafka_melding_uuid = ?",
-                uuid
+                uuid,
             )
 
             val deleted = dialogmotekandidatVarselStatusDao.deleteSentOlderThan(LocalDateTime.now().minusMinutes(1))
             deleted shouldBe 1
 
             jdbcTemplate.queryForObject<Int>(
-                "SELECT COUNT(*) FROM dialogkandidat_varsel_status"
+                "SELECT COUNT(*) FROM dialogkandidat_varsel_status",
             ) shouldBe 0
         }
 
@@ -152,14 +153,14 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             // Bakdaterer created_at slik at raden er eldre enn cutoff
             jdbcTemplate.update(
                 "UPDATE dialogkandidat_varsel_status SET created_at = NOW() - INTERVAL '2 days' WHERE kafka_melding_uuid = ?",
-                uuid
+                uuid,
             )
 
             val deleted = dialogmotekandidatVarselStatusDao.deletePendingOlderThan(LocalDateTime.now().minusMinutes(1))
             deleted shouldBe 1
 
             jdbcTemplate.queryForObject<Int>(
-                "SELECT COUNT(*) FROM dialogkandidat_varsel_status"
+                "SELECT COUNT(*) FROM dialogkandidat_varsel_status",
             ) shouldBe 0
         }
     }

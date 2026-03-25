@@ -15,92 +15,102 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 
 @Service
-class DialogmotekandidatService @Inject constructor(
-    private val dialogmotekandidatDAO: DialogmotekandidatDAO,
-    private val dialogmotekandidatVarselStatusDao: DialogmotekandidatVarselStatusDao,
-) {
-    @Transactional
-    fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
-        val ansattFnr = dialogmotekandidatEndring.personIdentNumber
+class DialogmotekandidatService
+    @Inject
+    constructor(
+        private val dialogmotekandidatDAO: DialogmotekandidatDAO,
+        private val dialogmotekandidatVarselStatusDao: DialogmotekandidatVarselStatusDao,
+    ) {
+        @Transactional
+        fun receiveDialogmotekandidatEndring(dialogmotekandidatEndring: KafkaDialogmotekandidatEndring) {
+            val ansattFnr = dialogmotekandidatEndring.personIdentNumber
 
-        val existingKandidat = dialogmotekandidatDAO.get(ansattFnr)
-        if (existingKandidat?.createdAt?.isEqualOrAfter(dialogmotekandidatEndring.createdAtNorwegian) == true) {
-            log.info(
-                "Ignoring dialogmotekandidat message",
-                kv("event", "dialogmotekandidat.ignored"),
-                kv("reason", "newer_change_exists"),
-                kv("messageId", dialogmotekandidatEndring.uuid),
-            )
-            return
-        }
-
-        saveKandidat(existingKandidat, dialogmotekandidatEndring, ansattFnr)
-
-        val varselType = resolveVarselType(dialogmotekandidatEndring.kandidat, existingKandidat)
-            ?: run {
+            val existingKandidat = dialogmotekandidatDAO.get(ansattFnr)
+            if (existingKandidat?.createdAt?.isEqualOrAfter(dialogmotekandidatEndring.createdAtNorwegian) == true) {
                 log.info(
                     "Ignoring dialogmotekandidat message",
                     kv("event", "dialogmotekandidat.ignored"),
-                    kv("reason", "already_kandidat"),
+                    kv("reason", "newer_change_exists"),
                     kv("messageId", dialogmotekandidatEndring.uuid),
                 )
                 return
             }
 
-        dialogmotekandidatVarselStatusDao.create(
-            kafkaMeldingUuid = dialogmotekandidatEndring.uuid,
-            fnr = ansattFnr,
-            type = varselType,
-        )
-    }
+            saveKandidat(existingKandidat, dialogmotekandidatEndring, ansattFnr)
 
-    private fun resolveVarselType(
-        kandidat: Boolean,
-        existingKandidat: DialogmoteKandidatEndring?,
-    ): DialogmotekandidatVarselType? = when {
-        !kandidat -> DialogmotekandidatVarselType.FERDIGSTILL
-        existingKandidat?.kandidat == true -> null
-        else -> DialogmotekandidatVarselType.VARSEL
-    }
+            val varselType =
+                resolveVarselType(dialogmotekandidatEndring.kandidat, existingKandidat)
+                    ?: run {
+                        log.info(
+                            "Ignoring dialogmotekandidat message",
+                            kv("event", "dialogmotekandidat.ignored"),
+                            kv("reason", "already_kandidat"),
+                            kv("messageId", dialogmotekandidatEndring.uuid),
+                        )
+                        return
+                    }
 
-    private fun saveKandidat(
-        existingKandidat: DialogmoteKandidatEndring?,
-        dialogmotekandidatEndring: KafkaDialogmotekandidatEndring,
-        ansattFnr: String
-    ) {
-        when {
-            existingKandidat == null -> {
-                log.info("Lagrer ny kandidat i databasen", kv("event", "dialogmotekandidat.created"), kv("messageId", dialogmotekandidatEndring.uuid))
-                dialogmotekandidatDAO.create(
-                    dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
-                    createdAt = dialogmotekandidatEndring.createdAtNorwegian,
-                    fnr = ansattFnr,
-                    kandidat = dialogmotekandidatEndring.kandidat,
-                    arsak = dialogmotekandidatEndring.arsak,
-                )
+            dialogmotekandidatVarselStatusDao.create(
+                kafkaMeldingUuid = dialogmotekandidatEndring.uuid,
+                fnr = ansattFnr,
+                type = varselType,
+            )
+        }
+
+        private fun resolveVarselType(
+            kandidat: Boolean,
+            existingKandidat: DialogmoteKandidatEndring?,
+        ): DialogmotekandidatVarselType? =
+            when {
+                !kandidat -> DialogmotekandidatVarselType.FERDIGSTILL
+                existingKandidat?.kandidat == true -> null
+                else -> DialogmotekandidatVarselType.VARSEL
             }
 
-            else -> {
-                log.info("Oppdaterer eksisterende kandidat i databasen", kv("event", "dialogmotekandidat.updated"), kv("messageId", dialogmotekandidatEndring.uuid))
-                dialogmotekandidatDAO.update(
-                    dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
-                    createdAt = dialogmotekandidatEndring.createdAtNorwegian,
-                    fnr = ansattFnr,
-                    kandidat = dialogmotekandidatEndring.kandidat,
-                    arsak = dialogmotekandidatEndring.arsak,
-                )
+        private fun saveKandidat(
+            existingKandidat: DialogmoteKandidatEndring?,
+            dialogmotekandidatEndring: KafkaDialogmotekandidatEndring,
+            ansattFnr: String,
+        ) {
+            when {
+                existingKandidat == null -> {
+                    log.info(
+                        "Lagrer ny kandidat i databasen",
+                        kv("event", "dialogmotekandidat.created"),
+                        kv("messageId", dialogmotekandidatEndring.uuid),
+                    )
+                    dialogmotekandidatDAO.create(
+                        dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
+                        createdAt = dialogmotekandidatEndring.createdAtNorwegian,
+                        fnr = ansattFnr,
+                        kandidat = dialogmotekandidatEndring.kandidat,
+                        arsak = dialogmotekandidatEndring.arsak,
+                    )
+                }
+
+                else -> {
+                    log.info(
+                        "Oppdaterer eksisterende kandidat i databasen",
+                        kv("event", "dialogmotekandidat.updated"),
+                        kv("messageId", dialogmotekandidatEndring.uuid),
+                    )
+                    dialogmotekandidatDAO.update(
+                        dialogmotekandidatExternalUUID = dialogmotekandidatEndring.uuid,
+                        createdAt = dialogmotekandidatEndring.createdAtNorwegian,
+                        fnr = ansattFnr,
+                        kandidat = dialogmotekandidatEndring.kandidat,
+                        arsak = dialogmotekandidatEndring.arsak,
+                    )
+                }
             }
         }
-    }
 
-    fun getDialogmotekandidatStatus(arbeidstakerFnr: String): DialogmoteKandidatEndring? {
-        return dialogmotekandidatDAO.get(arbeidstakerFnr)
-    }
+        fun getDialogmotekandidatStatus(arbeidstakerFnr: String): DialogmoteKandidatEndring? = dialogmotekandidatDAO.get(arbeidstakerFnr)
 
-    companion object {
-        private val log = LoggerFactory.getLogger(DialogmotekandidatService::class.java)
+        companion object {
+            private val log = LoggerFactory.getLogger(DialogmotekandidatService::class.java)
+        }
     }
-}
 
 private val KafkaDialogmotekandidatEndring.createdAtNorwegian: LocalDateTime
     get() = createdAt.toNorwegianLocalDateTime()
