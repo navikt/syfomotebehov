@@ -1,7 +1,6 @@
 # Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
 name: Epic
 description: Stor oppgave som brytes ned i deloppgaver
-title: "[Epic]: "
 type: Epic
 projects: ["navikt/157"]
 body:

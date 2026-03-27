@@ -1,7 +1,6 @@
 # Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
 name: Task
 description: Teknisk oppgave, vedlikehold eller chore
-title: "[Task]: "
 type: Task
 projects: ["navikt/157"]
 body:
