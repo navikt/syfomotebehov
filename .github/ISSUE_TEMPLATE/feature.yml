@@ -1,7 +1,6 @@
 # Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
 name: Feature
 description: Foreslå ny funksjonalitet eller forbedring
-title: "[Feature]: "
 type: Feature
 projects: ["navikt/157"]
 body:
