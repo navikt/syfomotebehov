@@ -34,11 +34,19 @@ Hvert steg i planen MÅ ha en **Agent**-tildeling. Bruk disse kriteriene:
 | Visuell design, loading/error/tom-state presentasjon | **Konditor** |
 | Forretningslogikk, API, database, services | **Kokk** |
 | State management, hooks, testing, konfigurasjon | **Kokk** |
-| Blanding av logikk og UI | **Kokk** (noter at Konditor-output bør brukes som referanse) |
+| UI-komponent med design + logikk | **Konditor FØRST** (design/layout/states), **deretter Kokk** (hooks/state/logic) |
 
 **Hovedregel**: *Hvordan det ser ut/føles* → Konditor. *Hvordan det fungerer* → Kokk.
 
-**Viktig**: Når en oppgave har UI-komponenter, planlegg design-steg (Konditor) FØR implementasjon-steg (Kokk). Konditoren lager designet, kokken kobler det opp.
+**Viktig**: Når en oppgave har UI-komponenter, planlegg design-steg (Konditor) FØR implementasjon-steg (Kokk). Konditoren designer komponentstruktur, layout og states — Kokk kobler opp logikk basert på designet.
+
+### Design-first mønster (obligatorisk for UI-oppgaver)
+
+Når planen inneholder UI-komponenter:
+1. **Design-steg (Konditor)** som tidlig fase — komponentstruktur, Aksel-komponenter, spacing, tilgjengelighet, visuelle states
+2. **Implementasjon-steg (Kokk)** som påfølgende fase — hooks, API-integrasjon, state management
+
+Kokk skal ALDRI designe UI-komponent fra scratch — det er Konditor sin oppgave.
 
 ## Output-format
 
@@ -52,12 +60,14 @@ Hvert steg i planen MÅ ha en **Agent**-tildeling. Bruk disse kriteriene:
 - **Agent**: Konditor / Kokk
 - **Filer**: src/path/File.tsx, src/path/Other.tsx
 - **Endring**: [Hva skal endres]
+- **Ferdig når**: [Konkret, testbart akseptansekriterium]
 - **Risiko**: 🟢/🟡/🔴
 
 ### Steg 2: [Beskrivelse]
 - **Agent**: Kokk
 - **Filer**: src/path/Service.kt
 - **Endring**: [Hva skal endres]
+- **Ferdig når**: [Konkret, testbart akseptansekriterium]
 - **Risiko**: 🟢/🟡/🔴
 - **Avhenger av**: Steg 1
 
