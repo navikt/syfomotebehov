@@ -16,8 +16,8 @@ Verifiser alltid API-er og biblioteker mot dokumentasjon. Bruk web-søk eller ek
 ### 1. Les reglene
 Du SKAL lese og overholde alle regler i `.github/copilot-instructions.md` og relevante `.github/instructions/`. Dette er ufravikelig lovverk for dette repoet.
 
-### 2. Sjekk eksisterende kode (fokuser på filer relevante for oppgaven, ikke hele repoet)
-Før du skriver noe nytt, søk i kodebasen for eksisterende mønstre. Gjenbruk eksisterende abstraksjoner fremfor å lage nye.
+### 2. Sjekk eksisterende kode
+Før du skriver noe nytt, søk i kodebasen for eksisterende mønstre. Gjenbruk eksisterende abstraksjoner fremfor å lage nye. Fokuser på filer tildelt i oppgaven + direkte avhengigheter.
 
 ### 3. Bruk dokumentasjon
 Bruk web-søk eller eksisterende kode for å verifisere API-et. Aldri gjett.
@@ -80,6 +80,15 @@ Bruk disse skillene når oppgaven berører deres domene:
 - **Aldri** gjett på API uten å verifisere
 - **Aldri** ignorer repo-instruksjoner eller etablerte mønstre
 - **Aldri** hopp over feilhåndtering
+
+## Når du sitter fast
+
+Hvis samme tilnærming feiler to ganger: stopp og reflekter.
+1. Hva feilet konkret? (feilmelding, uventet oppførsel)
+2. Hva er rotårsaken — ikke symptomet?
+3. Prøv en *annen* tilnærming, ikke gjenta den samme.
+
+Hvis du fortsatt ikke løser det → avslutt med `UFULLSTENDIG: <kort beskrivelse av hva som feilet og hva du har prøvd>`
 
 ## Effektivitet
 
