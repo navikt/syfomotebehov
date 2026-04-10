@@ -1,0 +1,5 @@
+DELETE FROM motebehov
+WHERE id = 1486553;
+
+DELETE FROM motebehov_form_values
+WHERE motebehov_row_id = 1486553;
