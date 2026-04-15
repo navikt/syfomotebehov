@@ -53,7 +53,7 @@ spec:
     inbound:
       rules:
         - application: esyfo-proxy
-        - application: esyfo-microfrontends
+        - application: dialogmote-microfrontend
         - application: dialogmote-frontend
         - application: syfomodiaperson
           namespace: teamsykefravr
