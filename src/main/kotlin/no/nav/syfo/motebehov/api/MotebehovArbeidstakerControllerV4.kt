@@ -55,7 +55,7 @@ class MotebehovArbeidstakerControllerV4
                         contextHolder,
                         dialogmoteClientId,
                         esyfoProxyClientId,
-                        dialogmoteMicrofrontendClientId
+                        dialogmoteMicrofrontendClientId,
                     ).fnrFromIdportenTokenX()
 
             metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker_all")
