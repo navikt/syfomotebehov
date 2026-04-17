@@ -30,7 +30,11 @@ object TokenXUtil {
 
     fun tokenFromTokenX(contextHolder: TokenValidationContextHolder): String {
         val context = contextHolder.getTokenValidationContext()
-        return requireNotNull(context.getJwtToken(TokenXIssuer.TOKENX)) { "Missing token for issuer ${TokenXIssuer.TOKENX}" }.tokenAsString
+        return requireNotNull(
+            context.getJwtToken(
+                TokenXIssuer.TOKENX
+            )
+        ) { "Missing token for issuer ${TokenXIssuer.TOKENX}" }.encodedToken
     }
 
     object TokenXIssuer {
