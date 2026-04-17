@@ -10,7 +10,7 @@ object TokenXUtil {
         contextHolder: TokenValidationContextHolder,
         vararg requestedClientId: String,
     ): JwtTokenClaims {
-        val context = contextHolder.tokenValidationContext
+        val context = contextHolder.getTokenValidationContext()
         val claims = context.getClaims(TokenXIssuer.TOKENX)
         val clientId = claims.getStringClaim("client_id")
 
@@ -23,14 +23,14 @@ object TokenXUtil {
     fun JwtTokenClaims.fnrFromIdportenTokenX(): String = this.getStringClaim("pid")
 
     fun fnrFromIdportenTokenX(contextHolder: TokenValidationContextHolder): String {
-        val context = contextHolder.tokenValidationContext
+        val context = contextHolder.getTokenValidationContext()
         val claims = context.getClaims(TokenXIssuer.TOKENX)
         return claims.getStringClaim("pid")
     }
 
     fun tokenFromTokenX(contextHolder: TokenValidationContextHolder): String {
-        val context = contextHolder.tokenValidationContext
-        return context.getJwtToken(TokenXIssuer.TOKENX).tokenAsString
+        val context = contextHolder.getTokenValidationContext()
+        return requireNotNull(context.getJwtToken(TokenXIssuer.TOKENX)) { "Missing token for issuer ${TokenXIssuer.TOKENX}" }.tokenAsString
     }
 
     object TokenXIssuer {
