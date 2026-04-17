@@ -30,7 +30,10 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @TestConfiguration
-@SpringBootTest(classes = [LocalApplication::class])
+@SpringBootTest(
+    classes = [LocalApplication::class],
+    properties = ["mock-oauth2-server.port=9924"],
+)
 @ApplyExtension(SpringExtension::class)
 class TestdataResetServiceTest : IntegrationTest() {
     @MockkBean(relaxed = true)

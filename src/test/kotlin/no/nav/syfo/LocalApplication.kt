@@ -1,21 +1,19 @@
 package no.nav.syfo
 
-import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
-import org.springframework.beans.factory.annotation.Value
+import no.nav.security.token.support.spring.test.MockLoginController
+import no.nav.security.token.support.spring.test.MockOAuth2ServerAutoConfiguration
 import org.springframework.boot.fromApplication
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Import
 import org.springframework.core.env.Environment
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 
 @TestConfiguration(proxyBeanMethods = false)
-@EnableMockOAuth2Server
+@Import(MockOAuth2ServerAutoConfiguration::class, MockLoginController::class)
 class LocalApplication {
-    @Value("\${mock-oauth2-server.port}")
-    lateinit var oauth2Port: String
-
     @Bean
     @ServiceConnection
     fun postgresContainer(environment: Environment): PostgreSQLContainer<*> =

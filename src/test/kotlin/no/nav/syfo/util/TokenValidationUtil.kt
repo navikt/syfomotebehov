@@ -21,7 +21,7 @@ class TokenValidationUtil {
     fun logInAsDialogmoteUser(userFnr: String) {
         val signedJwtToken =
             mockOAuthServer.issueToken(
-                issuerId = "tokenx-client-id",
+                issuerId = "tokenx",
                 subject = "dialogmote-frontend",
                 audience = "syfomotebehovsrv",
                 claims =
@@ -38,7 +38,7 @@ class TokenValidationUtil {
     fun logInAsNavCounselor(username: String) {
         val signedJwtToken =
             mockOAuthServer.issueToken(
-                issuerId = "azuread-v2-issuer",
+                issuerId = "internazureadv2",
                 subject = "modiasyfoperson",
                 audience = "syfomotebehovsrv",
                 claims =
@@ -54,14 +54,10 @@ class TokenValidationUtil {
         signedJwtToken: SignedJWT,
         issuer: String,
     ) {
-        contextHolder.tokenValidationContext =
+        contextHolder.setTokenValidationContext(
             TokenValidationContext(
                 mutableMapOf(issuer to JwtToken(signedJwtToken.serialize())),
-            )
-        mockOAuthServer.shutdown()
-    }
-
-    fun resetAll() {
-        mockOAuthServer.shutdown()
+            ),
+        )
     }
 }
