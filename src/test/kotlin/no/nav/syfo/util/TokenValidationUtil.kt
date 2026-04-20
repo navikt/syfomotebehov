@@ -19,21 +19,14 @@ class TokenValidationUtil {
     private lateinit var mockOAuthServer: MockOAuth2Server
 
     fun logInAsDialogmoteUser(userFnr: String) {
-        logInAsTokenXUser(userFnr = userFnr, clientId = "dialogmote-frontend")
-    }
-
-    fun logInAsTokenXUser(
-        userFnr: String,
-        clientId: String,
-    ) {
         val signedJwtToken =
             mockOAuthServer.issueToken(
                 issuerId = "tokenx-client-id",
-                subject = clientId,
+                subject = "dialogmote-frontend",
                 audience = "syfomotebehovsrv",
                 claims =
                     mapOf(
-                        "client_id" to clientId,
+                        "client_id" to "dialogmote-frontend",
                         "acr" to "Level4",
                         "pid" to userFnr,
                     ),

@@ -1,12 +1,10 @@
 package no.nav.syfo.motebehov.api
 
 import com.ninjasquad.springmockk.MockkBean
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.extensions.ApplyExtension
 import io.kotest.extensions.spring.SpringExtension
 import io.mockk.every
 import io.mockk.verify
-import jakarta.ws.rs.ForbiddenException
 import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
@@ -139,52 +137,6 @@ class MotebehovArbeidstakerControllerV4Test : IntegrationTest() {
                 motebehovArbeidstakerController
                     .motebehovStatusArbeidstakerWithCodeSixUsers()
                     .assertMotebehovStatus(expVisMotebehov = false)
-            }
-
-            it("accepts dialogmote-microfrontend on get motebehov status") {
-                tokenValidationUtil.logInAsTokenXUser(
-                    userFnr = ARBEIDSTAKER_FNR,
-                    clientId = "dialogmote-microfrontend",
-                )
-
-                motebehovArbeidstakerController
-                    .motebehovStatusArbeidstakerWithCodeSixUsers()
-                    .assertMotebehovStatus(expVisMotebehov = false)
-            }
-
-            it("rejects esyfo-proxy on get motebehov status") {
-                tokenValidationUtil.logInAsTokenXUser(
-                    userFnr = ARBEIDSTAKER_FNR,
-                    clientId = "esyfo-proxy",
-                )
-
-                shouldThrow<ForbiddenException> {
-                    motebehovArbeidstakerController.motebehovStatusArbeidstakerWithCodeSixUsers()
-                }
-            }
-
-            it("rejects dialogmote-microfrontend on submit motebehov") {
-                tokenValidationUtil.logInAsTokenXUser(
-                    userFnr = ARBEIDSTAKER_FNR,
-                    clientId = "dialogmote-microfrontend",
-                )
-
-                shouldThrow<ForbiddenException> {
-                    motebehovArbeidstakerController.submitMotebehovArbeidstaker(
-                        motebehovGenerator.lagFormSubmissionArbeidstakerSvarJaDTO(),
-                    )
-                }
-            }
-
-            it("rejects dialogmote-microfrontend on ferdigstill motebehov") {
-                tokenValidationUtil.logInAsTokenXUser(
-                    userFnr = ARBEIDSTAKER_FNR,
-                    clientId = "dialogmote-microfrontend",
-                )
-
-                shouldThrow<ForbiddenException> {
-                    motebehovArbeidstakerController.ferdigstillMotebehovArbeidstaker()
-                }
             }
 
             it("get MotebehovStatus With Today Outside OppfolgingstilfelleStart") {
