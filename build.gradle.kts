@@ -1,10 +1,10 @@
 group = "no.nav.syfo"
 
 val junitJupiterVersion = "6.0.3"
-val flywayVersion = "12.3.0"
+val flywayVersion = "12.4.0"
 val tokenSupportVersion = "6.0.4"
 val mockkVersion = "1.14.9"
-val nimbusVersion = "10.8"
+val nimbusVersion = "10.9"
 val kotestTestContainersExtensionVersion = "2.0.2"
 val wiremockKotestExtensionVersion = "3.1.0"
 val springMockkVersion = "5.0.1"
@@ -20,9 +20,9 @@ val jakartaRsApiVersion = "4.0.0"
 val hikari = "7.0.2"
 val postgres = "42.7.10"
 val testcontainersVersion = "1.21.4"
-val kotestVersion = "6.1.10"
+val kotestVersion = "6.1.11"
 val springKotestExtensionVersion = "1.3.0"
-val jacksonVersion = "3.1.1"
+val jacksonVersion = "3.1.2"
 
 plugins {
     id("java")

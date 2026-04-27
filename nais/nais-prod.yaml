@@ -52,7 +52,7 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: esyfo-proxy
+        - application: dialogmote-microfrontend
         - application: dialogmote-frontend
         - application: syfomodiaperson
           namespace: teamsykefravr
@@ -95,10 +95,10 @@ spec:
       value: "p"
     - name: DIALOGMOTE_FRONTEND_CLIENT_ID
       value: "prod-gcp:team-esyfo:dialogmote-frontend"
-    - name: ESYFO_PROXY_CLIENT_ID
-      value: "prod-gcp:team-esyfo:esyfo-proxy"
     - name: DITT_SYKEFRAVAER_FRONTEND_CLIENT_ID
       value: "prod-gcp:flex:ditt-sykefravaer"
+    - name: DIALGMOTE_MICROFRONTEND_CLIENT_ID
+      value: "prod-gcp:team-esyfo:dialogmote-microfrontend"
     - name: PDL_CLIENT_ID
       value: "prod-fss.pdl.pdl-api"
     - name: PDL_URL

@@ -39,8 +39,8 @@ class MotebehovArbeidstakerControllerV4
         val dialogmoteClientId: String,
         @Value("\${ditt.sykefravaer.frontend.client.id}")
         val dittSykefravaerClientId: String,
-        @Value("\${esyfo-proxy.client.id}")
-        val esyfoProxyClientId: String,
+        @Value("\${dialgmote.microfrontend.client.id}")
+        val dialogmoteMicrofrontendClientId: String,
     ) {
         @GetMapping(
             value = ["/motebehov"],
@@ -52,7 +52,7 @@ class MotebehovArbeidstakerControllerV4
                     .validateTokenXClaims(
                         contextHolder,
                         dialogmoteClientId,
-                        esyfoProxyClientId,
+                        dialogmoteMicrofrontendClientId,
                     ).fnrFromIdportenTokenX()
 
             metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker_all")
@@ -77,7 +77,6 @@ class MotebehovArbeidstakerControllerV4
                     .validateTokenXClaims(
                         contextHolder,
                         dialogmoteClientId,
-                        esyfoProxyClientId,
                     ).fnrFromIdportenTokenX()
 
             motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidstaker(
@@ -98,7 +97,6 @@ class MotebehovArbeidstakerControllerV4
                     .validateTokenXClaims(
                         contextHolder,
                         dialogmoteClientId,
-                        esyfoProxyClientId,
                     ).fnrFromIdportenTokenX()
 
             motebehovOppfolgingstilfelleServiceV2.ferdigstillMotebehov(arbeidstakerFnr)
