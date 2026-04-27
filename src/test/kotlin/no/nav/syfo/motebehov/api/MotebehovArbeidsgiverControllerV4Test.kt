@@ -143,9 +143,6 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
             cleanDB()
             AzureAdV2TokenConsumer.Companion.clearCache()
         }
-        afterTest {
-            tokenValidationUtil.resetAll()
-        }
 
         describe("MotebehovArbeidsgiverControllerV4") {
             it("getMotebehovStatusWithNoOppfolgingstilfelle") {

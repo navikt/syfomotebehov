@@ -58,13 +58,17 @@ ikke i disse.
 #### Mock auth
 Det er satt opp egne endepunkter som kjører med "local"-profilen for å mocke auth.
 
+Kall mot beskyttede endepunkter må sende tokenet i `Authorization: Bearer <token>`. `ID_token`-cookie brukes ikke lenger for backend-auth.
+
 ### Bruno
 Bruno collection ligger under `/bruno` og bruker MockOauth2Server for auth
 
 Det er satt variabler på collection- og sub folder-nivå for å konfigurere fødselsnummer, hvilken type auth som benyttes
 og andre felles verdier.
 
-`arbeidsgiver` `arbeidstaker` og `veileder` er satt opp med pre request scripts som kaller token-endepunktene til MockOauth2Server og setter token i collection variabler.
+`arbeidsgiver` `arbeidstaker` og `veileder` er satt opp med pre request scripts som kaller token-endepunktene til MockOauth2Server og setter bearer-token i collection variabler som må sendes i `Authorization`-headeren.
+
+Alle kall mot `/api/internad/v4/veileder/**` må bruke `Authorization: Bearer <token>`. Klienter som fortsatt baserer seg på `ID_token`-cookie må oppdateres.
 
 Der hvor endepunkter er versjonert, er kun siste versjon lagt til i Bruno. p.t. møtebehov v4.
 ### Properties

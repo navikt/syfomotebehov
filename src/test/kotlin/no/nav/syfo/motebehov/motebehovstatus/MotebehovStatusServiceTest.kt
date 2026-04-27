@@ -1,6 +1,8 @@
 package no.nav.syfo.motebehov.motebehovstatus
 
+import io.kotest.core.extensions.ApplyExtension
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.extensions.spring.SpringExtension
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.syfo.LocalApplication
@@ -21,6 +23,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @SpringBootTest(classes = [LocalApplication::class])
+@ApplyExtension(SpringExtension::class)
 class MotebehovStatusServiceTest :
     DescribeSpec({
 
