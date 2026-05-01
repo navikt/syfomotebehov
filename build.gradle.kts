@@ -26,7 +26,7 @@ val jacksonVersion = "3.1.2"
 
 plugins {
     id("java")
-    id("org.springframework.boot") version "4.0.5"
+    id("org.springframework.boot") version "4.0.6"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     kotlin("jvm") version "2.3.21"
