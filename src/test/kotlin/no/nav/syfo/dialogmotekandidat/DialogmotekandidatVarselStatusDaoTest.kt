@@ -62,18 +62,25 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             }
         }
 
-        it("updateStatusToSent moves row out of PENDING results and sets status to SENT") {
+        it("updateStatusToSent moves row out of PENDING results and returns true") {
             dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
             val created = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
             created shouldHaveSize 1
 
-            dialogmotekandidatVarselStatusDao.updateStatusToSent(created.first().id)
+            val result = dialogmotekandidatVarselStatusDao.updateStatusToSent(created.first().id)
 
+            result shouldBe true
             dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL).shouldBeEmpty()
 
             jdbcTemplate.queryForObject<Int>(
                 "SELECT COUNT(*) FROM dialogkandidat_varsel_status WHERE status = 'SENT'"
             ) shouldBe 1
+        }
+
+        it("updateStatusToSent returns false when row does not exist") {
+            val nonExistentId = UUID.randomUUID()
+            val result = dialogmotekandidatVarselStatusDao.updateStatusToSent(nonExistentId)
+            result shouldBe false
         }
 
         it("incrementRetryCount increments retryCount by one for each call") {
@@ -97,6 +104,30 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             ) shouldBe true
 
             dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL).shouldBeEmpty()
+        }
+
+        it("incrementRetryCount applies exponential backoff - later retries have longer delay") {
+            dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
+            val created = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL)
+
+            dialogmotekandidatVarselStatusDao.incrementRetryCount(created.first().id)
+            val afterFirstRetry =
+                jdbcTemplate.queryForObject(
+                    "SELECT next_retry_at FROM dialogkandidat_varsel_status WHERE kafka_melding_uuid = ?",
+                    LocalDateTime::class.java,
+                    uuid,
+                )!!
+
+            dialogmotekandidatVarselStatusDao.incrementRetryCount(created.first().id)
+            val afterSecondRetry =
+                jdbcTemplate.queryForObject(
+                    "SELECT next_retry_at FROM dialogkandidat_varsel_status WHERE kafka_melding_uuid = ?",
+                    LocalDateTime::class.java,
+                    uuid,
+                )!!
+
+            // Andre retry skal ha lengre delay enn første (2^1=2min vs 2^0=1min)
+            afterSecondRetry.isAfter(afterFirstRetry) shouldBe true
         }
 
         it("getPendingByType returns only rows matching the requested type, not other types") {
