@@ -1,12 +1,12 @@
 package no.nav.syfo.dialogmotekandidat.database
 
 import net.logstash.logback.argument.StructuredArguments.kv
+import org.slf4j.LoggerFactory
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
-import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
