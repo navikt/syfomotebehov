@@ -10,6 +10,7 @@ data class DialogmotekandidatVarselStatus(
     val type: DialogmotekandidatVarselType,
     val status: String,
     val retryCount: Int,
+    val nextRetryAt: LocalDateTime,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
 )

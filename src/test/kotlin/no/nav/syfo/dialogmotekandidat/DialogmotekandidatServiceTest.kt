@@ -174,7 +174,7 @@ internal class DialogmotekandidatServiceTest : IntegrationTest() {
             }
         }
 
-        it("skalIgnorereKandidatSomAllerendeErKandidat") {
+        it("skalIgnorereKandidatSomAlleredeErKandidat") {
             // First message: candidate becomes true
             dialogmotekandidatService.receiveDialogmotekandidatEndring(
                 generateDialogmotekandidatEndring(

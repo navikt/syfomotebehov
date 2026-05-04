@@ -5,6 +5,7 @@ CREATE TABLE DIALOGKANDIDAT_VARSEL_STATUS (
     type                VARCHAR(20)  NOT NULL,                   -- 'VARSEL' | 'FERDIGSTILL'
     status              VARCHAR(20)  NOT NULL DEFAULT 'PENDING', -- 'PENDING' | 'SENT'
     retry_count         INT          NOT NULL DEFAULT 0,
+    next_retry_at       TIMESTAMP    NOT NULL DEFAULT NOW(),
     created_at          TIMESTAMP    NOT NULL DEFAULT NOW(),
     updated_at          TIMESTAMP    NOT NULL DEFAULT NOW(),
     CONSTRAINT uq_kafka_melding_uuid UNIQUE (kafka_melding_uuid)
@@ -18,6 +19,9 @@ CREATE INDEX idx_dvs_sent_cleanup ON DIALOGKANDIDAT_VARSEL_STATUS (updated_at) W
 
 -- Dedikert cleanup-indeks for ekspirerte PENDING-rader (partial index)
 CREATE INDEX idx_dvs_pending_cleanup ON DIALOGKANDIDAT_VARSEL_STATUS (created_at) WHERE status = 'PENDING';
+
+-- Dedikert retry-indeks for PENDING-rader som er klare for nytt forsøk (partial index)
+CREATE INDEX idx_dvs_pending_next_retry ON DIALOGKANDIDAT_VARSEL_STATUS (next_retry_at) WHERE status = 'PENDING';
 
 -- drifts/debug-indeks for oppslag per person
 CREATE INDEX idx_dvs_fnr ON DIALOGKANDIDAT_VARSEL_STATUS (fnr);

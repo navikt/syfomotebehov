@@ -20,7 +20,7 @@ class DialogmotekandidatListener(
     private val dialogmotekandidatService: DialogmotekandidatService,
 ) {
     @KafkaListener(topics = [DIALOGMOTEKANDIDAT_TOPIC], containerFactory = "DialogmotekandidatListenerContainerFactory")
-    fun dialogmoteStatusEndringListener(
+    fun dialogmotekandidatEndringListener(
         consumerRecord: ConsumerRecord<String, KafkaDialogmotekandidatEndring>,
         acknowledgment: Acknowledgment,
     ) {

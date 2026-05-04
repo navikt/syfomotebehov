@@ -9,6 +9,7 @@ import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselStatusDao
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselType
+import no.nav.syfo.testhelper.UserConstants
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
@@ -28,7 +29,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
 
-    private val testFnr = "12345678901"
+    private val testFnr = UserConstants.ARBEIDSTAKER_FNR
     private lateinit var uuid: String
 
     init {
@@ -88,11 +89,27 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
                 Int::class.java,
                 uuid
             ) shouldBe 2
+
+            jdbcTemplate.queryForObject(
+                "SELECT next_retry_at > NOW() FROM dialogkandidat_varsel_status WHERE kafka_melding_uuid = ?",
+                Boolean::class.java,
+                uuid,
+            ) shouldBe true
+
+            dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL).shouldBeEmpty()
         }
 
         it("getPendingByType returns only rows matching the requested type, not other types") {
-            dialogmotekandidatVarselStatusDao.create(UUID.randomUUID().toString(), "11111111111", DialogmotekandidatVarselType.VARSEL)
-            dialogmotekandidatVarselStatusDao.create(UUID.randomUUID().toString(), "22222222222", DialogmotekandidatVarselType.FERDIGSTILL)
+            dialogmotekandidatVarselStatusDao.create(
+                UUID.randomUUID().toString(),
+                UserConstants.ARBEIDSTAKER_FNR,
+                DialogmotekandidatVarselType.VARSEL,
+            )
+            dialogmotekandidatVarselStatusDao.create(
+                UUID.randomUUID().toString(),
+                UserConstants.LEDER_FNR,
+                DialogmotekandidatVarselType.FERDIGSTILL,
+            )
 
             dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL).apply {
                 shouldHaveSize(1)
