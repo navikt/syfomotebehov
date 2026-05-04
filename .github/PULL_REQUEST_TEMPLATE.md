@@ -1,5 +1,3 @@
-<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
-     For repo-specific customizations, create your own files without this header. -->
 ## Beskrivelse
 
 <!-- Hva gjør denne PR-en og hvorfor? -->

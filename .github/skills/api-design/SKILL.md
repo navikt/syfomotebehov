@@ -1,206 +1,90 @@
 ---
-description: REST API-design for Ktor — URL-konvensjoner, StatusPages-basert feilhåndtering, paginering og input-validering
+name: api-design
+description: "API-kontrakter, endepunkter og konsumenttilgang — accessPolicy.inbound, TokenX-inbound, versjonering, breaking changes og API-katalog. Brukes via /api-design ved nye eller endrede API-er."
 ---
-<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
-     For repo-specific customizations, create your own files without this header. -->
-# API Design — REST
-Standarder for REST API-design i Nav-applikasjoner bygget med Ktor.
-## URL-konvensjoner
-```
-GET    /api/v1/vedtak              → List vedtak
-GET    /api/v1/vedtak/{id}         → Hent enkelt vedtak
-POST   /api/v1/vedtak              → Opprett vedtak
-PUT    /api/v1/vedtak/{id}         → Oppdater vedtak (full)
-PATCH  /api/v1/vedtak/{id}         → Oppdater vedtak (delvis)
-DELETE /api/v1/vedtak/{id}         → Slett vedtak
+
+# API Design — Nav-konvensjoner
+
+Dette dokumentet dekker **Nav-spesifikke** konvensjoner for API-design. Generelle REST-/HTTP-mønstre er ikke dekket her — bruk teamets etablerte praksis.
+
+## accessPolicy.inbound — hvem får kalle API-et?
+
+Nav-API-er eksponert via nais må eksplisitt liste hvilke andre applikasjoner som har tilgang. Ingen implisitt "alle Nav-apper". Navngi team og app.
+
+```yaml
+# nais.yaml (utdrag — teknologiagnostisk: samme prinsipp gjelder uansett rammeverk)
+spec:
+  accessPolicy:
+    inbound:
+      rules:
+        - application: saksbehandling-frontend
+          namespace: team-vedtak
+          cluster: prod-gcp
+        - application: oppfolging-api
+          namespace: team-oppfolging
+          cluster: prod-gcp
 ```
 
 ### Regler
-- Bruk **flertall** for ressursnavn: `/vedtak`, `/saker`, `/brukere`
-- Bruk **kebab-case** for sammensatte navn: `/sykmeldinger`, `/oppfolgingsplaner`
-- Bruk **path params** for identifikatorer: `/vedtak/{id}`
-- Bruk **query params** for filtrering: `/vedtak?status=AKTIV&side=2`
-- Maks **3 nivåer** nesting: `/saker/{id}/vedtak` (ikke dypere)
+- **Aldri** tom `inbound` på intern-API uten å mene det: tom inbound stenger API-et helt (Nais krever eksplisitt liste — også for kallere i samme namespace).
+- **Aldri** `*` wildcard uten eksplisitt begrunnelse + sikkerhetsreview.
+- Koordiner med konsumerende team **før** du legger dem til — de må også ha `outbound`-regel mot deg.
+- Fjern konsumenter som ikke lenger bruker API-et (revideres kvartalsvis).
 
-## HTTP-statuskoder
-| Kode | Bruksområde |
-|------|-------------|
-| 200 | Vellykket henting/oppdatering |
-| 201 | Ressurs opprettet (med `Location`-header) |
-| 204 | Vellykket sletting (ingen body) |
-| 400 | Ugyldig request (validering) |
-| 401 | Ikke autentisert |
-| 403 | Ikke autorisert (mangler tilgang) |
-| 404 | Ressurs ikke funnet |
-| 409 | Konflikt (duplikat, utdatert versjon) |
-| 422 | Ugyldig input som er syntaktisk korrekt |
-| 500 | Intern feil |
+## TokenX-inbound-validering
 
-## Feilhåndtering — Ktor StatusPages
-```kotlin
-open class ApiError(
-    val status: HttpStatusCode,
-    val type: ErrorType,
-    open val message: String,
-    open val path: String? = null,
-    val timestamp: Instant = Instant.now(),
-)
+API-er som eksponeres for frontend via TokenX må validere token på serversiden. Rammeverket (Ktor, Spring, annet) er uvesentlig — valideringsreglene er like:
 
-enum class ErrorType { AUTHENTICATION_ERROR, AUTHORIZATION_ERROR, NOT_FOUND, INTERNAL_SERVER_ERROR, BAD_REQUEST, INVALID_FORMAT, CONFLICT }
+- **Issuer**: matcher TokenX-issuer for riktig miljø (dev-gcp / prod-gcp).
+- **Audience (`aud`)**: matcher din applikasjons client-id.
+- **Signatur**: verifiser mot TokenX JWKS-endpoint.
+- **`pid`-claim**: inneholder brukerens fødselsnummer — bruk denne som autoritativ brukeridentitet, **ikke** noe som kommer fra request body.
+- **`acr`-claim**: sjekk nivå (`Level4` / `idporten-loa-high`) hvis API-et krever høyt innloggingsnivå.
+- **Exp/nbf**: standard gyldighetssjekk.
 
-sealed class ApiErrorException(message: String, val type: ErrorType, cause: Throwable?) : RuntimeException(message, cause) {
-    abstract fun toApiError(path: String): ApiError
-    class ForbiddenException(val errorMessage: String = "Forbidden", cause: Throwable? = null, type: ErrorType = ErrorType.AUTHORIZATION_ERROR) : ApiErrorException(errorMessage, type, cause) {
-        override fun toApiError(path: String) = ApiError(HttpStatusCode.Forbidden, type, errorMessage, path)
-    }
-    class BadRequestException(val errorMessage: String = "Bad Request", cause: Throwable? = null, type: ErrorType = ErrorType.BAD_REQUEST) : ApiErrorException(errorMessage, type, cause) {
-        override fun toApiError(path: String) = ApiError(HttpStatusCode.BadRequest, type, errorMessage, path)
-    }
-    class NotFoundException(val errorMessage: String = "Not Found", cause: Throwable? = null, type: ErrorType = ErrorType.NOT_FOUND) : ApiErrorException(errorMessage, type, cause) {
-        override fun toApiError(path: String) = ApiError(HttpStatusCode.NotFound, type, errorMessage, path)
-    }
-    class InternalServerErrorException(val errorMessage: String = "Internal Server Error", cause: Throwable? = null, type: ErrorType = ErrorType.INTERNAL_SERVER_ERROR) : ApiErrorException(errorMessage, type, cause) {
-        override fun toApiError(path: String) = ApiError(HttpStatusCode.InternalServerError, type, errorMessage, path)
-    }
-    class UnauthorizedException(val errorMessage: String = "Unauthorized", cause: Throwable? = null, type: ErrorType = ErrorType.AUTHORIZATION_ERROR) : ApiErrorException(errorMessage, type, cause) {
-        override fun toApiError(path: String) = ApiError(HttpStatusCode.Unauthorized, type, errorMessage, path)
-    }
-}
+Logg aldri hele tokenet. Logg `sub`/`jti` for sporbarhet hvis nødvendig.
 
-fun Application.installStatusPages() {
-    install(StatusPages) {
-        exception<Throwable> { call, cause ->
-            logException(call, cause)
-            val apiError = determineApiError(cause, call.request.path())
-            call.respond(apiError.status, apiError)
-        }
-    }
-}
+## API-versjonering — koordiner med andre team
 
-fun determineApiError(cause: Throwable, path: String): ApiError = when (cause) {
-    is BadRequestException -> cause.toApiError(path)
-    is NotFoundException -> cause.toApiError(path)
-    is ApiErrorException -> cause.toApiError(path)
-    else -> ApiError(HttpStatusCode.InternalServerError, ErrorType.INTERNAL_SERVER_ERROR, cause.message ?: "Internal server error", path)
-}
+Breaking changes på API-er som andre Nav-team konsumerer er et **koordineringsproblem**, ikke bare et teknisk problem.
 
-fun BadRequestException.toApiError(path: String?): ApiError {
-    val rootCause = this.rootCause()
-    return if (rootCause is MissingFieldException) {
-        ApiErrorException.BadRequestException("Invalid request body. Missing required field: ${rootCause.fieldName}", type = ErrorType.INVALID_FORMAT).toApiError(path ?: "")
-    } else {
-        ApiError(status = HttpStatusCode.BadRequest, type = ErrorType.BAD_REQUEST, message = this.message ?: "Bad request", path = path)
-    }
-}
+### Før brudd-endring
+1. **Identifiser konsumenter** via `accessPolicy.inbound` + faktisk trafikk (logger/metrics).
+2. **Varsle team eksplisitt** — Slack, e-post, eller teamets foretrukne kanal. Ikke anta at de leser changelog.
+3. **Avtal overgangsvindu** — typisk 1–3 måneder der begge versjoner lever parallelt.
+4. **Versjoner URL-en** (`/v1/` → `/v2/`) eller bruk annen mekanisme teamet ditt har etablert.
+5. **Deprecering først**: merk gammel versjon som deprecated, gi konsumentene tid.
 
-fun NotFoundException.toApiError(path: String?): ApiError = ApiError(
-    status = HttpStatusCode.NotFound, type = ErrorType.NOT_FOUND, message = this.message ?: "Not found", path = path,
-)
+### Ikke-brudd-endringer (trygge)
+- Legge til nye felter i response.
+- Gjøre nye request-felter valgfrie.
+- Legge til nye endpoints.
 
-fun Throwable.rootCause(): Throwable {
-    var root: Throwable = this
-    while (root.cause != null && root.cause != root) root = root.cause!!
-    return root
-}
+Disse kan rulles ut uten koordinering, men dokumenter dem.
 
-private fun logException(call: ApplicationCall, cause: Throwable) {
-    val callId = call.callId
-    val logMessage = "Caught exception, callId=$callId"
-    val log = call.application.log
-    when (cause) {
-        is ApiErrorException -> log.warn(logMessage, cause)
-        else -> log.error(logMessage, cause)
-    }
-}
+## API-katalog
 
-fun Application.apiModule() {
-    installCallId()
-    installContentNegotiation()
-    installStatusPages()
-    // ... routing
-}
-```
+Registrer API-et i [apikatalog.nav.no](https://apikatalog.nav.no) slik at andre team kan finne det. Særlig viktig for API-er som kan ha bredere nytte enn umiddelbare konsumenter.
 
-```json
-{
-  "status": 404,
-  "type": "NOT_FOUND",
-  "message": "Vedtak med id 550e8400 finnes ikke",
-  "path": "/api/v1/vedtak/550e8400",
-  "timestamp": "2025-01-15T10:30:00Z"
-}
-```
+## Dokumentasjon — bruk teamets format
 
-## Paginering
-
-```kotlin
-@Serializable
-data class PaginatedResponse<T>(
-    val innhold: List<T>,
-    val side: Int,
-    val antallPerSide: Int,
-    val totaltAntall: Long,
-    val totaltAntallSider: Int,
-)
-
-get("/api/v1/vedtak") {
-    val side = call.queryParameters["side"]?.toIntOrNull() ?: 0
-    val antall = call.queryParameters["antall"]?.toIntOrNull() ?: 20
-    require(antall <= 100) { "Maks 100 per side" }
-    val result = vedtakService.findAll(offset = side * antall, limit = antall)
-    call.respond(result)
-}
-```
-
-```json
-{
-  "innhold": [...],
-  "side": 0,
-  "antallPerSide": 20,
-  "totaltAntall": 142,
-  "totaltAntallSider": 8
-}
-```
-
-## Input-validering
-
-```kotlin
-@Serializable
-data class CreateVedtakRequest(val brukerId: String, val beskrivelse: String? = null, val type: VedtakType)
-
-post("/api/v1/vedtak") {
-    val request = call.receive<CreateVedtakRequest>()
-    if (request.brukerId.isBlank()) throw ApiErrorException.BadRequestException("brukerId kan ikke være tom")
-    request.beskrivelse?.let { if (it.length > 500) throw ApiErrorException.BadRequestException("beskrivelse maks 500 tegn") }
-    val vedtak = vedtakService.create(request)
-    call.response.header("Location", "/api/v1/vedtak/${vedtak.id}")
-    call.respond(HttpStatusCode.Created, vedtak.toDTO())
-}
-```
-
-## Versjonering
-
-- Bruk URL-versjonering: `/api/v1/...`
-- Bump versjon kun ved breaking changes
-- Støtt gammel versjon i overgangsperiode
-- Dokumenter endringer i changelog
+Dokumenter API-ene i formatet **teamet allerede bruker** (OpenAPI/Swagger, Postman-collection, Markdown, AsyncAPI for event-drevne API-er, tilsvarende). Ikke påtving ett bestemt format. Målet er at konsumenter finner og forstår kontrakten — ikke formatvalget i seg selv.
 
 ## Grenser
 
-### ✅ Alltid
-- Flertall for ressursnavn
-- Strukturert ApiError via StatusPages
-- Valider all input
-- Location-header ved 201
+### Alltid
+- Eksplisitt `accessPolicy.inbound` med navngitte team/apper.
+- TokenX-validering (issuer, audience, signatur, `pid`) for frontend-API-er.
+- Koordinere brudd-endringer med konsumerende team før release.
+- Aldri PII (FNR, navn) i URL-er eller query params — bruk `pid` fra token.
 
-### ⚠️ Spør først
-- Nye API-versjoner (breaking changes)
-- Endring av eksisterende kontrakt
-- Asynkrone operasjoner (202 Accepted)
+### Spør først
+- Fjerning av konsument fra `accessPolicy.inbound`.
+- Brudd-endring i kontrakt.
+- Eksponering av API utenfor `cluster` (ekstern tilgang).
 
-### 🚫 Aldri
-- Verb i URL-er (`/getVedtak`, `/createSak`)
-- PII i URL-er eller query params (FNR, navn)
-- 200 med feilmelding i body
-- Ukonsistent navngiving mellom endepunkter
-- Kaste exceptions som ikke fanges av StatusPages uten bevisst valg
+### Aldri
+- Tom eller wildcard `inbound` uten sikkerhetsreview.
+- Stole på brukeridentitet fra request body — bruk token-claim.
+- Silent breaking changes.
+- Logge hele tokens eller PII.

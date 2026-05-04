@@ -1,47 +1,40 @@
 ---
-description: 'Sikkerhetsstandarder — hemmeligheter, inputvalidering, accessPolicy, PII'
-applyTo: "**/*"
+description: "Nav-sikkerhetsstandarder — NAIS accessPolicy, hemmeligheter, PII, nettverkspolicyer"
+applyTo: "**"
 ---
-<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
-     For repo-specific customizations, create your own files without this header. -->
 
-# Security — Nav
+# Sikkerhet — Nav
 
-## Golden Path (sikkerhet.nav.no)
+Referanse: [sikkerhet.nav.no](https://sikkerhet.nav.no)
 
-1. **Platform**: Use NAIS defaults for auth. Control secrets (never copy prod secrets locally).
-2. **Scanning**: Dependabot for dependencies. Trivy for Docker images.
-3. **Development**: Chainguard/Distroless base images. No sensitive data in logs (FNR, JWT tokens, connection strings). Prefer OAuth/Maskinporten for new M2M (service users are legacy).
+## NAIS-plattformen
 
-## Network Policies
+- Autentisering og hemmeligheter håndteres av NAIS — sjekk manifestet
+- Dependabot og Trivy for sårbarhetsskanning
+- Chainguard/Distroless base images
 
-**Default Deny** — all traffic blocked unless explicitly allowed via `accessPolicy`:
+## Nettverkspolicyer
+
+Default-deny. Alle tilganger må deklareres eksplisitt:
+
 ```yaml
 accessPolicy:
-  outbound:
-    rules:
-      - application: user-service
-        namespace: team-user
-    external:
-      - host: api.external.com
   inbound:
     rules:
-      - application: frontend
-        namespace: team-web
+      - application: calling-app
+        namespace: team-calling
+  outbound:
+    rules:
+      - application: target-app
+        namespace: team-target
+    external:
+      - host: api.example.com
 ```
 
 ## Boundaries
 
-### ✅ Always
-- Parameterized SQL queries
-- Input validation at all boundaries
-- `accessPolicy` defined for every service
-
-### ⚠️ Ask First
-- Modifying `accessPolicy` in production
-- Changing authentication mechanisms
-
-### 🚫 Never
-- Commit secrets to git
-- Log FNR, JWT tokens, passwords, or connection strings
-- Skip input validation
+- Parameteriserte spørringer — aldri string-interpolasjon i SQL
+- Valider input ved systemgrenser
+- Aldri logg PII (fødselsnummer, tokens, personnavn)
+- Aldri commit hemmeligheter
+- Eksplisitt `accessPolicy` i NAIS-manifest

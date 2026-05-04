@@ -1,5 +1,3 @@
-<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
-     For repo-specific customizations, create your own files without this header. -->
 # Alerting, Faro og varsling
 
 Denne referansen beskriver praktiske mønstre for Prometheus-regler, frontend-observability med Faro og varsling til Slack i NAIS.
@@ -103,7 +101,7 @@ metadata:
 spec:
   receivers:
     slack:
-      channel: "#team-esyfo-alerts"
+      channel: "#your-team-alerts"
       prependText: "@here "
   alerts:
     - alert: HighErrorRate

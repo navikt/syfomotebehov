@@ -1,5 +1,3 @@
-<!-- Managed by esyfo-cli. Do not edit manually. Changes will be overwritten.
-     For repo-specific customizations, create your own files without this header. -->
 # Native GitHub issue types
 
 ## MCP (primær)
@@ -8,7 +6,7 @@ Bruk MCP `issue_write` med `type`-parameter for oppretting/oppdatering av issue 
 
 Bruk MCP `list_issue_types` for å oppdage tilgjengelige typer før du setter verdi.
 
-- Team eSyfo bruker org-typer: `Bug`, `Epic`, `Feature`, `Story`, `Task`
+- Vanlige org-typer: `Bug`, `Epic`, `Feature`, `Story`, `Task`
 
 ## Fallback (gh api)
 
