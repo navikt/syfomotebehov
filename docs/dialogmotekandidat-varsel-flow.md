@@ -16,7 +16,7 @@ Med outbox-mønsteret splittes ansvaret i to separate steg:
 | Steg | Komponent | Ansvar |
 |---|---|---|
 | **Motta og lagre** | `DialogmotekandidatListener` + `DialogmotekandidatService` | Lytter på Kafka-topic `teamsykefravr.isdialogmotekandidat-dialogmotekandidat`. Persisterer kandidatstatus og setter inn en `PENDING`-rad i `DIALOGKANDIDAT_VARSEL_STATUS`. Bekrefter Kafka-offset. |
-| **Sende varsel** | `DialogmotekandidatVarselScheduler` | Poller `PENDING`-rader hvert minutt og kaller esyfovarsel. Har innebygd retry-teller. |
+| **Sende varsel** | `DialogmotekandidatVarselScheduler` | Poller `PENDING`-rader hvert minutt og kaller esyfovarsel. Har innebygd retry med eksponentiell backoff. |
 | **Rydde opp** | `DialogmotekandidatVarselScheduler.runCleanUp()` | Sletter gamle `SENT`- og `PENDING`-rader én gang i timen. |
 
 ---
@@ -43,7 +43,8 @@ sequenceDiagram
     L->>K: acknowledgment.acknowledge()
 
     loop Hvert minutt
-        Sched->>DB_V: hent PENDING VARSEL-rader
+        Note over Sched,DB_V: Scheduleren kjører i en while-loop og behandler én rad per transaksjon.<br/>Raden hentes med FOR UPDATE SKIP LOCKED, prosesseres,<br/>og transaksjonen committes før neste rad hentes.
+        Sched->>DB_V: hent neste PENDING VARSEL-rad
         Sched->>VS: sendSvarBehovVarsel(fnr, uuid)
         VS->>EP: produserVarsel(SM + NL)
         EP->>KB: produce melding
@@ -53,7 +54,7 @@ sequenceDiagram
             Sched->>DB_V: incrementRetryCount(id)
         end
 
-        Sched->>DB_V: hent PENDING FERDIGSTILL-rader
+        Sched->>DB_V: hent neste PENDING FERDIGSTILL-rad
         Sched->>VS: ferdigstillSvarMotebehovVarsel(fnr)
         VS->>EP: produserFerdigstill(SM + NL)
         EP->>KB: produce melding
@@ -66,6 +67,50 @@ sequenceDiagram
         Sched->>Sched: updateGauges() – oppdater pending-over-1d gauge
     end
 ```
+
+---
+
+## Retry, låsing og prosessering
+
+### Eksponentiell backoff
+
+Ved feil øker `incrementRetryCount` både `retry_count` og `next_retry_at`.
+
+- Neste forsøk beregnes som `2^retry_count` minutter
+- Backoff er begrenset til maks `720` minutter, altså 12 timer
+- Scheduleren henter bare rader der `next_retry_at <= NOW()`
+- Rader med `next_retry_at > NOW()` hoppes over til de er klare for nytt forsøk
+
+Det betyr at retry styres av databasen, ikke av en sleep i scheduleren.
+
+### FOR UPDATE SKIP LOCKED
+
+`getPendingByType` bruker `SELECT ... FOR UPDATE SKIP LOCKED`.
+
+Det sikrer at to parallelle instanser ikke prosesserer samme rad hvis det oppstår overlapp, for eksempel under leader-failover. En rad som allerede er låst i én transaksjon blir hoppet over av neste transaksjon.
+
+### Én rad per transaksjon
+
+`DialogmotekandidatVarselScheduler` bruker `TransactionTemplate` med `PROPAGATION_REQUIRES_NEW` og kjører i en `while`-loop.
+
+For hver iterasjon skjer dette:
+
+1. Hent én rad med `getPendingByType(..., limit = 1)`
+2. Lås raden med `FOR UPDATE SKIP LOCKED`
+3. Send varsel eller ferdigstill varsel
+4. Oppdater status eller retry-teller
+5. Commit transaksjonen før neste rad hentes
+
+Dette gjør at row-locken holdes under hele varsel-sendingen for den raden som behandles.
+
+### Row count check ved oppdatering til `SENT`
+
+`updateStatusToSent` returnerer `Boolean`.
+
+- `true` når en rad faktisk ble oppdatert
+- `false` når 0 rader ble oppdatert
+
+Hvis 0 rader blir oppdatert, logges warning med event `dialogmotekandidat.varsel_status.update_missing`. Det gjør race conditions og tilfeller der raden allerede er slettet synlige i loggene.
 
 ---
 
@@ -173,6 +218,7 @@ Alle log-hendelser bruker `net.logstash.logback.argument.StructuredArguments.kv`
 | `dialogmotekandidat.varsel.retry` | `DialogmotekandidatVarselScheduler` | Varsel feilet, teller økt | `event`, `id`, `messageId`, `retryCount` |
 | `dialogmotekandidat.ferdigstill.sent` | `DialogmotekandidatVarselScheduler` | Ferdigstilling sendt OK | `event`, `id`, `messageId` |
 | `dialogmotekandidat.ferdigstill.retry` | `DialogmotekandidatVarselScheduler` | Ferdigstilling feilet, teller økt | `event`, `id`, `messageId`, `retryCount` |
+| `dialogmotekandidat.varsel_status.update_missing` | `DialogmotekandidatVarselStatusDao` | Ingen rad ble markert som `SENT` | `event`, `id` |
 | `dialogmotekandidat.cleanup` | `DialogmotekandidatVarselScheduler` | Opprydding gjennomført | `event`, `sentDeleted`, `pendingDeleted` |
 
 ### Loki-eksempel – spore én melding gjennom retry-løkken
@@ -203,3 +249,21 @@ dialogkandidat_varsel_pending_over_1d_total{app="syfomotebehov", type="VARSEL"} 
 ### Anbefalt alert
 
 Trigger hvis verdien er `> 0` i mer enn **30 minutter**. Det indikerer at scheduleren ikke klarer å levere varslene, og krever manuell undersøkelse (sjekk esyfovarsel-connectivitet og retry-tellere i Loki).
+
+---
+
+## Tabellskjema – `DIALOGKANDIDAT_VARSEL_STATUS`
+
+| Kolonne | Type | Beskrivelse |
+|---|---|---|
+| `id` | `UUID` | Primærnøkkel |
+| `kafka_melding_uuid` | `VARCHAR(36)` | Unik referanse til Kafka-meldingen |
+| `fnr` | `VARCHAR(11)` | Fødselsnummer for personen som varselet gjelder |
+| `type` | `VARCHAR(20)` | `VARSEL` eller `FERDIGSTILL` |
+| `status` | `VARCHAR(20)` | `PENDING` eller `SENT` |
+| `retry_count` | `INT NOT NULL DEFAULT 0` | Antall retry-forsøk så langt |
+| `next_retry_at` | `TIMESTAMP NOT NULL DEFAULT NOW()` | Tidspunktet som styrer når raden tidligst kan prøves igjen |
+| `created_at` | `TIMESTAMP NOT NULL DEFAULT NOW()` | Når raden ble opprettet |
+| `updated_at` | `TIMESTAMP NOT NULL DEFAULT NOW()` | Når raden sist ble oppdatert |
+
+Tabellen opprettes i migreringen `V1_22__dialogmotekandidat_varsel_status.sql`.
