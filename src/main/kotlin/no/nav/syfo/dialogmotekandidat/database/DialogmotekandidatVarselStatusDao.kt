@@ -120,6 +120,7 @@ class DialogmotekandidatVarselStatusDao
                 FROM $TABLE_NAME
                 WHERE $COLUMN_STATUS = :status
                   AND $COLUMN_TYPE = :type
+                  AND $COLUMN_RETRY_COUNT < :maxRetries
                   AND $COLUMN_NEXT_RETRY_AT <= NOW()
                 ORDER BY $COLUMN_CREATED_AT ASC
                 LIMIT :limit
@@ -130,9 +131,27 @@ class DialogmotekandidatVarselStatusDao
                 MapSqlParameterSource()
                     .addValue("status", STATUS_PENDING)
                     .addValue("type", type.name)
+                    .addValue("maxRetries", MAX_RETRY_COUNT)
                     .addValue("limit", limit),
                 varselStatusRowMapper,
             )
+        }
+
+        fun countGivenUp(): Int {
+            val query =
+                """
+                SELECT COUNT(*)
+                FROM $TABLE_NAME
+                WHERE $COLUMN_STATUS = :status
+                  AND $COLUMN_RETRY_COUNT >= :maxRetries
+                """.trimIndent()
+            return namedParameterJdbcTemplate.queryForObject(
+                query,
+                MapSqlParameterSource()
+                    .addValue("status", STATUS_PENDING)
+                    .addValue("maxRetries", MAX_RETRY_COUNT),
+                Int::class.java,
+            ) ?: 0
         }
 
         fun countPendingOlderThan(
@@ -217,6 +236,7 @@ class DialogmotekandidatVarselStatusDao
 
             const val STATUS_PENDING = "PENDING"
             const val STATUS_SENT = "SENT"
+            const val MAX_RETRY_COUNT = 10
 
             private val log = LoggerFactory.getLogger(DialogmotekandidatVarselStatusDao::class.java)
         }

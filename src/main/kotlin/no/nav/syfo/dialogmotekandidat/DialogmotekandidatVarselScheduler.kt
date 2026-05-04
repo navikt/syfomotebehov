@@ -48,6 +48,7 @@ class DialogmotekandidatVarselScheduler
 
             sendPendingVarsler()
             ferdigstillPendingVarsler()
+            logGivenUpRows()
             updateGauges()
         }
 
@@ -130,6 +131,17 @@ class DialogmotekandidatVarselScheduler
             val cutoff = LocalDateTime.now().minusDays(1)
             varselPendingOver1Day.set(varselStatusDao.countPendingOlderThan(DialogmotekandidatVarselType.VARSEL, cutoff).toLong())
             ferdigstillPendingOver1Day.set(varselStatusDao.countPendingOlderThan(DialogmotekandidatVarselType.FERDIGSTILL, cutoff).toLong())
+        }
+
+        internal fun logGivenUpRows() {
+            val givenUpCount = varselStatusDao.countGivenUp()
+            if (givenUpCount > 0) {
+                log.error(
+                    "PENDING-rader har overskredet maks antall retries",
+                    kv("event", "dialogmotekandidat.varsel.given_up"),
+                    kv("count", givenUpCount),
+                )
+            }
         }
 
         internal fun cleanUp() {
