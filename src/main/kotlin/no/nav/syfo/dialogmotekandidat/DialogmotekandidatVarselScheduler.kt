@@ -75,7 +75,17 @@ class DialogmotekandidatVarselScheduler
             type: DialogmotekandidatVarselType,
             action: (DialogmotekandidatVarselStatus) -> Unit,
         ) {
+            var processedCount = 0
             while (true) {
+                if (processedCount >= MAX_ROWS_PER_TICK) {
+                    log.info(
+                        "Nådde maks antall rader per tick",
+                        kv("event", "dialogmotekandidat.varsel.batch_limit_reached"),
+                        kv("type", type.name),
+                        kv("count", processedCount),
+                    )
+                    return
+                }
                 val processed =
                     transactionTemplate.execute<Boolean> {
                         val row = varselStatusDao.getPendingByType(type, limit = 1).firstOrNull() ?: return@execute false
@@ -124,6 +134,7 @@ class DialogmotekandidatVarselScheduler
                 if (!processed) {
                     return
                 }
+                processedCount++
             }
         }
 
@@ -158,6 +169,7 @@ class DialogmotekandidatVarselScheduler
 
         companion object {
             private val log = LoggerFactory.getLogger(DialogmotekandidatVarselScheduler::class.java)
+            private const val MAX_ROWS_PER_TICK = 100
             private const val METRIC_PENDING_OVER_1D = "dialogkandidat_varsel_pending_over_1d_total"
         }
     }

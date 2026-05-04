@@ -64,7 +64,9 @@ class DialogmotekandidatKafkaConfig
                                     exception,
                                 )
                             },
-                            FixedBackOff(0L, 0L),
+                            // Poison pills (SerializationException) hoppes over umiddelbart.
+                            // Andre feil retryes opptil 9 ganger med 5s mellomrom før meldingen hoppes over.
+                            FixedBackOff(5000L, 9L),
                         ).apply {
                             addNotRetryableExceptions(SerializationException::class.java)
                         },

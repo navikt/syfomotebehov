@@ -86,6 +86,8 @@ class DialogmotekandidatVarselStatusDao
         }
 
         fun incrementRetryCount(id: UUID) {
+            // NB: POWER(2, retry_count) bruker gammel verdi (før increment i samme UPDATE).
+            // Backoff-sekvensen blir: 1m, 2m, 4m, 8m, ... 512m (capped ved 720m).
             val query =
                 """
                 UPDATE $TABLE_NAME
