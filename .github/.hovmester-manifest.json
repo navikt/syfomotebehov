@@ -1,6 +1,6 @@
 {
   "source": "navikt/hovmester",
-  "source_sha": "4cb28297e003027b1bdafb96bc4cac9297a272ba",
+  "source_sha": "24fd8e0a654071501f82894103e9550c9c0ce670",
   "files": [
     ".github/ISSUE_TEMPLATE/bug.yml",
     ".github/ISSUE_TEMPLATE/config.yml",
@@ -69,6 +69,8 @@
     ".github/skills/postgresql-review/references/sql-patterns.md",
     ".github/skills/pull-request/SKILL.md",
     ".github/skills/readme-update/SKILL.md",
+    ".github/skills/repo-sync/SKILL.md",
+    ".github/skills/repo-sync/scripts/sync.sh",
     ".github/skills/security-review/SKILL.md",
     ".github/skills/security-review/references/api-security.md",
     ".github/skills/security-review/references/gdpr-privacy.md",
