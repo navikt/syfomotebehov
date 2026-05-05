@@ -139,6 +139,27 @@ class DialogmotekandidatVarselStatusDao
             )
         }
 
+        fun hasPendingFerdigstillForFnr(fnr: String): Boolean {
+            val query =
+                """
+                SELECT EXISTS(
+                    SELECT 1
+                    FROM $TABLE_NAME
+                    WHERE $COLUMN_FNR = :fnr
+                      AND $COLUMN_TYPE = :type
+                      AND $COLUMN_STATUS = :status
+                )
+                """.trimIndent()
+            return namedParameterJdbcTemplate.queryForObject(
+                query,
+                MapSqlParameterSource()
+                    .addValue("fnr", fnr)
+                    .addValue("type", DialogmotekandidatVarselType.FERDIGSTILL.name)
+                    .addValue("status", STATUS_PENDING),
+                Boolean::class.java,
+            ) ?: false
+        }
+
         fun countGivenUp(): Int {
             val query =
                 """

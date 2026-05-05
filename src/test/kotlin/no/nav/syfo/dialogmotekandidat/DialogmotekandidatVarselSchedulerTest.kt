@@ -107,6 +107,17 @@ internal class DialogmotekandidatVarselSchedulerTest : IntegrationTest() {
                 statusFor(uuid) shouldBe "PENDING"
             }
 
+            it("sender ikke varsel nar pending ferdigstill finnes for samme fnr") {
+                val varselUuid = createPendingRow(DialogmotekandidatVarselType.VARSEL)
+                val ferdigstillUuid = createPendingRow(DialogmotekandidatVarselType.FERDIGSTILL)
+
+                scheduler.sendPendingVarsler()
+
+                verify(exactly = 0) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
+                statusFor(varselUuid) shouldBe "SENT"
+                statusFor(ferdigstillUuid) shouldBe "PENDING"
+            }
+
             it("ignorerer rader som har overskredet maks antall retries") {
                 val uuid = createPendingRow(DialogmotekandidatVarselType.VARSEL)
                 jdbcTemplate.update(

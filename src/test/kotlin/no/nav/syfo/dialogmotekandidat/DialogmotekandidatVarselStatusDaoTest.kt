@@ -152,6 +152,25 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             }
         }
 
+        it("hasPendingFerdigstillForFnr returns true only for pending ferdigstill rows on fnr") {
+            val varselUuid = UUID.randomUUID().toString()
+            val ferdigstillUuid = UUID.randomUUID().toString()
+            dialogmotekandidatVarselStatusDao.create(varselUuid, UserConstants.ARBEIDSTAKER_FNR, DialogmotekandidatVarselType.VARSEL)
+            dialogmotekandidatVarselStatusDao.create(
+                ferdigstillUuid,
+                UserConstants.ARBEIDSTAKER_FNR,
+                DialogmotekandidatVarselType.FERDIGSTILL,
+            )
+
+            dialogmotekandidatVarselStatusDao.hasPendingFerdigstillForFnr(UserConstants.ARBEIDSTAKER_FNR) shouldBe true
+
+            val ferdigstillRow = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.FERDIGSTILL).single()
+            dialogmotekandidatVarselStatusDao.updateStatusToSent(ferdigstillRow.id)
+
+            dialogmotekandidatVarselStatusDao.hasPendingFerdigstillForFnr(UserConstants.ARBEIDSTAKER_FNR) shouldBe false
+            dialogmotekandidatVarselStatusDao.hasPendingFerdigstillForFnr(UserConstants.LEDER_FNR) shouldBe false
+        }
+
         it("countPendingOlderThan counts rows created before cutoff and excludes newer ones") {
             dialogmotekandidatVarselStatusDao.create(uuid, testFnr, DialogmotekandidatVarselType.VARSEL)
 

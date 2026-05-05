@@ -61,6 +61,15 @@ class DialogmotekandidatVarselScheduler
 
         internal fun sendPendingVarsler() {
             processPendingVarsler(DialogmotekandidatVarselType.VARSEL) { row ->
+                if (varselStatusDao.hasPendingFerdigstillForFnr(row.fnr)) {
+                    log.info(
+                        "Skipper varsel fordi pending ferdigstill finnes",
+                        kv("event", "dialogmotekandidat.varsel.skipped_has_ferdigstill"),
+                        kv("id", row.id),
+                        kv("messageId", row.kafkaMeldingUuid),
+                    )
+                    return@processPendingVarsler
+                }
                 varselServiceV2.sendSvarBehovVarsel(row.fnr, row.kafkaMeldingUuid)
             }
         }
