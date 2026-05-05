@@ -48,16 +48,24 @@ class DialogmotekandidatVarselStatusDao
                 )
                 ON CONFLICT ($COLUMN_KAFKA_MELDING_UUID) DO NOTHING
                 """.trimIndent()
-            namedParameterJdbcTemplate.update(
-                query,
-                MapSqlParameterSource()
-                    .addValue("id", UUID.randomUUID())
-                    .addValue("kafkaMeldingUuid", kafkaMeldingUuid)
-                    .addValue("fnr", fnr)
-                    .addValue("type", type.name)
-                    .addValue("status", STATUS_PENDING)
-                    .addValue("retryCount", 0),
-            )
+            val insertedRows =
+                namedParameterJdbcTemplate.update(
+                    query,
+                    MapSqlParameterSource()
+                        .addValue("id", UUID.randomUUID())
+                        .addValue("kafkaMeldingUuid", kafkaMeldingUuid)
+                        .addValue("fnr", fnr)
+                        .addValue("type", type.name)
+                        .addValue("status", STATUS_PENDING)
+                        .addValue("retryCount", 0),
+                )
+            if (insertedRows == 0) {
+                log.info(
+                    "Ignorerte duplikat outbox-rad",
+                    kv("event", "dialogmotekandidat.outbox.duplicate_ignored"),
+                    kv("kafkaMeldingUuid", kafkaMeldingUuid),
+                )
+            }
         }
 
         fun updateStatusToSent(id: UUID): Boolean {
