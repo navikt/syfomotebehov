@@ -85,6 +85,7 @@ class DialogmotekandidatVarselScheduler
             action: (DialogmotekandidatVarselStatus) -> Unit,
         ) {
             var processedCount = 0
+            var consecutiveFailures = 0
             while (true) {
                 if (processedCount >= MAX_ROWS_PER_TICK) {
                     log.info(
@@ -101,6 +102,7 @@ class DialogmotekandidatVarselScheduler
                         runCatching {
                             action(row)
                             if (varselStatusDao.updateStatusToSent(row.id)) {
+                                consecutiveFailures = 0
                                 log.info(
                                     when (type) {
                                         DialogmotekandidatVarselType.VARSEL -> "Varsel sendt"
@@ -119,6 +121,7 @@ class DialogmotekandidatVarselScheduler
                             }
                         }.onFailure { e ->
                             varselStatusDao.incrementRetryCount(row.id)
+                            consecutiveFailures++
                             log.warn(
                                 when (type) {
                                     DialogmotekandidatVarselType.VARSEL -> "Feil ved sending av varsel"
@@ -144,6 +147,16 @@ class DialogmotekandidatVarselScheduler
                     return
                 }
                 processedCount++
+                if (consecutiveFailures >= CIRCUIT_BREAKER_THRESHOLD) {
+                    log.warn(
+                        "Avbryter behandling etter flere påfølgende feil",
+                        kv("event", "dialogmotekandidat.varsel.circuit_breaker"),
+                        kv("type", type.name),
+                        kv("consecutiveFailures", consecutiveFailures),
+                        kv("processedCount", processedCount),
+                    )
+                    break
+                }
             }
         }
 
@@ -179,6 +192,7 @@ class DialogmotekandidatVarselScheduler
         companion object {
             private val log = LoggerFactory.getLogger(DialogmotekandidatVarselScheduler::class.java)
             private const val MAX_ROWS_PER_TICK = 100
+            private const val CIRCUIT_BREAKER_THRESHOLD = 3
             private const val METRIC_PENDING_OVER_1D = "dialogkandidat_varsel_pending_over_1d_total"
         }
     }

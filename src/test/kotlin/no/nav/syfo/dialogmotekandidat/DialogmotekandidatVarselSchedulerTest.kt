@@ -96,6 +96,55 @@ internal class DialogmotekandidatVarselSchedulerTest : IntegrationTest() {
                 retryCountFor(uuid) shouldBe 1
             }
 
+            it("stopper videre behandling etter tre pafolgende feil") {
+                val uuids = List(4) { createPendingRow(DialogmotekandidatVarselType.VARSEL) }
+                every {
+                    varselServiceV2.sendSvarBehovVarsel(any(), any())
+                } throws RuntimeException("esyfovarsel utilgjengelig")
+
+                scheduler.sendPendingVarsler()
+
+                verify(exactly = 3) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
+                uuids.take(3).forEach { uuid ->
+                    statusFor(uuid) shouldBe "PENDING"
+                    retryCountFor(uuid) shouldBe 1
+                }
+                statusFor(uuids.last()) shouldBe "PENDING"
+                retryCountFor(uuids.last()) shouldBe 0
+            }
+
+            it("resetter circuit breaker etter suksess") {
+                val uuids = List(6) { createPendingRow(DialogmotekandidatVarselType.VARSEL) }
+                every {
+                    varselServiceV2.sendSvarBehovVarsel(any(), uuids[0])
+                } throws RuntimeException("feil 1")
+                every {
+                    varselServiceV2.sendSvarBehovVarsel(any(), uuids[1])
+                } throws RuntimeException("feil 2")
+                every {
+                    varselServiceV2.sendSvarBehovVarsel(any(), uuids[2])
+                } returns Unit
+                every {
+                    varselServiceV2.sendSvarBehovVarsel(any(), uuids[3])
+                } throws RuntimeException("feil 3")
+                every {
+                    varselServiceV2.sendSvarBehovVarsel(any(), uuids[4])
+                } throws RuntimeException("feil 4")
+                every {
+                    varselServiceV2.sendSvarBehovVarsel(any(), uuids[5])
+                } throws RuntimeException("feil 5")
+
+                scheduler.sendPendingVarsler()
+
+                verify(exactly = 6) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
+                retryCountFor(uuids[0]) shouldBe 1
+                retryCountFor(uuids[1]) shouldBe 1
+                statusFor(uuids[2]) shouldBe "SENT"
+                retryCountFor(uuids[3]) shouldBe 1
+                retryCountFor(uuids[4]) shouldBe 1
+                retryCountFor(uuids[5]) shouldBe 1
+            }
+
             it("respekterer backoff og plukker ikke opp rad som nylig er retried") {
                 val uuid = createPendingRow(DialogmotekandidatVarselType.VARSEL)
                 val row = dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL).single()
