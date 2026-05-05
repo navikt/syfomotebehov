@@ -1,5 +1,6 @@
 package no.nav.syfo.dialogmotekandidat.kafka
 
+import net.logstash.logback.argument.StructuredArguments.kv
 import no.nav.syfo.config.kafka.KafkaAivenConfig
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.errors.SerializationException
@@ -57,10 +58,11 @@ class DialogmotekandidatKafkaConfig
                         DefaultErrorHandler(
                             { record, exception ->
                                 log.error(
-                                    "Gir opp prosessering av melding fra topic={}, partition={}, offset={}. Hopper over.",
-                                    record.topic(),
-                                    record.partition(),
-                                    record.offset(),
+                                    "Gir opp prosessering av melding, hopper over",
+                                    kv("event", "dialogmotekandidat.kafka.given_up"),
+                                    kv("topic", record.topic()),
+                                    kv("partition", record.partition()),
+                                    kv("offset", record.offset()),
                                     exception,
                                 )
                             },
