@@ -6,6 +6,7 @@ import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.syfo.IntegrationTest
@@ -87,6 +88,23 @@ internal class DialogmotekandidatKafkaIntegrationTest : IntegrationTest() {
 
                 dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL) shouldHaveSize 1
                 verify(exactly = 2) { ack.acknowledge() }
+            }
+
+            it("rethrower exceptions slik at kafka error handler kan retrye") {
+                val ack = mockk<Acknowledgment>(relaxed = true)
+                val melding = generateEndring(kandidat = true)
+                val dialogmotekandidatService = mockk<DialogmotekandidatService>()
+                every {
+                    dialogmotekandidatService.receiveDialogmotekandidatEndring(melding)
+                } throws RuntimeException("boom")
+                val failingListener = DialogmotekandidatListener(dialogmotekandidatService)
+
+                shouldThrow<RuntimeException> {
+                    failingListener.dialogmotekandidatEndringListener(consumerRecord(melding), ack)
+                }
+
+                verify(exactly = 1) { dialogmotekandidatService.receiveDialogmotekandidatEndring(melding) }
+                verify(exactly = 0) { ack.acknowledge() }
             }
         }
 

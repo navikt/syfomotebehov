@@ -24,8 +24,8 @@ class DialogmotekandidatListener(
         consumerRecord: ConsumerRecord<String, KafkaDialogmotekandidatEndring>,
         acknowledgment: Acknowledgment,
     ) {
+        val melding = consumerRecord.value()
         try {
-            val melding = consumerRecord.value()
             log.info(
                 "Got record",
                 kv("event", "dialogmotekandidat.received"),
@@ -35,7 +35,13 @@ class DialogmotekandidatListener(
             dialogmotekandidatService.receiveDialogmotekandidatEndring(melding)
             acknowledgment.acknowledge()
         } catch (e: Exception) {
-            log.error("DialogmotekandidatListener: Uventet feil ved lesing av topic", e)
+            log.error(
+                "DialogmotekandidatListener: Uventet feil ved lesing av topic",
+                kv("event", "dialogmotekandidat.failed"),
+                kv("uuid", melding.uuid),
+                e,
+            )
+            throw e
         }
     }
 
