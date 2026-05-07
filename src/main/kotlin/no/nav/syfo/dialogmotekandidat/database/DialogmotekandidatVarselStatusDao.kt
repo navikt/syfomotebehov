@@ -51,13 +51,13 @@ class DialogmotekandidatVarselStatusDao
             val insertedRows =
                 namedParameterJdbcTemplate.update(
                     query,
-                        MapSqlParameterSource()
-                            .addValue("id", UUID.randomUUID())
-                            .addValue("kafkaMeldingUuid", kafkaMeldingUuid)
-                            .addValue("fnr", fnr)
-                            .addValue("type", type.name)
-                            .addValue("status", SvarMotebehovVarselStatus.PENDING.name)
-                            .addValue("retryCount", 0),
+                    MapSqlParameterSource()
+                        .addValue("id", UUID.randomUUID())
+                        .addValue("kafkaMeldingUuid", kafkaMeldingUuid)
+                        .addValue("fnr", fnr)
+                        .addValue("type", type.name)
+                        .addValue("status", SvarMotebehovVarselStatus.PENDING.name)
+                        .addValue("retryCount", 0),
                 )
             if (insertedRows == 0) {
                 log.info(
@@ -78,10 +78,10 @@ class DialogmotekandidatVarselStatusDao
                 """.trimIndent()
             val updatedRows =
                 namedParameterJdbcTemplate.update(
-                        query,
-                        MapSqlParameterSource()
-                            .addValue("status", SvarMotebehovVarselStatus.SENT.name)
-                            .addValue("id", id),
+                    query,
+                    MapSqlParameterSource()
+                        .addValue("status", SvarMotebehovVarselStatus.SENT.name)
+                        .addValue("id", id),
                 )
             if (updatedRows == 0) {
                 log.warn(
