@@ -112,9 +112,14 @@ class VarselServiceV2
             val narmesteLedere = narmesteLedere(ansattFnr)
             esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ansattFnr)
             narmesteLedere.forEach { leder ->
-                esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(leder.narmesteLederPersonIdentNumber, ansattFnr, leder.virksomhetsnummer).also {
-                    log.info("Ferdigstiller varsel til virksomhet ${leder.virksomhetsnummer}")
-                }
+                esyfovarselService
+                    .ferdigstillSvarMotebehovForArbeidsgiver(
+                        leder.narmesteLederPersonIdentNumber,
+                        ansattFnr,
+                        leder.virksomhetsnummer,
+                    ).also {
+                        log.info("Ferdigstiller varsel til virksomhet ${leder.virksomhetsnummer}")
+                    }
             }
         }
 
@@ -123,11 +128,12 @@ class VarselServiceV2
         }
 
         private fun sendVarselTilNaermesteLeder(narmesteLederInfo: NarmesteLederVarselInfo) =
-            esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(
-                narmesteLederInfo.narmesteLederPersonIdentNumber,
-                narmesteLederInfo.ansattFnr,
-                narmesteLederInfo.virksomhetsnummer,
-            ).also { metric.tellHendelse("varsel_leder_sent") }
+            esyfovarselService
+                .sendSvarMotebehovVarselTilNarmesteLeder(
+                    narmesteLederInfo.narmesteLederPersonIdentNumber,
+                    narmesteLederInfo.ansattFnr,
+                    narmesteLederInfo.virksomhetsnummer,
+                ).also { metric.tellHendelse("varsel_leder_sent") }
 
         private fun shouldSendVarselTilArbeidstaker(
             ansattFnr: String,
