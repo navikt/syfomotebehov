@@ -3,9 +3,9 @@ package no.nav.syfo.dialogmotekandidat
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tags
 import net.logstash.logback.argument.StructuredArguments.kv
-import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselStatus
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselStatusDao
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselType
+import no.nav.syfo.dialogmotekandidat.database.SvarMotebehovVarselUtsending
 import no.nav.syfo.leaderelection.LeaderElectionClient
 import no.nav.syfo.varsel.VarselServiceV2
 import org.slf4j.LoggerFactory
@@ -82,7 +82,7 @@ class DialogmotekandidatVarselScheduler
 
         private fun processPendingVarsler(
             type: DialogmotekandidatVarselType,
-            action: (DialogmotekandidatVarselStatus) -> Unit,
+            action: (SvarMotebehovVarselUtsending) -> Unit,
         ) {
             var processedCount = 0
             var consecutiveFailures = 0

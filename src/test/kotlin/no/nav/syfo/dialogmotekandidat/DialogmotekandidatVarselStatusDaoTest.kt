@@ -9,6 +9,7 @@ import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselStatusDao
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselType
+import no.nav.syfo.dialogmotekandidat.database.SvarMotebehovVarselStatus
 import no.nav.syfo.testhelper.UserConstants
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -47,7 +48,7 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
                     kafkaMeldingUuid shouldBe uuid
                     this.fnr shouldBe testFnr
                     type shouldBe DialogmotekandidatVarselType.VARSEL
-                    status shouldBe DialogmotekandidatVarselStatusDao.STATUS_PENDING
+                    status shouldBe SvarMotebehovVarselStatus.PENDING
                     retryCount shouldBe 0
                 }
             }
@@ -73,7 +74,8 @@ class DialogmotekandidatVarselStatusDaoTest : IntegrationTest() {
             dialogmotekandidatVarselStatusDao.getPendingByType(DialogmotekandidatVarselType.VARSEL).shouldBeEmpty()
 
             jdbcTemplate.queryForObject<Int>(
-                "SELECT COUNT(*) FROM dialogkandidat_varsel_status WHERE status = 'SENT'"
+                "SELECT COUNT(*) FROM dialogkandidat_varsel_status WHERE status = ?",
+                SvarMotebehovVarselStatus.SENT.name,
             ) shouldBe 1
         }
 

@@ -11,6 +11,7 @@ import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselStatusDao
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatVarselType
+import no.nav.syfo.dialogmotekandidat.database.SvarMotebehovVarselStatus
 import no.nav.syfo.leaderelection.LeaderElectionClient
 import no.nav.syfo.testhelper.UserConstants
 import no.nav.syfo.varsel.VarselServiceV2
@@ -70,7 +71,7 @@ internal class DialogmotekandidatVarselSchedulerTest : IntegrationTest() {
                 verify(exactly = 1) {
                     varselServiceV2.sendSvarBehovVarsel(UserConstants.ARBEIDSTAKER_FNR, uuid)
                 }
-                statusFor(uuid) shouldBe "SENT"
+                statusFor(uuid) shouldBe SvarMotebehovVarselStatus.SENT
             }
 
             it("sender PENDING ferdigstillinger og setter rad til SENT") {
@@ -81,7 +82,7 @@ internal class DialogmotekandidatVarselSchedulerTest : IntegrationTest() {
                 verify(exactly = 1) {
                     varselServiceV2.ferdigstillSvarMotebehovVarsel(UserConstants.ARBEIDSTAKER_FNR)
                 }
-                statusFor(uuid) shouldBe "SENT"
+                statusFor(uuid) shouldBe SvarMotebehovVarselStatus.SENT
             }
 
             it("oker retry_count og lar rad forbli PENDING ved feil") {
@@ -92,7 +93,7 @@ internal class DialogmotekandidatVarselSchedulerTest : IntegrationTest() {
 
                 scheduler.sendPendingVarsler()
 
-                statusFor(uuid) shouldBe "PENDING"
+                statusFor(uuid) shouldBe SvarMotebehovVarselStatus.PENDING
                 retryCountFor(uuid) shouldBe 1
             }
 
@@ -106,10 +107,10 @@ internal class DialogmotekandidatVarselSchedulerTest : IntegrationTest() {
 
                 verify(exactly = 3) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
                 uuids.take(3).forEach { uuid ->
-                    statusFor(uuid) shouldBe "PENDING"
+                    statusFor(uuid) shouldBe SvarMotebehovVarselStatus.PENDING
                     retryCountFor(uuid) shouldBe 1
                 }
-                statusFor(uuids.last()) shouldBe "PENDING"
+                statusFor(uuids.last()) shouldBe SvarMotebehovVarselStatus.PENDING
                 retryCountFor(uuids.last()) shouldBe 0
             }
 
@@ -139,7 +140,7 @@ internal class DialogmotekandidatVarselSchedulerTest : IntegrationTest() {
                 verify(exactly = 6) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
                 retryCountFor(uuids[0]) shouldBe 1
                 retryCountFor(uuids[1]) shouldBe 1
-                statusFor(uuids[2]) shouldBe "SENT"
+                statusFor(uuids[2]) shouldBe SvarMotebehovVarselStatus.SENT
                 retryCountFor(uuids[3]) shouldBe 1
                 retryCountFor(uuids[4]) shouldBe 1
                 retryCountFor(uuids[5]) shouldBe 1
@@ -153,7 +154,7 @@ internal class DialogmotekandidatVarselSchedulerTest : IntegrationTest() {
                 scheduler.sendPendingVarsler()
 
                 verify(exactly = 0) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
-                statusFor(uuid) shouldBe "PENDING"
+                statusFor(uuid) shouldBe SvarMotebehovVarselStatus.PENDING
             }
 
             it("sender ikke varsel nar pending ferdigstill finnes for samme fnr") {
@@ -163,8 +164,8 @@ internal class DialogmotekandidatVarselSchedulerTest : IntegrationTest() {
                 scheduler.sendPendingVarsler()
 
                 verify(exactly = 0) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
-                statusFor(varselUuid) shouldBe "SENT"
-                statusFor(ferdigstillUuid) shouldBe "PENDING"
+                statusFor(varselUuid) shouldBe SvarMotebehovVarselStatus.SENT
+                statusFor(ferdigstillUuid) shouldBe SvarMotebehovVarselStatus.PENDING
             }
 
             it("ignorerer rader som har overskredet maks antall retries") {
@@ -178,7 +179,7 @@ internal class DialogmotekandidatVarselSchedulerTest : IntegrationTest() {
                 scheduler.sendPendingVarsler()
 
                 verify(exactly = 0) { varselServiceV2.sendSvarBehovVarsel(any(), any()) }
-                statusFor(uuid) shouldBe "PENDING"
+                statusFor(uuid) shouldBe SvarMotebehovVarselStatus.PENDING
             }
 
             it("gjor ingenting nar podden ikke er leader") {
@@ -225,12 +226,14 @@ internal class DialogmotekandidatVarselSchedulerTest : IntegrationTest() {
         return uuid
     }
 
-    private fun statusFor(kafkaMeldingUuid: String): String =
-        jdbcTemplate.queryForObject(
-            "SELECT status FROM dialogkandidat_varsel_status WHERE kafka_melding_uuid = ?",
-            String::class.java,
-            kafkaMeldingUuid,
-        )!!
+    private fun statusFor(kafkaMeldingUuid: String): SvarMotebehovVarselStatus =
+        SvarMotebehovVarselStatus.valueOf(
+            jdbcTemplate.queryForObject(
+                "SELECT status FROM dialogkandidat_varsel_status WHERE kafka_melding_uuid = ?",
+                String::class.java,
+                kafkaMeldingUuid,
+            )!!,
+        )
 
     private fun retryCountFor(kafkaMeldingUuid: String): Int =
         jdbcTemplate.queryForObject(

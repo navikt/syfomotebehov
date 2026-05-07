@@ -51,13 +51,13 @@ class DialogmotekandidatVarselStatusDao
             val insertedRows =
                 namedParameterJdbcTemplate.update(
                     query,
-                    MapSqlParameterSource()
-                        .addValue("id", UUID.randomUUID())
-                        .addValue("kafkaMeldingUuid", kafkaMeldingUuid)
-                        .addValue("fnr", fnr)
-                        .addValue("type", type.name)
-                        .addValue("status", STATUS_PENDING)
-                        .addValue("retryCount", 0),
+                        MapSqlParameterSource()
+                            .addValue("id", UUID.randomUUID())
+                            .addValue("kafkaMeldingUuid", kafkaMeldingUuid)
+                            .addValue("fnr", fnr)
+                            .addValue("type", type.name)
+                            .addValue("status", SvarMotebehovVarselStatus.PENDING.name)
+                            .addValue("retryCount", 0),
                 )
             if (insertedRows == 0) {
                 log.info(
@@ -78,10 +78,10 @@ class DialogmotekandidatVarselStatusDao
                 """.trimIndent()
             val updatedRows =
                 namedParameterJdbcTemplate.update(
-                    query,
-                    MapSqlParameterSource()
-                        .addValue("status", STATUS_SENT)
-                        .addValue("id", id),
+                        query,
+                        MapSqlParameterSource()
+                            .addValue("status", SvarMotebehovVarselStatus.SENT.name)
+                            .addValue("id", id),
                 )
             if (updatedRows == 0) {
                 log.warn(
@@ -114,7 +114,7 @@ class DialogmotekandidatVarselStatusDao
         fun getPendingByType(
             type: DialogmotekandidatVarselType,
             limit: Int = 50,
-        ): List<DialogmotekandidatVarselStatus> {
+        ): List<SvarMotebehovVarselUtsending> {
             val query =
                 """
                 SELECT
@@ -139,7 +139,7 @@ class DialogmotekandidatVarselStatusDao
             return namedParameterJdbcTemplate.query(
                 query,
                 MapSqlParameterSource()
-                    .addValue("status", STATUS_PENDING)
+                    .addValue("status", SvarMotebehovVarselStatus.PENDING.name)
                     .addValue("type", type.name)
                     .addValue("maxRetries", MAX_RETRY_COUNT)
                     .addValue("limit", limit),
@@ -163,7 +163,7 @@ class DialogmotekandidatVarselStatusDao
                 MapSqlParameterSource()
                     .addValue("fnr", fnr)
                     .addValue("type", DialogmotekandidatVarselType.FERDIGSTILL.name)
-                    .addValue("status", STATUS_PENDING),
+                    .addValue("status", SvarMotebehovVarselStatus.PENDING.name),
                 Boolean::class.java,
             ) ?: false
         }
@@ -179,7 +179,7 @@ class DialogmotekandidatVarselStatusDao
             return namedParameterJdbcTemplate.queryForObject(
                 query,
                 MapSqlParameterSource()
-                    .addValue("status", STATUS_PENDING)
+                    .addValue("status", SvarMotebehovVarselStatus.PENDING.name)
                     .addValue("maxRetries", MAX_RETRY_COUNT),
                 Int::class.java,
             ) ?: 0
@@ -200,7 +200,7 @@ class DialogmotekandidatVarselStatusDao
             return namedParameterJdbcTemplate.queryForObject(
                 query,
                 MapSqlParameterSource()
-                    .addValue("status", STATUS_PENDING)
+                    .addValue("status", SvarMotebehovVarselStatus.PENDING.name)
                     .addValue("type", type.name)
                     .addValue("cutoff", cutoff),
                 Int::class.java,
@@ -217,7 +217,7 @@ class DialogmotekandidatVarselStatusDao
             return namedParameterJdbcTemplate.update(
                 query,
                 MapSqlParameterSource()
-                    .addValue("status", STATUS_SENT)
+                    .addValue("status", SvarMotebehovVarselStatus.SENT.name)
                     .addValue("cutoff", cutoff),
             )
         }
@@ -232,19 +232,19 @@ class DialogmotekandidatVarselStatusDao
             return namedParameterJdbcTemplate.update(
                 query,
                 MapSqlParameterSource()
-                    .addValue("status", STATUS_PENDING)
+                    .addValue("status", SvarMotebehovVarselStatus.PENDING.name)
                     .addValue("cutoff", cutoff),
             )
         }
 
         private val varselStatusRowMapper =
             RowMapper { rs, _ ->
-                DialogmotekandidatVarselStatus(
+                SvarMotebehovVarselUtsending(
                     id = rs.getObject(COLUMN_ID, UUID::class.java),
                     kafkaMeldingUuid = rs.getString(COLUMN_KAFKA_MELDING_UUID),
                     fnr = rs.getString(COLUMN_FNR),
                     type = DialogmotekandidatVarselType.valueOf(rs.getString(COLUMN_TYPE)),
-                    status = rs.getString(COLUMN_STATUS),
+                    status = SvarMotebehovVarselStatus.valueOf(rs.getString(COLUMN_STATUS)),
                     retryCount = rs.getInt(COLUMN_RETRY_COUNT),
                     nextRetryAt = rs.getTimestamp(COLUMN_NEXT_RETRY_AT).toLocalDateTime(),
                     createdAt = rs.getTimestamp(COLUMN_CREATED_AT).toLocalDateTime(),
@@ -265,8 +265,6 @@ class DialogmotekandidatVarselStatusDao
             const val COLUMN_CREATED_AT = "created_at"
             const val COLUMN_UPDATED_AT = "updated_at"
 
-            const val STATUS_PENDING = "PENDING"
-            const val STATUS_SENT = "SENT"
             const val MAX_RETRY_COUNT = 10
 
             private val log = LoggerFactory.getLogger(DialogmotekandidatVarselStatusDao::class.java)
