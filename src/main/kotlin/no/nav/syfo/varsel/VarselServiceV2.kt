@@ -43,31 +43,52 @@ class VarselServiceV2
 
             val narmesteLederRelations = narmesteLedere(ansattFnr)
 
-            val amountOfVirksomheter = narmesteLederRelations?.distinctBy { it.virksomhetsnummer }?.size ?: 0
+            val amountOfVirksomheter = narmesteLederRelations.distinctBy { it.virksomhetsnummer }.size
 
             log.info(
-                "Antall unike nærmeste ledere for kandidatUuid $kandidatUuid: ${narmesteLederRelations?.size ?: 0}, antall virksomheter: $amountOfVirksomheter",
+                "Antall unike nærmeste ledere for kandidatUuid $kandidatUuid: ${narmesteLederRelations.size}, antall virksomheter: $amountOfVirksomheter",
             )
 
-            log.info("Sender varsel til arbeidstaker")
-            sendVarselTilArbeidstaker(ansattFnr, ansattesOppfolgingstilfelle)
+            // We do first all API calls to determine if we should send varsel to arbeidstaker and narmesteleder before sending any varsel, to avoid sending varsel to one party and then fail before sending to the other party
+            val shouldSendVarselTilArbeidstaker = shouldSendVarselTilArbeidstaker(ansattFnr, ansattesOppfolgingstilfelle)
+            val narmesteLederVarsels = getNarmesteLederForVarsel(narmesteLederRelations)
+            if (shouldSendVarselTilArbeidstaker) {
+                sendVarselTilArbeidstaker(ansattFnr)
+            }
+            narmesteLederVarsels.forEach {
+                sendVarselTilNaermesteLeder(it)
+            }
+        }
 
-            narmesteLederRelations?.forEach {
-                log.info("Sender varsel til virksomhet ${it.virksomhetsnummer}")
-                sendVarselTilNaermesteLeder(
+        private fun shouldSendVarselTilNaermesteLeder(
+            ansattFnr: String,
+            virksomhetsnummer: String,
+        ): Boolean {
+            val aktivtOppfolgingstilfelle =
+                oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
                     ansattFnr,
-                    it.narmesteLederPersonIdentNumber,
-                    it.virksomhetsnummer,
+                    virksomhetsnummer,
                 )
-            }
+            return motebehovStatusHelper.isSvarBehovVarselAvailable(
+                motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
+                    ansattFnr,
+                    false,
+                    virksomhetsnummer,
+                ),
+                aktivtOppfolgingstilfelle,
+            )
         }
 
-        fun ferdigstillSvarMotebehovVarselForNarmesteLedere(ansattFnr: String) {
-            narmesteLedere(ansattFnr)?.forEach {
-                log.info("Ferdigstiller varsel til virksomhet ${it.virksomhetsnummer}")
-                ferdigstillSvarMotebehovVarselForNarmesteLeder(ansattFnr, it.narmesteLederPersonIdentNumber, it.virksomhetsnummer)
-            }
-        }
+        private fun getNarmesteLederForVarsel(narmesteLederRelations: List<NarmesteLederRelasjonDTO>): List<NarmesteLederVarselInfo> =
+            narmesteLederRelations
+                .filter { shouldSendVarselTilNaermesteLeder(it.arbeidstakerPersonIdentNumber, it.virksomhetsnummer) }
+                .map {
+                    NarmesteLederVarselInfo(
+                        ansattFnr = it.arbeidstakerPersonIdentNumber,
+                        narmesteLederPersonIdentNumber = it.narmesteLederPersonIdentNumber,
+                        virksomhetsnummer = it.virksomhetsnummer,
+                    )
+                }
 
         fun ferdigstillSvarMotebehovVarselForNarmesteLeder(
             ansattFnr: String,
@@ -87,75 +108,63 @@ class VarselServiceV2
             esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(naermesteLederFnr, ansattFnr, virksomhetsnummer)
         }
 
+        fun ferdigstillSvarMotebehovVarsel(ansattFnr: String) {
+            val narmesteLedere = narmesteLedere(ansattFnr)
+            esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ansattFnr)
+            narmesteLedere.forEach { leder ->
+                esyfovarselService
+                    .ferdigstillSvarMotebehovForArbeidsgiver(
+                        leder.narmesteLederPersonIdentNumber,
+                        ansattFnr,
+                        leder.virksomhetsnummer,
+                    ).also {
+                        log.info("Ferdigstiller varsel til virksomhet ${leder.virksomhetsnummer}")
+                    }
+            }
+        }
+
         fun ferdigstillSvarMotebehovVarselForArbeidstaker(ansattFnr: String) {
             esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ansattFnr)
         }
 
-        private fun sendVarselTilNaermesteLeder(
-            ansattFnr: String,
-            naermesteLederFnr: String,
-            virksomhetsnummer: String,
-        ) {
-            val aktivtOppfolgingstilfelle =
-                oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidsgiver(
-                    ansattFnr,
-                    virksomhetsnummer,
-                )
+        private fun sendVarselTilNaermesteLeder(narmesteLederInfo: NarmesteLederVarselInfo) =
+            esyfovarselService
+                .sendSvarMotebehovVarselTilNarmesteLeder(
+                    narmesteLederInfo.narmesteLederPersonIdentNumber,
+                    narmesteLederInfo.ansattFnr,
+                    narmesteLederInfo.virksomhetsnummer,
+                ).also { metric.tellHendelse("varsel_leder_sent") }
 
-            val isSvarBehovVarselAvailableForLeder =
-                motebehovStatusHelper.isSvarBehovVarselAvailable(
-                    motebehovService.hentMotebehovListeForArbeidstakerOpprettetAvLeder(
-                        ansattFnr,
-                        false,
-                        virksomhetsnummer,
-                    ),
-                    aktivtOppfolgingstilfelle,
-                )
-            if (isSvarBehovVarselAvailableForLeder) {
-                metric.tellHendelse("varsel_leder_sent")
-                esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(
-                    naermesteLederFnr,
-                    ansattFnr,
-                    virksomhetsnummer,
-                )
-            } else {
-                metric.tellHendelse("varsel_leder_not_sent_motebehov_not_available")
-                log.info(
-                    "Not sending Varsel to Narmeste Leder because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet",
-                )
-            }
-        }
-
-        private fun sendVarselTilArbeidstaker(
+        private fun shouldSendVarselTilArbeidstaker(
             ansattFnr: String,
             oppfolgingstilfelle: PersonOppfolgingstilfelle?,
-        ) {
+        ): Boolean {
             val isSvarBehovVarselAvailableForArbeidstaker =
                 motebehovStatusHelper.isSvarBehovVarselAvailable(
                     motebehovService.hentMotebehovListeForOgOpprettetAvArbeidstaker(ansattFnr),
                     oppfolgingstilfelle,
                 )
-            if (isSvarBehovVarselAvailableForArbeidstaker) {
-                metric.tellHendelse("varsel_arbeidstaker_sent")
-                esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(ansattFnr)
-            } else {
-                metric.tellHendelse("varsel_arbeidstaker_not_sent_motebehov_not_available")
+            if (!isSvarBehovVarselAvailableForArbeidstaker) {
                 log.info(
                     "Not sending Varsel to Arbeidstaker because Møtebehov is not available for the combination of Arbeidstaker and Virksomhet",
                 )
             }
+            return isSvarBehovVarselAvailableForArbeidstaker
         }
+
+        private fun sendVarselTilArbeidstaker(ansattFnr: String) =
+            esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(ansattFnr).also { metric.tellHendelse("varsel_arbeidstaker_sent") }
 
         private fun narmesteLeder(
             ansattFnr: String,
             virksomhetsnummer: String,
         ): NarmesteLederRelasjonDTO? =
-            narmesteLedere(ansattFnr)?.firstOrNull {
-                virksomhetsnummer.equals(it.virksomhetsnummer)
+            narmesteLedere(ansattFnr).firstOrNull {
+                virksomhetsnummer == it.virksomhetsnummer
             }
 
-        private fun narmesteLedere(ansattFnr: String): List<NarmesteLederRelasjonDTO>? =
-            narmesteLederService.getAllNarmesteLederRelations(ansattFnr)
+        private fun narmesteLedere(ansattFnr: String): List<NarmesteLederRelasjonDTO> =
+            narmesteLederService.getAllNarmesteLederRelations(ansattFnr) ?: emptyList()
 
         private fun logDialogmoteAlleredePlanlagt() {
             metric.tellHendelse("varsel_arbeidstaker_not_sent_mote_allerede_planlagt")
@@ -164,6 +173,12 @@ class VarselServiceV2
             metric.tellHendelse("varsel_leder_not_sent_mote_allerede_planlagt")
             log.info("Not sending Varsel to Narmeste Leder because dialogmote er planlagt")
         }
+
+        data class NarmesteLederVarselInfo(
+            val ansattFnr: String,
+            val narmesteLederPersonIdentNumber: String,
+            val virksomhetsnummer: String,
+        )
 
         companion object {
             private val log = LoggerFactory.getLogger(VarselServiceV2::class.java)
