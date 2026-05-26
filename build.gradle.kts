@@ -1,6 +1,6 @@
 group = "no.nav.syfo"
 
-val junitJupiterVersion = "6.0.3"
+val junitJupiterVersion = "6.1.0"
 val flywayVersion = "12.6.1"
 val tokenSupportVersion = "6.0.7"
 val mockkVersion = "1.14.9"
