@@ -17,6 +17,8 @@ val owaspSanitizerVersion = "20260313.1"
 val apacheCommonsTextVersion = "1.15.0"
 val apacheMinaVersion = "2.2.7"
 val jakartaRsApiVersion = "4.0.0"
+val tomcatVersion = "11.0.22"
+val nettyVersion = "4.2.14.Final"
 val hikari = "7.0.2"
 val postgres = "42.7.11"
 val testcontainersVersion = "1.21.4"
@@ -32,6 +34,11 @@ plugins {
     kotlin("jvm") version "2.3.21"
     kotlin("plugin.spring") version "2.3.21"
 }
+
+// Override Spring Boot BOM-managed transitive versions to pull in security patches
+// without upgrading away from the current Spring Boot 4.0.6 line.
+extra["tomcat.version"] = tomcatVersion
+extra["netty.version"] = nettyVersion
 
 repositories {
     mavenCentral()
