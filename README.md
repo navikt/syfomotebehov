@@ -1,4 +1,4 @@
-# syfomotebehov
+# Syfomotebehov — App for håndtering av møtebehov
 
 [![Build & Deploy](https://github.com/navikt/syfomotebehov/actions/workflows/build-and-deploy.yaml/badge.svg)](https://github.com/navikt/syfomotebehov/actions/workflows/build-and-deploy.yaml)
 [![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org/)
