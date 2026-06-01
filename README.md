@@ -16,8 +16,6 @@ Tjenesten støtter tre hovedflater:
 - **Arbeidsgiver** kan hente og sende inn møtebehov for arbeidstaker.
 - **Veileder** kan hente møtebehov og historikk, behandle behov og sende tilbakemelding.
 
-Applikasjonen kjører på NAIS, lagrer data i PostgreSQL og bruker Kafka både til innlesing av hendelser og utsending av varsel.
-
 ## API
 
 Alle endepunkter ligger under URL-prefikset `/syfomotebehov`.
@@ -53,7 +51,6 @@ Alle endepunkter ligger under URL-prefikset `/syfomotebehov`.
   - `teamsykefravr.isoppfolgingstilfelle-oppfolgingstilfelle-person`
   - `teamsykefravr.isdialogmotekandidat-dialogmotekandidat`
 - **Kafka-produsent:** `team-esyfo.varselbus`
-- **Database:** PostgreSQL 14 i GCP
 
 ## Utvikling
 
@@ -75,4 +72,4 @@ Bruno-collectionen ligger i [`bruno/`](./bruno/). Lokal auth bruker MockOAuth2Se
 
 ## Kontakt
 
-Team eSYFO: [#esyfo på Slack](https://nav-it.slack.com/archives/C012X796B4L)
+Team eSyfo: [#esyfo på Slack](https://nav-it.slack.com/archives/C012X796B4L)
