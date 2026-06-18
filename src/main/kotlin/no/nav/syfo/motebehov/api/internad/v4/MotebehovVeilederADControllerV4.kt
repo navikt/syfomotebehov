@@ -117,7 +117,10 @@ class MotebehovVeilederADControllerV4
             metric.tellEndepunktKall("veileder_behandle_motebehov_success")
         }
 
-        private fun kastExceptionHvisIkkeTilgang(fnr: String, requireFullTilgang: Boolean = false) {
+        private fun kastExceptionHvisIkkeTilgang(
+            fnr: String,
+            requireFullTilgang: Boolean = false,
+        ) {
             if (!veilederTilgangConsumer.sjekkVeiledersTilgangTilPersonMedOBO(fnr, requireFullTilgang)) {
                 throw ForbiddenException("Veilederen har ikke tilgang til denne personen")
             }

@@ -34,7 +34,10 @@ class VeilederTilgangConsumer(
 ) : IVeilederTilgangConsumer {
     private val tilgangskontrollPersonUrl: String = "$istilgangskontrollUrl$TILGANGSKONTROLL_PERSON_PATH"
 
-    override fun sjekkVeiledersTilgangTilPersonMedOBO(fnr: String, requireFullTilgang: Boolean): Boolean {
+    override fun sjekkVeiledersTilgangTilPersonMedOBO(
+        fnr: String,
+        requireFullTilgang: Boolean,
+    ): Boolean {
         val token = OIDCUtil.tokenFraOIDC(oidcContextHolder, OIDCIssuer.INTERN_AZUREAD_V2)
         val oboToken =
             azureAdV2TokenConsumer.getOnBehalfOfToken(

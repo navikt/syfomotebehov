@@ -23,6 +23,7 @@ fun mockSvarFraIstilgangskontrollTilgangTilBruker(
     mockRestServiceServer: MockRestServiceServer,
     fnr: String,
     status: HttpStatus,
+    fullTilgang: Boolean = true,
 ) {
     mockAndExpectAzureADV2(mockRestServiceServerAzureAD, azureTokenEndpoint, generateAzureAdV2TokenResponse())
 
@@ -38,21 +39,24 @@ fun mockSvarFraIstilgangskontrollTilgangTilBruker(
         .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
         .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer $oboToken"))
         .andExpect(MockRestRequestMatchers.header(NAV_PERSONIDENT_HEADER, fnr))
-        .andRespond(response(status))
+        .andRespond(response(status, fullTilgang))
 }
 
-private fun response(status: HttpStatus): ResponseCreator =
+private fun response(
+    status: HttpStatus,
+    fullTilgang: Boolean,
+): ResponseCreator =
     if (status == HttpStatus.OK) {
-        MockRestResponseCreators.withSuccess(tilgangAsJsonString(), MediaType.APPLICATION_JSON)
+        MockRestResponseCreators.withSuccess(tilgangAsJsonString(fullTilgang), MediaType.APPLICATION_JSON)
     } else {
         MockRestResponseCreators.withStatus(
             status,
         )
     }
 
-private fun tilgangAsJsonString(): String {
+private fun tilgangAsJsonString(fullTilgang: Boolean): String {
     val objectMapper = ObjectMapper()
-    val tilgang = Tilgang(erGodkjent = true)
+    val tilgang = Tilgang(erGodkjent = true, fullTilgang = fullTilgang)
     return try {
         objectMapper.writeValueAsString(tilgang)
     } catch (e: JsonProcessingException) {

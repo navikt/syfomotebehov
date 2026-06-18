@@ -9,12 +9,14 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.verify
+import jakarta.ws.rs.ForbiddenException
 import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.motebehov.MotebehovFormSubmissionDTO
+import no.nav.syfo.motebehov.MotebehovTilbakemelding
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
 import no.nav.syfo.motebehov.api.MotebehovArbeidsgiverControllerV4
 import no.nav.syfo.motebehov.api.MotebehovArbeidstakerControllerV4
@@ -43,6 +45,7 @@ import no.nav.syfo.testhelper.generator.generatePdlHentPerson
 import no.nav.syfo.testhelper.mockAndExpectBehandlendeEnhetRequest
 import no.nav.syfo.testhelper.mockSvarFraIstilgangskontrollTilgangTilBruker
 import no.nav.syfo.util.TokenValidationUtil
+import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -107,6 +110,9 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
 
     @MockkBean(relaxed = true)
     private lateinit var personoppgavehendelseProducer: PersonoppgavehendelseProducer
+
+    @MockkBean(relaxed = true)
+    private lateinit var esyfovarselService: EsyfovarselService
 
     private lateinit var mockRestServiceServerAzureAD: MockRestServiceServer
     private lateinit var mockRestServiceServer: MockRestServiceServer
@@ -289,6 +295,59 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
 
                 shouldThrow<RuntimeException> { loggInnOgKallBehandleMotebehov(ARBEIDSTAKER_FNR, VEILEDER_2_ID) }
             }
+
+            it("behandle Motebehov krever full tilgang") {
+                mockBehandlendEnhet(ARBEIDSTAKER_FNR)
+                sykmeldtLoggerInnOgLagrerMotebehov(true)
+                resetMockRestServers()
+                mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK, fullTilgang = false)
+
+                shouldThrow<ForbiddenException> { loggInnOgKallBehandleMotebehov(ARBEIDSTAKER_FNR, VEILEDER_ID) }
+            }
+
+            it("hent Motebehovliste krever ikke full tilgang") {
+                mockBehandlendEnhet(ARBEIDSTAKER_FNR)
+                sykmeldtLoggerInnOgLagrerMotebehov(true)
+                resetMockRestServers()
+                mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK, fullTilgang = false)
+
+                val motebehovListe = loggInnOgKallHentMotebehovListe(ARBEIDSTAKER_FNR, VEILEDER_ID)
+                motebehovListe.size shouldBe 1
+            }
+
+            it("send tilbakemelding krever full tilgang") {
+                mockBehandlendEnhet(ARBEIDSTAKER_FNR)
+                sykmeldtLoggerInnOgLagrerMotebehov(true)
+                resetMockRestServers()
+                mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
+                val motebehovId = loggInnOgKallHentMotebehovListe(ARBEIDSTAKER_FNR, VEILEDER_ID)[0].id.toString()
+                resetMockRestServers()
+
+                mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK, fullTilgang = false)
+                val tilbakemelding =
+                    MotebehovTilbakemelding(varseltekst = "En tilbakemelding", motebehovId = motebehovId)
+
+                shouldThrow<ForbiddenException> {
+                    loggInnOgKallSendTilbakemelding(tilbakemelding, VEILEDER_ID)
+                }
+                verify(exactly = 0) { esyfovarselService.sendTilbakemeldingsvarsel(any(), any()) }
+            }
+
+            it("send tilbakemelding med full tilgang") {
+                mockBehandlendEnhet(ARBEIDSTAKER_FNR)
+                sykmeldtLoggerInnOgLagrerMotebehov(true)
+                resetMockRestServers()
+                mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
+                val motebehovId = loggInnOgKallHentMotebehovListe(ARBEIDSTAKER_FNR, VEILEDER_ID)[0].id.toString()
+                resetMockRestServers()
+
+                mockSvarFraIstilgangskontroll(ARBEIDSTAKER_FNR, HttpStatus.OK)
+                val tilbakemelding =
+                    MotebehovTilbakemelding(varseltekst = "En tilbakemelding", motebehovId = motebehovId)
+
+                loggInnOgKallSendTilbakemelding(tilbakemelding, VEILEDER_ID)
+                verify(exactly = 1) { esyfovarselService.sendTilbakemeldingsvarsel(any(), any()) }
+            }
         }
     }
 
@@ -345,6 +404,14 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
         motebehovVeilederController.behandleMotebehov(fnr)
     }
 
+    private fun loggInnOgKallSendTilbakemelding(
+        tilbakemelding: MotebehovTilbakemelding,
+        veileder: String,
+    ) {
+        tokenValidationUtil.logInAsNavCounselor(veileder)
+        motebehovVeilederController.sendTilbakemelding(tilbakemelding)
+    }
+
     private fun loggInnOgKallHentMotebehovListe(
         fnr: String,
         veileder: String,
@@ -364,6 +431,7 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
     private fun mockSvarFraIstilgangskontroll(
         fnr: String,
         status: HttpStatus,
+        fullTilgang: Boolean = true,
     ) {
         mockSvarFraIstilgangskontrollTilgangTilBruker(
             azureTokenEndpoint = azureTokenEndpoint,
@@ -372,6 +440,7 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
             mockRestServiceServerAzureAD = mockRestServiceServerAzureAD,
             status = status,
             fnr = fnr,
+            fullTilgang = fullTilgang,
         )
     }
 
