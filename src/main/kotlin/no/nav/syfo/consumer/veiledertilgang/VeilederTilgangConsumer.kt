@@ -34,7 +34,7 @@ class VeilederTilgangConsumer(
 ) : IVeilederTilgangConsumer {
     private val tilgangskontrollPersonUrl: String = "$istilgangskontrollUrl$TILGANGSKONTROLL_PERSON_PATH"
 
-    override fun sjekkVeiledersTilgangTilPersonMedOBO(fnr: String): Boolean {
+    override fun sjekkVeiledersTilgangTilPersonMedOBO(fnr: String, requireFullTilgang: Boolean): Boolean {
         val token = OIDCUtil.tokenFraOIDC(oidcContextHolder, OIDCIssuer.INTERN_AZUREAD_V2)
         val oboToken =
             azureAdV2TokenConsumer.getOnBehalfOfToken(
@@ -43,7 +43,7 @@ class VeilederTilgangConsumer(
             )
 
         return try {
-            val tilgang =
+            val response =
                 template.exchange(
                     tilgangskontrollPersonUrl,
                     HttpMethod.GET,
@@ -53,7 +53,11 @@ class VeilederTilgangConsumer(
                     ),
                     Tilgang::class.java,
                 )
-            tilgang.body!!.erGodkjent
+            return if (requireFullTilgang) {
+                response.body?.fullTilgang == true
+            } else {
+                response.body?.erGodkjent == true
+            }
         } catch (e: HttpClientErrorException) {
             if (e.statusCode.value() == 403) {
                 false
