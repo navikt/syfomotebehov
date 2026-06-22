@@ -57,7 +57,7 @@ class VeilederTilgangConsumer(
                     Tilgang::class.java,
                 )
             return if (requireFullTilgang) {
-                response.body?.fullTilgang == true
+                response.body?.erGodkjent == true && response.body?.fullTilgang == true
             } else {
                 response.body?.erGodkjent == true
             }
