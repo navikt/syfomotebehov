@@ -95,7 +95,7 @@ class MotebehovVeilederADControllerV4
                 throw NotFoundException()
             }
 
-            kastExceptionHvisIkkeTilgang(motebehov.arbeidstakerFnr)
+            kastExceptionHvisIkkeTilgang(motebehov.arbeidstakerFnr, true)
 
             if (!Jsoup.isValid(tilbakemelding.varseltekst, Safelist.none())) {
                 throw BadRequestException("Invalid input")
@@ -112,14 +112,17 @@ class MotebehovVeilederADControllerV4
                 String,
         ) {
             metric.tellEndepunktKall("veileder_behandle_motebehov_call")
-            kastExceptionHvisIkkeTilgang(personident)
+            kastExceptionHvisIkkeTilgang(personident, true)
             motebehovService.behandleUbehandledeMotebehov(personident, getSubjectInternADV2(contextHolder))
             metric.tellEndepunktKall("veileder_behandle_motebehov_success")
         }
 
-        private fun kastExceptionHvisIkkeTilgang(fnr: String) {
-            if (!veilederTilgangConsumer.sjekkVeiledersTilgangTilPersonMedOBO(fnr)) {
-                throw ForbiddenException("Veilederen har ikke tilgang til denne personen")
+        private fun kastExceptionHvisIkkeTilgang(
+            fnr: String,
+            requireFullTilgang: Boolean = false,
+        ) {
+            if (!veilederTilgangConsumer.sjekkVeiledersTilgangTilPersonMedOBO(fnr, requireFullTilgang)) {
+                throw ForbiddenException("Veilederen har ikke tilgang til denne personen eller operasjonen")
             }
         }
     }

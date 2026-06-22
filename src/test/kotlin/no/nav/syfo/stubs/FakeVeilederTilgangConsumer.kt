@@ -14,5 +14,8 @@ class FakeVeilederTilgangConsumer : IVeilederTilgangConsumer {
         logger.warn("!! ----- Running with fake VeilederTilgangConsumer  ----- !!")
     }
 
-    override fun sjekkVeiledersTilgangTilPersonMedOBO(fnr: String): Boolean = true
+    override fun sjekkVeiledersTilgangTilPersonMedOBO(
+        fnr: String,
+        requireFullTilgang: Boolean,
+    ): Boolean = true
 }
