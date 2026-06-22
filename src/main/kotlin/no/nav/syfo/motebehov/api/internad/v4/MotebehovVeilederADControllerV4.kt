@@ -122,7 +122,7 @@ class MotebehovVeilederADControllerV4
             requireFullTilgang: Boolean = false,
         ) {
             if (!veilederTilgangConsumer.sjekkVeiledersTilgangTilPersonMedOBO(fnr, requireFullTilgang)) {
-                throw ForbiddenException("Veilederen har ikke tilgang til denne personen")
+                throw ForbiddenException("Veilederen har ikke tilgang til denne personen eller operasjonen")
             }
         }
     }
