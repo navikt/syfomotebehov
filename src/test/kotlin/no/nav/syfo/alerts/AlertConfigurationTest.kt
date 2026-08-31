@@ -110,8 +110,19 @@ class AlertConfigurationTest :
                     .mapNotNull { it.matchers["http_response_status_code"] }
                     .none { it.value.startsWith("^4") } shouldBe true
             }
+
+            it("links shadow rules to the canonical service-filtered control room") {
+                listOf("SyfomotebehovUnavailable", "SyfomotebehovHigh5xxRatio").forEach { name ->
+                    val annotations = rules.requiredRule(name).requiredMap("annotations")
+                    annotations.requiredString("dashboard_url") shouldBe CONTROL_ROOM_URL
+                }
+            }
         }
     })
+
+private const val CONTROL_ROOM_URL =
+    "https://grafana.nav.cloud.nais.io/d/team-esyfo-kontrollrom/team-esyfo-kontrollrom" +
+        "?orgId=1&from=now-1h&to=now&timezone=browser&refresh=2m&var-service=syfomotebehov"
 
 private fun loadRules(path: Path): List<Map<String, Any?>> {
     val document = Files.newInputStream(path).use { Yaml().load<Map<String, Any?>>(it) }
