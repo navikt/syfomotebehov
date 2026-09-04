@@ -9,33 +9,114 @@ spec:
   groups:
     - name: syfomotebehov-alerts
       rules:
-        - alert: SYFOMOTEBEHOV IS DOWN!
-          expr: kube_deployment_status_replicas_available{deployment="syfomotebehov"} == 0
+        - alert: SyfomotebehovUnavailable
+          expr: |
+            max by (k8s_cluster_name, namespace, deployment) (
+              kube_deployment_status_replicas_available{
+                k8s_cluster_name="prod",
+                namespace="team-esyfo",
+                deployment="syfomotebehov"
+              }
+            ) == 0
+            and on (k8s_cluster_name, namespace, deployment)
+            max by (k8s_cluster_name, namespace, deployment) (
+              kube_deployment_spec_replicas{
+                k8s_cluster_name="prod",
+                namespace="team-esyfo",
+                deployment="syfomotebehov"
+              }
+            ) > 0
           for: 5m
           annotations:
-            summary: "App syfomotebehov er nede"
-            action: "Undersøk hvorfor syfomotebehov er nede"
+            summary: "syfomotebehov har ingen tilgjengelige replikaer i prod"
+            consequence: "Møtebehov- og dialogmøteflyter kan være utilgjengelige."
+            action: "Følg runbooken, bekreft rollout og bruker- eller requestpåvirkning. Dette er en urutet shadow-regel, ikke en aktiv pager."
+            runbook_url: "https://navikt.github.io/team-esyfo/utvikling/observability/runbooks/syfomotebehov-tilgjengelighet"
+            dashboard_url: "https://grafana.nav.cloud.nais.io/d/team-esyfo-kontrollrom/team-esyfo-kontrollrom?orgId=1&from=now-1h&to=now&timezone=browser&refresh=2m&var-service=syfomotebehov"
           labels:
-            namespace: team-esyfo
-            severity: critical
-        - alert: HIGH RATIO OF HTTP 5XX RESPONSE
-          expr: (100 * (sum by (backend) (rate(nginx_ingress_controller_requests{namespace="team-esyfo", status=~"^5\\d\\d", service="syfomotebehov"}[5m]))) / (sum by (backend) (rate(nginx_ingress_controller_requests{namespace="team-esyfo", service="syfomotebehov"}[5m])))) > 2
-          for: 5m
-          annotations:
-            summary: "App syfomotebehov har en høy andel 500-feil"
-            action: "Sjekk i Grafana eller logger hvorfor syfomotebehov returnerer mange 500-feil"
-          labels:
+            app: syfomotebehov
             namespace: team-esyfo
             severity: warning
-        - alert: HIGH RATIO OF HTTP 4XX RESPONSE
-          expr: (100 * (sum by (backend) (rate(nginx_ingress_controller_requests{namespace="team-esyfo", status=~"^4\\d\\d", service="syfomotebehov"}[5m]))) / (sum by (backend) (rate(nginx_ingress_controller_requests{namespace="team-esyfo", service="syfomotebehov"}[5m])))) > 10
+            response: ticket
+            pager_candidate: blocked
+            alert_stage: shadow
+            alert_type: custom
+        - alert: SyfomotebehovHigh5xxRatio
+          expr: |
+            (
+              100 *
+              (
+                sum by (service_name) (increase(traces_spanmetrics_calls_total{
+                  service_namespace="team-esyfo",
+                  service_name="syfomotebehov",
+                  k8s_cluster_name="prod",
+                  span_kind="SPAN_KIND_SERVER",
+                  http_response_status_code=~"^5[0-9][0-9]$"
+                }[15m]))
+                or on (service_name)
+                (
+                  0 *
+                  sum by (service_name) (increase(traces_spanmetrics_calls_total{
+                    service_namespace="team-esyfo",
+                    service_name="syfomotebehov",
+                    k8s_cluster_name="prod",
+                    span_kind="SPAN_KIND_SERVER",
+                    http_response_status_code=~"^[1-5][0-9][0-9]$"
+                  }[15m]))
+                )
+              )
+              /
+              sum by (service_name) (increase(traces_spanmetrics_calls_total{
+                service_namespace="team-esyfo",
+                service_name="syfomotebehov",
+                k8s_cluster_name="prod",
+                span_kind="SPAN_KIND_SERVER",
+                http_response_status_code=~"^[1-5][0-9][0-9]$"
+              }[15m]))
+            ) > 2
+            and on (service_name)
+            sum by (service_name) (increase(traces_spanmetrics_calls_total{
+              service_namespace="team-esyfo",
+              service_name="syfomotebehov",
+              k8s_cluster_name="prod",
+              span_kind="SPAN_KIND_SERVER",
+              http_response_status_code=~"^[1-5][0-9][0-9]$"
+            }[15m])) >= 20
+            and on (service_name)
+            (
+              sum by (service_name) (increase(traces_spanmetrics_calls_total{
+                service_namespace="team-esyfo",
+                service_name="syfomotebehov",
+                k8s_cluster_name="prod",
+                span_kind="SPAN_KIND_SERVER",
+                http_response_status_code=~"^5[0-9][0-9]$"
+              }[15m]))
+              or on (service_name)
+              (
+                0 *
+                sum by (service_name) (increase(traces_spanmetrics_calls_total{
+                  service_namespace="team-esyfo",
+                  service_name="syfomotebehov",
+                  k8s_cluster_name="prod",
+                  span_kind="SPAN_KIND_SERVER",
+                  http_response_status_code=~"^[1-5][0-9][0-9]$"
+                }[15m]))
+              )
+            ) >= 3
           for: 5m
           annotations:
-            summary: "App syfomotebehov har en høy andel 400-feil"
-            action: "Sjekk i Grafana eller logger hvorfor syfomotebehov returnerer mange 400-feil"
+            summary: "syfomotebehov har vedvarende høy 5xx-andel med reell trafikk"
+            consequence: "Flere kall i møtebehov- eller dialogmøteflyten feiler teknisk."
+            action: "Følg HTTP-runbooken, avgrens berørte operasjoner i APM og Kontrollrom, og sammenlign med siste rollout. Dette er en urutet shadow-regel."
+            runbook_url: "https://navikt.github.io/team-esyfo/utvikling/observability/runbooks/http-runtime"
+            dashboard_url: "https://grafana.nav.cloud.nais.io/d/team-esyfo-kontrollrom/team-esyfo-kontrollrom?orgId=1&from=now-1h&to=now&timezone=browser&refresh=2m&var-service=syfomotebehov"
           labels:
+            app: syfomotebehov
             namespace: team-esyfo
             severity: warning
+            response: ticket
+            alert_stage: shadow
+            alert_type: custom
         - alert: KAFKA ISOPPFOLGINGSTILFELLE-TOPIC CONSUMER LAG
           expr: kafka_consumergroup_group_topic_sum_lag{topic="teamsykefravr.isoppfolgingstilfelle-oppfolgingstilfelle-person", group="syfomotebehov-p-isoppfolgingstilfelle"} > 0
           for: 15m

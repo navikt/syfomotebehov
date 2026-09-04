@@ -5,7 +5,7 @@ on:
       - main
     paths:
       - '.github/workflows/alerts.yaml'
-      - '.nais/alerts-gcp.yaml'
+      - 'nais/alerts-gcp.yaml'
 jobs:
   apply-alerts:
     name: Apply alerts to cluster
