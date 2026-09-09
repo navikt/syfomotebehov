@@ -1,11 +1,11 @@
 ---
-description: "Definerer korte, obligatoriske klarspråk-regler for norsk markdown-tekst i Nav-repoer og peker til /klarsprak for dypdykk"
+description: "Definerer korte, obligatoriske klarspråk-regler for norsk markdown-tekst i Nav-repoer"
 applyTo: "**/*.md"
 ---
 
 # Norsk tekstkvalitet (lean)
 
-Disse reglene gjelder all norsk markdown-tekst i Nav-repoer. For dypere veiledning på mikrotekst, feilmeldinger, labels og PR-tekst — bruk `/klarsprak`.
+Disse reglene gjelder all norsk markdown-tekst i Nav-repoer. Bruk den aktive sesjonens språkskill ved behov for grundigere gjennomgang av mikrotekst, feilmeldinger, labels og PR-tekst.
 
 ## AI-markører å unngå
 

@@ -38,3 +38,17 @@ accessPolicy:
 - Aldri logg PII (fødselsnummer, tokens, personnavn)
 - Aldri commit hemmeligheter
 - Eksplisitt `accessPolicy` i NAIS-manifest
+
+## Syfomotebehov: data og tilgang
+
+- Behovsvurderinger og skjemasvar kan inneholde sensitive helseopplysninger.
+  Fødselsnummer, tokens og skjemainnhold skal ikke inn i vanlige logger eller
+  metrikklabler.
+- Arbeidstaker- og arbeidsgiver-API-ene bruker TokenX. Bevar `acr`-kontrollen
+  i `@ProtectedWithClaims` og klientvalideringen i `TokenXUtil`.
+- Veileder-API-et bruker Azure AD v2 og personident fra `Nav-Personident`.
+  Tilgang til personen kontrolleres gjennom `VeilederTilgangConsumer` mot
+  `istilgangskontroll`; autentisering alene gir ikke persontilgang.
+- Bevar eksisterende tokenutveksling i `consumer/tokenx/tokendings/` og
+  Azure AD-klientene. Endringer i tilgang, persondataeksponering, lagringstid
+  eller sletting må være omfattet av oppdraget og gjennomgås særskilt.

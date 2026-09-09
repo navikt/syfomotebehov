@@ -22,19 +22,19 @@ Instruksjonen supplerer repo-spesifikke regler, men overstyrer dem ikke.
    - Sjekk at secrets ikke ligger i kode, config, testdata eller logger.
    - Sjekk at personopplysninger (PII) ikke logges eller eksponeres unødvendig.
    - Flagg alltid røde signaler som auth-endringer, `accessPolicy`, auditlogg, nye eksterne integrasjoner eller GitHub Actions-sikkerhet.
-   - Ved tvil: foreslå manuell sikkerhetsgjennomgang via `/security-review`.
+   - Ved tvil: foreslå manuell sikkerhetsgjennomgang.
 
 3. **Tilgjengelighet (frontend-PR-er)**
    - Sjekk tastaturnavigasjon, semantikk, fokusrekkefølge og meningsfulle labels.
    - Sjekk at feilmeldinger og validering er forståelige med skjermleser.
    - Sjekk kontrast og at interaktive elementer kan brukes uten mus.
-   - Ved behov: foreslå gjennomgang via `/accessibility-review`.
+   - Ved behov: foreslå gjennomgang.
 
 4. **Klarspråk (brukerrettet tekst)**
    - Sjekk at labels, hjelpetekst, feilmeldinger og bekreftelser er tydelige og konkrete.
    - Unngå internsjargong i brukerflate-tekst.
    - Påpek uklare eller tvetydige formuleringer.
-   - Ved behov: foreslå forbedring via `/klarsprak`.
+   - Ved behov: foreslå forbedring.
 
 ## Avgrensning
 

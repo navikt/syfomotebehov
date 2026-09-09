@@ -11,11 +11,11 @@ applyTo: "**/*.kt"
 - Metrikker: Micrometer / Prometheus
 - Autentiseringstesting: MockOAuth2Server
 
-## Framework-spesifikke skills
+## Rammeverk og lokal kontekst
 
-Bruk riktig skill basert på rammeverket i dette repoet:
-- **Spring Boot**: **Invoker `/kotlin-spring`** for `@ProtectedWithClaims`, NAIS-miljøvariabler, Testcontainers
-- **Ktor**: **Invoker `/kotlin-ktor`** for JWT-claims, Koin DI, CallLogging MDC
+Les `build.gradle.kts`, eksisterende ruter og tester for å fastslå rammeverket.
+Følg relevante lokale Kotlin-/Spring-/Ktor-instruksjoner når de finnes. Ved
+bruk av en skill, velg den fra den aktive sesjonens katalog.
 
 ## Bevar eksisterende struktur
 
