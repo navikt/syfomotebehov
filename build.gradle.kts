@@ -1,5 +1,3 @@
-import org.springframework.boot.gradle.plugin.SpringBootPlugin
-
 group = "no.nav.syfo"
 
 val junitJupiterVersion = "6.1.3"
@@ -55,7 +53,7 @@ dependencyManagement {
     if (springBootVersion != "4.1.1") {
         throw GradleException(
             "Overriding transitive deps. might not be needed in spring $springBootVersion. " +
-                    "Remove override or bump version in condition",
+                "Remove override or bump version in condition",
         )
     } else {
         ext["tomcat.version"] = "11.0.25"
@@ -76,6 +74,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
+
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
     implementation("org.springframework.kafka:spring-kafka") {
