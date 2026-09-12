@@ -17,8 +17,8 @@ val owaspSanitizerVersion = "20260313.1"
 val apacheCommonsTextVersion = "1.15.0"
 val apacheMinaVersion = "2.2.9"
 val jakartaRsApiVersion = "4.0.0"
-val tomcatVersion = "11.0.22"
-val nettyVersion = "4.2.15.Final"
+val tomcatVersion = "11.0.25"
+val nettyVersion = "4.2.17.Final"
 val hikari = "7.1.0"
 val postgres = "42.7.13"
 val testcontainersVersion = "1.21.4"
@@ -51,10 +51,10 @@ dependencies {
                     "Remove override or bump version in condition",
             )
         } else {
-            implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.25") {
+            implementation("org.apache.tomcat.embed:tomcat-embed-core:$tomcatVersion") {
                 because("CVE in lower versions")
             }
-            implementation("io.netty:netty-handler:4.2.17.Final") {
+            implementation("io.netty:netty-handler:$nettyVersion") {
                 because("CVE in lower versions")
             }
         }
