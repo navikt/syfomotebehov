@@ -29,16 +29,10 @@ val jacksonVersion = "3.2.2"
 plugins {
     id("java")
     id("org.springframework.boot") version "4.1.1"
-    id("io.spring.dependency-management") version "1.1.7"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     kotlin("jvm") version "2.4.10"
     kotlin("plugin.spring") version "2.4.10"
 }
-
-// Override Spring Boot BOM-managed transitive versions to pull in security patches
-// without upgrading away from the current Spring Boot 4.0.6 line.
-extra["tomcat.version"] = tomcatVersion
-extra["netty.version"] = nettyVersion
 
 repositories {
     mavenCentral()
@@ -48,20 +42,24 @@ repositories {
     }
 }
 
-dependencyManagement {
-    val springBootVersion = dependencyManagement.managedVersions["org.springframework.boot:spring-boot"] ?: "Unknown"
-    if (springBootVersion != "4.1.1") {
-        throw GradleException(
-            "Overriding transitive deps. might not be needed in spring $springBootVersion. " +
-                "Remove override or bump version in condition",
-        )
-    } else {
-        ext["tomcat.version"] = "11.0.25"
-        ext["netty.version"] = "4.2.17.Final"
-    }
-}
-
 dependencies {
+    constraints {
+        val springBootVersion: String = org.springframework.boot.gradle.plugin.SpringBootPlugin::class.java.`package`.implementationVersion
+        if (springBootVersion != "4.1.1") {
+            throw GradleException(
+                "Overriding transitive deps. might not be needed in spring $springBootVersion. " +
+                    "Remove override or bump version in condition",
+            )
+        } else {
+            implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.25") {
+                because("CVE in lower versions")
+            }
+            implementation("io.netty:netty-handler:4.2.17.Final") {
+                because("CVE in lower versions")
+            }
+        }
+    }
+    implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
     implementation("org.apache.httpcomponents.client5:httpclient5")
