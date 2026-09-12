@@ -8,7 +8,7 @@ val nimbusVersion = "10.9.1"
 val kotestTestContainersExtensionVersion = "2.0.2"
 val wiremockKotestExtensionVersion = "3.1.0"
 val springMockkVersion = "5.0.1"
-val confluent = "7.9.0"
+val confluent = "8.2.3"
 val isdialogmoteSchema = "1.0.5"
 val jsoupVersion = "1.23.2"
 val logstashVersion = "9.0"
@@ -82,9 +82,8 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
     implementation("ch.qos.logback:logback-classic")
 
-    implementation("io.confluent:kafka-avro-serializer:$confluent")
-    implementation("io.confluent:kafka-schema-registry:$confluent") {
-        exclude(module = "slf4j-reload4j") // Conflicts with logback slf4j provider
+    implementation("io.confluent:kafka-avro-serializer:$confluent") {
+        exclude(group = "org.apache.kafka", module = "kafka-clients")
     }
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:$isdialogmoteSchema")
     implementation("javax.inject:javax.inject:$javaxInjectVersion")
@@ -137,6 +136,7 @@ tasks {
     }
     withType<Test> {
         useJUnitPlatform()
+        environment("SPRING_PROFILES_ACTIVE", "unittest")
     }
 
     register<org.springframework.boot.gradle.tasks.run.BootRun>("bootRunLocal") {

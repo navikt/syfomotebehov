@@ -1,5 +1,6 @@
 package no.nav.syfo.motebehov.api
 
+import jakarta.validation.Valid
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.tokenX.TokenXUtil
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import javax.inject.Inject
-import javax.validation.Valid
 
 @RestController
 @ProtectedWithClaims(

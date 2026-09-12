@@ -1,5 +1,7 @@
 package no.nav.syfo.motebehov.api.internad.v4
 
+import jakarta.validation.Valid
+import jakarta.validation.constraints.Pattern
 import jakarta.ws.rs.BadRequestException
 import jakarta.ws.rs.ForbiddenException
 import jakarta.ws.rs.NotFoundException
@@ -29,8 +31,6 @@ import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import javax.inject.Inject
-import javax.validation.Valid
-import javax.validation.constraints.Pattern
 
 @RestController
 @ProtectedWithClaims(issuer = INTERN_AZUREAD_V2)
