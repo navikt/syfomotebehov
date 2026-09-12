@@ -54,6 +54,12 @@ dependencies {
             implementation("org.apache.tomcat.embed:tomcat-embed-core:$tomcatVersion") {
                 because("CVE in lower versions")
             }
+            implementation("org.apache.tomcat.embed:tomcat-embed-el:$tomcatVersion") {
+                because("CVE in lower versions")
+            }
+            implementation("org.apache.tomcat.embed:tomcat-embed-websocket:$tomcatVersion") {
+                because("CVE in lower versions")
+            }
             implementation("io.netty:netty-handler:$nettyVersion") {
                 because("CVE in lower versions")
             }
