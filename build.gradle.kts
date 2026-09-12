@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
 group = "no.nav.syfo"
 
 val junitJupiterVersion = "6.1.3"
@@ -48,15 +50,16 @@ repositories {
     }
 }
 
-configurations.all {
-    resolutionStrategy.eachDependency {
-        if (requested.group == "org.scala-lang" &&
-            requested.name == "scala-library" &&
-            requested.version == "2.13.6"
-        ) {
-            useVersion("2.13.9")
-            because("fixes critical bug CVE-2022-36944 in 2.13.6")
-        }
+dependencyManagement {
+    val springBootVersion = dependencyManagement.managedVersions["org.springframework.boot:spring-boot"] ?: "Unknown"
+    if (springBootVersion != "4.1.1") {
+        throw GradleException(
+            "Overriding transitive deps. might not be needed in spring $springBootVersion. " +
+                    "Remove override or bump version in condition",
+        )
+    } else {
+        ext["tomcat.version"] = "11.0.25"
+        ext["netty.version"] = "4.2.17.Final"
     }
 }
 
@@ -73,7 +76,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
     implementation("org.springframework.kafka:spring-kafka") {
