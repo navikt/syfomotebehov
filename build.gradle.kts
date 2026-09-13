@@ -43,14 +43,10 @@ repositories {
 }
 
 dependencies {
+    implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
+
     constraints {
-        val springBootVersion: String = org.springframework.boot.gradle.plugin.SpringBootPlugin::class.java.`package`.implementationVersion
-        if (springBootVersion != "4.1.1") {
-            throw GradleException(
-                "Overriding transitive deps. might not be needed in spring $springBootVersion. " +
-                    "Remove override or bump version in condition",
-            )
-        } else {
+        lockConstraintToVersion(dependencyVersion = springBootVersion(), lockToVersion = "4.1.1") {
             implementation("org.apache.tomcat.embed:tomcat-embed-core:$tomcatVersion") {
                 because("CVE in lower versions")
             }
@@ -65,7 +61,7 @@ dependencies {
             }
         }
     }
-    implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
+
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
     implementation("org.apache.httpcomponents.client5:httpclient5")
@@ -152,3 +148,23 @@ tasks {
         classpath(sourceSets.test.get().runtimeClasspath)
     }
 }
+
+fun DependencyConstraintHandlerScope.lockConstraintToVersion(
+    dependencyVersion: String,
+    lockToVersion: String,
+    block: DependencyConstraintHandlerScope.() -> Unit,
+) {
+    if (springBootVersion() == lockToVersion) {
+        block()
+    } else {
+        throw GradleException(
+            "Dependency locked to: $lockToVersion. " +
+                "Current version: $dependencyVersion. " +
+                "Remove override or bump locked version.",
+        )
+    }
+}
+
+fun springBootVersion(): String =
+    org.springframework.boot.gradle.plugin.SpringBootPlugin::class.java
+        .`package`.implementationVersion
