@@ -154,7 +154,7 @@ fun DependencyConstraintHandlerScope.lockConstraintToVersion(
     lockToVersion: String,
     block: DependencyConstraintHandlerScope.() -> Unit,
 ) {
-    if (springBootVersion() == lockToVersion) {
+    if (dependencyVersion == lockToVersion) {
         block()
     } else {
         throw GradleException(
