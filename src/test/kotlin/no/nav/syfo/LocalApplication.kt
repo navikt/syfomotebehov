@@ -17,7 +17,7 @@ class LocalApplication {
     @Bean
     @ServiceConnection
     fun postgresContainer(environment: Environment): PostgreSQLContainer<*> =
-        PostgreSQLContainer<Nothing>(DockerImageName.parse("postgres:14-alpine")).apply {
+        PostgreSQLContainer<Nothing>(DockerImageName.parse("postgres:15-alpine")).apply {
             withDatabaseName("syfomotebehov")
             withUsername("postgres")
             withPassword("postgres")
