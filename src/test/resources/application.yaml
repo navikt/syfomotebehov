@@ -57,10 +57,10 @@ no.nav.security:
         discoveryurl: "http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration"
         accepted_audience: clientID
 
-syfobrukertilgang:
-  url: http://syfobrukertilgang
+dinesykmeldte:
+  url: http://dinesykmeldte-backend
   client:
-    id: syfobrukertilgangClientId
+    id: dinesykmeldteBackendClientId
 
 nais.cluster.name: 'local'
 

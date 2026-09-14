@@ -16,6 +16,19 @@ class Metric
     constructor(
         private val registry: MeterRegistry,
     ) {
+        fun tellBrukertilgangArbeidsgiver(outcome: BrukertilgangOutcome) {
+            registry
+                .counter(
+                    addPrefix("brukertilgang_arbeidsgiver"),
+                    Tags.of(
+                        "type",
+                        "info",
+                        "outcome",
+                        outcome.metricValue,
+                    ),
+                ).increment()
+        }
+
         fun countOutgoingReponses(
             navn: String,
             statusCode: Int,
@@ -162,3 +175,11 @@ class Metric
             return metricPrefix + navn
         }
     }
+
+enum class BrukertilgangOutcome(
+    val metricValue: String,
+) {
+    ALLOWED("allowed"),
+    DENIED("denied"),
+    TECHNICAL_ERROR("technical_error"),
+}

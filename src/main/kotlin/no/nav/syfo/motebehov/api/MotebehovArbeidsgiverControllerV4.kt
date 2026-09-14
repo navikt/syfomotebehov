@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 import javax.inject.Inject
 
 @RestController
@@ -51,10 +52,15 @@ class MotebehovArbeidsgiverControllerV4
                 @Pattern(regexp = "^[0-9]{11}$")
                 String,
             @RequestParam(name = "virksomhetsnummer") virksomhetsnummer: String,
+            @RequestParam(name = "narmesteLederId") narmesteLederId: UUID,
         ): MotebehovStatusWithFormValuesDTO {
             metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver")
             TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)
-            brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(arbeidstakerFnr)
+            brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(
+                arbeidstakerFnr,
+                virksomhetsnummer,
+                narmesteLederId,
+            )
 
             val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
             val isOwnLeader = arbeidsgiverFnr == arbeidstakerFnr
@@ -81,7 +87,11 @@ class MotebehovArbeidsgiverControllerV4
                     .validateTokenXClaims(contextHolder, dialogmoteClientId)
                     .fnrFromIdportenTokenX()
             val ansattFnr = nyttMotebehovDTO.arbeidstakerFnr
-            brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(ansattFnr)
+            brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(
+                ansattFnr,
+                nyttMotebehovDTO.virksomhetsnummer,
+                nyttMotebehovDTO.narmesteLederId,
+            )
 
             val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
             val isOwnLeader = arbeidsgiverFnr == ansattFnr
