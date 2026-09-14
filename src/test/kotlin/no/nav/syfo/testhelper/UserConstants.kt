@@ -1,5 +1,7 @@
 package no.nav.syfo.testhelper
 
+import java.util.UUID
+
 object UserConstants {
     const val ARBEIDSTAKER_FNR = "12345678912"
     const val ARBEIDSTAKER_FNR_2 = "5475678915"
@@ -8,6 +10,7 @@ object UserConstants {
     @JvmField
     val ARBEIDSTAKER_AKTORID = mockAktorId(ARBEIDSTAKER_FNR)
     const val LEDER_FNR = "12987654321"
+    val NARMESTE_LEDER_ID: UUID = UUID.fromString("12345678-1234-1234-1234-123456789012")
 
     @JvmField
     val LEDER_AKTORID = mockAktorId(LEDER_FNR)

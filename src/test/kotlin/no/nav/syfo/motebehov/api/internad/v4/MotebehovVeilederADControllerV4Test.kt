@@ -13,7 +13,8 @@ import jakarta.ws.rs.ForbiddenException
 import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
-import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
+import no.nav.syfo.consumer.brukertilgang.DineSykmeldteConsumer
+import no.nav.syfo.consumer.brukertilgang.DineSykmeldteResponse
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.motebehov.MotebehovFormSubmissionDTO
 import no.nav.syfo.motebehov.MotebehovTilbakemelding
@@ -35,6 +36,7 @@ import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
+import no.nav.syfo.testhelper.UserConstants.NARMESTE_LEDER_ID
 import no.nav.syfo.testhelper.UserConstants.PERSON_FULL_NAME
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_2_ID
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
@@ -103,7 +105,7 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
     private lateinit var tokenValidationUtil: TokenValidationUtil
 
     @MockkBean
-    private lateinit var brukertilgangConsumer: BrukertilgangConsumer
+    private lateinit var dineSykmeldteConsumer: DineSykmeldteConsumer
 
     @MockkBean(relaxed = true)
     private lateinit var pdlConsumer: PdlConsumer
@@ -125,7 +127,11 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
             mockRestServiceServerAzureAD = MockRestServiceServer.bindTo(restTemplateAzureAD).build()
 
             every { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) } returns Unit
-            every { brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR) } returns true
+            every { dineSykmeldteConsumer.getSykmeldt(NARMESTE_LEDER_ID) } returns
+                DineSykmeldteResponse(
+                    fnr = ARBEIDSTAKER_FNR,
+                    orgnummer = VIRKSOMHETSNUMMER,
+                )
 
             every { pdlConsumer.aktorid(ARBEIDSTAKER_FNR) } returns ARBEIDSTAKER_AKTORID
             every { pdlConsumer.aktorid(LEDER_FNR) } returns LEDER_AKTORID
@@ -361,6 +367,7 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
             NyttMotebehovArbeidsgiverDTO(
                 arbeidstakerFnr = ARBEIDSTAKER_FNR,
                 virksomhetsnummer = VIRKSOMHETSNUMMER,
+                narmesteLederId = NARMESTE_LEDER_ID,
                 formSubmission,
             )
         tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)

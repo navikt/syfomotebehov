@@ -46,7 +46,7 @@ Alle endepunkter ligger under URL-prefikset `/syfomotebehov`.
 ## Integrasjoner
 
 - **Innkommende trafikk:** `dialogmote-frontend`, `dialogmote-microfrontend`, `syfomodiaperson`, `isdialogmote` og `ditt-sykefravaer`
-- **Utgående kall:** `syfobrukertilgang`, `istilgangskontroll`, `syfobehandlendeenhet`, `isnarmesteleder` og PDL
+- **Utgående kall:** `dinesykmeldte-backend`, `istilgangskontroll`, `syfobehandlendeenhet`, `isnarmesteleder` og PDL
 - **Kafka-consumere:**
   - `teamsykefravr.isoppfolgingstilfelle-oppfolgingstilfelle-person`
   - `teamsykefravr.isdialogmotekandidat-dialogmotekandidat`

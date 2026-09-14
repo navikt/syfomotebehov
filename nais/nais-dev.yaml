@@ -66,7 +66,7 @@ spec:
       external:
         - host: "pdl-api.dev-fss-pub.nais.io"
       rules:
-        - application: syfobrukertilgang
+        - application: dinesykmeldte-backend
         - application: istilgangskontroll
           namespace: teamsykefravr
         - application: syfobehandlendeenhet
@@ -109,10 +109,10 @@ spec:
       value: "dev-gcp.teamsykefravr.istilgangskontroll"
     - name: ISTILGANGSKONTROLL_URL
       value: "http://istilgangskontroll.teamsykefravr"
-    - name: SYFOBRUKERTILGANG_CLIENT_ID
-      value: "dev-gcp:team-esyfo:syfobrukertilgang"
-    - name: SYFOBRUKERTILGANG_URL
-      value: "http://syfobrukertilgang"
+    - name: DINESYKMELDTE_CLIENT_ID
+      value: "dev-gcp:team-esyfo:dinesykmeldte-backend"
+    - name: DINESYKMELDTE_URL
+      value: "http://dinesykmeldte-backend"
     - name: SYFOBEHANDLENDEENHET_CLIENT_ID
       value: "dev-gcp.teamsykefravr.syfobehandlendeenhet"
     - name: SYFOBEHANDLENDEENHET_URL
