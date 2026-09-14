@@ -1,9 +1,9 @@
 package no.nav.syfo.motebehov.formSnapshot
 
+import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.NotNull
 import tools.jackson.databind.annotation.JsonDeserialize
 import java.io.Serializable
-import javax.validation.constraints.NotEmpty
-import javax.validation.constraints.NotNull
 
 // The kdoc comments are written in regard to FormSnapshot being used in a general context,
 // not specifically for the motebehov use case.

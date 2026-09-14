@@ -8,7 +8,7 @@ val nimbusVersion = "10.9.1"
 val kotestTestContainersExtensionVersion = "2.0.2"
 val wiremockKotestExtensionVersion = "3.1.0"
 val springMockkVersion = "5.0.1"
-val confluent = "7.9.0"
+val confluent = "8.2.3"
 val isdialogmoteSchema = "1.0.5"
 val jsoupVersion = "1.23.2"
 val logstashVersion = "9.0"
@@ -17,8 +17,8 @@ val owaspSanitizerVersion = "20260313.1"
 val apacheCommonsTextVersion = "1.15.0"
 val apacheMinaVersion = "2.2.9"
 val jakartaRsApiVersion = "4.0.0"
-val tomcatVersion = "11.0.22"
-val nettyVersion = "4.2.15.Final"
+val tomcatVersion = "11.0.25"
+val nettyVersion = "4.2.17.Final"
 val hikari = "7.1.0"
 val postgres = "42.7.13"
 val testcontainersVersion = "1.21.4"
@@ -29,16 +29,10 @@ val jacksonVersion = "3.2.2"
 plugins {
     id("java")
     id("org.springframework.boot") version "4.1.1"
-    id("io.spring.dependency-management") version "1.1.7"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     kotlin("jvm") version "2.4.10"
     kotlin("plugin.spring") version "2.4.10"
 }
-
-// Override Spring Boot BOM-managed transitive versions to pull in security patches
-// without upgrading away from the current Spring Boot 4.0.6 line.
-extra["tomcat.version"] = tomcatVersion
-extra["netty.version"] = nettyVersion
 
 repositories {
     mavenCentral()
@@ -48,19 +42,26 @@ repositories {
     }
 }
 
-configurations.all {
-    resolutionStrategy.eachDependency {
-        if (requested.group == "org.scala-lang" &&
-            requested.name == "scala-library" &&
-            requested.version == "2.13.6"
-        ) {
-            useVersion("2.13.9")
-            because("fixes critical bug CVE-2022-36944 in 2.13.6")
+dependencies {
+    implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
+
+    constraints {
+        lockConstraintToVersion(dependencyVersion = springBootVersion(), lockToVersion = "4.1.1") {
+            implementation("org.apache.tomcat.embed:tomcat-embed-core:$tomcatVersion") {
+                because("CVE in lower versions")
+            }
+            implementation("org.apache.tomcat.embed:tomcat-embed-el:$tomcatVersion") {
+                because("CVE in lower versions")
+            }
+            implementation("org.apache.tomcat.embed:tomcat-embed-websocket:$tomcatVersion") {
+                because("CVE in lower versions")
+            }
+            implementation("io.netty:netty-handler:$nettyVersion") {
+                because("CVE in lower versions")
+            }
         }
     }
-}
 
-dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
     implementation("org.apache.httpcomponents.client5:httpclient5")
@@ -83,9 +84,8 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
     implementation("ch.qos.logback:logback-classic")
 
-    implementation("io.confluent:kafka-avro-serializer:$confluent")
-    implementation("io.confluent:kafka-schema-registry:$confluent") {
-        exclude(module = "slf4j-reload4j") // Conflicts with logback slf4j provider
+    implementation("io.confluent:kafka-avro-serializer:$confluent") {
+        exclude(group = "org.apache.kafka", module = "kafka-clients")
     }
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:$isdialogmoteSchema")
     implementation("javax.inject:javax.inject:$javaxInjectVersion")
@@ -138,6 +138,7 @@ tasks {
     }
     withType<Test> {
         useJUnitPlatform()
+        environment("SPRING_PROFILES_ACTIVE", "unittest")
     }
 
     register<org.springframework.boot.gradle.tasks.run.BootRun>("bootRunLocal") {
@@ -147,3 +148,23 @@ tasks {
         classpath(sourceSets.test.get().runtimeClasspath)
     }
 }
+
+fun DependencyConstraintHandlerScope.lockConstraintToVersion(
+    dependencyVersion: String,
+    lockToVersion: String,
+    block: DependencyConstraintHandlerScope.() -> Unit,
+) {
+    if (dependencyVersion == lockToVersion) {
+        block()
+    } else {
+        throw GradleException(
+            "Dependency locked to: $lockToVersion. " +
+                "Current version: $dependencyVersion. " +
+                "Remove override or bump locked version.",
+        )
+    }
+}
+
+fun springBootVersion(): String =
+    org.springframework.boot.gradle.plugin.SpringBootPlugin::class.java
+        .`package`.implementationVersion

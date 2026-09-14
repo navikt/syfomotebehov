@@ -1,5 +1,6 @@
 package no.nav.syfo.api.exception
 
+import jakarta.validation.ConstraintViolationException
 import jakarta.ws.rs.ForbiddenException
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import no.nav.syfo.consumer.brukertilgang.RequestUnauthorizedException
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.util.WebUtils
 import javax.inject.Inject
-import javax.validation.ConstraintViolationException
 
 @ControllerAdvice
 class ControllerExceptionHandler
