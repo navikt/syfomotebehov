@@ -646,25 +646,25 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
             }
 
             it("bevarer egen-leder-håndtering når relasjonen peker på innlogget ident") {
-                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
+                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
                 every { dineSykmeldteConsumer.getSykmeldt(NARMESTE_LEDER_ID) } returns
                     DineSykmeldteResponse(
-                        fnr = LEDER_FNR,
+                        fnr = ARBEIDSTAKER_FNR,
                         orgnummer = VIRKSOMHETSNUMMER,
                     )
                 dbCreateOppfolgingstilfelle(
                     oppfolgingstilfelleDAO,
-                    generateOppfolgingstilfellePerson(virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER)).copy(
-                        personIdentNumber = LEDER_FNR,
+                    generateOppfolgingstilfellePerson(
+                        virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER),
                     ),
                 )
-                createKandidatInDB(LEDER_FNR)
+                createKandidatInDB(ARBEIDSTAKER_FNR)
                 mockAndExpectBehandlendeEnhetRequest(
                     azureTokenEndpoint,
                     mockRestServiceServerAzureAD,
                     mockRestServiceServer,
                     behandlendeenhetUrl,
-                    LEDER_FNR,
+                    ARBEIDSTAKER_FNR,
                 )
 
                 motebehovArbeidsgiverControllerV5.lagreMotebehovArbeidsgiver(
@@ -680,12 +680,14 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
 
                 verify(exactly = 1) {
                     esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(
-                        LEDER_FNR,
-                        LEDER_FNR,
+                        ARBEIDSTAKER_FNR,
+                        ARBEIDSTAKER_FNR,
                         VIRKSOMHETSNUMMER,
                     )
                 }
-                verify(exactly = 1) { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(LEDER_FNR) }
+                verify(exactly = 1) {
+                    esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ARBEIDSTAKER_FNR)
+                }
             }
         }
     }
