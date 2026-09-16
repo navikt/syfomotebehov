@@ -57,6 +57,11 @@ no.nav.security:
         discoveryurl: "http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration"
         accepted_audience: clientID
 
+syfobrukertilgang:
+  url: http://syfobrukertilgang
+  client:
+    id: syfobrukertilgangClientId
+
 dinesykmeldte:
   url: http://dinesykmeldte-backend
   client:

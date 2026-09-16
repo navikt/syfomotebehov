@@ -3,10 +3,9 @@ package no.nav.syfo.consumer.brukertilgang
 import jakarta.ws.rs.ForbiddenException
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.tokenX.TokenXUtil
-import no.nav.syfo.metric.BrukertilgangOutcome
-import no.nav.syfo.metric.Metric
+import no.nav.syfo.cache.CacheConfig
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
-import java.util.UUID
 import javax.inject.Inject
 
 @Service
@@ -14,54 +13,36 @@ class BrukertilgangService
     @Inject
     constructor(
         private val contextHolder: TokenValidationContextHolder,
-        private val dineSykmeldteConsumer: IDineSykmeldteConsumer,
-        private val metric: Metric,
+        private val brukertilgangConsumer: IBrukertilgangConsumer,
     ) {
-        fun kastExceptionHvisIkkeTilgangTilAnsatt(
-            fnr: String,
-            virksomhetsnummer: String,
-            narmesteLederId: UUID,
-        ) {
+        fun kastExceptionHvisIkkeTilgangTilAnsatt(fnr: String) {
             val innloggetIdent = TokenXUtil.fnrFromIdportenTokenX(contextHolder)
 
-            val harTilgang =
-                harTilgangTilOppslaattBruker(
-                    innloggetIdent = innloggetIdent,
-                    ansattFnr = fnr,
-                    virksomhetsnummer = virksomhetsnummer,
-                    narmesteLederId = narmesteLederId,
-                )
+            val harTilgang = harTilgangTilOppslaattBruker(innloggetIdent, fnr)
             if (!harTilgang) {
-                throw ForbiddenException("Ikke tilgang til arbeidstaker")
+                throw ForbiddenException(
+                    "Ikke tilgang til arbeidstaker: inlogget person har ikke tilgang til den ansatte eller den ansatte er gradert for informasjon",
+                )
             }
         }
 
         fun harTilgangTilOppslaattBruker(
             innloggetIdent: String,
             ansattFnr: String,
-            virksomhetsnummer: String,
-            narmesteLederId: UUID,
-        ): Boolean {
-            if (innloggetIdent == ansattFnr) {
-                metric.tellBrukertilgangArbeidsgiver(BrukertilgangOutcome.ALLOWED)
-                return true
+        ): Boolean =
+            try {
+                !(sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetIdent, ansattFnr))
+            } catch (e: ForbiddenException) {
+                false
             }
 
-            val sykmeldt =
-                try {
-                    dineSykmeldteConsumer.getSykmeldt(narmesteLederId)
-                } catch (exception: Exception) {
-                    metric.tellBrukertilgangArbeidsgiver(BrukertilgangOutcome.TECHNICAL_ERROR)
-                    throw exception
-                }
-            val harTilgang = sykmeldt?.fnr == ansattFnr && sykmeldt.orgnummer == virksomhetsnummer
-            metric.tellBrukertilgangArbeidsgiver(
-                if (harTilgang) {
-                    BrukertilgangOutcome.ALLOWED
-                } else {
-                    BrukertilgangOutcome.DENIED
-                },
-            )
-            return harTilgang
-        }
+        @Cacheable(
+            cacheNames = [CacheConfig.CACHENAME_TILGANG_IDENT],
+            key = "#innloggetIdent.concat(#oppslaattFnr)",
+            condition = "#innloggetIdent != null && #oppslaattFnr != null",
+        )
+        fun sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(
+            innloggetIdent: String,
+            oppslaattFnr: String,
+        ): Boolean = !(oppslaattFnr == innloggetIdent || brukertilgangConsumer.hasAccessToAnsatt(oppslaattFnr))
     }

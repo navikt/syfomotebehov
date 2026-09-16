@@ -1,27 +1,27 @@
 package no.nav.syfo.motebehov.api
 
 import jakarta.validation.Valid
-import jakarta.validation.constraints.Pattern
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.tokenX.TokenXUtil
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.TokenXIssuer
-import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
-import no.nav.syfo.consumer.brukertilgang.BrukertilgangService
+import no.nav.syfo.consumer.brukertilgang.DineSykmeldteResponse
+import no.nav.syfo.consumer.brukertilgang.DineSykmeldteTilgangService
 import no.nav.syfo.metric.Metric
+import no.nav.syfo.motebehov.MotebehovArbeidsgiverStatusRequestDTO
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverV5DTO
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusServiceV2
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusWithFormValuesDTO
 import no.nav.syfo.motebehov.motebehovstatus.toMotebehovStatusWithFormValuesDTO
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 import javax.inject.Inject
 
 @RestController
@@ -30,40 +30,34 @@ import javax.inject.Inject
     claimMap = ["acr=Level4", "acr=idporten-loa-high"],
     combineWithOr = true,
 )
-@RequestMapping(value = ["/api/v4"])
-class MotebehovArbeidsgiverControllerV4
+@RequestMapping(value = ["/api/v5/arbeidsgiver"])
+class MotebehovArbeidsgiverControllerV5
     @Inject
     constructor(
         private val contextHolder: TokenValidationContextHolder,
         private val metric: Metric,
         private val motebehovOppfolgingstilfelleServiceV2: MotebehovOppfolgingstilfelleServiceV2,
         private val motebehovStatusServiceV2: MotebehovStatusServiceV2,
-        private val brukertilgangService: BrukertilgangService,
+        private val dineSykmeldteTilgangService: DineSykmeldteTilgangService,
         @Value("\${dialogmote.frontend.client.id}")
         val dialogmoteClientId: String,
     ) {
-        @GetMapping(
-            value = ["/motebehov"],
+        @PostMapping(
+            value = ["/motebehov/status"],
+            consumes = [MediaType.APPLICATION_JSON_VALUE],
             produces = [MediaType.APPLICATION_JSON_VALUE],
         )
         fun motebehovStatusArbeidsgiver(
-            @RequestParam(name = "fnr") arbeidstakerFnr:
-                @Pattern(regexp = "^[0-9]{11}$")
-                String,
-            @RequestParam(name = "virksomhetsnummer") virksomhetsnummer: String,
+            @RequestBody request: @Valid MotebehovArbeidsgiverStatusRequestDTO,
         ): MotebehovStatusWithFormValuesDTO {
-            metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver")
-            TokenXUtil.validateTokenXClaims(contextHolder, dialogmoteClientId)
-            brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(arbeidstakerFnr)
-
-            val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
-            val isOwnLeader = arbeidsgiverFnr == arbeidstakerFnr
+            metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver_v5")
+            val (innloggetFnr, sykmeldt) = hentSykmeldtMedTilgang(request.narmesteLederId)
 
             return motebehovStatusServiceV2
                 .motebehovStatusForArbeidsgiver(
-                    arbeidstakerFnr,
-                    isOwnLeader,
-                    virksomhetsnummer,
+                    sykmeldt.fnr,
+                    innloggetFnr == sykmeldt.fnr,
+                    sykmeldt.orgnummer,
                 ).toMotebehovStatusWithFormValuesDTO()
         }
 
@@ -73,24 +67,31 @@ class MotebehovArbeidsgiverControllerV4
             produces = [MediaType.APPLICATION_JSON_VALUE],
         )
         fun lagreMotebehovArbeidsgiver(
-            @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverDTO,
+            @RequestBody nyttMotebehovDTO: @Valid NyttMotebehovArbeidsgiverV5DTO,
         ) {
-            metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver")
+            metric.tellEndepunktKall("call_endpoint_save_motebehov_arbeidsgiver_v5")
+            val (innloggetFnr, sykmeldt) = hentSykmeldtMedTilgang(nyttMotebehovDTO.narmesteLederId)
+            val lagringsgrunnlag =
+                NyttMotebehovArbeidsgiverDTO(
+                    arbeidstakerFnr = sykmeldt.fnr,
+                    virksomhetsnummer = sykmeldt.orgnummer,
+                    formSubmission = nyttMotebehovDTO.formSubmission,
+                )
+
+            motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidgiver(
+                innloggetFnr,
+                sykmeldt.fnr,
+                innloggetFnr == sykmeldt.fnr,
+                lagringsgrunnlag,
+            )
+        }
+
+        private fun hentSykmeldtMedTilgang(narmesteLederId: UUID): Pair<String, DineSykmeldteResponse> {
             val innloggetFnr =
                 TokenXUtil
                     .validateTokenXClaims(contextHolder, dialogmoteClientId)
                     .fnrFromIdportenTokenX()
-            val ansattFnr = nyttMotebehovDTO.arbeidstakerFnr
-            brukertilgangService.kastExceptionHvisIkkeTilgangTilAnsatt(ansattFnr)
-
-            val arbeidsgiverFnr = fnrFromIdportenTokenX(contextHolder)
-            val isOwnLeader = arbeidsgiverFnr == ansattFnr
-
-            motebehovOppfolgingstilfelleServiceV2.createMotebehovForArbeidgiver(
-                innloggetFnr,
-                ansattFnr,
-                isOwnLeader,
-                nyttMotebehovDTO,
-            )
+            val sykmeldt = dineSykmeldteTilgangService.hentSykmeldtMedTilgang(narmesteLederId)
+            return innloggetFnr to sykmeldt
         }
     }

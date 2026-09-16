@@ -6,7 +6,15 @@ import java.util.UUID
 data class NyttMotebehovArbeidsgiverDTO(
     val arbeidstakerFnr: String,
     val virksomhetsnummer: @NotEmpty String,
-    val narmesteLederId: UUID,
     val formSubmission: MotebehovFormSubmissionDTO,
     val tildeltEnhet: String? = null,
+)
+
+data class MotebehovArbeidsgiverStatusRequestDTO(
+    val narmesteLederId: UUID,
+)
+
+data class NyttMotebehovArbeidsgiverV5DTO(
+    val narmesteLederId: UUID,
+    val formSubmission: MotebehovFormSubmissionDTO,
 )

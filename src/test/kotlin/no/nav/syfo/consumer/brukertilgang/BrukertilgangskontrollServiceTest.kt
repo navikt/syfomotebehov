@@ -1,158 +1,78 @@
 package no.nav.syfo.consumer.brukertilgang
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import no.nav.security.token.support.core.context.TokenValidationContext
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import no.nav.syfo.metric.BrukertilgangOutcome
-import no.nav.syfo.metric.Metric
-import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
-import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
-import no.nav.syfo.testhelper.UserConstants.NARMESTE_LEDER_ID
-import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
-import java.util.UUID
 
 class BrukertilgangskontrollServiceTest :
     DescribeSpec({
-        val dineSykmeldteConsumer = FakeDineSykmeldteConsumer()
-        val registry = SimpleMeterRegistry()
+        val brukertilgangConsumer: BrukertilgangConsumer = mockk<BrukertilgangConsumer>()
+        val token = mockk<TokenValidationContextHolder>()
         val tilgangskontrollService =
             BrukertilgangService(
-                UnusedTokenValidationContextHolder,
-                dineSykmeldteConsumer,
-                Metric(registry),
+                token,
+                brukertilgangConsumer,
             )
 
-        beforeTest {
-            dineSykmeldteConsumer.reset()
-            registry.clear()
-        }
+        describe("BrukertilgangskontrollService") {
+            it("has access to oppslått bruker when asking about self") {
+                val oppslattFnr = "10038973552"
 
-        describe("BrukertilgangService") {
-            it("gir tilgang til egen ident uten downstream-oppslag") {
-                val tilgang =
-                    tilgangskontrollService.harTilgangTilOppslaattBruker(
-                        innloggetIdent = ARBEIDSTAKER_FNR,
-                        ansattFnr = ARBEIDSTAKER_FNR,
-                        virksomhetsnummer = VIRKSOMHETSNUMMER,
-                        narmesteLederId = NARMESTE_LEDER_ID,
-                    )
+                every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns false
 
+                val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(oppslattFnr, oppslattFnr)
                 tilgang shouldBe true
-                dineSykmeldteConsumer.callCount shouldBe 0
-                registry.assertAccessOutcome(BrukertilgangOutcome.ALLOWED)
             }
 
-            it("gir tilgang når leder, arbeidstaker og virksomhet samsvarer") {
-                dineSykmeldteConsumer.response =
-                    DineSykmeldteResponse(
-                        fnr = ARBEIDSTAKER_FNR,
-                        orgnummer = VIRKSOMHETSNUMMER,
-                    )
+            it("has access to oppslått bruker when asking about ansatt") {
+                val innloggetFnr = "44444444"
+                val oppslattFnr = "10038973561"
 
-                val tilgang =
-                    tilgangskontrollService.harTilgangTilOppslaattBruker(
-                        innloggetIdent = LEDER_FNR,
-                        ansattFnr = ARBEIDSTAKER_FNR,
-                        virksomhetsnummer = VIRKSOMHETSNUMMER,
-                        narmesteLederId = NARMESTE_LEDER_ID,
-                    )
+                every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns true
 
+                val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(innloggetFnr, oppslattFnr)
                 tilgang shouldBe true
-                registry.assertAccessOutcome(BrukertilgangOutcome.ALLOWED)
             }
 
-            it("avviser når arbeidstaker ikke samsvarer") {
-                dineSykmeldteConsumer.response =
-                    DineSykmeldteResponse(
-                        fnr = "10987654321",
-                        orgnummer = VIRKSOMHETSNUMMER,
-                    )
+            it("does not have access to oppslått bruker when asking about someone ikke ansatt") {
+                val innloggetFnr = "5555555"
+                val oppslattFnr = "555555566666"
 
-                tilgangskontrollService.harTilgangTilOppslaattBruker(
-                    innloggetIdent = LEDER_FNR,
-                    ansattFnr = ARBEIDSTAKER_FNR,
-                    virksomhetsnummer = VIRKSOMHETSNUMMER,
-                    narmesteLederId = NARMESTE_LEDER_ID,
-                ) shouldBe false
-                registry.assertAccessOutcome(BrukertilgangOutcome.DENIED)
+                every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns false
+
+                val tilgang = tilgangskontrollService.harTilgangTilOppslaattBruker(innloggetFnr, oppslattFnr)
+                tilgang shouldBe false
             }
 
-            it("avviser når virksomhet ikke samsvarer") {
-                dineSykmeldteConsumer.response =
-                    DineSykmeldteResponse(
-                        fnr = ARBEIDSTAKER_FNR,
-                        orgnummer = "987654321",
-                    )
+            it("does not have access to another the itself or its ansatte") {
+                val innloggetFnr = "666666"
 
-                tilgangskontrollService.harTilgangTilOppslaattBruker(
-                    innloggetIdent = LEDER_FNR,
-                    ansattFnr = ARBEIDSTAKER_FNR,
-                    virksomhetsnummer = VIRKSOMHETSNUMMER,
-                    narmesteLederId = NARMESTE_LEDER_ID,
-                ) shouldBe false
-                registry.assertAccessOutcome(BrukertilgangOutcome.DENIED)
+                every { brukertilgangConsumer.hasAccessToAnsatt(any()) } returns false
+
+                val tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetFnr, innloggetFnr)
+                tilgang shouldBe false
             }
 
-            it("avviser når oppslaget ikke finnes") {
-                tilgangskontrollService.harTilgangTilOppslaattBruker(
-                    innloggetIdent = LEDER_FNR,
-                    ansattFnr = ARBEIDSTAKER_FNR,
-                    virksomhetsnummer = VIRKSOMHETSNUMMER,
-                    narmesteLederId = NARMESTE_LEDER_ID,
-                ) shouldBe false
-                registry.assertAccessOutcome(BrukertilgangOutcome.DENIED)
+            it("sporOmNoenAndreEnnSegSelv Give False NårManSporOmEnAnsatt") {
+                val innloggetFnr = "99999999"
+                val oppslattFnr = "8888888"
+
+                every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns true
+
+                val tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetFnr, oppslattFnr)
+                tilgang shouldBe false
             }
 
-            it("propagerer tekniske feil fra Dine sykmeldte") {
-                dineSykmeldteConsumer.exception = IllegalStateException("Downstream error")
+            it("sporOmNoenAndreEnnSegSelvGirTrueNaarManSporOmEnSomIkkeErSegSelvOgIkkeAnsatt") {
+                val innloggetFnr = "7777777"
+                val oppslattFnr = "77778888"
 
-                shouldThrow<IllegalStateException> {
-                    tilgangskontrollService.harTilgangTilOppslaattBruker(
-                        innloggetIdent = LEDER_FNR,
-                        ansattFnr = ARBEIDSTAKER_FNR,
-                        virksomhetsnummer = VIRKSOMHETSNUMMER,
-                        narmesteLederId = NARMESTE_LEDER_ID,
-                    )
-                }
-                registry.assertAccessOutcome(BrukertilgangOutcome.TECHNICAL_ERROR)
+                every { brukertilgangConsumer.hasAccessToAnsatt(oppslattFnr) } returns false
+
+                val tilgang = tilgangskontrollService.sporOmNoenAndreEnnSegSelvEllerEgneAnsatte(innloggetFnr, oppslattFnr)
+                tilgang shouldBe true
             }
         }
     })
-
-private class FakeDineSykmeldteConsumer : IDineSykmeldteConsumer {
-    var response: DineSykmeldteResponse? = null
-    var exception: RuntimeException? = null
-    var callCount: Int = 0
-
-    override fun getSykmeldt(narmesteLederId: UUID): DineSykmeldteResponse? {
-        callCount++
-        exception?.let { throw it }
-        return response
-    }
-
-    fun reset() {
-        response = null
-        exception = null
-        callCount = 0
-    }
-}
-
-private object UnusedTokenValidationContextHolder : TokenValidationContextHolder {
-    override fun getTokenValidationContext(): TokenValidationContext = error("Token context is not used by harTilgangTilOppslaattBruker")
-
-    override fun setTokenValidationContext(tokenValidationContext: TokenValidationContext?) {
-        error("Token context is not used by harTilgangTilOppslaattBruker")
-    }
-}
-
-private fun SimpleMeterRegistry.assertAccessOutcome(outcome: BrukertilgangOutcome) {
-    get("syfomotebehov_brukertilgang_arbeidsgiver")
-        .tag("type", "info")
-        .tag("outcome", outcome.metricValue)
-        .counter()
-        .count() shouldBe 1.0
-    meters.size shouldBe 1
-}

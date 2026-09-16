@@ -16,7 +16,6 @@ import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
-import no.nav.syfo.testhelper.UserConstants.NARMESTE_LEDER_ID
 import no.nav.syfo.testhelper.UserConstants.NAV_ENHET
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
@@ -50,7 +49,6 @@ class MotebehovGenerator {
         NyttMotebehovArbeidsgiverDTO(
             arbeidstakerFnr = ARBEIDSTAKER_FNR,
             virksomhetsnummer = VIRKSOMHETSNUMMER,
-            narmesteLederId = NARMESTE_LEDER_ID,
             formSubmission =
                 MotebehovFormSubmissionDTO(
                     harMotebehov = true,
