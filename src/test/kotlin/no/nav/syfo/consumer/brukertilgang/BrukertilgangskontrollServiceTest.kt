@@ -144,9 +144,8 @@ private object UnusedTokenValidationContextHolder : TokenValidationContextHolder
     override fun getTokenValidationContext(): TokenValidationContext =
         error("Token context is not used by harTilgangTilOppslaattBruker")
 
-    override fun setTokenValidationContext(tokenValidationContext: TokenValidationContext?) {
+    override fun setTokenValidationContext(tokenValidationContext: TokenValidationContext?) =
         error("Token context is not used by harTilgangTilOppslaattBruker")
-    }
 }
 
 private fun SimpleMeterRegistry.assertAccessOutcome(outcome: BrukertilgangOutcome) {

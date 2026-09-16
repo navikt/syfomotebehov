@@ -16,8 +16,8 @@ import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
-import no.nav.syfo.testhelper.UserConstants.NAV_ENHET
 import no.nav.syfo.testhelper.UserConstants.NARMESTE_LEDER_ID
+import no.nav.syfo.testhelper.UserConstants.NAV_ENHET
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.util.MOTEBEHOVSVAR_GYLDIGHET_DAGER
