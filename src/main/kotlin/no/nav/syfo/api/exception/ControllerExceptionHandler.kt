@@ -117,7 +117,6 @@ class ControllerExceptionHandler
                 HttpStatus.BAD_REQUEST,
             ).also {
                 metric.tellHttpKall(HttpStatus.BAD_REQUEST.value())
-                log.warn("Could not parse request body")
             }
 
         private fun handleForbiddenException(
