@@ -1,7 +1,7 @@
 package no.nav.syfo.consumer.brukertilgang
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -29,116 +29,114 @@ import java.time.Duration
 import java.util.concurrent.atomic.AtomicReference
 
 class DineSykmeldteConsumerTest :
-    DescribeSpec({
-        describe("DineSykmeldteConsumer") {
-            it("veksler token og leser tilgangsfeltene uten å bruke aktivSykmelding") {
-                val response =
-                    clientResponse(
-                        HttpStatus.OK,
-                        """
-                        {
-                          "narmestelederId": "$NARMESTE_LEDER_ID",
-                          "orgnummer": "$VIRKSOMHETSNUMMER",
-                          "fnr": "$ARBEIDSTAKER_FNR",
-                          "navn": "Testperson",
-                          "sykmeldinger": [],
-                          "aktivSykmelding": false
-                        }
-                        """.trimIndent(),
-                    )
-                val fixture = fixture(Mono.just(response))
+    FunSpec({
+        test("veksler token og leser tilgangsfeltene uten å bruke aktivSykmelding") {
+            val response =
+                clientResponse(
+                    HttpStatus.OK,
+                    """
+                    {
+                      "narmestelederId": "$NARMESTE_LEDER_ID",
+                      "orgnummer": "$VIRKSOMHETSNUMMER",
+                      "fnr": "$ARBEIDSTAKER_FNR",
+                      "navn": "Testperson",
+                      "sykmeldinger": [],
+                      "aktivSykmelding": false
+                    }
+                    """.trimIndent(),
+                )
+            val fixture = fixture(Mono.just(response))
 
-                fixture.consumer.getSykmeldt(NARMESTE_LEDER_ID) shouldBe
-                    DineSykmeldteResponse(
-                        fnr = ARBEIDSTAKER_FNR,
-                        orgnummer = VIRKSOMHETSNUMMER,
-                    )
+            fixture.consumer.getSykmeldt(NARMESTE_LEDER_ID) shouldBe
+                DineSykmeldteResponse(
+                    fnr = ARBEIDSTAKER_FNR,
+                    orgnummer = VIRKSOMHETSNUMMER,
+                )
 
-                val request = fixture.request.get()
-                request.url().toString() shouldBe
-                    "$BASE_URL/api/v2/dinesykmeldte/$NARMESTE_LEDER_ID"
-                request.headers().getFirst(HttpHeaders.AUTHORIZATION) shouldBe "Bearer $EXCHANGED_TOKEN"
-                request.headers().getFirst(NAV_CONSUMER_ID_HEADER) shouldBe APP_CONSUMER_ID
-                verify(exactly = 1) {
-                    fixture.tokenDingsConsumer.exchangeToken(INCOMING_TOKEN, TARGET_APP)
-                    fixture.metric.countOutgoingReponses(
-                        DineSykmeldteConsumer.METRIC_CALL_DINE_SYKMELDTE,
-                        HttpStatus.OK.value(),
-                    )
-                }
+            val request = fixture.request.get()
+            request.url().toString() shouldBe
+                "$BASE_URL/api/v2/dinesykmeldte/$NARMESTE_LEDER_ID"
+            request.headers().getFirst(HttpHeaders.AUTHORIZATION) shouldBe "Bearer $EXCHANGED_TOKEN"
+            request.headers().getFirst(NAV_CONSUMER_ID_HEADER) shouldBe APP_CONSUMER_ID
+            verify(exactly = 1) {
+                fixture.tokenDingsConsumer.exchangeToken(INCOMING_TOKEN, TARGET_APP)
+                fixture.metric.countOutgoingReponses(
+                    DineSykmeldteConsumer.METRIC_CALL_DINE_SYKMELDTE,
+                    HttpStatus.OK.value(),
+                )
+            }
+        }
+
+        test("tolker 404 som manglende tilgang") {
+            val fixture = fixture(Mono.just(clientResponse(HttpStatus.NOT_FOUND)))
+
+            fixture.consumer.getSykmeldt(NARMESTE_LEDER_ID) shouldBe null
+
+            verify(exactly = 1) {
+                fixture.metric.countOutgoingReponses(
+                    DineSykmeldteConsumer.METRIC_CALL_DINE_SYKMELDTE,
+                    HttpStatus.NOT_FOUND.value(),
+                )
+            }
+        }
+
+        test("mapper 401 fra Dine sykmeldte som teknisk feil") {
+            val fixture = fixture(Mono.just(clientResponse(HttpStatus.UNAUTHORIZED)))
+
+            shouldThrow<DineSykmeldteRequestException> {
+                fixture.consumer.getSykmeldt(NARMESTE_LEDER_ID)
             }
 
-            it("tolker 404 som manglende tilgang") {
-                val fixture = fixture(Mono.just(clientResponse(HttpStatus.NOT_FOUND)))
+            verify(exactly = 1) {
+                fixture.metric.countOutgoingReponses(
+                    DineSykmeldteConsumer.METRIC_CALL_DINE_SYKMELDTE,
+                    HttpStatus.UNAUTHORIZED.value(),
+                )
+            }
+        }
 
-                fixture.consumer.getSykmeldt(NARMESTE_LEDER_ID) shouldBe null
+        test("propagerer andre downstream-feil som teknisk feil") {
+            val fixture = fixture(Mono.just(clientResponse(HttpStatus.INTERNAL_SERVER_ERROR)))
 
-                verify(exactly = 1) {
-                    fixture.metric.countOutgoingReponses(
-                        DineSykmeldteConsumer.METRIC_CALL_DINE_SYKMELDTE,
-                        HttpStatus.NOT_FOUND.value(),
-                    )
-                }
+            shouldThrow<DineSykmeldteRequestException> {
+                fixture.consumer.getSykmeldt(NARMESTE_LEDER_ID)
             }
 
-            it("mapper 401 fra Dine sykmeldte som teknisk feil") {
-                val fixture = fixture(Mono.just(clientResponse(HttpStatus.UNAUTHORIZED)))
+            verify(exactly = 1) {
+                fixture.metric.countOutgoingReponses(
+                    DineSykmeldteConsumer.METRIC_CALL_DINE_SYKMELDTE,
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                )
+            }
+        }
 
+        test("saniterer tekniske feil uten HTTP-respons") {
+            val fixture =
+                fixture(
+                    Mono.error(
+                        IllegalStateException("Sensitive downstream details"),
+                    ),
+                )
+
+            val exception =
                 shouldThrow<DineSykmeldteRequestException> {
                     fixture.consumer.getSykmeldt(NARMESTE_LEDER_ID)
                 }
 
-                verify(exactly = 1) {
-                    fixture.metric.countOutgoingReponses(
-                        DineSykmeldteConsumer.METRIC_CALL_DINE_SYKMELDTE,
-                        HttpStatus.UNAUTHORIZED.value(),
-                    )
-                }
-            }
+            exception.message shouldBe "Request to dinesykmeldte-backend failed"
+            exception.cause shouldBe null
+        }
 
-            it("propagerer andre downstream-feil som teknisk feil") {
-                val fixture = fixture(Mono.just(clientResponse(HttpStatus.INTERNAL_SERVER_ERROR)))
+        test("mapper timeout fra Dine sykmeldte som sanert teknisk feil") {
+            val fixture = fixture(Mono.never(), Duration.ZERO)
 
+            val exception =
                 shouldThrow<DineSykmeldteRequestException> {
                     fixture.consumer.getSykmeldt(NARMESTE_LEDER_ID)
                 }
 
-                verify(exactly = 1) {
-                    fixture.metric.countOutgoingReponses(
-                        DineSykmeldteConsumer.METRIC_CALL_DINE_SYKMELDTE,
-                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    )
-                }
-            }
-
-            it("saniterer tekniske feil uten HTTP-respons") {
-                val fixture =
-                    fixture(
-                        Mono.error(
-                            IllegalStateException("Sensitive downstream details"),
-                        ),
-                    )
-
-                val exception =
-                    shouldThrow<DineSykmeldteRequestException> {
-                        fixture.consumer.getSykmeldt(NARMESTE_LEDER_ID)
-                    }
-
-                exception.message shouldBe "Request to dinesykmeldte-backend failed"
-                exception.cause shouldBe null
-            }
-
-            it("mapper timeout fra Dine sykmeldte som sanert teknisk feil") {
-                val fixture = fixture(Mono.never(), Duration.ZERO)
-
-                val exception =
-                    shouldThrow<DineSykmeldteRequestException> {
-                        fixture.consumer.getSykmeldt(NARMESTE_LEDER_ID)
-                    }
-
-                exception.message shouldBe "Request to dinesykmeldte-backend failed"
-                exception.cause shouldBe null
-            }
+            exception.message shouldBe "Request to dinesykmeldte-backend failed"
+            exception.cause shouldBe null
         }
     })
 
