@@ -25,6 +25,7 @@ import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.ExchangeFunction
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
+import java.time.Duration
 import java.util.concurrent.atomic.AtomicReference
 
 class DineSykmeldteConsumerTest :
@@ -80,10 +81,10 @@ class DineSykmeldteConsumerTest :
                 }
             }
 
-            it("propagerer 401 som autorisasjonsfeil") {
+            it("mapper 401 fra Dine sykmeldte som teknisk feil") {
                 val fixture = fixture(Mono.just(clientResponse(HttpStatus.UNAUTHORIZED)))
 
-                shouldThrow<RequestUnauthorizedException> {
+                shouldThrow<DineSykmeldteRequestException> {
                     fixture.consumer.getSykmeldt(NARMESTE_LEDER_ID)
                 }
 
@@ -126,6 +127,18 @@ class DineSykmeldteConsumerTest :
                 exception.message shouldBe "Request to dinesykmeldte-backend failed"
                 exception.cause shouldBe null
             }
+
+            it("mapper timeout fra Dine sykmeldte som sanert teknisk feil") {
+                val fixture = fixture(Mono.never(), Duration.ZERO)
+
+                val exception =
+                    shouldThrow<DineSykmeldteRequestException> {
+                        fixture.consumer.getSykmeldt(NARMESTE_LEDER_ID)
+                    }
+
+                exception.message shouldBe "Request to dinesykmeldte-backend failed"
+                exception.cause shouldBe null
+            }
         }
     })
 
@@ -136,7 +149,10 @@ private data class DineSykmeldteConsumerFixture(
     val request: AtomicReference<ClientRequest>,
 )
 
-private fun fixture(response: Mono<ClientResponse>): DineSykmeldteConsumerFixture {
+private fun fixture(
+    response: Mono<ClientResponse>,
+    requestTimeout: Duration = Duration.ofSeconds(10),
+): DineSykmeldteConsumerFixture {
     val request = AtomicReference<ClientRequest>()
     val exchangeFunction =
         ExchangeFunction { clientRequest ->
@@ -163,6 +179,7 @@ private fun fixture(response: Mono<ClientResponse>): DineSykmeldteConsumerFixtur
                 tokenDingsConsumer = tokenDingsConsumer,
                 baseUrl = BASE_URL,
                 targetApp = TARGET_APP,
+                requestTimeout = requestTimeout,
             ),
         metric = metric,
         tokenDingsConsumer = tokenDingsConsumer,

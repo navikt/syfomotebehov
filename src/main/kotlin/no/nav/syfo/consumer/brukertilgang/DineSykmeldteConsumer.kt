@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
+import java.time.Duration
 import java.util.UUID
 
 @Profile("!local")
@@ -30,6 +31,7 @@ class DineSykmeldteConsumer(
     private val tokenDingsConsumer: TokenDingsConsumer,
     @Value("\${dinesykmeldte.url}") private val baseUrl: String,
     @Value("\${dinesykmeldte.client.id}") private val targetApp: String,
+    @Value("\${dinesykmeldte.timeout:10s}") private val requestTimeout: Duration,
 ) : IDineSykmeldteConsumer {
     override fun getSykmeldt(narmesteLederId: UUID): DineSykmeldteResponse? {
         val callId = createCallId()
@@ -55,7 +57,7 @@ class DineSykmeldteConsumer(
                         statusCode.value() == HttpStatus.NOT_FOUND.value() -> Mono.empty()
                         statusCode.value() == HttpStatus.UNAUTHORIZED.value() ->
                             Mono.error(
-                                RequestUnauthorizedException(
+                                DineSykmeldteRequestException(
                                     "Unauthorized request to dinesykmeldte-backend",
                                 ),
                             )
@@ -72,9 +74,8 @@ class DineSykmeldteConsumer(
                             )
                         }
                     }
-                }.block()
-        } catch (exception: RequestUnauthorizedException) {
-            throw exception
+                }.timeout(requestTimeout)
+                .block()
         } catch (exception: DineSykmeldteRequestException) {
             throw exception
         } catch (exception: Exception) {

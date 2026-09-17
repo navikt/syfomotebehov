@@ -29,8 +29,5 @@ class DineSykmeldteTilgangService
             } catch (exception: DineSykmeldteRequestException) {
                 metric.tellBrukertilgangArbeidsgiver(BrukertilgangOutcome.TECHNICAL_ERROR)
                 throw exception
-            } catch (exception: RequestUnauthorizedException) {
-                metric.tellBrukertilgangArbeidsgiver(BrukertilgangOutcome.TECHNICAL_ERROR)
-                throw exception
             }
     }

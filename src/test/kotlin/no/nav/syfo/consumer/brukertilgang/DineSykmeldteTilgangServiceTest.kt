@@ -51,34 +51,21 @@ class DineSykmeldteTilgangServiceTest :
                 }
                 registry.assertAccessOutcome(BrukertilgangOutcome.TECHNICAL_ERROR)
             }
-
-            it("propagerer uautorisert downstream-kall") {
-                dineSykmeldteConsumer.unauthorizedException =
-                    RequestUnauthorizedException("Unauthorized request to dinesykmeldte-backend")
-
-                shouldThrow<RequestUnauthorizedException> {
-                    tilgangService.hentSykmeldtMedTilgang(NARMESTE_LEDER_ID)
-                }
-                registry.assertAccessOutcome(BrukertilgangOutcome.TECHNICAL_ERROR)
-            }
         }
     })
 
 private class FakeDineSykmeldteConsumer : IDineSykmeldteConsumer {
     var response: DineSykmeldteResponse? = null
     var exception: DineSykmeldteRequestException? = null
-    var unauthorizedException: RequestUnauthorizedException? = null
 
     override fun getSykmeldt(narmesteLederId: UUID): DineSykmeldteResponse? {
         exception?.let { throw it }
-        unauthorizedException?.let { throw it }
         return response
     }
 
     fun reset() {
         response = null
         exception = null
-        unauthorizedException = null
     }
 }
 
