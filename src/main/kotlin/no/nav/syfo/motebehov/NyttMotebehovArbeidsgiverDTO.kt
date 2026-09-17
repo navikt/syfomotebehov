@@ -10,10 +10,6 @@ data class NyttMotebehovArbeidsgiverDTO(
     val tildeltEnhet: String? = null,
 )
 
-data class MotebehovArbeidsgiverStatusRequestDTO(
-    val narmesteLederId: UUID,
-)
-
 data class NyttMotebehovArbeidsgiverV5DTO(
     val narmesteLederId: UUID,
     val formSubmission: MotebehovFormSubmissionDTO,

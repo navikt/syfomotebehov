@@ -36,8 +36,8 @@ V4 beholdes midlertidig for eksisterende klienter under overgangen fra
 
 ### Arbeidsgiver API V5 (TokenX)
 
-- **POST** `/api/v5/arbeidsgiver/motebehov/status`: henter møtebehov fra
-  `narmesteLederId` i request-body
+- **GET** `/api/v5/arbeidsgiver/motebehov/{narmesteLederId}`: henter møtebehov
+  fra `narmesteLederId` i path
 - **POST** `/api/v5/arbeidsgiver/motebehov`: lagrer møtebehov fra
   `narmesteLederId` og skjemainnhold i request-body
 

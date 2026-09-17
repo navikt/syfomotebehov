@@ -9,7 +9,6 @@ import no.nav.syfo.api.auth.tokenX.TokenXUtil.fnrFromIdportenTokenX
 import no.nav.syfo.consumer.brukertilgang.DineSykmeldteResponse
 import no.nav.syfo.consumer.brukertilgang.DineSykmeldteTilgangService
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.motebehov.MotebehovArbeidsgiverStatusRequestDTO
 import no.nav.syfo.motebehov.MotebehovOppfolgingstilfelleServiceV2
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverV5DTO
@@ -18,6 +17,8 @@ import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusWithFormValuesDTO
 import no.nav.syfo.motebehov.motebehovstatus.toMotebehovStatusWithFormValuesDTO
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -43,16 +44,15 @@ class MotebehovArbeidsgiverControllerV5
         @Value("\${dialogmote.frontend.client.id}")
         val dialogmoteClientId: String,
     ) {
-        @PostMapping(
-            value = ["/motebehov/status"],
-            consumes = [MediaType.APPLICATION_JSON_VALUE],
+        @GetMapping(
+            value = ["/motebehov/{narmesteLederId}"],
             produces = [MediaType.APPLICATION_JSON_VALUE],
         )
         fun motebehovStatusArbeidsgiver(
-            @RequestBody request: @Valid MotebehovArbeidsgiverStatusRequestDTO,
+            @PathVariable narmesteLederId: UUID,
         ): MotebehovStatusWithFormValuesDTO {
             metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidsgiver_v5")
-            val (innloggetFnr, sykmeldt) = hentSykmeldtMedTilgang(request.narmesteLederId)
+            val (innloggetFnr, sykmeldt) = hentSykmeldtMedTilgang(narmesteLederId)
 
             return motebehovStatusServiceV2
                 .motebehovStatusForArbeidsgiver(

@@ -16,7 +16,6 @@ import no.nav.syfo.consumer.brukertilgang.DineSykmeldteResponse
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
-import no.nav.syfo.motebehov.MotebehovArbeidsgiverStatusRequestDTO
 import no.nav.syfo.motebehov.MotebehovFormSubmissionDTO
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverV5DTO
@@ -591,9 +590,8 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
 
                 motebehovArbeidsgiverControllerV5
-                    .motebehovStatusArbeidsgiver(
-                        MotebehovArbeidsgiverStatusRequestDTO(NARMESTE_LEDER_ID),
-                    ).assertMotebehovStatus(expVisMotebehov = false)
+                    .motebehovStatusArbeidsgiver(NARMESTE_LEDER_ID)
+                    .assertMotebehovStatus(expVisMotebehov = false)
 
                 verify(exactly = 1) { dineSykmeldteConsumer.getSykmeldt(NARMESTE_LEDER_ID) }
             }
@@ -603,9 +601,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 every { dineSykmeldteConsumer.getSykmeldt(NARMESTE_LEDER_ID) } returns null
 
                 shouldThrow<ForbiddenException> {
-                    motebehovArbeidsgiverControllerV5.motebehovStatusArbeidsgiver(
-                        MotebehovArbeidsgiverStatusRequestDTO(NARMESTE_LEDER_ID),
-                    )
+                    motebehovArbeidsgiverControllerV5.motebehovStatusArbeidsgiver(NARMESTE_LEDER_ID)
                 }
             }
 
@@ -637,9 +633,7 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 )
 
                 val motebehovStatus =
-                    motebehovArbeidsgiverControllerV5.motebehovStatusArbeidsgiver(
-                        MotebehovArbeidsgiverStatusRequestDTO(NARMESTE_LEDER_ID),
-                    )
+                    motebehovArbeidsgiverControllerV5.motebehovStatusArbeidsgiver(NARMESTE_LEDER_ID)
                 val motebehov = motebehovStatus.motebehov!!
                 assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
                 assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)

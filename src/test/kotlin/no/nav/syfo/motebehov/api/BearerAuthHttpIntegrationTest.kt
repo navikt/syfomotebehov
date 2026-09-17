@@ -5,6 +5,7 @@ import io.kotest.core.extensions.ApplyExtension
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import io.mockk.every
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.syfo.IntegrationTest
@@ -79,6 +80,22 @@ class BearerAuthHttpIntegrationTest : IntegrationTest() {
 
                 response.statusCode() shouldBe 200
                 response.body() shouldContain "\"visMotebehov\":false"
+            }
+
+            it("returns a sanitized bad request for an invalid V5 narmesteLederId path") {
+                val invalidNarmesteLederId = "not-a-uuid"
+                val response =
+                    get(
+                        path = "/api/v5/arbeidsgiver/motebehov/$invalidNarmesteLederId",
+                        headers =
+                            mapOf(
+                                HttpHeaders.AUTHORIZATION to "Bearer ${tokenXBearerToken()}",
+                            ),
+                    )
+
+                response.statusCode() shouldBe 400
+                response.body() shouldContain "Vi kunne ikke tolke inndataene"
+                response.body() shouldNotContain invalidNarmesteLederId
             }
 
             it("accepts bearer token for veileder endpoint") {

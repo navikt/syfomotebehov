@@ -14,6 +14,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.WebRequest
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.util.WebUtils
 import javax.inject.Inject
 
@@ -49,6 +50,8 @@ class ControllerExceptionHandler
             } else if (ex is DineSykmeldteRequestException) {
                 return handleDineSykmeldteRequestException(ex, headers, request)
             } else if (ex is HttpMessageNotReadableException) {
+                return handleHttpMessageNotReadableException(headers)
+            } else if (ex is MethodArgumentTypeMismatchException) {
                 return handleHttpMessageNotReadableException(headers)
             }
             return when (ex) {

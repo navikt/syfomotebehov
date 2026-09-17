@@ -12,6 +12,7 @@ import org.springframework.http.HttpInputMessage
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.context.request.WebRequest
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 
 class ControllerExceptionHandlerTest :
     FunSpec({
@@ -48,6 +49,20 @@ class ControllerExceptionHandlerTest :
             val response =
                 handler.handleException(
                     HttpMessageNotReadableException("Invalid UUID", mockk<HttpInputMessage>()),
+                    mockk<WebRequest>(relaxed = true),
+                )
+
+            response.statusCode shouldBe HttpStatus.BAD_REQUEST
+            verify(exactly = 1) { metric.tellHttpKall(HttpStatus.BAD_REQUEST.value()) }
+        }
+
+        test("mapper ugyldig path-parameter til sanitert bad request") {
+            val metric = mockk<Metric>(relaxed = true)
+            val handler = ControllerExceptionHandler(metric)
+
+            val response =
+                handler.handleException(
+                    mockk<MethodArgumentTypeMismatchException>(relaxed = true),
                     mockk<WebRequest>(relaxed = true),
                 )
 
