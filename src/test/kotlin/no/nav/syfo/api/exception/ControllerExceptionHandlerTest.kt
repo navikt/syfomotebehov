@@ -67,6 +67,7 @@ class ControllerExceptionHandlerTest :
                 )
 
             response.statusCode shouldBe HttpStatus.BAD_REQUEST
+            response.body shouldBe ApiError(HttpStatus.BAD_REQUEST.value(), "Vi kunne ikke tolke inndataene")
             verify(exactly = 1) { metric.tellHttpKall(HttpStatus.BAD_REQUEST.value()) }
         }
     })

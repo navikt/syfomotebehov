@@ -94,7 +94,6 @@ class BearerAuthHttpIntegrationTest : IntegrationTest() {
                     )
 
                 response.statusCode() shouldBe 400
-                response.body() shouldContain "Vi kunne ikke tolke inndataene"
                 response.body() shouldNotContain invalidNarmesteLederId
             }
 
