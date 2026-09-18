@@ -619,10 +619,7 @@ class MotebehovArbeidsgiverProductRulesV5Test : IntegrationTest() {
 
     private fun verifyMotebehovStatus(innsendtFormSubmission: MotebehovFormSubmissionDTO) {
         val motebehovStatus =
-            motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(
-                ARBEIDSTAKER_FNR,
-                VIRKSOMHETSNUMMER,
-            )
+            motebehovArbeidsgiverController.motebehovStatusArbeidsgiver(NARMESTE_LEDER_ID)
         val formValuesOutputDTOThatShouldBeCreated =
             innsendtFormSubmission
                 .toMotebehovFormValuesOutputDTO()
