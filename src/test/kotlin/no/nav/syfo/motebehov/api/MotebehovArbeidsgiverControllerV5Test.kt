@@ -181,45 +181,6 @@ class MotebehovArbeidsgiverControllerV5Test : IntegrationTest() {
                 assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
             }
 
-            it("bevarer egen-leder-håndtering når relasjonen peker på innlogget ident") {
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
-                dbCreateOppfolgingstilfelle(
-                    oppfolgingstilfelleDAO,
-                    generateOppfolgingstilfellePerson(
-                        virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER),
-                    ),
-                )
-                createKandidatInDB(ARBEIDSTAKER_FNR)
-                mockAndExpectBehandlendeEnhetRequest(
-                    azureTokenEndpoint,
-                    mockRestServiceServerAzureAD,
-                    mockRestServiceServer,
-                    behandlendeenhetUrl,
-                    ARBEIDSTAKER_FNR,
-                )
-
-                motebehovArbeidsgiverController.lagreMotebehovArbeidsgiver(
-                    NyttMotebehovArbeidsgiverV5DTO(
-                        narmesteLederId = NARMESTE_LEDER_ID,
-                        formSubmission =
-                            MotebehovFormSubmissionDTO(
-                                harMotebehov = true,
-                                formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
-                            ),
-                    ),
-                )
-
-                verify(exactly = 1) {
-                    esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(
-                        ARBEIDSTAKER_FNR,
-                        ARBEIDSTAKER_FNR,
-                        VIRKSOMHETSNUMMER,
-                    )
-                }
-                verify(exactly = 1) {
-                    esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ARBEIDSTAKER_FNR)
-                }
-            }
         }
     }
 

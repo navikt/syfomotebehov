@@ -13,12 +13,13 @@ import jakarta.ws.rs.ForbiddenException
 import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
-import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
+import no.nav.syfo.consumer.brukertilgang.DineSykmeldteConsumer
+import no.nav.syfo.consumer.brukertilgang.DineSykmeldteResponse
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.motebehov.MotebehovFormSubmissionDTO
 import no.nav.syfo.motebehov.MotebehovTilbakemelding
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
-import no.nav.syfo.motebehov.api.MotebehovArbeidsgiverControllerV4
+import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverV5DTO
+import no.nav.syfo.motebehov.api.MotebehovArbeidsgiverControllerV5
 import no.nav.syfo.motebehov.api.MotebehovArbeidstakerControllerV4
 import no.nav.syfo.motebehov.api.dbCreateOppfolgingstilfelle
 import no.nav.syfo.motebehov.api.internad.dto.MotebehovVeilederDTO
@@ -35,6 +36,7 @@ import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
+import no.nav.syfo.testhelper.UserConstants.NARMESTE_LEDER_ID
 import no.nav.syfo.testhelper.UserConstants.PERSON_FULL_NAME
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_2_ID
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
@@ -78,7 +80,7 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
     private lateinit var motebehovArbeidstakerControllerV4: MotebehovArbeidstakerControllerV4
 
     @Autowired
-    private lateinit var motebehovArbeidsgiverControllerV4: MotebehovArbeidsgiverControllerV4
+    private lateinit var motebehovArbeidsgiverControllerV5: MotebehovArbeidsgiverControllerV5
 
     @Autowired
     private lateinit var oppfolgingstilfelleDAO: OppfolgingstilfelleDAO
@@ -103,7 +105,7 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
     private lateinit var tokenValidationUtil: TokenValidationUtil
 
     @MockkBean
-    private lateinit var brukertilgangConsumer: BrukertilgangConsumer
+    private lateinit var dineSykmeldteConsumer: DineSykmeldteConsumer
 
     @MockkBean(relaxed = true)
     private lateinit var pdlConsumer: PdlConsumer
@@ -125,7 +127,11 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
             mockRestServiceServerAzureAD = MockRestServiceServer.bindTo(restTemplateAzureAD).build()
 
             every { personoppgavehendelseProducer.sendPersonoppgavehendelse(any(), any()) } returns Unit
-            every { brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR) } returns true
+            every { dineSykmeldteConsumer.getSykmeldt(NARMESTE_LEDER_ID) } returns
+                DineSykmeldteResponse(
+                    fnr = ARBEIDSTAKER_FNR,
+                    orgnummer = VIRKSOMHETSNUMMER,
+                )
 
             every { pdlConsumer.aktorid(ARBEIDSTAKER_FNR) } returns ARBEIDSTAKER_AKTORID
             every { pdlConsumer.aktorid(LEDER_FNR) } returns LEDER_AKTORID
@@ -351,20 +357,19 @@ class MotebehovVeilederADControllerV4Test : IntegrationTest() {
         }
     }
 
-    private fun arbeidsgiverLoggerInnOgLagrerMotebehov(): NyttMotebehovArbeidsgiverDTO {
+    private fun arbeidsgiverLoggerInnOgLagrerMotebehov(): NyttMotebehovArbeidsgiverV5DTO {
         val formSubmission =
             MotebehovFormSubmissionDTO(
                 harMotebehov = true,
                 formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
             )
         val arbeidsgiverFormSubmission =
-            NyttMotebehovArbeidsgiverDTO(
-                arbeidstakerFnr = ARBEIDSTAKER_FNR,
-                virksomhetsnummer = VIRKSOMHETSNUMMER,
-                formSubmission,
+            NyttMotebehovArbeidsgiverV5DTO(
+                narmesteLederId = NARMESTE_LEDER_ID,
+                formSubmission = formSubmission,
             )
         tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
-        motebehovArbeidsgiverControllerV4.lagreMotebehovArbeidsgiver(arbeidsgiverFormSubmission)
+        motebehovArbeidsgiverControllerV5.lagreMotebehovArbeidsgiver(arbeidsgiverFormSubmission)
 
         return arbeidsgiverFormSubmission
     }

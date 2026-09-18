@@ -4,7 +4,6 @@ import jakarta.validation.ConstraintViolationException
 import jakarta.ws.rs.ForbiddenException
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import no.nav.syfo.consumer.brukertilgang.DineSykmeldteRequestException
-import no.nav.syfo.consumer.brukertilgang.RequestUnauthorizedException
 import no.nav.syfo.metric.Metric
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
@@ -45,8 +44,6 @@ class ControllerExceptionHandler
             val headers = HttpHeaders()
             if (ex is JwtTokenUnauthorizedException) {
                 return handleJwtTokenUnauthorizedException(ex, headers, request)
-            } else if (ex is RequestUnauthorizedException) {
-                return handleRequestUnauthorizedException(ex, headers, request)
             } else if (ex is DineSykmeldteRequestException) {
                 return handleDineSykmeldteRequestException(ex, headers, request)
             } else if (ex is HttpMessageNotReadableException) {
@@ -76,19 +73,6 @@ class ControllerExceptionHandler
 
         private fun handleJwtTokenUnauthorizedException(
             ex: JwtTokenUnauthorizedException,
-            headers: HttpHeaders,
-            request: WebRequest,
-        ): ResponseEntity<ApiError> =
-            handleExceptionInternal(
-                ex,
-                ApiError(HttpStatus.UNAUTHORIZED.value(), unauthorizedMsg),
-                headers,
-                HttpStatus.UNAUTHORIZED,
-                request,
-            )
-
-        private fun handleRequestUnauthorizedException(
-            ex: RequestUnauthorizedException,
             headers: HttpHeaders,
             request: WebRequest,
         ): ResponseEntity<ApiError> =

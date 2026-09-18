@@ -26,14 +26,6 @@ Alle endepunkter ligger under URL-prefikset `/syfomotebehov`.
 - **POST** `/api/v4/arbeidstaker/motebehov`: lagrer møtebehov
 - **POST** `/api/v4/arbeidstaker/motebehov/ferdigstill`: ferdigstiller møtebehov
 
-### Arbeidsgiver API (TokenX)
-
-V4 beholdes midlertidig for eksisterende klienter under overgangen fra
-`syfobrukertilgang`.
-
-- **GET** `/api/v4/motebehov`: henter møtebehov for arbeidstaker
-- **POST** `/api/v4/motebehov`: lagrer møtebehov for arbeidstaker
-
 ### Arbeidsgiver API V5 (TokenX)
 
 - **GET** `/api/v5/arbeidsgiver/motebehov/{narmesteLederId}`: henter møtebehov
@@ -60,8 +52,7 @@ fødselsnummer eller virksomhetsnummer.
 ## Integrasjoner
 
 - **Innkommende trafikk:** `dialogmote-frontend`, `dialogmote-microfrontend`, `syfomodiaperson`, `isdialogmote` og `ditt-sykefravaer`
-- **Utgående kall:** `syfobrukertilgang` (kun V4 under overgang),
-  `dinesykmeldte-backend`, `istilgangskontroll`, `syfobehandlendeenhet`,
+- **Utgående kall:** `dinesykmeldte-backend`, `istilgangskontroll`, `syfobehandlendeenhet`,
   `isnarmesteleder` og PDL
 - **Kafka-consumere:**
   - `teamsykefravr.isoppfolgingstilfelle-oppfolgingstilfelle-person`
