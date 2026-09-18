@@ -123,7 +123,7 @@ class MotebehovArbeidsgiverControllerV5Test : IntegrationTest() {
                     },
                 )
             cleanDB()
-            AzureAdV2TokenConsumer.clearCache()
+            AzureAdV2TokenConsumer.Companion.clearCache()
         }
 
         describe("MotebehovArbeidsgiverControllerV5") {
