@@ -1,24 +1,19 @@
 package no.nav.syfo.motebehov.api
 
 import com.ninjasquad.springmockk.MockkBean
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.extensions.ApplyExtension
 import io.kotest.extensions.spring.SpringExtension
 import io.mockk.every
 import io.mockk.verify
-import jakarta.ws.rs.ForbiddenException
 import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.consumer.azuread.v2.AzureAdV2TokenConsumer
 import no.nav.syfo.consumer.brukertilgang.BrukertilgangConsumer
-import no.nav.syfo.consumer.brukertilgang.DineSykmeldteConsumer
-import no.nav.syfo.consumer.brukertilgang.DineSykmeldteResponse
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatDAO
 import no.nav.syfo.dialogmotekandidat.database.DialogmotekandidatEndringArsak
 import no.nav.syfo.motebehov.MotebehovFormSubmissionDTO
 import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverDTO
-import no.nav.syfo.motebehov.NyttMotebehovArbeidsgiverV5DTO
 import no.nav.syfo.motebehov.api.internad.v4.MotebehovVeilederADControllerV4
 import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.formSnapshot.mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot
@@ -32,7 +27,6 @@ import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.LEDER_AKTORID
 import no.nav.syfo.testhelper.UserConstants.LEDER_FNR
-import no.nav.syfo.testhelper.UserConstants.NARMESTE_LEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VEILEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER_2
@@ -81,9 +75,6 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
     private lateinit var motebehovArbeidsgiverController: MotebehovArbeidsgiverControllerV4
 
     @Autowired
-    private lateinit var motebehovArbeidsgiverControllerV5: MotebehovArbeidsgiverControllerV5
-
-    @Autowired
     private lateinit var motebehovVeilederController: MotebehovVeilederADControllerV4
 
     @Autowired
@@ -117,9 +108,6 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
     @MockkBean
     private lateinit var brukertilgangConsumer: BrukertilgangConsumer
 
-    @MockkBean
-    private lateinit var dineSykmeldteConsumer: DineSykmeldteConsumer
-
     @MockkBean(relaxed = true)
     private lateinit var personoppgavehendelseProducer: PersonoppgavehendelseProducer
 
@@ -133,11 +121,6 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
 
             every { brukertilgangConsumer.hasAccessToAnsatt(ARBEIDSTAKER_FNR) } returns true
             every { brukertilgangConsumer.hasAccessToAnsatt(LEDER_FNR) } returns true
-            every { dineSykmeldteConsumer.getSykmeldt(NARMESTE_LEDER_ID) } returns
-                DineSykmeldteResponse(
-                    fnr = ARBEIDSTAKER_FNR,
-                    orgnummer = VIRKSOMHETSNUMMER,
-                )
             every { pdlConsumer.person(ARBEIDSTAKER_FNR) } returns generatePdlHentPerson(null, null)
             every { pdlConsumer.aktorid(ARBEIDSTAKER_FNR) } returns ARBEIDSTAKER_AKTORID
             every { pdlConsumer.aktorid(LEDER_FNR) } returns LEDER_AKTORID
@@ -585,105 +568,6 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
             }
         }
 
-        describe("MotebehovArbeidsgiverControllerV5") {
-            it("henter status for arbeidstakeren fra den autoriserte nærmeste-leder-relasjonen") {
-                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
-
-                motebehovArbeidsgiverControllerV5
-                    .motebehovStatusArbeidsgiver(NARMESTE_LEDER_ID)
-                    .assertMotebehovStatus(expVisMotebehov = false)
-
-                verify(exactly = 1) { dineSykmeldteConsumer.getSykmeldt(NARMESTE_LEDER_ID) }
-            }
-
-            it("avviser status når nærmeste-leder-relasjonen ikke finnes") {
-                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
-                every { dineSykmeldteConsumer.getSykmeldt(NARMESTE_LEDER_ID) } returns null
-
-                shouldThrow<ForbiddenException> {
-                    motebehovArbeidsgiverControllerV5.motebehovStatusArbeidsgiver(NARMESTE_LEDER_ID)
-                }
-            }
-
-            it("lagrer møtebehov med arbeidstaker og virksomhet fra nærmeste-leder-relasjonen") {
-                tokenValidationUtil.logInAsDialogmoteUser(LEDER_FNR)
-                dbCreateOppfolgingstilfelle(
-                    oppfolgingstilfelleDAO,
-                    generateOppfolgingstilfellePerson(),
-                )
-                createKandidatInDB(ARBEIDSTAKER_FNR)
-                mockAndExpectBehandlendeEnhetRequest(
-                    azureTokenEndpoint,
-                    mockRestServiceServerAzureAD,
-                    mockRestServiceServer,
-                    behandlendeenhetUrl,
-                    ARBEIDSTAKER_FNR,
-                )
-                val formSubmission =
-                    MotebehovFormSubmissionDTO(
-                        harMotebehov = true,
-                        formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
-                    )
-
-                motebehovArbeidsgiverControllerV5.lagreMotebehovArbeidsgiver(
-                    NyttMotebehovArbeidsgiverV5DTO(
-                        narmesteLederId = NARMESTE_LEDER_ID,
-                        formSubmission = formSubmission,
-                    ),
-                )
-
-                val motebehovStatus =
-                    motebehovArbeidsgiverControllerV5.motebehovStatusArbeidsgiver(NARMESTE_LEDER_ID)
-                val motebehov = motebehovStatus.motebehov!!
-                assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
-                assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
-            }
-
-            it("bevarer egen-leder-håndtering når relasjonen peker på innlogget ident") {
-                tokenValidationUtil.logInAsDialogmoteUser(ARBEIDSTAKER_FNR)
-                every { dineSykmeldteConsumer.getSykmeldt(NARMESTE_LEDER_ID) } returns
-                    DineSykmeldteResponse(
-                        fnr = ARBEIDSTAKER_FNR,
-                        orgnummer = VIRKSOMHETSNUMMER,
-                    )
-                dbCreateOppfolgingstilfelle(
-                    oppfolgingstilfelleDAO,
-                    generateOppfolgingstilfellePerson(
-                        virksomhetsnummerList = listOf(VIRKSOMHETSNUMMER),
-                    ),
-                )
-                createKandidatInDB(ARBEIDSTAKER_FNR)
-                mockAndExpectBehandlendeEnhetRequest(
-                    azureTokenEndpoint,
-                    mockRestServiceServerAzureAD,
-                    mockRestServiceServer,
-                    behandlendeenhetUrl,
-                    ARBEIDSTAKER_FNR,
-                )
-
-                motebehovArbeidsgiverControllerV5.lagreMotebehovArbeidsgiver(
-                    NyttMotebehovArbeidsgiverV5DTO(
-                        narmesteLederId = NARMESTE_LEDER_ID,
-                        formSubmission =
-                            MotebehovFormSubmissionDTO(
-                                harMotebehov = true,
-                                formSnapshot = mockArbeidsgiverSvarJaOnskerSykmelderFormSnapshot,
-                            ),
-                    ),
-                )
-
-                verify(exactly = 1) {
-                    esyfovarselService.ferdigstillSvarMotebehovForArbeidsgiver(
-                        ARBEIDSTAKER_FNR,
-                        ARBEIDSTAKER_FNR,
-                        VIRKSOMHETSNUMMER,
-                    )
-                }
-                verify(exactly = 1) {
-                    esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ARBEIDSTAKER_FNR)
-                }
-            }
-        }
     }
 
     private fun submitMotebehovAndSendOversikthendelse(arbeidsgiverFormSubmissionInputDTO: NyttMotebehovArbeidsgiverDTO) {
