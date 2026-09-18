@@ -28,8 +28,22 @@ Alle endepunkter ligger under URL-prefikset `/syfomotebehov`.
 
 ### Arbeidsgiver API (TokenX)
 
+V4 beholdes midlertidig for eksisterende klienter under overgangen fra
+`syfobrukertilgang`.
+
 - **GET** `/api/v4/motebehov`: henter møtebehov for arbeidstaker
 - **POST** `/api/v4/motebehov`: lagrer møtebehov for arbeidstaker
+
+### Arbeidsgiver API V5 (TokenX)
+
+- **GET** `/api/v5/arbeidsgiver/motebehov/{narmesteLederId}`: henter møtebehov
+  fra `narmesteLederId` i path
+- **POST** `/api/v5/arbeidsgiver/motebehov`: lagrer møtebehov fra
+  `narmesteLederId` og skjemainnhold i request-body
+
+V5 henter arbeidstaker og virksomhet fra den TokenX-bundne
+nærmeste-leder-relasjonen i `dinesykmeldte-backend`. Klienten skal ikke sende
+fødselsnummer eller virksomhetsnummer.
 
 ### Veileder API (Azure AD)
 
@@ -46,7 +60,9 @@ Alle endepunkter ligger under URL-prefikset `/syfomotebehov`.
 ## Integrasjoner
 
 - **Innkommende trafikk:** `dialogmote-frontend`, `dialogmote-microfrontend`, `syfomodiaperson`, `isdialogmote` og `ditt-sykefravaer`
-- **Utgående kall:** `syfobrukertilgang`, `istilgangskontroll`, `syfobehandlendeenhet`, `isnarmesteleder` og PDL
+- **Utgående kall:** `syfobrukertilgang` (kun V4 under overgang),
+  `dinesykmeldte-backend`, `istilgangskontroll`, `syfobehandlendeenhet`,
+  `isnarmesteleder` og PDL
 - **Kafka-consumere:**
   - `teamsykefravr.isoppfolgingstilfelle-oppfolgingstilfelle-person`
   - `teamsykefravr.isdialogmotekandidat-dialogmotekandidat`

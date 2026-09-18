@@ -53,8 +53,8 @@ class TokenDingsConsumer
                 return tokenX.accessToken
             } catch (e: RestClientResponseException) {
                 log.error(
-                    "Call to get TokenX failed with status: ${e.statusCode} and message: ${e.responseBodyAsString}",
-                    e,
+                    "Call to get TokenX failed with status: {}",
+                    e.statusCode.value(),
                 )
                 throw e
             }

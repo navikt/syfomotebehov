@@ -62,6 +62,11 @@ syfobrukertilgang:
   client:
     id: syfobrukertilgangClientId
 
+dinesykmeldte:
+  url: http://dinesykmeldte-backend
+  client:
+    id: dinesykmeldteBackendClientId
+
 nais.cluster.name: 'local'
 
 dev: true
