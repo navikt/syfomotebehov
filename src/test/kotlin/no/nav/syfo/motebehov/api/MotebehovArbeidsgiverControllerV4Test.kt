@@ -567,7 +567,6 @@ class MotebehovArbeidsgiverControllerV4Test : IntegrationTest() {
                 verify(exactly = 1) { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(LEDER_FNR) }
             }
         }
-
     }
 
     private fun submitMotebehovAndSendOversikthendelse(arbeidsgiverFormSubmissionInputDTO: NyttMotebehovArbeidsgiverDTO) {
