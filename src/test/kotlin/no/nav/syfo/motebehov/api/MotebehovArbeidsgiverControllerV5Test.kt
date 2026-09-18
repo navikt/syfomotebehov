@@ -180,7 +180,6 @@ class MotebehovArbeidsgiverControllerV5Test : IntegrationTest() {
                 assertThat(motebehov.arbeidstakerFnr).isEqualTo(ARBEIDSTAKER_FNR)
                 assertThat(motebehov.virksomhetsnummer).isEqualTo(VIRKSOMHETSNUMMER)
             }
-
         }
     }
 
