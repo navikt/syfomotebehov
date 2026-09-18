@@ -5,8 +5,9 @@
   `SPRING_PROFILES_ACTIVE=unittest ./gradlew build` for the full build.
 - Local startup: `mise start` uses `bootRunLocal`. Docker is required; local/test infrastructure is provided by Testcontainers.
 - All routes have the `/syfomotebehov` context path.
-- Preserve TokenX high-assurance `acr` and allowed-client checks. Employer
-  requests also require access to the employee through `BrukertilgangService`.
+- Preserve TokenX high-assurance `acr` and allowed-client checks. Employer V5
+  requests must derive employee and organization from the TokenX-bound Dine
+  sykmeldte nearest-leader relation.
 - Veileder requests use Azure AD and `Nav-Personident`; person access is
   checked through `VeilederTilgangConsumer` against `istilgangskontroll`.
 - `formSnapshot` preserves submitted form values for history. Meeting needs

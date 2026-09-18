@@ -18,7 +18,6 @@ class CacheConfig {
                 ConcurrentMapCache(CACHENAME_AKTOR_ID),
                 ConcurrentMapCache(CACHENAME_AKTOR_FNR),
                 ConcurrentMapCache(CACHENAME_BEHANDLENDEENHET_FNR),
-                ConcurrentMapCache(CACHENAME_TILGANG_IDENT),
             ),
         )
         return cacheManager
@@ -28,6 +27,5 @@ class CacheConfig {
         const val CACHENAME_AKTOR_ID = "aktoerid"
         const val CACHENAME_AKTOR_FNR = "aktoerfnr"
         const val CACHENAME_BEHANDLENDEENHET_FNR = "behandlendeenhetfnr"
-        const val CACHENAME_TILGANG_IDENT = "tilgangtilident"
     }
 }
