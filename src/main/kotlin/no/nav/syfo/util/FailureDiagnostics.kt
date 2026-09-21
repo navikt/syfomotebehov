@@ -10,6 +10,7 @@ import java.net.ConnectException
 import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import java.sql.SQLException
 import java.util.Collections
 import java.util.IdentityHashMap
 import java.util.concurrent.CancellationException
@@ -63,22 +64,13 @@ fun Throwable.rethrowIfCancelled() {
     }
 }
 
-fun Throwable.databaseErrorCode(): String =
-    when (causeChain().filterIsInstance<java.sql.SQLException>().firstOrNull()?.sqlState) {
-        "23505" -> "DATABASE_UNIQUE_VIOLATION"
-        "23503" -> "DATABASE_FOREIGN_KEY_VIOLATION"
-        "23502" -> "DATABASE_NOT_NULL_VIOLATION"
-        "23514" -> "DATABASE_CHECK_VIOLATION"
-        "40001" -> "DATABASE_SERIALIZATION_FAILURE"
-        "40P01" -> "DATABASE_DEADLOCK"
-        "08001", "08006" -> "DATABASE_CONNECTION_FAILURE"
-        else -> "MOTEBEHOV_SAVE_FAILED"
-    }
-
 // Keep code locations and bounded exception categories. HTTP exceptions and decoder
 // messages may contain credentials, request URLs or personal data, even in causes.
 fun LoggingEventBuilder.withFailureDiagnostics(cause: Throwable): LoggingEventBuilder {
     val chain = cause.causeChain()
+    chain.filterIsInstance<SQLException>().firstNotNullOfOrNull { it.sqlState }?.let {
+        addKeyValue("sql_state", it)
+    }
     return addKeyValue("exception_type", cause.safeType())
         .addKeyValue("cause_type", chain.last().safeType())
         .addKeyValue(

@@ -9,7 +9,6 @@ import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.database.toMotebehov
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseService
-import no.nav.syfo.util.databaseErrorCode
 import no.nav.syfo.util.withFailureDiagnostics
 import org.slf4j.LoggerFactory
 import org.springframework.dao.DataAccessException
@@ -180,7 +179,7 @@ class MotebehovService
                     .addKeyValue("event_type", "motebehov_save_failed")
                     .addKeyValue("operation", "motebehov_save")
                     .addKeyValue("failure_stage", "database_write")
-                    .addKeyValue("error_code", ex.databaseErrorCode())
+                    .addKeyValue("error_code", "MOTEBEHOV_SAVE_FAILED")
                     .addKeyValue("skjema_type", skjemaType.name)
                     .addKeyValue("innmelder_type", innmelderType.name)
                     .withFailureDiagnostics(ex)
@@ -195,7 +194,7 @@ class MotebehovService
                     .addKeyValue("event_type", "motebehov_save_failed")
                     .addKeyValue("operation", "motebehov_save")
                     .addKeyValue("failure_stage", "database_write")
-                    .addKeyValue("error_code", ex.databaseErrorCode())
+                    .addKeyValue("error_code", "MOTEBEHOV_SAVE_FAILED")
                     .addKeyValue("skjema_type", skjemaType.name)
                     .addKeyValue("innmelder_type", innmelderType.name)
                     .withFailureDiagnostics(ex)

@@ -37,23 +37,22 @@ class FailureDiagnosticsTest :
             }
         }
 
-        test("database diagnostics distinguish constraints without logging SQL or submitted data") {
+        test("database diagnostics preserve standard SQL state without logging SQL or submitted data") {
             val error =
                 org.springframework.dao.DataIntegrityViolationException(
                     "PRIVATE_SUBMITTED_FORM",
                     java.sql.SQLException("PRIVATE_SQL", "23505"),
                 )
-            error.databaseErrorCode() shouldBe "DATABASE_UNIQUE_VIOLATION"
             val logs =
                 captureApplicationLogs {
                     LoggerFactory
                         .getLogger("no.nav.syfo.diagnostics")
                         .atError()
-                        .addKeyValue("error_code", error.databaseErrorCode())
                         .withFailureDiagnostics(error)
                         .log("Could not save the meeting need")
                 }
             logs.single()["exception_type"].asString() shouldBe "DataIntegrityViolationException"
+            logs.single()["sql_state"].asString() shouldBe "23505"
             logs.single().toString().contains("PRIVATE_") shouldBe false
         }
 
