@@ -1,11 +1,13 @@
 package no.nav.syfo.leaderelection
 
 import no.nav.syfo.metric.Metric
+import no.nav.syfo.util.failureKind
+import no.nav.syfo.util.rethrowIfCancelled
+import no.nav.syfo.util.withFailureDiagnostics
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
-import java.io.IOException
 import java.net.InetAddress
 import javax.inject.Inject
 
@@ -28,19 +30,23 @@ class LeaderElectionClient
             try {
                 val response: Leader? = restTemplate.getForObject(url, Leader::class.java)
                 if (response == null) {
-                    log.error("Call to elector returned null")
-                    metric.tellHendelse("isLeader_feilet")
                     throw RuntimeException("Call to elector returned null")
                 }
                 return isHostLeader(response)
-            } catch (e: IOException) {
-                log.error("Couldn't map response from electorPath to Leader object", e)
-                metric.tellHendelse("isLeader_feilet")
-                throw RuntimeException("Couldn't map response from electorpath to LeaderPod object", e)
             } catch (e: Exception) {
-                log.error("Something went wrong when trying to check leader", e)
+                e.rethrowIfCancelled()
+                log
+                    .atError()
+                    .addKeyValue("event_type", "leader_election_failed")
+                    .addKeyValue("operation", "leader_lookup")
+                    .addKeyValue("upstream", "elector")
+                    .addKeyValue("failure_stage", "upstream_request")
+                    .addKeyValue("failure_kind", e.failureKind().value)
+                    .addKeyValue("error_code", "LEADER_LOOKUP_FAILED")
+                    .withFailureDiagnostics(e)
+                    .log("Could not determine the elected leader")
                 metric.tellHendelse("isLeader_feilet")
-                throw RuntimeException("Got exception when trying to find leader", e)
+                throw RuntimeException("Could not determine the elected leader", e)
             }
         }
 

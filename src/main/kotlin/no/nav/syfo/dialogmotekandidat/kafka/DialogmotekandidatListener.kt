@@ -2,6 +2,9 @@ package no.nav.syfo.dialogmotekandidat.kafka
 
 import net.logstash.logback.argument.StructuredArguments.kv
 import no.nav.syfo.dialogmotekandidat.DialogmotekandidatService
+import no.nav.syfo.util.failureKind
+import no.nav.syfo.util.rethrowIfCancelled
+import no.nav.syfo.util.withFailureDiagnostics
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
@@ -35,12 +38,17 @@ class DialogmotekandidatListener(
             dialogmotekandidatService.receiveDialogmotekandidatEndring(melding)
             acknowledgment.acknowledge()
         } catch (e: Exception) {
-            log.error(
-                "DialogmotekandidatListener: Uventet feil ved lesing av topic",
-                kv("event", "dialogmotekandidat.failed"),
-                kv("uuid", melding.uuid),
-                e,
-            )
+            e.rethrowIfCancelled()
+            log
+                .atWarn()
+                .addKeyValue("event_type", "dialogmotekandidat_processing_failed")
+                .addKeyValue("operation", "dialogmotekandidat_consume")
+                .addKeyValue("upstream", "kafka")
+                .addKeyValue("failure_stage", "message_processing")
+                .addKeyValue("failure_kind", e.failureKind().value)
+                .addKeyValue("outcome", "retrying")
+                .withFailureDiagnostics(e)
+                .log("Meeting candidate message processing failed; retry policy decides the next attempt")
             throw e
         }
     }

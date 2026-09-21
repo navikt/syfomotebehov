@@ -199,7 +199,13 @@ class MotebehovOppfolgingstilfelleServiceV2
         }
 
         private fun throwCreateMotebehovFailed(errorMessage: String) {
-            log.error(errorMessage)
+            log
+                .atError()
+                .addKeyValue("event_type", "motebehov_creation_failed")
+                .addKeyValue("operation", "motebehov_create")
+                .addKeyValue("failure_stage", "oppfolgingstilfelle_lookup")
+                .addKeyValue("error_code", "OPPFOLGINGSTILFELLE_UNAVAILABLE")
+                .log(errorMessage)
             throw RuntimeException(errorMessage)
         }
 

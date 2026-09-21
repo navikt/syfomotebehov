@@ -2,6 +2,9 @@ package no.nav.syfo.oppfolgingstilfelle.kafka
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import no.nav.syfo.testdata.reset.TestdataResetService
+import no.nav.syfo.util.failureKind
+import no.nav.syfo.util.rethrowIfCancelled
+import no.nav.syfo.util.withFailureDiagnostics
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
@@ -27,9 +30,26 @@ class TestdataResetListener(
             testdataResetService.resetTestdata(fnr)
             acknowledgment.acknowledge()
         } catch (e: JsonProcessingException) {
-            log.error("TestdataResetListener: Kunne ikke deserialisere record", e)
+            log
+                .atError()
+                .addKeyValue("event_type", "testdata_reset_decode_failed")
+                .addKeyValue("operation", "testdata_reset_consume")
+                .addKeyValue("upstream", "kafka")
+                .addKeyValue("failure_stage", "message_processing")
+                .addKeyValue("failure_kind", e.failureKind().value)
+                .withFailureDiagnostics(e)
+                .log("Could not decode a test data reset message")
         } catch (e: Exception) {
-            log.error("TestdataResetListener: Uventet feil ved lesing av record", e)
+            e.rethrowIfCancelled()
+            log
+                .atError()
+                .addKeyValue("event_type", "testdata_reset_failed")
+                .addKeyValue("operation", "testdata_reset_consume")
+                .addKeyValue("upstream", "kafka")
+                .addKeyValue("failure_stage", "message_processing")
+                .addKeyValue("failure_kind", e.failureKind().value)
+                .withFailureDiagnostics(e)
+                .log("Could not reset test data from a message")
         }
     }
 

@@ -9,7 +9,6 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import no.nav.syfo.consumer.tokenx.TokenXResponse
 import no.nav.syfo.consumer.tokenx.toTokenXToken
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -18,7 +17,6 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
-import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestTemplate
 import java.time.Instant
 import java.util.Date
@@ -40,24 +38,14 @@ class TokenDingsConsumer
         ): String {
             val requestEntity = requestEntity(subjectToken, tokenxEndpoint, targetApp)
 
-            try {
-                val response =
-                    restTemplate.exchange(
-                        tokenxEndpoint,
-                        HttpMethod.POST,
-                        requestEntity,
-                        TokenXResponse::class.java,
-                    )
-                val tokenX = response.body!!.toTokenXToken()
-
-                return tokenX.accessToken
-            } catch (e: RestClientResponseException) {
-                log.error(
-                    "Call to get TokenX failed with status: {}",
-                    e.statusCode.value(),
+            val response =
+                restTemplate.exchange(
+                    tokenxEndpoint,
+                    HttpMethod.POST,
+                    requestEntity,
+                    TokenXResponse::class.java,
                 )
-                throw e
-            }
+            return response.body!!.toTokenXToken().accessToken
         }
 
         private fun requestEntity(
@@ -92,10 +80,6 @@ class TokenDingsConsumer
                 .build()
                 .sign(rsaKey)
                 .serialize()
-        }
-
-        companion object {
-            private val log = LoggerFactory.getLogger(TokenDingsConsumer::class.java)
         }
     }
 

@@ -1,7 +1,8 @@
 package no.nav.syfo.dialogmotekandidat.kafka
 
-import net.logstash.logback.argument.StructuredArguments.kv
 import no.nav.syfo.config.kafka.KafkaAivenConfig
+import no.nav.syfo.util.failureKind
+import no.nav.syfo.util.withFailureDiagnostics
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.errors.SerializationException
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -57,14 +58,21 @@ class DialogmotekandidatKafkaConfig
                     this.setCommonErrorHandler(
                         DefaultErrorHandler(
                             { record, exception ->
-                                log.error(
-                                    "Gir opp prosessering av melding, hopper over",
-                                    kv("event", "dialogmotekandidat.kafka.given_up"),
-                                    kv("topic", record.topic()),
-                                    kv("partition", record.partition()),
-                                    kv("offset", record.offset()),
-                                    exception,
-                                )
+                                log
+                                    .atError()
+                                    .addKeyValue("event_type", "dialogmotekandidat_message_discarded")
+                                    .addKeyValue("event", "dialogmotekandidat.kafka.given_up")
+                                    .addKeyValue("operation", "dialogmotekandidat_consume")
+                                    .addKeyValue("upstream", "kafka")
+                                    .addKeyValue("failure_stage", "message_processing")
+                                    .addKeyValue("failure_kind", exception.failureKind().value)
+                                    .addKeyValue("error_code", "KAFKA_MESSAGE_DISCARDED")
+                                    .addKeyValue("outcome", "stopped")
+                                    .addKeyValue("topic", record.topic())
+                                    .addKeyValue("partition", record.partition())
+                                    .addKeyValue("offset", record.offset())
+                                    .withFailureDiagnostics(exception)
+                                    .log("Giving up processing a message; skipping it according to the recovery policy")
                             },
                             // Poison pills (SerializationException) hoppes over umiddelbart.
                             // Andre feil retryes opptil 9 ganger med 5s mellomrom før meldingen hoppes over.

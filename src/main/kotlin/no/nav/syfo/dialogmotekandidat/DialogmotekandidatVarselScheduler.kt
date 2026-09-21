@@ -172,6 +172,10 @@ class DialogmotekandidatVarselScheduler
                 log.error(
                     "PENDING-rader har overskredet maks antall retries",
                     kv("event", "dialogmotekandidat.varsel.given_up"),
+                    kv("event_type", "dialogmotekandidat_varsel_exhausted"),
+                    kv("operation", "dialogmotekandidat_varsel_send"),
+                    kv("error_code", "RETRIES_EXHAUSTED"),
+                    kv("outcome", "retry_exhausted"),
                     kv("count", givenUpCount),
                 )
             }

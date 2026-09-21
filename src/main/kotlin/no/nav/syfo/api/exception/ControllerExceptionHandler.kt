@@ -5,6 +5,9 @@ import jakarta.ws.rs.ForbiddenException
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import no.nav.syfo.consumer.brukertilgang.DineSykmeldteRequestException
 import no.nav.syfo.metric.Metric
+import no.nav.syfo.util.failureKind
+import no.nav.syfo.util.rethrowIfCancelled
+import no.nav.syfo.util.withFailureDiagnostics
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -41,6 +44,7 @@ class ControllerExceptionHandler
             ex: Exception,
             request: WebRequest,
         ): ResponseEntity<ApiError> {
+            ex.rethrowIfCancelled()
             val headers = HttpHeaders()
             if (ex is JwtTokenUnauthorizedException) {
                 return handleJwtTokenUnauthorizedException(ex, headers, request)
@@ -145,11 +149,48 @@ class ControllerExceptionHandler
         ): ResponseEntity<ApiError> {
             metric.tellHttpKall(status.value())
             if (!status.is2xxSuccessful) {
-                if (HttpStatus.INTERNAL_SERVER_ERROR == status) {
-                    log.error("Uventet feil: {} : {}", ex.javaClass.toString(), ex.message, ex)
+                if (ex is DineSykmeldteRequestException) {
+                    val event =
+                        log
+                            .atError()
+                            .addKeyValue("event_type", "sykmeldt_lookup_failed")
+                            .addKeyValue("outcome", "failed")
+                            .addKeyValue("operation", "sykmeldt_fetch")
+                            .addKeyValue("upstream", ex.stage.upstream)
+                            .addKeyValue("failure_stage", ex.stage.value)
+                            .addKeyValue("failure_kind", ex.failureKind.value)
+                            .addKeyValue("error_code", ex.failureKind.errorCode)
+                            .withFailureDiagnostics(ex.cause ?: ex)
+                    ex.upstreamStatus?.let { event.addKeyValue("upstream_status", it) }
+                    event.log("Could not complete the sykmeldt lookup")
+                } else if (HttpStatus.INTERNAL_SERVER_ERROR == status) {
+                    log
+                        .atError()
+                        .addKeyValue("event_type", "api_request_failed")
+                        .addKeyValue("outcome", "failed")
+                        .addKeyValue("operation", "api_request")
+                        .addKeyValue("failure_stage", "request_handling")
+                        .addKeyValue("failure_kind", ex.failureKind().value)
+                        .addKeyValue("error_code", "INTERNAL_SERVER_ERROR")
+                        .withFailureDiagnostics(ex)
+                        .log("Unhandled error while processing an API request")
                     request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST)
                 } else {
-                    log.warn("Fikk response med kode : {} : {} : {}", status.value(), ex.javaClass.toString(), ex.message)
+                    log
+                        .atWarn()
+                        .addKeyValue("event_type", "api_request_rejected")
+                        .addKeyValue("operation", "api_request")
+                        .addKeyValue(
+                            "rejection_reason",
+                            when (status) {
+                                HttpStatus.BAD_REQUEST -> "INVALID_INPUT"
+                                HttpStatus.UNAUTHORIZED -> "AUTHENTICATION_FAILED"
+                                HttpStatus.FORBIDDEN -> "FORBIDDEN"
+                                HttpStatus.CONFLICT -> "STATE_CONFLICT"
+                                else -> "REQUEST_REJECTED"
+                            },
+                        ).addKeyValue("response_status", status.value())
+                        .log("API request rejected")
                 }
             }
             return ResponseEntity(body, headers, status)
