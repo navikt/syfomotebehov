@@ -1,6 +1,8 @@
 package no.nav.syfo.oppfolgingstilfelle.kafka
 
 import com.fasterxml.jackson.core.JsonProcessingException
+import no.nav.syfo.consumer.pdl.PdlRequestFailedException
+import no.nav.syfo.consumer.pdl.withPdlDiagnostics
 import no.nav.syfo.testdata.reset.TestdataResetService
 import no.nav.syfo.util.failureKind
 import no.nav.syfo.util.rethrowIfCancelled
@@ -39,6 +41,9 @@ class TestdataResetListener(
                 .addKeyValue("failure_kind", e.failureKind().value)
                 .withFailureDiagnostics(e)
                 .log("Could not decode a test data reset message")
+        } catch (e: PdlRequestFailedException) {
+            e.rethrowIfCancelled()
+            log.atError().withPdlDiagnostics(e).log("Could not reset test data because the PDL lookup failed")
         } catch (e: Exception) {
             e.rethrowIfCancelled()
             log
