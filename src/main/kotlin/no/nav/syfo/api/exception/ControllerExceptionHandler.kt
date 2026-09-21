@@ -4,6 +4,8 @@ import jakarta.validation.ConstraintViolationException
 import jakarta.ws.rs.ForbiddenException
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import no.nav.syfo.consumer.brukertilgang.DineSykmeldteRequestException
+import no.nav.syfo.consumer.pdl.PdlRequestFailedException
+import no.nav.syfo.consumer.pdl.withPdlDiagnostics
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.util.failureKind
 import no.nav.syfo.util.rethrowIfCancelled
@@ -163,6 +165,9 @@ class ControllerExceptionHandler
                             .withFailureDiagnostics(ex.cause ?: ex)
                     ex.upstreamStatus?.let { event.addKeyValue("upstream_status", it) }
                     event.log("Could not complete the sykmeldt lookup")
+                } else if (ex is PdlRequestFailedException) {
+                    log.atError().withPdlDiagnostics(ex).log("PDL lookup failed")
+                    request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST)
                 } else if (HttpStatus.INTERNAL_SERVER_ERROR == status) {
                     log
                         .atError()

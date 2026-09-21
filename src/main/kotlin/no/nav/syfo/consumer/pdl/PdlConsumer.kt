@@ -5,7 +5,6 @@ import no.nav.syfo.metric.Metric
 import no.nav.syfo.util.BEHANDLINGSNUMMER_MOTEBEHOV
 import no.nav.syfo.util.PDL_BEHANDLINGSNUMMER_HEADER
 import no.nav.syfo.util.bearerCredentials
-import no.nav.syfo.util.withFailureDiagnostics
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
@@ -28,7 +27,12 @@ class PdlConsumer(
     private val restTemplate: RestTemplate,
     private val azureAdV2TokenConsumer: IAzureAdV2TokenConsumer,
 ) : IPdlConsumer {
-    override fun person(ident: String): PdlHentPerson? {
+    override fun person(ident: String): PdlHentPerson? = person(ident, throwOnGraphqlErrors = false)
+
+    private fun person(
+        ident: String,
+        throwOnGraphqlErrors: Boolean,
+    ): PdlHentPerson? {
         metric.tellHendelse("call_pdl")
 
         val query =
@@ -49,16 +53,9 @@ class PdlConsumer(
             val pdlPersonReponse = pdlPerson.body!!
             return if (pdlPersonReponse.errors != null && pdlPersonReponse.errors.isNotEmpty()) {
                 metric.tellHendelse("call_pdl_fail")
-                LOG
-                    .atError()
-                    .addKeyValue("event_type", "pdl_lookup_failed")
-                    .addKeyValue("operation", "person_fetch")
-                    .addKeyValue("upstream", "pdl")
-                    .addKeyValue("failure_stage", "graphql_response")
-                    .addKeyValue("failure_kind", "invalid_response")
-                    .addKeyValue("error_code", "PDL_GRAPHQL_ERROR")
-                    .addKeyValue("pdl_errors", pdlPersonReponse.errors)
-                    .log("PDL returned errors for the requested lookup")
+                val error = PdlRequestFailedException(pdlErrors = pdlPersonReponse.errors)
+                if (throwOnGraphqlErrors) throw error
+                LOG.atError().withPdlDiagnostics(error).log("PDL returned errors for the requested lookup")
                 null
             } else {
                 metric.tellHendelse("call_pdl_success")
@@ -66,18 +63,12 @@ class PdlConsumer(
             }
         } catch (exception: RestClientResponseException) {
             metric.tellHendelse("call_pdl_fail")
-            LOG
-                .atError()
-                .addKeyValue("event_type", "pdl_lookup_failed")
-                .addKeyValue("operation", "person_fetch")
-                .addKeyValue("upstream", "pdl")
-                .addKeyValue("failure_stage", "upstream_request")
-                .addKeyValue("failure_kind", "http")
-                .addKeyValue("error_code", "UPSTREAM_HTTP_ERROR")
-                .addKeyValue("upstream_status", exception.statusCode.value())
-                .withFailureDiagnostics(exception)
-                .log("PDL lookup failed with an HTTP error")
-            throw exception
+            throw PdlRequestFailedException(
+                cause = exception,
+                operation = "person_fetch",
+                stage = "upstream_request",
+                upstreamStatus = exception.statusCode.value(),
+            )
         }
     }
 
@@ -105,17 +96,11 @@ class PdlConsumer(
             val pdlIdenterReponse = pdlIdenter.body!!
             if (pdlIdenterReponse.errors != null && pdlIdenterReponse.errors.isNotEmpty()) {
                 metric.tellHendelse("call_pdl_fail")
-                LOG
-                    .atError()
-                    .addKeyValue("event_type", "pdl_lookup_failed")
-                    .addKeyValue("operation", "aktorid_fetch")
-                    .addKeyValue("upstream", "pdl")
-                    .addKeyValue("failure_stage", "graphql_response")
-                    .addKeyValue("failure_kind", "invalid_response")
-                    .addKeyValue("error_code", "PDL_GRAPHQL_ERROR")
-                    .addKeyValue("pdl_errors", pdlIdenterReponse.errors)
-                    .log("PDL returned errors for the requested lookup")
-                throw RuntimeException("Error while requesting AKTORID from PDL")
+                throw PdlRequestFailedException(
+                    message = "Error while requesting AKTORID from PDL",
+                    operation = "aktorid_fetch",
+                    pdlErrors = pdlIdenterReponse.errors,
+                )
             } else {
                 metric.tellHendelse("call_pdl_success")
                 try {
@@ -133,18 +118,12 @@ class PdlConsumer(
             }
         } catch (exception: RestClientResponseException) {
             metric.tellHendelse("call_pdl_fail")
-            LOG
-                .atError()
-                .addKeyValue("event_type", "pdl_lookup_failed")
-                .addKeyValue("operation", "aktorid_fetch")
-                .addKeyValue("upstream", "pdl")
-                .addKeyValue("failure_stage", "upstream_request")
-                .addKeyValue("failure_kind", "http")
-                .addKeyValue("error_code", "UPSTREAM_HTTP_ERROR")
-                .addKeyValue("upstream_status", exception.statusCode.value())
-                .withFailureDiagnostics(exception)
-                .log("PDL lookup failed with an HTTP error")
-            throw exception
+            throw PdlRequestFailedException(
+                cause = exception,
+                operation = "aktorid_fetch",
+                stage = "upstream_request",
+                upstreamStatus = exception.statusCode.value(),
+            )
         }
     }
 
@@ -172,17 +151,11 @@ class PdlConsumer(
             val pdlIdenterReponse = pdlIdenter.body!!
             if (pdlIdenterReponse.errors != null && pdlIdenterReponse.errors.isNotEmpty()) {
                 metric.tellHendelse("call_pdl_fail")
-                LOG
-                    .atError()
-                    .addKeyValue("event_type", "pdl_lookup_failed")
-                    .addKeyValue("operation", "personident_fetch")
-                    .addKeyValue("upstream", "pdl")
-                    .addKeyValue("failure_stage", "graphql_response")
-                    .addKeyValue("failure_kind", "invalid_response")
-                    .addKeyValue("error_code", "PDL_GRAPHQL_ERROR")
-                    .addKeyValue("pdl_errors", pdlIdenterReponse.errors)
-                    .log("PDL returned errors for the requested lookup")
-                throw RuntimeException("Error while requesting FNR from PDL")
+                throw PdlRequestFailedException(
+                    message = "Error while requesting FNR from PDL",
+                    operation = "personident_fetch",
+                    pdlErrors = pdlIdenterReponse.errors,
+                )
             } else {
                 metric.tellHendelse("call_pdl_success")
                 try {
@@ -200,22 +173,16 @@ class PdlConsumer(
             }
         } catch (exception: RestClientResponseException) {
             metric.tellHendelse("call_pdl_fail")
-            LOG
-                .atError()
-                .addKeyValue("event_type", "pdl_lookup_failed")
-                .addKeyValue("operation", "personident_fetch")
-                .addKeyValue("upstream", "pdl")
-                .addKeyValue("failure_stage", "upstream_request")
-                .addKeyValue("failure_kind", "http")
-                .addKeyValue("error_code", "UPSTREAM_HTTP_ERROR")
-                .addKeyValue("upstream_status", exception.statusCode.value())
-                .withFailureDiagnostics(exception)
-                .log("PDL lookup failed with an HTTP error")
-            throw exception
+            throw PdlRequestFailedException(
+                cause = exception,
+                operation = "personident_fetch",
+                stage = "upstream_request",
+                upstreamStatus = exception.statusCode.value(),
+            )
         }
     }
 
-    override fun isKode6(fnr: String): Boolean = person(fnr)?.isKode6() ?: throw PdlRequestFailedException()
+    override fun isKode6(fnr: String): Boolean = person(fnr, throwOnGraphqlErrors = true)?.isKode6() ?: throw PdlRequestFailedException()
 
     private fun createRequestEntity(request: PdlRequest): HttpEntity<PdlRequest> {
         val token = azureAdV2TokenConsumer.getSystemToken(pdlClientId)
