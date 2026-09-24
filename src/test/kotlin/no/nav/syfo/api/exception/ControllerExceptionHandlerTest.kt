@@ -63,8 +63,9 @@ class ControllerExceptionHandlerTest :
                             mockk<WebRequest>(relaxed = true),
                         ).statusCode shouldBe HttpStatus.UNAUTHORIZED
                 }
-            logs.single()["event_type"].asText() shouldBe "api_request_rejected"
-            logs.single()["exception_type"].asText().isNotEmpty() shouldBe true
+            logs.single()["event_type"].asText() shouldBe "api_request_invalid"
+            logs.single()["error_type"].asText() shouldBe "AUTHENTICATION_FAILED"
+            logs.single()["exception_type"].asText() shouldBe "JwtTokenUnauthorizedException"
         }
 
         test("mapper ulesbar request-body til bad request") {
@@ -119,17 +120,18 @@ class ControllerExceptionHandlerTest :
             logs[0]["error_type"].asText() shouldBe "INVALID_INPUT"
             logs[0]["exception_type"].asText() shouldBe "IllegalArgumentException"
             logs[0]["response_status"].asInt() shouldBe 400
-            logs[1]["event_type"].asText() shouldBe "api_request_rejected"
-            logs[1]["rejection_reason"].asText() shouldBe "FORBIDDEN"
+            logs[1]["event_type"].asText() shouldBe "api_request_invalid"
+            logs[1]["error_type"].asText() shouldBe "FORBIDDEN"
             logs[1]["exception_type"].asText() shouldBe "ForbiddenException"
             logs[1]["response_status"].asInt() shouldBe 403
             logs.forEach {
+                it["rejection_reason"] shouldBe null
                 it["stack_trace"] shouldBe null
                 it.toString().contains("PRIVATE_") shouldBe false
             }
         }
 
-        test("conflict keeps its exception type in the rejection event") {
+        test("conflict keeps its exception type without counting as an API rejection") {
             val logs =
                 captureApplicationLogs {
                     ControllerExceptionHandler(mockk<Metric>(relaxed = true))
@@ -137,7 +139,8 @@ class ControllerExceptionHandlerTest :
                         .statusCode shouldBe HttpStatus.CONFLICT
                 }
             logs.single()["exception_type"].asText() shouldBe "ConflictException"
-            logs.single()["rejection_reason"].asText() shouldBe "STATE_CONFLICT"
+            logs.single()["event_type"].asText() shouldBe "api_request_invalid"
+            logs.single()["error_type"].asText() shouldBe "STATE_CONFLICT"
             logs.single()["stack_trace"] shouldBe null
         }
 

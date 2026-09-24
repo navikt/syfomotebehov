@@ -7,7 +7,7 @@ import no.nav.syfo.consumer.brukertilgang.DineSykmeldteRequestException
 import no.nav.syfo.consumer.pdl.PdlRequestFailedException
 import no.nav.syfo.consumer.pdl.withPdlDiagnostics
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.util.diagnosticType
+import no.nav.syfo.util.exceptionCategory
 import no.nav.syfo.util.failureKind
 import no.nav.syfo.util.isCancellation
 import no.nav.syfo.util.withFailureDiagnostics
@@ -158,7 +158,7 @@ class ControllerExceptionHandler
                         .atWarn()
                         .addKeyValue("event_type", "api_request_cancelled")
                         .addKeyValue("operation", "api_request")
-                        .addKeyValue("exception_type", ex.diagnosticType())
+                        .addKeyValue("exception_type", ex.exceptionCategory())
                         .addKeyValue("response_status", status.value())
                         .log("API request cancelled")
                     request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST)
@@ -178,42 +178,37 @@ class ControllerExceptionHandler
                     log.atError().withPdlDiagnostics(ex).log("PDL lookup failed")
                     request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST)
                 } else if (HttpStatus.INTERNAL_SERVER_ERROR == status) {
+                    val failureKind = ex.failureKind()
                     log
                         .atError()
                         .addKeyValue("event_type", "api_request_failed")
                         .addKeyValue("outcome", "failed")
                         .addKeyValue("operation", "api_request")
                         .addKeyValue("failure_stage", "request_handling")
-                        .addKeyValue("failure_kind", ex.failureKind().value)
-                        .addKeyValue("error_code", "INTERNAL_SERVER_ERROR")
+                        .addKeyValue("failure_kind", failureKind.value)
+                        .addKeyValue("error_code", failureKind.errorCode)
                         .withFailureDiagnostics(ex)
                         .log("Unhandled error while processing an API request")
                     request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST)
-                } else if (status == HttpStatus.BAD_REQUEST) {
+                } else {
+                    // Ordinary 4xx is not an api_request_rejected: the team dashboard counts only explicit,
+                    // code-owned rejections, so a status-derived rejection would inflate it.
                     log
                         .atWarn()
                         .addKeyValue("event_type", "api_request_invalid")
                         .addKeyValue("operation", "api_request")
                         .addKeyValue("response_status", status.value())
-                        .addKeyValue("error_type", "INVALID_INPUT")
-                        .addKeyValue("exception_type", ex.diagnosticType())
-                        .log("API request invalid")
-                } else {
-                    log
-                        .atWarn()
-                        .addKeyValue("event_type", "api_request_rejected")
-                        .addKeyValue("operation", "api_request")
                         .addKeyValue(
-                            "rejection_reason",
+                            "error_type",
                             when (status) {
+                                HttpStatus.BAD_REQUEST -> "INVALID_INPUT"
                                 HttpStatus.UNAUTHORIZED -> "AUTHENTICATION_FAILED"
                                 HttpStatus.FORBIDDEN -> "FORBIDDEN"
                                 HttpStatus.CONFLICT -> "STATE_CONFLICT"
-                                else -> "REQUEST_REJECTED"
+                                else -> "CLIENT_ERROR"
                             },
-                        ).addKeyValue("response_status", status.value())
-                        .addKeyValue("exception_type", ex.diagnosticType())
-                        .log("API request rejected")
+                        ).addKeyValue("exception_type", ex.exceptionCategory())
+                        .log("API request invalid")
                 }
             }
             return ResponseEntity(body, headers, status)

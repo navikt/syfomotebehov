@@ -67,7 +67,7 @@ fun Throwable.upstreamStatus(): Int? =
             is RestClientResponseException -> it.statusCode.value()
             is WebClientResponseException -> it.statusCode.value()
             else -> null
-        }
+        }?.takeIf { status -> status in 100..599 }
     }
 
 fun Throwable.isCancellation(): Boolean = causeChain().any { it is CancellationException || it is InterruptedException }
@@ -88,8 +88,8 @@ fun LoggingEventBuilder.withFailureDiagnostics(cause: Throwable): LoggingEventBu
     }
     cause.upstreamStatus()?.let { addKeyValue("upstream_status", it) }
     chain.filterIsInstance<DiagnosticFailure>().firstOrNull()?.addDiagnosticFields(this)
-    return addKeyValue("exception_type", cause.diagnosticType())
-        .addKeyValue("cause_type", chain.last().diagnosticType())
+    return addKeyValue("exception_type", cause.exceptionCategory())
+        .addKeyValue("cause_type", chain.last().exceptionCategory())
         .addKeyValue(
             "stack_trace",
             chain.joinToString("\nCaused by: ") { error ->
@@ -110,6 +110,15 @@ private fun Throwable.causeChain(): List<Throwable> {
 }
 
 private val TYPE_NAME = Regex("^[A-Za-z][A-Za-z0-9_$]{0,143}$")
+private val EXCEPTION_CATEGORY = Regex("^([A-Za-z][A-Za-z0-9_$]{0,143})?(Error|Exception)$")
 private val SQL_STATE = Regex("^[A-Z0-9]{5}$")
 
-fun Throwable.diagnosticType(): String = javaClass.name.substringAfterLast('.').takeIf(TYPE_NAME::matches) ?: "Throwable"
+private fun Throwable.diagnosticType(): String = javaClass.name.substringAfterLast('.').takeIf(TYPE_NAME::matches) ?: "Throwable"
+
+// team-esyfo runtime-error contract: exception_type and cause_type must end with Error or Exception.
+// Nested, anonymous or oddly named classes fall back to their nearest conforming superclass.
+fun Throwable.exceptionCategory(): String =
+    generateSequence<Class<*>>(javaClass) { it.superclass }
+        .map { it.name.substringAfterLast('.') }
+        .firstOrNull(EXCEPTION_CATEGORY::matches)
+        ?: "Exception"

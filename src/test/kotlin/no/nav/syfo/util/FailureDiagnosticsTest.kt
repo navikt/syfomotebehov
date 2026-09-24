@@ -144,6 +144,45 @@ class FailureDiagnosticsTest :
             event.toString().contains("PRIVATE_") shouldBe false
         }
 
+        test("exception categories follow the team contract and out-of-range upstream status is omitted") {
+            val contract = Regex("^([A-Za-z][A-Za-z0-9_.:$]{0,143})?(Error|Exception)$")
+            val forbidden =
+                org.springframework.web.client.HttpClientErrorException.create(
+                    org.springframework.http.HttpStatus.FORBIDDEN,
+                    "PRIVATE_STATUS",
+                    org.springframework.http.HttpHeaders(),
+                    ByteArray(0),
+                    null,
+                )
+            val anonymous = object : IllegalStateException("PRIVATE_ANONYMOUS") {}
+            val oddlyNamed = OddlyNamedFailure()
+            val outOfRange =
+                object : RuntimeException("PRIVATE_STATUS_FAILURE", oddlyNamed), DiagnosticFailure {
+                    override val upstreamStatus = 42
+                }
+
+            forbidden.exceptionCategory() shouldBe "HttpClientErrorException"
+            anonymous.exceptionCategory() shouldBe "IllegalStateException"
+            oddlyNamed.exceptionCategory() shouldBe "RuntimeException"
+            Throwable("PRIVATE_RAW").exceptionCategory() shouldBe "Exception"
+            forbidden.upstreamStatus() shouldBe 403
+            outOfRange.upstreamStatus() shouldBe null
+
+            val event =
+                captureApplicationLogs {
+                    LoggerFactory
+                        .getLogger("no.nav.syfo.diagnostics")
+                        .atError()
+                        .withFailureDiagnostics(outOfRange)
+                        .log("Failure")
+                }.single()
+            contract.matches(event["exception_type"].asText()) shouldBe true
+            event["cause_type"].asText() shouldBe "RuntimeException"
+            event["upstream_status"] shouldBe null
+            event["stack_trace"].asText().contains("OddlyNamedFailure") shouldBe true
+            event.toString().contains("PRIVATE_") shouldBe false
+        }
+
         test("interruption is preserved rather than reported as an upstream failure") {
             val interrupted = InterruptedException("shutdown")
             try {
@@ -156,3 +195,5 @@ class FailureDiagnosticsTest :
             }
         }
     })
+
+private class OddlyNamedFailure : RuntimeException("PRIVATE_ODD")
