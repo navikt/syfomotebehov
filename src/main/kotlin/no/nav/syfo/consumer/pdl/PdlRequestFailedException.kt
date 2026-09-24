@@ -1,5 +1,6 @@
 package no.nav.syfo.consumer.pdl
 
+import no.nav.syfo.util.DiagnosticFailure
 import no.nav.syfo.util.FailureKind
 import no.nav.syfo.util.withFailureDiagnostics
 import org.slf4j.spi.LoggingEventBuilder
@@ -13,8 +14,14 @@ class PdlRequestFailedException(
     val operation: String = "person_fetch",
     val stage: String = "graphql_response",
     val pdlErrors: List<PdlError>? = null,
-    val upstreamStatus: Int? = null,
-) : RuntimeException(message, cause)
+    override val upstreamStatus: Int? = null,
+) : RuntimeException(message, cause),
+    DiagnosticFailure {
+    override fun addDiagnosticFields(event: LoggingEventBuilder) {
+        event.addKeyValue("pdl_operation", operation)
+        pdlErrors?.takeIf { it.isNotEmpty() }?.let { event.addKeyValue("pdl_errors", it) }
+    }
+}
 
 fun LoggingEventBuilder.withPdlDiagnostics(error: PdlRequestFailedException): LoggingEventBuilder {
     val httpFailure = error.upstreamStatus != null
@@ -32,8 +39,5 @@ fun LoggingEventBuilder.withPdlDiagnostics(error: PdlRequestFailedException): Lo
                 else -> "PDL_RESPONSE_MISSING_DATA"
             },
         )
-    error.pdlErrors?.let { addKeyValue("pdl_errors", it) }
-    error.upstreamStatus?.let { addKeyValue("upstream_status", it) }
-    error.cause?.let { withFailureDiagnostics(it) }
-    return this
+    return withFailureDiagnostics(error)
 }

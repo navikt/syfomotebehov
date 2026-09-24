@@ -2,9 +2,8 @@ package no.nav.syfo.util
 
 import org.slf4j.spi.LoggingEventBuilder
 import org.springframework.core.codec.CodecException
-import org.springframework.dao.DataAccessException
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.client.RestClientResponseException
-import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import java.net.ConnectException
 import java.net.SocketException
@@ -30,6 +29,12 @@ enum class FailureKind(
     UNKNOWN("unknown", "UNEXPECTED_ERROR"),
 }
 
+interface DiagnosticFailure {
+    val upstreamStatus: Int?
+
+    fun addDiagnosticFields(event: LoggingEventBuilder) {}
+}
+
 fun Throwable.failureKind(): FailureKind {
     val causes = causeChain()
     return when {
@@ -43,7 +48,14 @@ fun Throwable.failureKind(): FailureKind {
         causes.any { it is SSLException } -> FailureKind.TLS
         causes.any { it is ConnectException || it is SocketException } -> FailureKind.CONNECTION
         causes.any { it is RestClientResponseException || it is WebClientResponseException } -> FailureKind.HTTP
-        causes.any { it is CodecException || it is com.fasterxml.jackson.core.JsonProcessingException } -> FailureKind.INVALID_RESPONSE
+        causes.any {
+            it is CodecException ||
+                it is com.fasterxml.jackson.core.JsonProcessingException ||
+                it is tools.jackson.core.JacksonException ||
+                it is HttpMessageNotReadableException ||
+                it is org.apache.kafka.common.errors.RecordDeserializationException ||
+                it is org.springframework.kafka.support.serializer.DeserializationException
+        } -> FailureKind.INVALID_RESPONSE
         else -> FailureKind.UNKNOWN
     }
 }
@@ -51,11 +63,14 @@ fun Throwable.failureKind(): FailureKind {
 fun Throwable.upstreamStatus(): Int? =
     causeChain().firstNotNullOfOrNull {
         when (it) {
+            is DiagnosticFailure -> it.upstreamStatus
             is RestClientResponseException -> it.statusCode.value()
             is WebClientResponseException -> it.statusCode.value()
             else -> null
         }
     }
+
+fun Throwable.isCancellation(): Boolean = causeChain().any { it is CancellationException || it is InterruptedException }
 
 fun Throwable.rethrowIfCancelled() {
     causeChain().firstOrNull { it is CancellationException || it is InterruptedException }?.let {
@@ -68,15 +83,17 @@ fun Throwable.rethrowIfCancelled() {
 // messages may contain credentials, request URLs or personal data, even in causes.
 fun LoggingEventBuilder.withFailureDiagnostics(cause: Throwable): LoggingEventBuilder {
     val chain = cause.causeChain()
-    chain.filterIsInstance<SQLException>().firstNotNullOfOrNull { it.sqlState }?.let {
+    chain.filterIsInstance<SQLException>().firstNotNullOfOrNull { it.sqlState?.takeIf(SQL_STATE::matches) }?.let {
         addKeyValue("sql_state", it)
     }
-    return addKeyValue("exception_type", cause.safeType())
-        .addKeyValue("cause_type", chain.last().safeType())
+    cause.upstreamStatus()?.let { addKeyValue("upstream_status", it) }
+    chain.filterIsInstance<DiagnosticFailure>().firstOrNull()?.addDiagnosticFields(this)
+    return addKeyValue("exception_type", cause.diagnosticType())
+        .addKeyValue("cause_type", chain.last().diagnosticType())
         .addKeyValue(
             "stack_trace",
             chain.joinToString("\nCaused by: ") { error ->
-                error.safeType() + error.stackTrace.take(30).joinToString("\n\tat ", prefix = "\n\tat ")
+                error.diagnosticType() + error.stackTrace.take(30).joinToString("\n\tat ", prefix = "\n\tat ")
             },
         )
 }
@@ -92,32 +109,7 @@ private fun Throwable.causeChain(): List<Throwable> {
     return result
 }
 
-private fun Throwable.safeType(): String =
-    when (this) {
-        is UnknownHostException -> "UnknownHostException"
-        is SocketTimeoutException -> "SocketTimeoutException"
-        is TimeoutException -> "TimeoutException"
-        is SSLException -> "SSLException"
-        is ConnectException -> "ConnectException"
-        is SocketException -> "SocketException"
-        is RestClientResponseException -> "RestClientResponseException"
-        is WebClientResponseException -> "WebClientResponseException"
-        is WebClientRequestException -> "WebClientRequestException"
-        is CodecException -> "CodecException"
-        is org.springframework.dao.DataIntegrityViolationException -> "DataIntegrityViolationException"
-        is DataAccessException -> "DataAccessException"
-        is java.sql.SQLException -> "SQLException"
-        is org.apache.kafka.common.errors.TimeoutException -> "TimeoutException"
-        is org.apache.kafka.common.errors.RecordTooLargeException -> "RecordTooLargeException"
-        is org.apache.kafka.common.errors.SerializationException -> "SerializationException"
-        is org.apache.kafka.common.errors.ProducerFencedException -> "ProducerFencedException"
-        is org.apache.kafka.common.errors.NotEnoughReplicasException -> "NotEnoughReplicasException"
-        is io.netty.handler.timeout.TimeoutException -> "TimeoutException"
-        is org.apache.kafka.common.KafkaException -> "KafkaException"
-        is com.fasterxml.jackson.core.JsonProcessingException -> "JsonProcessingException"
-        is IllegalArgumentException -> "IllegalArgumentException"
-        is IllegalStateException -> "IllegalStateException"
-        is NullPointerException -> "NullPointerException"
-        is java.io.IOException -> "IOException"
-        else -> "UnknownException"
-    }
+private val TYPE_NAME = Regex("^[A-Za-z][A-Za-z0-9_$]{0,143}$")
+private val SQL_STATE = Regex("^[A-Z0-9]{5}$")
+
+fun Throwable.diagnosticType(): String = javaClass.name.substringAfterLast('.').takeIf(TYPE_NAME::matches) ?: "Throwable"

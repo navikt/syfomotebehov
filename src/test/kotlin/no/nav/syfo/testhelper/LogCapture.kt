@@ -5,6 +5,8 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.OutputStreamAppender
 import net.logstash.logback.encoder.LogstashEncoder
 import org.slf4j.LoggerFactory
+import tools.jackson.core.StreamReadFeature
+import tools.jackson.core.json.JsonFactory
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ObjectMapper
 import java.io.ByteArrayOutputStream
@@ -32,7 +34,7 @@ fun captureApplicationLogs(action: () -> Unit): List<JsonNode> {
         appender.stop()
         encoder.stop()
     }
-    val mapper = ObjectMapper()
+    val mapper = ObjectMapper(JsonFactory.builder().enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build())
     return output
         .toString(Charsets.UTF_8)
         .lineSequence()

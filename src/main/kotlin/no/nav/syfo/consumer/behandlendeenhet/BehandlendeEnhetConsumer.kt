@@ -61,7 +61,6 @@ class BehandlendeEnhetConsumer(
                 .addKeyValue("failure_stage", "upstream_request")
                 .addKeyValue("failure_kind", "http")
                 .addKeyValue("error_code", "UPSTREAM_HTTP_ERROR")
-                .addKeyValue("upstream_status", e.statusCode.value())
                 .withFailureDiagnostics(e)
                 .log("Could not fetch the responsible unit")
             metric.countOutgoingReponses(METRIC_CALL_BEHANDLENDEENHET, e.statusCode.value())

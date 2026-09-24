@@ -42,6 +42,8 @@ class DialogmotekandidatListener(
             log
                 .atWarn()
                 .addKeyValue("event_type", "dialogmotekandidat_processing_failed")
+                .addKeyValue("event", "dialogmotekandidat.failed")
+                .addKeyValue("uuid", melding.uuid)
                 .addKeyValue("operation", "dialogmotekandidat_consume")
                 .addKeyValue("upstream", "kafka")
                 .addKeyValue("failure_stage", "message_processing")

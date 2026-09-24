@@ -67,6 +67,7 @@ class DineSykmeldteConsumerTest :
                 val event = logs.single()
                 event["level"].asText() shouldBe "ERROR"
                 event["event_type"].asText() shouldBe "sykmeldt_lookup_failed"
+                event["exception_type"].asText() shouldBe "DineSykmeldteRequestException"
                 event["upstream"].asText() shouldBe "dinesykmeldte-backend"
                 event["operation"].asText() shouldBe "sykmeldt_fetch"
                 event["failure_kind"].asText() shouldBe kind
@@ -100,7 +101,7 @@ class DineSykmeldteConsumerTest :
             fixture.request.get() shouldBe null
         }
 
-        test("cancellation propagates without a terminal error event") {
+        test("consumer propagates cancellation while API handler emits one sanitized WARN response") {
             val cancelled = CancellationException("cancelled")
             val fixture = fixture(Mono.error(cancelled))
             val logs =
@@ -108,11 +109,15 @@ class DineSykmeldteConsumerTest :
                     shouldThrow<CancellationException> {
                         fixture.consumer.getSykmeldt(NARMESTE_LEDER_ID)
                     } shouldBe cancelled
-                    shouldThrow<CancellationException> {
-                        ControllerExceptionHandler(fixture.metric).handleException(cancelled, mockk<WebRequest>(relaxed = true))
-                    } shouldBe cancelled
+                    ControllerExceptionHandler(fixture.metric)
+                        .handleException(cancelled, mockk<WebRequest>(relaxed = true))
+                        .statusCode shouldBe HttpStatus.INTERNAL_SERVER_ERROR
                 }
-            logs shouldBe emptyList()
+            logs.size shouldBe 1
+            logs.single()["level"].asText() shouldBe "WARN"
+            logs.single()["event_type"].asText() shouldBe "api_request_cancelled"
+            logs.single()["stack_trace"] shouldBe null
+            logs.single().toString().contains("12345678910") shouldBe false
         }
 
         test("veksler token og leser tilgangsfeltene uten å bruke aktivSykmelding") {

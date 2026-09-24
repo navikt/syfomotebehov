@@ -51,7 +51,6 @@ class AzureAdV2TokenConsumer
                     .addKeyValue("failure_stage", "token_exchange")
                     .addKeyValue("failure_kind", "http")
                     .addKeyValue("error_code", "UPSTREAM_HTTP_ERROR")
-                    .addKeyValue("upstream_status", e.statusCode.value())
                     .withFailureDiagnostics(e)
                     .log("Could not obtain an access token from Azure AD")
                 throw e
@@ -91,7 +90,6 @@ class AzureAdV2TokenConsumer
                         .addKeyValue("failure_stage", "token_exchange")
                         .addKeyValue("failure_kind", "http")
                         .addKeyValue("error_code", "UPSTREAM_HTTP_ERROR")
-                        .addKeyValue("upstream_status", e.statusCode.value())
                         .withFailureDiagnostics(e)
                         .log("Could not obtain an access token from Azure AD")
                     throw e

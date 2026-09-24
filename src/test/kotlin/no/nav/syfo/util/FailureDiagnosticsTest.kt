@@ -4,7 +4,12 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.syfo.testhelper.captureApplicationLogs
+import org.apache.kafka.common.TopicPartition
+import org.apache.kafka.common.errors.RecordDeserializationException
 import org.slf4j.LoggerFactory
+import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.kafka.support.serializer.DeserializationException
+import org.springframework.web.client.RestClientException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -37,6 +42,25 @@ class FailureDiagnosticsTest :
             }
         }
 
+        test("nested Kafka deserialization failures classify as invalid responses") {
+            listOf(
+                RecordDeserializationException(
+                    TopicPartition("test-topic", 0),
+                    0L,
+                    "fake record decode failure",
+                    IllegalArgumentException("fake record"),
+                ),
+                DeserializationException(
+                    "fake value decode failure",
+                    byteArrayOf(1, 2, 3),
+                    false,
+                    IllegalArgumentException("fake value"),
+                ),
+            ).forEach { cause ->
+                RuntimeException("fake wrapper", cause).failureKind() shouldBe FailureKind.INVALID_RESPONSE
+            }
+        }
+
         test("database diagnostics preserve standard SQL state without logging SQL or submitted data") {
             val error =
                 org.springframework.dao.DataIntegrityViolationException(
@@ -56,6 +80,23 @@ class FailureDiagnosticsTest :
             logs.single().toString().contains("PRIVATE_") shouldBe false
         }
 
+        test("unlisted exception types survive the sanitized cause chain and invalid SQL state is omitted") {
+            val error = RuntimeException("PRIVATE_MESSAGE", java.sql.SQLException("PRIVATE_SQL", "PRIVATE_STATE"))
+            val event =
+                captureApplicationLogs {
+                    LoggerFactory
+                        .getLogger("no.nav.syfo.diagnostics")
+                        .atError()
+                        .withFailureDiagnostics(error)
+                        .log("Failure")
+                }.single()
+            event["exception_type"].asText() shouldBe "RuntimeException"
+            event["cause_type"].asText() shouldBe "SQLException"
+            event["stack_trace"].asText().contains("RuntimeException") shouldBe true
+            event["sql_state"] shouldBe null
+            event.toString().contains("PRIVATE_") shouldBe false
+        }
+
         test("cause cycles terminate and cancellation is rethrown") {
             val first = IllegalStateException("first")
             val second = IllegalStateException("second", first)
@@ -65,6 +106,42 @@ class FailureDiagnosticsTest :
             shouldThrow<CancellationException> {
                 RuntimeException(cancelled).rethrowIfCancelled()
             } shouldBe cancelled
+        }
+
+        test("Jackson 3 response decode errors classify as invalid responses through RestTemplate wrappers") {
+            val jackson =
+                tools.jackson.core.exc.JacksonIOException
+                    .construct(java.io.IOException("PRIVATE_JSON"))
+            val unreadable = HttpMessageNotReadableException("PRIVATE_BODY", jackson, io.mockk.mockk())
+            val failure = RestClientException("PRIVATE_REQUEST", unreadable)
+            failure.failureKind() shouldBe FailureKind.INVALID_RESPONSE
+            val event =
+                captureApplicationLogs {
+                    LoggerFactory
+                        .getLogger("no.nav.syfo.diagnostics")
+                        .atError()
+                        .withFailureDiagnostics(failure)
+                        .log("Invalid response")
+                }.single()
+            event["cause_type"].asText() shouldBe "IOException"
+            event["stack_trace"].asText().contains("JacksonIOException") shouldBe true
+            event.toString().contains("PRIVATE_") shouldBe false
+        }
+
+        test("nested unlisted types keep their names without leaking exception messages") {
+            val error = NoSuchElementException("PRIVATE_CAUSE")
+            val event =
+                captureApplicationLogs {
+                    LoggerFactory
+                        .getLogger("no.nav.syfo.diagnostics")
+                        .atError()
+                        .withFailureDiagnostics(RuntimeException("PRIVATE_WRAPPER", error))
+                        .log("Failure")
+                }.single()
+            event["exception_type"].asText() shouldBe "RuntimeException"
+            event["cause_type"].asText() shouldBe "NoSuchElementException"
+            event["stack_trace"].asText().contains("NoSuchElementException") shouldBe true
+            event.toString().contains("PRIVATE_") shouldBe false
         }
 
         test("interruption is preserved rather than reported as an upstream failure") {

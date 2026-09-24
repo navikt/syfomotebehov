@@ -64,6 +64,9 @@ class PdlLoggingTest :
                 event["failure_stage"].asString() shouldBe "upstream_request"
                 event["failure_kind"].asString() shouldBe "http"
                 event["upstream_status"].asInt() shouldBe 503
+                event["exception_type"].asString() shouldBe "PdlRequestFailedException"
+                event["pdl_operation"].asString() shouldBe operation
+                event["stack_trace"].asString().contains("PdlConsumer") shouldBe true
                 event["error_code"].asString() shouldBe "UPSTREAM_HTTP_ERROR"
                 event.toString().contains("PRIVATE_") shouldBe false
                 event.toString().contains("12345678910") shouldBe false
@@ -120,6 +123,8 @@ class PdlLoggingTest :
                 event["upstream"].asString() shouldBe "pdl"
                 event["failure_stage"].asString() shouldBe "graphql_response"
                 event["error_code"].asString() shouldBe "PDL_GRAPHQL_ERROR"
+                event["exception_type"].asString() shouldBe "PdlRequestFailedException"
+                event["pdl_operation"].asString() shouldBe if (operation == "is_kode6") "person_fetch" else operation
                 event["pdl_errors"].size() shouldBe 2
                 event["pdl_errors"][0]["message"].asString() shouldBe errors[0].message
                 event["pdl_errors"][1]["message"].asString() shouldBe errors[1].message

@@ -7,7 +7,6 @@ import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.util.failureKind
 import no.nav.syfo.util.rethrowIfCancelled
-import no.nav.syfo.util.upstreamStatus
 import no.nav.syfo.util.withFailureDiagnostics
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -52,18 +51,16 @@ class NarmesteLederClient(
             e.rethrowIfCancelled()
             // Azure AD already logs HTTP token failures; preserve other token failures here.
             if (tokenExchanged || e !is RestClientResponseException) {
-                val event =
-                    log
-                        .atError()
-                        .addKeyValue("event_type", "narmeste_leder_fetch_failed")
-                        .addKeyValue("operation", "narmeste_leder_fetch")
-                        .addKeyValue("upstream", if (tokenExchanged) "isnarmesteleder" else "azuread")
-                        .addKeyValue("failure_stage", if (tokenExchanged) "upstream_request" else "token_exchange")
-                        .addKeyValue("failure_kind", e.failureKind().value)
-                        .addKeyValue("error_code", e.failureKind().errorCode)
-                        .withFailureDiagnostics(e)
-                e.upstreamStatus()?.let { event.addKeyValue("upstream_status", it) }
-                event.log("Could not fetch nearest leader relations")
+                log
+                    .atError()
+                    .addKeyValue("event_type", "narmeste_leder_fetch_failed")
+                    .addKeyValue("operation", "narmeste_leder_fetch")
+                    .addKeyValue("upstream", if (tokenExchanged) "isnarmesteleder" else "azuread")
+                    .addKeyValue("failure_stage", if (tokenExchanged) "upstream_request" else "token_exchange")
+                    .addKeyValue("failure_kind", e.failureKind().value)
+                    .addKeyValue("error_code", e.failureKind().errorCode)
+                    .withFailureDiagnostics(e)
+                    .log("Could not fetch nearest leader relations")
             }
             throw e
         }
