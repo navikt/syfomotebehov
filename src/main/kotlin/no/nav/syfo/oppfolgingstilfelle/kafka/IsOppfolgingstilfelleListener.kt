@@ -1,10 +1,10 @@
 package no.nav.syfo.oppfolgingstilfelle.kafka
 
 import com.fasterxml.jackson.core.JsonProcessingException
+import no.nav.esyfo.observability.rethrowIfCancelled
 import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfellePerson
 import no.nav.syfo.util.failureKind
-import no.nav.syfo.util.rethrowIfCancelled
 import no.nav.syfo.util.withFailureDiagnostics
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory

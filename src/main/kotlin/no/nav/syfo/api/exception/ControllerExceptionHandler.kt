@@ -2,14 +2,14 @@ package no.nav.syfo.api.exception
 
 import jakarta.validation.ConstraintViolationException
 import jakarta.ws.rs.ForbiddenException
+import no.nav.esyfo.observability.exceptionType
+import no.nav.esyfo.observability.isCancellation
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import no.nav.syfo.consumer.brukertilgang.DineSykmeldteRequestException
 import no.nav.syfo.consumer.pdl.PdlRequestFailedException
 import no.nav.syfo.consumer.pdl.withPdlDiagnostics
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.util.exceptionCategory
 import no.nav.syfo.util.failureKind
-import no.nav.syfo.util.isCancellation
 import no.nav.syfo.util.withFailureDiagnostics
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
@@ -158,7 +158,7 @@ class ControllerExceptionHandler
                         .atWarn()
                         .addKeyValue("event_type", "api_request_cancelled")
                         .addKeyValue("operation", "api_request")
-                        .addKeyValue("exception_type", ex.exceptionCategory())
+                        .addKeyValue("exception_type", ex.exceptionType())
                         .addKeyValue("response_status", status.value())
                         .log("API request cancelled")
                     request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST)
@@ -207,7 +207,7 @@ class ControllerExceptionHandler
                                 HttpStatus.CONFLICT -> "STATE_CONFLICT"
                                 else -> "CLIENT_ERROR"
                             },
-                        ).addKeyValue("exception_type", ex.exceptionCategory())
+                        ).addKeyValue("exception_type", ex.exceptionType())
                         .log("API request invalid")
                 }
             }

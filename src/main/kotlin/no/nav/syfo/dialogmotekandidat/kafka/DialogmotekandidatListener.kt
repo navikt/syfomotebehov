@@ -1,9 +1,9 @@
 package no.nav.syfo.dialogmotekandidat.kafka
 
 import net.logstash.logback.argument.StructuredArguments.kv
+import no.nav.esyfo.observability.rethrowIfCancelled
 import no.nav.syfo.dialogmotekandidat.DialogmotekandidatService
 import no.nav.syfo.util.failureKind
-import no.nav.syfo.util.rethrowIfCancelled
 import no.nav.syfo.util.withFailureDiagnostics
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory

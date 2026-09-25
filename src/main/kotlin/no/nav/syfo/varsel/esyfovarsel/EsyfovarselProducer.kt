@@ -1,7 +1,7 @@
 package no.nav.syfo.varsel.esyfovarsel
 
+import no.nav.esyfo.observability.rethrowIfCancelled
 import no.nav.syfo.util.failureKind
-import no.nav.syfo.util.rethrowIfCancelled
 import no.nav.syfo.util.withFailureDiagnostics
 import no.nav.syfo.varsel.esyfovarsel.domain.EsyfovarselHendelse
 import org.apache.kafka.clients.producer.ProducerRecord

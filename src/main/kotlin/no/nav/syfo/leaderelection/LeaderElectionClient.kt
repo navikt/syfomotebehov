@@ -1,8 +1,8 @@
 package no.nav.syfo.leaderelection
 
+import no.nav.esyfo.observability.rethrowIfCancelled
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.util.failureKind
-import no.nav.syfo.util.rethrowIfCancelled
 import no.nav.syfo.util.withFailureDiagnostics
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
