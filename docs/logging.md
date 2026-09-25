@@ -16,9 +16,11 @@ med typenavn og maksimalt 30 rammer per årsak, aldri unntaksmeldinger.
 og slutter alltid på `Error` eller `Exception`. Når de finnes, legges også
 `upstream_status` (100–599), gyldig `sql_state` og unntakets egne diagnosefelt
 til, for eksempel `pdl_operation` og `pdl_errors`.
-Kontraktfeltene `exception_type`, `cause_type`, `sql_state` og `upstream_status`
-samt håndtering av kansellering kommer fra [esyfo-logger](https://github.com/navikt/esyfo-observability).
-Klassifisering av feil, `DiagnosticFailure` og det rensede stacksporet ligger fortsatt i appen.
+`exception_type`, `cause_type` og `sql_state` lages av
+[esyfo-logger](https://github.com/navikt/esyfo-observability), som også sjekker at
+`upstream_status` er mellom 100 og 599 og håndterer kansellering. Appen henter selv
+statusen fra `DiagnosticFailure` og Springs responsunntak. Klassifisering av feil,
+`DiagnosticFailure` og det rensede stacksporet ligger fortsatt i appen.
 
 API-grensen logger 4xx som WARN `api_request_invalid` med `error_type`, 5xx som
 ERROR `api_request_failed` og kansellering som WARN `api_request_cancelled`.
