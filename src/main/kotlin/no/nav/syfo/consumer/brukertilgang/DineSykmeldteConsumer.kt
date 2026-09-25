@@ -1,5 +1,6 @@
 package no.nav.syfo.consumer.brukertilgang
 
+import no.nav.esyfo.observability.rethrowIfCancelled
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.api.auth.tokenX.TokenXUtil
 import no.nav.syfo.consumer.tokenx.tokendings.TokenDingsConsumer
@@ -11,7 +12,6 @@ import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
 import no.nav.syfo.util.bearerCredentials
 import no.nav.syfo.util.createCallId
 import no.nav.syfo.util.failureKind
-import no.nav.syfo.util.rethrowIfCancelled
 import no.nav.syfo.util.upstreamStatus
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile

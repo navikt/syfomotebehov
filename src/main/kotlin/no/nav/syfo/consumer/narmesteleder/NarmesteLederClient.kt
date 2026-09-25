@@ -1,12 +1,12 @@
 package no.nav.syfo.consumer.narmesteleder
 
+import no.nav.esyfo.observability.rethrowIfCancelled
 import no.nav.syfo.consumer.azuread.v2.IAzureAdV2TokenConsumer
 import no.nav.syfo.util.APP_CONSUMER_ID
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.util.failureKind
-import no.nav.syfo.util.rethrowIfCancelled
 import no.nav.syfo.util.withFailureDiagnostics
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value

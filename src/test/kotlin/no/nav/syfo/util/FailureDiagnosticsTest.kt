@@ -3,6 +3,8 @@ package no.nav.syfo.util
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.esyfo.observability.exceptionType
+import no.nav.esyfo.observability.rethrowIfCancelled
 import no.nav.syfo.testhelper.captureApplicationLogs
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.errors.RecordDeserializationException
@@ -161,10 +163,10 @@ class FailureDiagnosticsTest :
                     override val upstreamStatus = 42
                 }
 
-            forbidden.exceptionCategory() shouldBe "HttpClientErrorException"
-            anonymous.exceptionCategory() shouldBe "IllegalStateException"
-            oddlyNamed.exceptionCategory() shouldBe "RuntimeException"
-            Throwable("PRIVATE_RAW").exceptionCategory() shouldBe "Exception"
+            forbidden.exceptionType() shouldBe "HttpClientErrorException"
+            anonymous.exceptionType() shouldBe "IllegalStateException"
+            oddlyNamed.exceptionType() shouldBe "RuntimeException"
+            Throwable("PRIVATE_RAW").exceptionType() shouldBe "Exception"
             forbidden.upstreamStatus() shouldBe 403
             outOfRange.upstreamStatus() shouldBe null
 

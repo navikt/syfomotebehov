@@ -1,10 +1,10 @@
 package no.nav.syfo.dialogmote.kafka
 
 import com.fasterxml.jackson.core.JsonProcessingException
+import no.nav.esyfo.observability.rethrowIfCancelled
 import no.nav.syfo.dialogmote.DialogmoteStatusService
 import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring
 import no.nav.syfo.util.failureKind
-import no.nav.syfo.util.rethrowIfCancelled
 import no.nav.syfo.util.withFailureDiagnostics
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory

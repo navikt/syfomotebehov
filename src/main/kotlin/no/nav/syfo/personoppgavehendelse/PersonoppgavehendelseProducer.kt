@@ -1,8 +1,8 @@
 package no.nav.syfo.personoppgavehendelse
 
+import no.nav.esyfo.observability.rethrowIfCancelled
 import no.nav.syfo.personoppgavehendelse.domain.KPersonoppgavehendelse
 import no.nav.syfo.util.failureKind
-import no.nav.syfo.util.rethrowIfCancelled
 import no.nav.syfo.util.withFailureDiagnostics
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.Logger

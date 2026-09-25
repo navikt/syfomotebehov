@@ -1,5 +1,10 @@
 package no.nav.syfo.util
 
+import no.nav.esyfo.observability.causeChain
+import no.nav.esyfo.observability.causeType
+import no.nav.esyfo.observability.exceptionType
+import no.nav.esyfo.observability.sqlState
+import no.nav.esyfo.observability.validUpstreamStatus
 import org.slf4j.spi.LoggingEventBuilder
 import org.springframework.core.codec.CodecException
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -9,10 +14,6 @@ import java.net.ConnectException
 import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
-import java.sql.SQLException
-import java.util.Collections
-import java.util.IdentityHashMap
-import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeoutException
 import javax.net.ssl.SSLException
 
@@ -67,29 +68,18 @@ fun Throwable.upstreamStatus(): Int? =
             is RestClientResponseException -> it.statusCode.value()
             is WebClientResponseException -> it.statusCode.value()
             else -> null
-        }?.takeIf { status -> status in 100..599 }
+        }?.let(::validUpstreamStatus)
     }
-
-fun Throwable.isCancellation(): Boolean = causeChain().any { it is CancellationException || it is InterruptedException }
-
-fun Throwable.rethrowIfCancelled() {
-    causeChain().firstOrNull { it is CancellationException || it is InterruptedException }?.let {
-        if (it is InterruptedException) Thread.currentThread().interrupt()
-        throw it
-    }
-}
 
 // Keep code locations and bounded exception categories. HTTP exceptions and decoder
 // messages may contain credentials, request URLs or personal data, even in causes.
 fun LoggingEventBuilder.withFailureDiagnostics(cause: Throwable): LoggingEventBuilder {
     val chain = cause.causeChain()
-    chain.filterIsInstance<SQLException>().firstNotNullOfOrNull { it.sqlState?.takeIf(SQL_STATE::matches) }?.let {
-        addKeyValue("sql_state", it)
-    }
+    cause.sqlState()?.let { addKeyValue("sql_state", it) }
     cause.upstreamStatus()?.let { addKeyValue("upstream_status", it) }
     chain.filterIsInstance<DiagnosticFailure>().firstOrNull()?.addDiagnosticFields(this)
-    return addKeyValue("exception_type", cause.exceptionCategory())
-        .addKeyValue("cause_type", chain.last().exceptionCategory())
+    return addKeyValue("exception_type", cause.exceptionType())
+        .addKeyValue("cause_type", cause.causeType())
         .addKeyValue(
             "stack_trace",
             chain.joinToString("\nCaused by: ") { error ->
@@ -98,27 +88,6 @@ fun LoggingEventBuilder.withFailureDiagnostics(cause: Throwable): LoggingEventBu
         )
 }
 
-private fun Throwable.causeChain(): List<Throwable> {
-    val seen = Collections.newSetFromMap(IdentityHashMap<Throwable, Boolean>())
-    val result = mutableListOf<Throwable>()
-    var current: Throwable? = this
-    while (current != null && result.size < 16 && seen.add(current)) {
-        result.add(current)
-        current = current.cause
-    }
-    return result
-}
-
 private val TYPE_NAME = Regex("^[A-Za-z][A-Za-z0-9_$]{0,143}$")
-private val EXCEPTION_CATEGORY = Regex("^([A-Za-z][A-Za-z0-9_$]{0,143})?(Error|Exception)$")
-private val SQL_STATE = Regex("^[A-Z0-9]{5}$")
 
 private fun Throwable.diagnosticType(): String = javaClass.name.substringAfterLast('.').takeIf(TYPE_NAME::matches) ?: "Throwable"
-
-// team-esyfo runtime-error contract: exception_type and cause_type must end with Error or Exception.
-// Nested, anonymous or oddly named classes fall back to their nearest conforming superclass.
-fun Throwable.exceptionCategory(): String =
-    generateSequence<Class<*>>(javaClass) { it.superclass }
-        .map { it.name.substringAfterLast('.') }
-        .firstOrNull(EXCEPTION_CATEGORY::matches)
-        ?: "Exception"

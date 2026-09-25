@@ -1,6 +1,7 @@
 group = "no.nav.syfo"
 
 val junitJupiterVersion = "6.1.3"
+val esyfoLoggerVersion = "0.3.0"
 val flywayVersion = "13.7.0"
 val tokenSupportVersion = "6.0.12"
 val mockkVersion = "1.14.11"
@@ -82,6 +83,7 @@ dependencies {
     }
 
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
+    implementation("no.nav.esyfo.observability:esyfo-logger:$esyfoLoggerVersion")
     implementation("ch.qos.logback:logback-classic")
 
     implementation("io.confluent:kafka-avro-serializer:$confluent") {
