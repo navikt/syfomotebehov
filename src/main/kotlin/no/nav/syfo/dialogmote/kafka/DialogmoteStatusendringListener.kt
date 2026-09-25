@@ -3,6 +3,9 @@ package no.nav.syfo.dialogmote.kafka
 import com.fasterxml.jackson.core.JsonProcessingException
 import no.nav.syfo.dialogmote.DialogmoteStatusService
 import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring
+import no.nav.syfo.util.failureKind
+import no.nav.syfo.util.rethrowIfCancelled
+import no.nav.syfo.util.withFailureDiagnostics
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
@@ -25,9 +28,26 @@ class DialogmoteStatusendringListener(
             dialogmoteStatusService.receiveKDialogmoteStatusendring(consumerRecord.value())
             acknowledgment.acknowledge()
         } catch (e: JsonProcessingException) {
-            LOG.error("DialogmoteStatusendringListener: Kunne ikke deserialisere DM topic", e)
+            LOG
+                .atError()
+                .addKeyValue("event_type", "dialogmote_status_decode_failed")
+                .addKeyValue("operation", "dialogmote_status_consume")
+                .addKeyValue("upstream", "kafka")
+                .addKeyValue("failure_stage", "message_processing")
+                .addKeyValue("failure_kind", e.failureKind().value)
+                .withFailureDiagnostics(e)
+                .log("Could not decode a meeting status message")
         } catch (e: Exception) {
-            LOG.error("DialogmoteStatusendringListener: Uventet feil ved lesing av DM Topic", e)
+            e.rethrowIfCancelled()
+            LOG
+                .atError()
+                .addKeyValue("event_type", "dialogmote_status_processing_failed")
+                .addKeyValue("operation", "dialogmote_status_consume")
+                .addKeyValue("upstream", "kafka")
+                .addKeyValue("failure_stage", "message_processing")
+                .addKeyValue("failure_kind", e.failureKind().value)
+                .withFailureDiagnostics(e)
+                .log("Could not process a meeting status message")
         }
     }
 

@@ -5,11 +5,14 @@ import no.nav.syfo.api.auth.tokenX.TokenXUtil
 import no.nav.syfo.consumer.tokenx.tokendings.TokenDingsConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.util.APP_CONSUMER_ID
+import no.nav.syfo.util.FailureKind
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
 import no.nav.syfo.util.bearerCredentials
 import no.nav.syfo.util.createCallId
-import org.slf4j.LoggerFactory
+import no.nav.syfo.util.failureKind
+import no.nav.syfo.util.rethrowIfCancelled
+import no.nav.syfo.util.upstreamStatus
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpHeaders
@@ -35,6 +38,7 @@ class DineSykmeldteConsumer(
 ) : IDineSykmeldteConsumer {
     override fun getSykmeldt(narmesteLederId: UUID): DineSykmeldteResponse? {
         val callId = createCallId()
+        var stage = SykmeldtFailureStage.TOKEN_EXCHANGE
         try {
             val exchangedToken =
                 tokenDingsConsumer.exchangeToken(
@@ -42,6 +46,7 @@ class DineSykmeldteConsumer(
                     targetApp,
                 )
 
+            stage = SykmeldtFailureStage.UPSTREAM_REQUEST
             return webClient
                 .get()
                 .uri("$baseUrl$DINE_SYKMELDTE_PATH", narmesteLederId)
@@ -55,40 +60,35 @@ class DineSykmeldteConsumer(
                     when {
                         statusCode.is2xxSuccessful -> response.bodyToMono<DineSykmeldteResponse>()
                         statusCode.value() == HttpStatus.NOT_FOUND.value() -> Mono.empty()
-                        statusCode.value() == HttpStatus.UNAUTHORIZED.value() ->
+                        else ->
                             Mono.error(
                                 DineSykmeldteRequestException(
-                                    "Unauthorized request to dinesykmeldte-backend",
+                                    "Unexpected response from dinesykmeldte-backend",
+                                    upstreamStatus = statusCode.value(),
                                 ),
                             )
-                        else -> {
-                            LOG.error(
-                                "Error requesting sykmeldt from dinesykmeldte-backend with status {} and callId {}",
-                                statusCode.value(),
-                                callId,
-                            )
-                            Mono.error(
-                                DineSykmeldteRequestException(
-                                    "Unexpected response from dinesykmeldte-backend: ${statusCode.value()}",
-                                ),
-                            )
-                        }
                     }
                 }.timeout(requestTimeout)
                 .block()
         } catch (exception: DineSykmeldteRequestException) {
             throw exception
         } catch (exception: Exception) {
-            LOG.error(
-                "Technical error requesting sykmeldt from dinesykmeldte-backend with callId {}",
-                callId,
+            exception.rethrowIfCancelled()
+            throw DineSykmeldteRequestException(
+                "Request to dinesykmeldte-backend failed",
+                cause = exception,
+                stage =
+                    if (stage == SykmeldtFailureStage.UPSTREAM_REQUEST && exception.failureKind() == FailureKind.INVALID_RESPONSE) {
+                        SykmeldtFailureStage.RESPONSE_DECODE
+                    } else {
+                        stage
+                    },
+                upstreamStatus = exception.upstreamStatus(),
             )
-            throw DineSykmeldteRequestException("Request to dinesykmeldte-backend failed")
         }
     }
 
     companion object {
-        private val LOG = LoggerFactory.getLogger(DineSykmeldteConsumer::class.java)
         const val DINE_SYKMELDTE_PATH = "/api/v2/dinesykmeldte/{narmesteLederId}"
         const val METRIC_CALL_DINE_SYKMELDTE = "call_dinesykmeldte_backend"
     }

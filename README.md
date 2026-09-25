@@ -75,6 +75,7 @@ Bruno-collectionen ligger i [`bruno/`](./bruno/). Lokal auth bruker MockOAuth2Se
 ## Les mer
 
 - [Dialogmøtekandidat – varsel-flyt](./docs/dialogmotekandidat-varsel-flow.md)
+- [Feillogging](./docs/logging.md)
 - [Lokal konfigurasjon](./src/test/resources/application.yaml)
 
 ## Kontakt

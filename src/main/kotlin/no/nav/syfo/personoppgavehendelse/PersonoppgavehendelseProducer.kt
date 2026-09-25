@@ -1,6 +1,9 @@
 package no.nav.syfo.personoppgavehendelse
 
 import no.nav.syfo.personoppgavehendelse.domain.KPersonoppgavehendelse
+import no.nav.syfo.util.failureKind
+import no.nav.syfo.util.rethrowIfCancelled
+import no.nav.syfo.util.withFailureDiagnostics
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -30,10 +33,16 @@ class PersonoppgavehendelseProducer
                     )
                 kafkaTemplate.send(record).get()
             } catch (e: Exception) {
-                log.error(
-                    "Exception was thrown when attempting to send KPersonoppgavehendelse with id {}: ${e.message}",
-                    personoppgaveId,
-                )
+                e.rethrowIfCancelled()
+                log
+                    .atError()
+                    .addKeyValue("event_type", "personoppgave_publish_failed")
+                    .addKeyValue("operation", "personoppgave_publish")
+                    .addKeyValue("upstream", "kafka")
+                    .addKeyValue("failure_stage", "message_publish")
+                    .addKeyValue("failure_kind", e.failureKind().value)
+                    .withFailureDiagnostics(e)
+                    .log("Could not publish a person task event")
                 throw e
             }
         }

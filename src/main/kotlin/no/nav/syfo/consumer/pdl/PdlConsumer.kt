@@ -27,7 +27,12 @@ class PdlConsumer(
     private val restTemplate: RestTemplate,
     private val azureAdV2TokenConsumer: IAzureAdV2TokenConsumer,
 ) : IPdlConsumer {
-    override fun person(ident: String): PdlHentPerson? {
+    override fun person(ident: String): PdlHentPerson? = person(ident, throwOnGraphqlErrors = false)
+
+    private fun person(
+        ident: String,
+        throwOnGraphqlErrors: Boolean,
+    ): PdlHentPerson? {
         metric.tellHendelse("call_pdl")
 
         val query =
@@ -48,9 +53,9 @@ class PdlConsumer(
             val pdlPersonReponse = pdlPerson.body!!
             return if (pdlPersonReponse.errors != null && pdlPersonReponse.errors.isNotEmpty()) {
                 metric.tellHendelse("call_pdl_fail")
-                pdlPersonReponse.errors.forEach {
-                    LOG.error("Error while requesting person from PersonDataLosningen: ${it.errorMessage()}")
-                }
+                val error = PdlRequestFailedException(pdlErrors = pdlPersonReponse.errors)
+                if (throwOnGraphqlErrors) throw error
+                LOG.atError().withPdlDiagnostics(error).log("PDL returned errors for the requested lookup")
                 null
             } else {
                 metric.tellHendelse("call_pdl_success")
@@ -58,8 +63,12 @@ class PdlConsumer(
             }
         } catch (exception: RestClientResponseException) {
             metric.tellHendelse("call_pdl_fail")
-            LOG.error("Error from PDL with request-url: $pdlUrl", exception)
-            throw exception
+            throw PdlRequestFailedException(
+                cause = exception,
+                operation = "person_fetch",
+                stage = "upstream_request",
+                upstreamStatus = exception.statusCode.value(),
+            )
         }
     }
 
@@ -87,10 +96,11 @@ class PdlConsumer(
             val pdlIdenterReponse = pdlIdenter.body!!
             if (pdlIdenterReponse.errors != null && pdlIdenterReponse.errors.isNotEmpty()) {
                 metric.tellHendelse("call_pdl_fail")
-                pdlIdenterReponse.errors.forEach {
-                    LOG.error("Error while requesting AKTORID from PersonDataLosningen: ${it.errorMessage()}")
-                }
-                throw RuntimeException("Error while requesting AKTORID from PDL")
+                throw PdlRequestFailedException(
+                    message = "Error while requesting AKTORID from PDL",
+                    operation = "aktorid_fetch",
+                    pdlErrors = pdlIdenterReponse.errors,
+                )
             } else {
                 metric.tellHendelse("call_pdl_success")
                 try {
@@ -108,8 +118,12 @@ class PdlConsumer(
             }
         } catch (exception: RestClientResponseException) {
             metric.tellHendelse("call_pdl_fail")
-            LOG.error("Error from PDL with request-url: $pdlUrl", exception)
-            throw exception
+            throw PdlRequestFailedException(
+                cause = exception,
+                operation = "aktorid_fetch",
+                stage = "upstream_request",
+                upstreamStatus = exception.statusCode.value(),
+            )
         }
     }
 
@@ -137,10 +151,11 @@ class PdlConsumer(
             val pdlIdenterReponse = pdlIdenter.body!!
             if (pdlIdenterReponse.errors != null && pdlIdenterReponse.errors.isNotEmpty()) {
                 metric.tellHendelse("call_pdl_fail")
-                pdlIdenterReponse.errors.forEach {
-                    LOG.error("Error while requesting FNR from PersonDataLosningen: ${it.errorMessage()}")
-                }
-                throw RuntimeException("Error while requesting FNR from PDL")
+                throw PdlRequestFailedException(
+                    message = "Error while requesting FNR from PDL",
+                    operation = "personident_fetch",
+                    pdlErrors = pdlIdenterReponse.errors,
+                )
             } else {
                 metric.tellHendelse("call_pdl_success")
                 try {
@@ -158,12 +173,16 @@ class PdlConsumer(
             }
         } catch (exception: RestClientResponseException) {
             metric.tellHendelse("call_pdl_fail")
-            LOG.error("Error from PDL with request-url: $pdlUrl", exception)
-            throw exception
+            throw PdlRequestFailedException(
+                cause = exception,
+                operation = "personident_fetch",
+                stage = "upstream_request",
+                upstreamStatus = exception.statusCode.value(),
+            )
         }
     }
 
-    override fun isKode6(fnr: String): Boolean = person(fnr)?.isKode6() ?: throw PdlRequestFailedException()
+    override fun isKode6(fnr: String): Boolean = person(fnr, throwOnGraphqlErrors = true)?.isKode6() ?: throw PdlRequestFailedException()
 
     private fun createRequestEntity(request: PdlRequest): HttpEntity<PdlRequest> {
         val token = azureAdV2TokenConsumer.getSystemToken(pdlClientId)

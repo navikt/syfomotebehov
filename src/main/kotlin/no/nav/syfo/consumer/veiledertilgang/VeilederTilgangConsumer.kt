@@ -10,6 +10,7 @@ import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.util.createCallId
+import no.nav.syfo.util.withFailureDiagnostics
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
@@ -65,12 +66,30 @@ class VeilederTilgangConsumer(
             if (e.statusCode.value() == 403) {
                 false
             } else {
-                LOG.error("HttpClientErrorException mot istilgangskontroll med status ${e.statusCode}", e)
+                LOG
+                    .atError()
+                    .addKeyValue("event_type", "veileder_access_check_failed")
+                    .addKeyValue("operation", "veileder_access_check")
+                    .addKeyValue("upstream", "istilgangskontroll")
+                    .addKeyValue("failure_stage", "upstream_request")
+                    .addKeyValue("failure_kind", "http")
+                    .addKeyValue("error_code", "UPSTREAM_HTTP_ERROR")
+                    .withFailureDiagnostics(e)
+                    .log("Could not check the adviser access")
                 metric.tellHendelse(METRIC_CALL_VEILEDERTILGANG_USER_FAIL)
                 throw e
             }
         } catch (e: HttpServerErrorException) {
-            LOG.error("HttpServerErrorException mot istilgangskontroll med status ${e.statusCode}", e)
+            LOG
+                .atError()
+                .addKeyValue("event_type", "veileder_access_check_failed")
+                .addKeyValue("operation", "veileder_access_check")
+                .addKeyValue("upstream", "istilgangskontroll")
+                .addKeyValue("failure_stage", "upstream_request")
+                .addKeyValue("failure_kind", "http")
+                .addKeyValue("error_code", "UPSTREAM_HTTP_ERROR")
+                .withFailureDiagnostics(e)
+                .log("Could not check the adviser access")
             metric.tellHendelse(METRIC_CALL_VEILEDERTILGANG_USER_FAIL)
             throw e
         }

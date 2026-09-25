@@ -9,6 +9,7 @@ import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.util.bearerCredentials
 import no.nav.syfo.util.getOrCreateCallId
+import no.nav.syfo.util.withFailureDiagnostics
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
@@ -52,10 +53,16 @@ class BehandlendeEnhetConsumer(
             metric.countOutgoingReponses(METRIC_CALL_BEHANDLENDEENHET, response.statusCode.value())
             return responseBody
         } catch (e: RestClientResponseException) {
-            LOG.error(
-                "Error requesting BehandlendeEnhet from syfobehandlendeenhet with callId ${httpEntity.headers[NAV_CALL_ID_HEADER]}: ",
-                e,
-            )
+            LOG
+                .atError()
+                .addKeyValue("event_type", "behandlende_enhet_fetch_failed")
+                .addKeyValue("operation", "behandlende_enhet_fetch")
+                .addKeyValue("upstream", "syfobehandlendeenhet")
+                .addKeyValue("failure_stage", "upstream_request")
+                .addKeyValue("failure_kind", "http")
+                .addKeyValue("error_code", "UPSTREAM_HTTP_ERROR")
+                .withFailureDiagnostics(e)
+                .log("Could not fetch the responsible unit")
             metric.countOutgoingReponses(METRIC_CALL_BEHANDLENDEENHET, e.statusCode.value())
             throw e
         }

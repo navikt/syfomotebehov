@@ -4,7 +4,13 @@ import jakarta.validation.ConstraintViolationException
 import jakarta.ws.rs.ForbiddenException
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import no.nav.syfo.consumer.brukertilgang.DineSykmeldteRequestException
+import no.nav.syfo.consumer.pdl.PdlRequestFailedException
+import no.nav.syfo.consumer.pdl.withPdlDiagnostics
 import no.nav.syfo.metric.Metric
+import no.nav.syfo.util.exceptionCategory
+import no.nav.syfo.util.failureKind
+import no.nav.syfo.util.isCancellation
+import no.nav.syfo.util.withFailureDiagnostics
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -42,14 +48,18 @@ class ControllerExceptionHandler
             request: WebRequest,
         ): ResponseEntity<ApiError> {
             val headers = HttpHeaders()
+            if (ex.isCancellation()) {
+                val status = HttpStatus.INTERNAL_SERVER_ERROR
+                return handleExceptionInternal(ex, ApiError(status.value(), internalMsg), headers, status, request)
+            }
             if (ex is JwtTokenUnauthorizedException) {
                 return handleJwtTokenUnauthorizedException(ex, headers, request)
             } else if (ex is DineSykmeldteRequestException) {
                 return handleDineSykmeldteRequestException(ex, headers, request)
             } else if (ex is HttpMessageNotReadableException) {
-                return handleHttpMessageNotReadableException(headers)
+                return handleHttpMessageNotReadableException(ex, headers, request)
             } else if (ex is MethodArgumentTypeMismatchException) {
-                return handleHttpMessageNotReadableException(headers)
+                return handleHttpMessageNotReadableException(ex, headers, request)
             }
             return when (ex) {
                 is ForbiddenException -> {
@@ -97,14 +107,12 @@ class ControllerExceptionHandler
                 request,
             )
 
-        private fun handleHttpMessageNotReadableException(headers: HttpHeaders): ResponseEntity<ApiError> =
-            ResponseEntity(
-                ApiError(HttpStatus.BAD_REQUEST.value(), badRequestMsg),
-                headers,
-                HttpStatus.BAD_REQUEST,
-            ).also {
-                metric.tellHttpKall(HttpStatus.BAD_REQUEST.value())
-            }
+        private fun handleHttpMessageNotReadableException(
+            ex: Exception,
+            headers: HttpHeaders,
+            request: WebRequest,
+        ): ResponseEntity<ApiError> =
+            handleExceptionInternal(ex, ApiError(HttpStatus.BAD_REQUEST.value(), badRequestMsg), headers, HttpStatus.BAD_REQUEST, request)
 
         private fun handleForbiddenException(
             ex: ForbiddenException,
@@ -145,11 +153,62 @@ class ControllerExceptionHandler
         ): ResponseEntity<ApiError> {
             metric.tellHttpKall(status.value())
             if (!status.is2xxSuccessful) {
-                if (HttpStatus.INTERNAL_SERVER_ERROR == status) {
-                    log.error("Uventet feil: {} : {}", ex.javaClass.toString(), ex.message, ex)
+                if (ex.isCancellation()) {
+                    log
+                        .atWarn()
+                        .addKeyValue("event_type", "api_request_cancelled")
+                        .addKeyValue("operation", "api_request")
+                        .addKeyValue("exception_type", ex.exceptionCategory())
+                        .addKeyValue("response_status", status.value())
+                        .log("API request cancelled")
+                    request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST)
+                } else if (ex is DineSykmeldteRequestException) {
+                    log
+                        .atError()
+                        .addKeyValue("event_type", "sykmeldt_lookup_failed")
+                        .addKeyValue("outcome", "failed")
+                        .addKeyValue("operation", "sykmeldt_fetch")
+                        .addKeyValue("upstream", ex.stage.upstream)
+                        .addKeyValue("failure_stage", ex.stage.value)
+                        .addKeyValue("failure_kind", ex.failureKind.value)
+                        .addKeyValue("error_code", ex.failureKind.errorCode)
+                        .withFailureDiagnostics(ex)
+                        .log("Could not complete the sykmeldt lookup")
+                } else if (ex is PdlRequestFailedException) {
+                    log.atError().withPdlDiagnostics(ex).log("PDL lookup failed")
+                    request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST)
+                } else if (HttpStatus.INTERNAL_SERVER_ERROR == status) {
+                    val failureKind = ex.failureKind()
+                    log
+                        .atError()
+                        .addKeyValue("event_type", "api_request_failed")
+                        .addKeyValue("outcome", "failed")
+                        .addKeyValue("operation", "api_request")
+                        .addKeyValue("failure_stage", "request_handling")
+                        .addKeyValue("failure_kind", failureKind.value)
+                        .addKeyValue("error_code", failureKind.errorCode)
+                        .withFailureDiagnostics(ex)
+                        .log("Unhandled error while processing an API request")
                     request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST)
                 } else {
-                    log.warn("Fikk response med kode : {} : {} : {}", status.value(), ex.javaClass.toString(), ex.message)
+                    // Ordinary 4xx is not an api_request_rejected: the team dashboard counts only explicit,
+                    // code-owned rejections, so a status-derived rejection would inflate it.
+                    log
+                        .atWarn()
+                        .addKeyValue("event_type", "api_request_invalid")
+                        .addKeyValue("operation", "api_request")
+                        .addKeyValue("response_status", status.value())
+                        .addKeyValue(
+                            "error_type",
+                            when (status) {
+                                HttpStatus.BAD_REQUEST -> "INVALID_INPUT"
+                                HttpStatus.UNAUTHORIZED -> "AUTHENTICATION_FAILED"
+                                HttpStatus.FORBIDDEN -> "FORBIDDEN"
+                                HttpStatus.CONFLICT -> "STATE_CONFLICT"
+                                else -> "CLIENT_ERROR"
+                            },
+                        ).addKeyValue("exception_type", ex.exceptionCategory())
+                        .log("API request invalid")
                 }
             }
             return ResponseEntity(body, headers, status)

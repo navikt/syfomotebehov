@@ -10,26 +10,116 @@ import no.nav.security.token.support.core.context.TokenValidationContext
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.security.token.support.core.jwt.JwtToken
 import no.nav.syfo.api.auth.tokenX.TokenXUtil.TokenXIssuer
+import no.nav.syfo.api.exception.ControllerExceptionHandler
 import no.nav.syfo.consumer.tokenx.tokendings.TokenDingsConsumer
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testhelper.UserConstants.NARMESTE_LEDER_ID
 import no.nav.syfo.testhelper.UserConstants.VIRKSOMHETSNUMMER
+import no.nav.syfo.testhelper.captureApplicationLogs
 import no.nav.syfo.util.APP_CONSUMER_ID
 import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.context.request.WebRequest
 import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.ExchangeFunction
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
+import java.net.UnknownHostException
 import java.time.Duration
+import java.util.concurrent.CancellationException
+import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicReference
 
 class DineSykmeldteConsumerTest :
     FunSpec({
+        test("HTTP, DNS, timeout and invalid JSON produce one diagnostic event at the terminal handler") {
+            val cases =
+                listOf(
+                    Triple(Mono.just(clientResponse(HttpStatus.INTERNAL_SERVER_ERROR, "PRIVATE_RESPONSE_CANARY")), "http", 500),
+                    Triple(Mono.error<ClientResponse>(UnknownHostException("PRIVATE_HOST_CANARY")), "dns", null),
+                    Triple(Mono.error<ClientResponse>(TimeoutException("PRIVATE_TIMEOUT_CANARY")), "timeout", null),
+                    Triple(
+                        Mono.just(clientResponse(HttpStatus.OK, "{\"fnr\":\"12345678910\",broken PRIVATE_JSON_CANARY")),
+                        "invalid_response",
+                        null,
+                    ),
+                )
+            cases.forEach { (response, kind, status) ->
+                val fixture = fixture(response)
+                val logs =
+                    captureApplicationLogs {
+                        val exception =
+                            shouldThrow<DineSykmeldteRequestException> {
+                                fixture.consumer.getSykmeldt(NARMESTE_LEDER_ID)
+                            }
+                        ControllerExceptionHandler(fixture.metric)
+                            .handleException(
+                                exception,
+                                mockk<WebRequest>(relaxed = true),
+                            ).statusCode shouldBe HttpStatus.BAD_GATEWAY
+                    }
+                logs.size shouldBe 1
+                val event = logs.single()
+                event["level"].asText() shouldBe "ERROR"
+                event["event_type"].asText() shouldBe "sykmeldt_lookup_failed"
+                event["exception_type"].asText() shouldBe "DineSykmeldteRequestException"
+                event["upstream"].asText() shouldBe "dinesykmeldte-backend"
+                event["operation"].asText() shouldBe "sykmeldt_fetch"
+                event["failure_kind"].asText() shouldBe kind
+                event["failure_stage"].asText() shouldBe if (kind == "invalid_response") "response_decode" else "upstream_request"
+                event["upstream_status"]?.asInt() shouldBe status
+                listOf("PRIVATE_", "12345678910", NARMESTE_LEDER_ID.toString(), INCOMING_TOKEN, EXCHANGED_TOKEN).forEach {
+                    event.toString().contains(it) shouldBe false
+                }
+                if (kind == "dns") event["cause_type"].asText() shouldBe "UnknownHostException"
+            }
+        }
+
+        test("token exchange failure is attributed to tokenx before the upstream request") {
+            val fixture = fixture(Mono.empty())
+            val failure = HttpClientErrorException(HttpStatus.UNAUTHORIZED, "PRIVATE_TOKEN_CANARY")
+            every { fixture.tokenDingsConsumer.exchangeToken(any(), any()) } throws failure
+            val logs =
+                captureApplicationLogs {
+                    val exception =
+                        shouldThrow<DineSykmeldteRequestException> {
+                            fixture.consumer.getSykmeldt(NARMESTE_LEDER_ID)
+                        }
+                    exception.cause shouldBe failure
+                    ControllerExceptionHandler(fixture.metric).handleException(exception, mockk<WebRequest>(relaxed = true))
+                }
+            logs.size shouldBe 1
+            logs.single()["upstream"].asText() shouldBe "tokenx"
+            logs.single()["failure_stage"].asText() shouldBe "token_exchange"
+            logs.single()["upstream_status"].asInt() shouldBe 401
+            logs.single().toString().contains("PRIVATE_TOKEN_CANARY") shouldBe false
+            fixture.request.get() shouldBe null
+        }
+
+        test("consumer propagates cancellation while API handler emits one sanitized WARN response") {
+            val cancelled = CancellationException("cancelled")
+            val fixture = fixture(Mono.error(cancelled))
+            val logs =
+                captureApplicationLogs {
+                    shouldThrow<CancellationException> {
+                        fixture.consumer.getSykmeldt(NARMESTE_LEDER_ID)
+                    } shouldBe cancelled
+                    ControllerExceptionHandler(fixture.metric)
+                        .handleException(cancelled, mockk<WebRequest>(relaxed = true))
+                        .statusCode shouldBe HttpStatus.INTERNAL_SERVER_ERROR
+                }
+            logs.size shouldBe 1
+            logs.single()["level"].asText() shouldBe "WARN"
+            logs.single()["event_type"].asText() shouldBe "api_request_cancelled"
+            logs.single()["stack_trace"] shouldBe null
+            logs.single().toString().contains("12345678910") shouldBe false
+        }
+
         test("veksler token og leser tilgangsfeltene uten å bruke aktivSykmelding") {
             val response =
                 clientResponse(
@@ -110,7 +200,7 @@ class DineSykmeldteConsumerTest :
             }
         }
 
-        test("saniterer tekniske feil uten HTTP-respons") {
+        test("bevarer årsaken til tekniske feil uten å endre den offentlige meldingen") {
             val fixture =
                 fixture(
                     Mono.error(
@@ -124,7 +214,7 @@ class DineSykmeldteConsumerTest :
                 }
 
             exception.message shouldBe "Request to dinesykmeldte-backend failed"
-            exception.cause shouldBe null
+            exception.cause?.let { it is Exception } shouldBe true
         }
 
         test("mapper timeout fra Dine sykmeldte som sanert teknisk feil") {
@@ -136,7 +226,7 @@ class DineSykmeldteConsumerTest :
                 }
 
             exception.message shouldBe "Request to dinesykmeldte-backend failed"
-            exception.cause shouldBe null
+            exception.cause?.let { it is Exception } shouldBe true
         }
     })
 

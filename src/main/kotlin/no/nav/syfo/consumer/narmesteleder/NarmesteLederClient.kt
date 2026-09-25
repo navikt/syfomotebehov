@@ -5,6 +5,9 @@ import no.nav.syfo.util.APP_CONSUMER_ID
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
+import no.nav.syfo.util.failureKind
+import no.nav.syfo.util.rethrowIfCancelled
+import no.nav.syfo.util.withFailureDiagnostics
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.ParameterizedTypeReference
@@ -13,6 +16,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
+import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -26,12 +30,14 @@ class NarmesteLederClient(
     private val restTemplate: RestTemplate,
 ) {
     fun getNarmesteledere(fnr: String): List<NarmesteLederRelasjonDTO>? {
+        var tokenExchanged = false
         try {
             val token =
                 azureAdV2TokenConsumer.getSystemToken(
                     scopeClientId = targetApp,
                 )
 
+            tokenExchanged = true
             val response: ResponseEntity<List<NarmesteLederRelasjonDTO>> =
                 restTemplate.exchange(
                     "$baseUrl/api/system/v1/narmestelederrelasjoner",
@@ -42,7 +48,20 @@ class NarmesteLederClient(
 
             return response.body
         } catch (e: Exception) {
-            log.error("Noe gikk galt ved henting av nærmeste leder", e)
+            e.rethrowIfCancelled()
+            // Azure AD already logs HTTP token failures; preserve other token failures here.
+            if (tokenExchanged || e !is RestClientResponseException) {
+                log
+                    .atError()
+                    .addKeyValue("event_type", "narmeste_leder_fetch_failed")
+                    .addKeyValue("operation", "narmeste_leder_fetch")
+                    .addKeyValue("upstream", if (tokenExchanged) "isnarmesteleder" else "azuread")
+                    .addKeyValue("failure_stage", if (tokenExchanged) "upstream_request" else "token_exchange")
+                    .addKeyValue("failure_kind", e.failureKind().value)
+                    .addKeyValue("error_code", e.failureKind().errorCode)
+                    .withFailureDiagnostics(e)
+                    .log("Could not fetch nearest leader relations")
+            }
             throw e
         }
     }

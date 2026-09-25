@@ -9,6 +9,7 @@ import no.nav.syfo.motebehov.database.MotebehovDAO
 import no.nav.syfo.motebehov.database.toMotebehov
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovSkjemaType
 import no.nav.syfo.personoppgavehendelse.PersonoppgavehendelseService
+import no.nav.syfo.util.withFailureDiagnostics
 import org.slf4j.LoggerFactory
 import org.springframework.dao.DataAccessException
 import org.springframework.stereotype.Service
@@ -173,23 +174,29 @@ class MotebehovService
             } catch (ex: DataAccessException) {
                 metric.tellHendelse("feil_lagre_motebehov")
 
-                log.error(
-                    "DataAccessException ved lagring av motebehov med skjemaType {} og innmelderType {}: {}",
-                    skjemaType.name,
-                    innmelderType.name,
-                    ex.message,
-                )
+                log
+                    .atError()
+                    .addKeyValue("event_type", "motebehov_save_failed")
+                    .addKeyValue("operation", "motebehov_save")
+                    .addKeyValue("failure_stage", "database_write")
+                    .addKeyValue("skjema_type", skjemaType.name)
+                    .addKeyValue("innmelder_type", innmelderType.name)
+                    .withFailureDiagnostics(ex)
+                    .log("Could not save the meeting need")
 
                 throw ex
             } catch (ex: IllegalStateException) {
                 metric.tellHendelse("feil_lagre_motebehov")
 
-                log.error(
-                    "IllegalStateException ved lagring av motebehov med skjemaType {} og innmelderType {}: {}",
-                    skjemaType.name,
-                    innmelderType.name,
-                    ex.message,
-                )
+                log
+                    .atError()
+                    .addKeyValue("event_type", "motebehov_save_failed")
+                    .addKeyValue("operation", "motebehov_save")
+                    .addKeyValue("failure_stage", "database_write")
+                    .addKeyValue("skjema_type", skjemaType.name)
+                    .addKeyValue("innmelder_type", innmelderType.name)
+                    .withFailureDiagnostics(ex)
+                    .log("Could not save the meeting need")
 
                 throw ex
             }

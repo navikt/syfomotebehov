@@ -1,5 +1,8 @@
 package no.nav.syfo.varsel.esyfovarsel
 
+import no.nav.syfo.util.failureKind
+import no.nav.syfo.util.rethrowIfCancelled
+import no.nav.syfo.util.withFailureDiagnostics
 import no.nav.syfo.varsel.esyfovarsel.domain.EsyfovarselHendelse
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory
@@ -27,7 +30,16 @@ class EsyfovarselProducer
                         ),
                     ).get()
             } catch (e: Exception) {
-                log.error("Exception was thrown when attempting to send varsel to esyfovarsel. ${e.message}")
+                e.rethrowIfCancelled()
+                log
+                    .atError()
+                    .addKeyValue("event_type", "varsel_publish_failed")
+                    .addKeyValue("operation", "varsel_publish")
+                    .addKeyValue("upstream", "kafka")
+                    .addKeyValue("failure_stage", "message_publish")
+                    .addKeyValue("failure_kind", e.failureKind().value)
+                    .withFailureDiagnostics(e)
+                    .log("Could not publish a notification to varselbus")
                 throw e
             }
         }

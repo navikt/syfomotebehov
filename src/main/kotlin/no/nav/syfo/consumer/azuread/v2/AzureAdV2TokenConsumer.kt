@@ -1,5 +1,6 @@
 package no.nav.syfo.consumer.azuread.v2
 
+import no.nav.syfo.util.withFailureDiagnostics
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -42,11 +43,16 @@ class AzureAdV2TokenConsumer
 
                 return tokenResponse.toAzureAdV2Token().accessToken
             } catch (e: RestClientResponseException) {
-                log.error(
-                    "Call to get AzureADV2Token from AzureAD for scope: $scopeClientId " +
-                        "with status: ${e.statusCode} and message: ${e.responseBodyAsString}",
-                    e,
-                )
+                log
+                    .atError()
+                    .addKeyValue("event_type", "azuread_token_exchange_failed")
+                    .addKeyValue("operation", "obo_token_exchange")
+                    .addKeyValue("upstream", "azuread")
+                    .addKeyValue("failure_stage", "token_exchange")
+                    .addKeyValue("failure_kind", "http")
+                    .addKeyValue("error_code", "UPSTREAM_HTTP_ERROR")
+                    .withFailureDiagnostics(e)
+                    .log("Could not obtain an access token from Azure AD")
                 throw e
             }
         }
@@ -76,11 +82,16 @@ class AzureAdV2TokenConsumer
                     systemTokenCache[scopeClientId] = azureAdToken
                     azureAdToken.accessToken
                 } catch (e: RestClientResponseException) {
-                    log.error(
-                        "Call to get AzureADV2Token from AzureAD as system for scope: $scopeClientId " +
-                            "with status: ${e.statusCode} and message: ${e.responseBodyAsString}",
-                        e,
-                    )
+                    log
+                        .atError()
+                        .addKeyValue("event_type", "azuread_token_exchange_failed")
+                        .addKeyValue("operation", "system_token_exchange")
+                        .addKeyValue("upstream", "azuread")
+                        .addKeyValue("failure_stage", "token_exchange")
+                        .addKeyValue("failure_kind", "http")
+                        .addKeyValue("error_code", "UPSTREAM_HTTP_ERROR")
+                        .withFailureDiagnostics(e)
+                        .log("Could not obtain an access token from Azure AD")
                     throw e
                 }
             }

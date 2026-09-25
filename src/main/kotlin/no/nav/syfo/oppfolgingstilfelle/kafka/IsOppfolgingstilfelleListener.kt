@@ -3,6 +3,9 @@ package no.nav.syfo.oppfolgingstilfelle.kafka
 import com.fasterxml.jackson.core.JsonProcessingException
 import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
 import no.nav.syfo.oppfolgingstilfelle.kafka.domain.KafkaOppfolgingstilfellePerson
+import no.nav.syfo.util.failureKind
+import no.nav.syfo.util.rethrowIfCancelled
+import no.nav.syfo.util.withFailureDiagnostics
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
@@ -28,9 +31,26 @@ class IsOppfolgingstilfelleListener(
             oppfolgingstilfelleService.receiveKOppfolgingstilfelle(oppfolgingstilfellePerson)
             acknowledgment.acknowledge()
         } catch (e: JsonProcessingException) {
-            log.error("IsOppfolgingstilfelleListener: Kunne ikke deserialisere oppfolgingstilfelle record", e)
+            log
+                .atError()
+                .addKeyValue("event_type", "oppfolgingstilfelle_decode_failed")
+                .addKeyValue("operation", "oppfolgingstilfelle_consume")
+                .addKeyValue("upstream", "kafka")
+                .addKeyValue("failure_stage", "message_processing")
+                .addKeyValue("failure_kind", e.failureKind().value)
+                .withFailureDiagnostics(e)
+                .log("Could not decode a follow-up case message")
         } catch (e: Exception) {
-            log.error("IsOppfolgingstilfelleListener: Uventet feil ved lesing av oppfolgingstilfelle record", e)
+            e.rethrowIfCancelled()
+            log
+                .atError()
+                .addKeyValue("event_type", "oppfolgingstilfelle_processing_failed")
+                .addKeyValue("operation", "oppfolgingstilfelle_consume")
+                .addKeyValue("upstream", "kafka")
+                .addKeyValue("failure_stage", "message_processing")
+                .addKeyValue("failure_kind", e.failureKind().value)
+                .withFailureDiagnostics(e)
+                .log("Could not process a follow-up case message")
         }
     }
 
