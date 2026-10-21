@@ -42,6 +42,21 @@ class LocalKafkaContainer {
         @Qualifier("EsyfovarselProducerFactory") producerFactory: ProducerFactory<String, EsyfovarselHendelse>,
     ): KafkaTemplate<String, EsyfovarselHendelse> = KafkaTemplate(producerFactory)
 
+    @Bean("BudstikkaProducerFactory")
+    fun budstikkaProducerFactory(kafkaContainer: KafkaContainer): ProducerFactory<String, String> =
+        DefaultKafkaProducerFactory(
+            mapOf(
+                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaContainer.bootstrapServers,
+                ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
+            ),
+        )
+
+    @Bean("BudstikkaKafkaTemplate")
+    fun budstikkaKafkaTemplate(
+        @Qualifier("BudstikkaProducerFactory") producerFactory: ProducerFactory<String, String>,
+    ): KafkaTemplate<String, String> = KafkaTemplate(producerFactory)
+
     @Bean("PersonoppgavehendelseProducerFactory")
     fun personoppgavehendelseProducerFactory(kafkaContainer: KafkaContainer): ProducerFactory<String, KPersonoppgavehendelse> =
         DefaultKafkaProducerFactory(
