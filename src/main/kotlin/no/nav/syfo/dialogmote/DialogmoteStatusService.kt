@@ -89,7 +89,8 @@ class DialogmoteStatusService
 
         private fun isMoteInnkallingEllerEndring(statusEndringType: String): Boolean =
             DialogmoteStatusEndringType.INNKALT.name.equals(statusEndringType) ||
-                DialogmoteStatusEndringType.NYTT_TID_STED.name.equals(statusEndringType)
+                DialogmoteStatusEndringType.NYTT_TID_STED.name.equals(statusEndringType) ||
+                DialogmoteStatusEndringType.ENDRET.name.equals(statusEndringType)
 
         companion object {
             private val LOG = LoggerFactory.getLogger(DialogmoteStatusService::class.java)
