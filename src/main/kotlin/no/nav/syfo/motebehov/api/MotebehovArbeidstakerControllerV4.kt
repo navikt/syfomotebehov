@@ -41,6 +41,8 @@ class MotebehovArbeidstakerControllerV4
         val dittSykefravaerClientId: String,
         @Value("\${dialgmote.microfrontend.client.id}")
         val dialogmoteMicrofrontendClientId: String,
+        @Value("\${motebehov.microfrontend.client.id}")
+        val motebehovMicrofrontendClientId: String,
     ) {
         @GetMapping(
             value = ["/motebehov"],
@@ -53,6 +55,7 @@ class MotebehovArbeidstakerControllerV4
                         contextHolder,
                         dialogmoteClientId,
                         dialogmoteMicrofrontendClientId,
+                        motebehovMicrofrontendClientId,
                     ).fnrFromIdportenTokenX()
 
             metric.tellEndepunktKall("call_endpoint_motebehovstatus_arbeidstaker_all")

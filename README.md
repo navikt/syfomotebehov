@@ -51,7 +51,7 @@ fødselsnummer eller virksomhetsnummer.
 
 ## Integrasjoner
 
-- **Innkommende trafikk:** `dialogmote-frontend`, `dialogmote-microfrontend`, `syfomodiaperson`, `isdialogmote` og `ditt-sykefravaer`
+- **Innkommende trafikk:** `dialogmote-frontend`, `dialogmote-microfrontend`, `motebehov-microfrontend`, `syfomodiaperson`, `isdialogmote` og `ditt-sykefravaer`
 - **Utgående kall:** `dinesykmeldte-backend`, `istilgangskontroll`, `syfobehandlendeenhet`,
   `isnarmesteleder` og PDL
 - **Kafka-consumere:**

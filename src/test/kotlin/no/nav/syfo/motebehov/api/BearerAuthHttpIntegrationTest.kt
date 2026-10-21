@@ -82,6 +82,33 @@ class BearerAuthHttpIntegrationTest : IntegrationTest() {
                 response.body() shouldContain "\"visMotebehov\":false"
             }
 
+            it("accepts bearer token from motebehov-microfrontend for motebehov status") {
+                val response =
+                    get(
+                        path = "/api/v4/arbeidstaker/motebehov",
+                        headers =
+                            mapOf(
+                                HttpHeaders.AUTHORIZATION to "Bearer ${tokenXBearerToken(clientId = "motebehov-microfrontend")}",
+                            ),
+                    )
+
+                response.statusCode() shouldBe 200
+                response.body() shouldContain "\"visMotebehov\":false"
+            }
+
+            it("rejects bearer token from unknown client for motebehov status") {
+                val response =
+                    get(
+                        path = "/api/v4/arbeidstaker/motebehov",
+                        headers =
+                            mapOf(
+                                HttpHeaders.AUTHORIZATION to "Bearer ${tokenXBearerToken(clientId = "ukjent-app")}",
+                            ),
+                    )
+
+                response.statusCode() shouldBe 403
+            }
+
             it("returns a sanitized bad request for an invalid V5 narmesteLederId path") {
                 val invalidNarmesteLederId = "not-a-uuid"
                 val response =
@@ -145,17 +172,17 @@ class BearerAuthHttpIntegrationTest : IntegrationTest() {
         return httpClient.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString())
     }
 
-    private fun tokenXBearerToken(): String =
+    private fun tokenXBearerToken(clientId: String = "dialogmote-frontend"): String =
         mockOAuth2Server
             .issueToken(
                 issuerId = "tokenx",
-                subject = "dialogmote-frontend",
+                subject = clientId,
                 audience = "clientID",
                 claims =
                     mapOf(
                         "acr" to "idporten-loa-high",
                         "pid" to ARBEIDSTAKER_FNR,
-                        "client_id" to "dialogmote-frontend",
+                        "client_id" to clientId,
                     ),
             ).serialize()
 

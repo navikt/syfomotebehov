@@ -53,6 +53,7 @@ spec:
     inbound:
       rules:
         - application: dialogmote-microfrontend
+        - application: motebehov-microfrontend
         - application: dialogmote-frontend
         - application: syfomodiaperson
           namespace: teamsykefravr
@@ -101,6 +102,8 @@ spec:
       value: "dev-gcp:flex:ditt-sykefravaer"
     - name: DIALGMOTE_MICROFRONTEND_CLIENT_ID
       value: "dev-gcp:team-esyfo:dialogmote-microfrontend"
+    - name: MOTEBEHOV_MICROFRONTEND_CLIENT_ID
+      value: "dev-gcp:team-esyfo:motebehov-microfrontend"
     - name: PDL_CLIENT_ID
       value: "dev-fss.pdl.pdl-api"
     - name: PDL_URL
