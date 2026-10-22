@@ -285,6 +285,98 @@ class DialogmoteStatusServiceTest : IntegrationTest() {
 
                 isMote shouldBe false
             }
+
+            it("will update dialogmøte to ENDRET and keep it") {
+                dialogmoteStatusService.receiveKDialogmoteStatusendring(
+                    generateInnkalling(externMoteUUID, DialogmoteStatusEndringType.INNKALT, null),
+                )
+                dialogmoteStatusService.receiveKDialogmoteStatusendring(
+                    generateInnkalling(externMoteUUID, DialogmoteStatusEndringType.ENDRET, null),
+                )
+
+                val moteFraDB =
+                    dialogmoteDAO.get(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        externMoteUUID,
+                    )
+
+                moteFraDB.size shouldBe 1
+                moteFraDB[0].statusEndringType shouldBe DialogmoteStatusEndringType.ENDRET
+            }
+
+            it("will save new dialogmøte when first received status is ENDRET") {
+                dialogmoteStatusService.receiveKDialogmoteStatusendring(
+                    generateInnkalling(externMoteUUID, DialogmoteStatusEndringType.ENDRET, null),
+                )
+
+                val moteFraDB =
+                    dialogmoteDAO.get(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        externMoteUUID,
+                    )
+
+                moteFraDB.size shouldBe 1
+                moteFraDB[0].statusEndringType shouldBe DialogmoteStatusEndringType.ENDRET
+            }
+
+            it("ignores ENDRET with older statusEndringTidspunkt than stored dialogmoteTidspunkt") {
+                dialogmoteStatusService.receiveKDialogmoteStatusendring(
+                    generateInnkalling(externMoteUUID, DialogmoteStatusEndringType.INNKALT, null),
+                )
+                val oldRecord = generateInnkalling(externMoteUUID, DialogmoteStatusEndringType.ENDRET, null)
+                oldRecord.setStatusEndringTidspunkt(convertLocalDateTimeToInstant(LocalDateTime.now().minusWeeks(99)))
+
+                dialogmoteStatusService.receiveKDialogmoteStatusendring(oldRecord)
+
+                val moteFraDB =
+                    dialogmoteDAO.get(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        externMoteUUID,
+                    )
+
+                moteFraDB.size shouldBe 1
+                moteFraDB[0].statusEndringType shouldBe DialogmoteStatusEndringType.INNKALT
+            }
+
+            listOf(DialogmoteStatusEndringType.NYTT_TID_STED, DialogmoteStatusEndringType.ENDRET).forEach { type ->
+                it("will update dialogmøte tidspunkt on $type") {
+                    dialogmoteStatusService.receiveKDialogmoteStatusendring(
+                        generateInnkalling(
+                            externMoteUUID,
+                            DialogmoteStatusEndringType.INNKALT,
+                            convertLocalDateTimeToInstant(LocalDateTime.now().minusWeeks(1)),
+                        ),
+                    )
+                    dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        LocalDate.now(),
+                    ) shouldBe false
+
+                    val nyttTidspunkt = LocalDateTime.now().plusWeeks(2).withNano(0)
+                    dialogmoteStatusService.receiveKDialogmoteStatusendring(
+                        generateInnkalling(externMoteUUID, type, convertLocalDateTimeToInstant(nyttTidspunkt)),
+                    )
+
+                    val moteFraDB =
+                        dialogmoteDAO.get(
+                            UserConstants.ARBEIDSTAKER_FNR,
+                            UserConstants.VIRKSOMHETSNUMMER,
+                            externMoteUUID,
+                        )
+                    moteFraDB.size shouldBe 1
+                    moteFraDB[0].statusEndringType shouldBe type
+                    moteFraDB[0].moteTidspunkt shouldBe nyttTidspunkt
+                    dialogmoteStatusService.isDialogmotePlanlagtEtterDato(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        LocalDate.now(),
+                    ) shouldBe true
+                }
+            }
         }
     }
 

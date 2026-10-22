@@ -18,4 +18,5 @@ enum class DialogmoteStatusEndringType {
     AVLYST,
     FERDIGSTILT,
     NYTT_TID_STED,
+    ENDRET,
 }
