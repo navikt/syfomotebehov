@@ -47,18 +47,20 @@ class DialogmoteDAO
             fnr: String,
             virksomhetsnummer: String,
             dialogmoteExternUUID: String,
+            dialogmoteTidspunkt: LocalDateTime,
             statusEndringType: String,
             statusEndringTidspunkt: LocalDateTime,
         ) {
             val query =
                 """
                 UPDATE dialogmote
-                SET db_endring_tidspunkt = :db_endring_tidspunkt, status_endring_type = :statusEndringType, status_endring_tidspunkt = :statusEndringTidspunkt
+                SET db_endring_tidspunkt = :db_endring_tidspunkt, dialogmote_tidspunkt = :dialogmoteTidspunkt, status_endring_type = :statusEndringType, status_endring_tidspunkt = :statusEndringTidspunkt
                 WHERE person_ident = :fnr AND virksomhetsnummer = :virksomhetsnummer AND dialogmote_extern_uuid = :dialogmoteExternUUID
                 """.trimIndent()
             val mapSaveSql =
                 MapSqlParameterSource()
                     .addValue("db_endring_tidspunkt", convert(LocalDateTime.now()))
+                    .addValue("dialogmoteTidspunkt", convert(dialogmoteTidspunkt))
                     .addValue("statusEndringType", statusEndringType)
                     .addValue("fnr", fnr)
                     .addValue("virksomhetsnummer", virksomhetsnummer)
