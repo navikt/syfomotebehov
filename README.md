@@ -57,7 +57,7 @@ fødselsnummer eller virksomhetsnummer.
 - **Kafka-consumere:**
   - `teamsykefravr.isoppfolgingstilfelle-oppfolgingstilfelle-person`
   - `teamsykefravr.isdialogmotekandidat-dialogmotekandidat`
-- **Kafka-produsent:** `team-esyfo.varselbus`
+- **Kafka-produsenter:** `team-esyfo.varselbus` og `team-esyfo.budstikka.v1` (microfrontenden `syfo-dialog`, se [egen side](./docs/syfo-dialog-mikrofrontend.md))
 
 ## Utvikling
 
@@ -75,6 +75,7 @@ Bruno-collectionen ligger i [`bruno/`](./bruno/). Lokal auth bruker MockOAuth2Se
 ## Les mer
 
 - [Dialogmøtekandidat – varsel-flyt](./docs/dialogmotekandidat-varsel-flow.md)
+- [Microfrontenden syfo-dialog via Budstikka](./docs/syfo-dialog-mikrofrontend.md)
 - [Feillogging](./docs/logging.md)
 - [Lokal konfigurasjon](./src/test/resources/application.yaml)
 

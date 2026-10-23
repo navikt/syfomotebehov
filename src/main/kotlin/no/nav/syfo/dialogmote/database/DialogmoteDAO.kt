@@ -162,6 +162,17 @@ class DialogmoteDAO
             )
         }
 
+        /**
+         * Et møte er aktivt så lenge det er lagret. DialogmoteStatusService lagrer bare innkalling, nytt tid/sted og
+         * endring, og sletter møtet ved avlysning og referat. Møtetidspunktet spiller ingen rolle.
+         */
+        fun harAktivtDialogmote(fnr: String): Boolean =
+            namedParameterJdbcTemplate.queryForObject(
+                "SELECT EXISTS(SELECT 1 FROM dialogmote WHERE person_ident = :person_ident)",
+                MapSqlParameterSource().addValue("person_ident", fnr),
+                Boolean::class.java,
+            ) ?: false
+
         fun nullstillDialogmoter(fnr: String) {
             namedParameterJdbcTemplate.update(
                 "DELETE FROM dialogmote WHERE person_ident = :fnr",

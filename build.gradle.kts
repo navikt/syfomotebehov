@@ -11,6 +11,7 @@ val wiremockKotestExtensionVersion = "3.1.0"
 val springMockkVersion = "5.0.1"
 val confluent = "8.2.3"
 val isdialogmoteSchema = "1.0.5"
+val budstikkaKontraktVersion = "0.5.0"
 val jsoupVersion = "1.23.2"
 val logstashVersion = "9.0"
 val javaxInjectVersion = "1"
@@ -90,6 +91,7 @@ dependencies {
         exclude(group = "org.apache.kafka", module = "kafka-clients")
     }
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:$isdialogmoteSchema")
+    implementation("no.nav.syfo:budstikka-kontrakt:$budstikkaKontraktVersion")
     implementation("javax.inject:javax.inject:$javaxInjectVersion")
 
     implementation("org.apache.commons:commons-text:$apacheCommonsTextVersion")
