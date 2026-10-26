@@ -25,7 +25,7 @@ val postgres = "42.7.14"
 val testcontainersVersion = "1.21.4"
 val kotestVersion = "6.2.6"
 val springKotestExtensionVersion = "1.3.0"
-val jacksonVersion = "3.2.3"
+val jacksonVersion = "3.2.4"
 
 plugins {
     id("java")
