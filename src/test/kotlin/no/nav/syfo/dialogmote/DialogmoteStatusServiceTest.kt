@@ -81,8 +81,54 @@ class DialogmoteStatusServiceTest : IntegrationTest() {
                 moteFraDBAfter.size shouldBe 1
                 moteFraDBAfter[0].personIdent shouldBe UserConstants.ARBEIDSTAKER_FNR
 
-                verify(exactly = 1) { varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(any()) }
-                verify(exactly = 1) { varselServiceV2.ferdigstillSvarMotebehovVarselForNarmesteLeder(any(), any()) }
+                verify(exactly = 1) {
+                    varselServiceV2.ferdigstillSvarMotebehovVarselVedInnkalling(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                    )
+                }
+                verify(exactly = 0) { varselServiceV2.ferdigstillSvarMotebehovVarselForArbeidstaker(any()) }
+            }
+
+            it("will keep dialogmøte when status type is endret") {
+                dialogmoteStatusService.receiveKDialogmoteStatusendring(
+                    generateInnkalling(
+                        externMoteUUID,
+                        DialogmoteStatusEndringType.INNKALT,
+                        null,
+                    ),
+                )
+                dialogmoteStatusService.receiveKDialogmoteStatusendring(
+                    generateInnkalling(
+                        externMoteUUID,
+                        DialogmoteStatusEndringType.ENDRET,
+                        null,
+                    ),
+                )
+
+                val moteFraDBAfter =
+                    dialogmoteDAO.get(
+                        UserConstants.ARBEIDSTAKER_FNR,
+                        UserConstants.VIRKSOMHETSNUMMER,
+                        externMoteUUID,
+                    )
+
+                moteFraDBAfter.size shouldBe 1
+                moteFraDBAfter[0].statusEndringType shouldBe DialogmoteStatusEndringType.ENDRET
+                dialogmoteDAO.harAktivtDialogmote(UserConstants.ARBEIDSTAKER_FNR) shouldBe true
+            }
+
+            it("will save new dialogmøte when first status type is endret") {
+                dialogmoteStatusService.receiveKDialogmoteStatusendring(
+                    generateInnkalling(
+                        externMoteUUID,
+                        DialogmoteStatusEndringType.ENDRET,
+                        null,
+                    ),
+                )
+
+                dialogmoteDAO.harAktivtDialogmote(UserConstants.ARBEIDSTAKER_FNR) shouldBe true
+                verify(exactly = 0) { varselServiceV2.ferdigstillSvarMotebehovVarselVedInnkalling(any(), any()) }
             }
 
             it("will not save new dialogmøte HvisIkkeInnkallingEllerTidsendring") {
