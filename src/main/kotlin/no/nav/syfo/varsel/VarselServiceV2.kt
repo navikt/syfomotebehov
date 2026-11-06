@@ -8,6 +8,7 @@ import no.nav.syfo.motebehov.MotebehovService
 import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusHelper
 import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
+import no.nav.syfo.varsel.budstikka.BudstikkaMikrofrontendService
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -25,6 +26,7 @@ class VarselServiceV2
         private val esyfovarselService: EsyfovarselService,
         private val narmesteLederService: NarmesteLederService,
         private val dialogmoteDAO: DialogmoteDAO,
+        private val budstikkaMikrofrontendService: BudstikkaMikrofrontendService,
     ) {
         fun sendSvarBehovVarsel(
             ansattFnr: String,
@@ -111,6 +113,7 @@ class VarselServiceV2
         fun ferdigstillSvarMotebehovVarsel(ansattFnr: String) {
             val narmesteLedere = narmesteLedere(ansattFnr)
             esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ansattFnr)
+            budstikkaMikrofrontendService.skjulHvisIngenAktivtDialogmote(ansattFnr)
             narmesteLedere.forEach { leder ->
                 esyfovarselService
                     .ferdigstillSvarMotebehovForArbeidsgiver(
@@ -125,6 +128,16 @@ class VarselServiceV2
 
         fun ferdigstillSvarMotebehovVarselForArbeidstaker(ansattFnr: String) {
             esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ansattFnr)
+            budstikkaMikrofrontendService.skjulHvisIngenAktivtDialogmote(ansattFnr)
+        }
+
+        /** Ved innkalling overtar dialogmøtet kortet syfo-dialog, så det skal ikke skjules. */
+        fun ferdigstillSvarMotebehovVarselVedInnkalling(
+            ansattFnr: String,
+            virksomhetsnummer: String,
+        ) {
+            esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(ansattFnr)
+            ferdigstillSvarMotebehovVarselForNarmesteLeder(ansattFnr, virksomhetsnummer)
         }
 
         private fun sendVarselTilNaermesteLeder(narmesteLederInfo: NarmesteLederVarselInfo) =
@@ -152,8 +165,11 @@ class VarselServiceV2
             return isSvarBehovVarselAvailableForArbeidstaker
         }
 
-        private fun sendVarselTilArbeidstaker(ansattFnr: String) =
-            esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(ansattFnr).also { metric.tellHendelse("varsel_arbeidstaker_sent") }
+        private fun sendVarselTilArbeidstaker(ansattFnr: String) {
+            esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(ansattFnr)
+            metric.tellHendelse("varsel_arbeidstaker_sent")
+            budstikkaMikrofrontendService.vis(ansattFnr)
+        }
 
         private fun narmesteLeder(
             ansattFnr: String,

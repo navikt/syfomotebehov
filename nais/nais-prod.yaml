@@ -119,3 +119,5 @@ spec:
       value: "prod-gcp.teamsykefravr.isnarmesteleder"
     - name: ISNARMESTELEDER_URL
       value: "http://isnarmesteleder.teamsykefravr"
+    - name: TOGGLE_MOTEBEHOV_MIKROFRONTEND_VIA_BUDSTIKKA
+      value: "false"

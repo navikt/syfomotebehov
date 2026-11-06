@@ -17,6 +17,7 @@ import no.nav.syfo.motebehov.motebehovstatus.MotebehovStatusHelper
 import no.nav.syfo.oppfolgingstilfelle.OppfolgingstilfelleService
 import no.nav.syfo.oppfolgingstilfelle.database.PersonOppfolgingstilfelle
 import no.nav.syfo.testhelper.UserConstants
+import no.nav.syfo.varsel.budstikka.BudstikkaMikrofrontendService
 import no.nav.syfo.varsel.esyfovarsel.EsyfovarselService
 import org.springframework.test.annotation.DirtiesContext
 import java.time.LocalDate
@@ -38,6 +39,7 @@ class VarselServiceTest :
         val narmesteLederService: NarmesteLederService = mockk<NarmesteLederService>()
         val metric = mockk<Metric>()
         val motebehovStatusHelper = mockk<MotebehovStatusHelper>()
+        val budstikkaMikrofrontendService = mockk<BudstikkaMikrofrontendService>(relaxed = true)
         val varselService =
             VarselServiceV2(
                 metric,
@@ -47,6 +49,7 @@ class VarselServiceTest :
                 esyfovarselService,
                 narmesteLederService,
                 dialogmoteDAO,
+                budstikkaMikrofrontendService,
             )
 
         val userFnr = UserConstants.ARBEIDSTAKER_FNR
@@ -60,6 +63,7 @@ class VarselServiceTest :
                 narmesteLederService,
                 metric,
                 motebehovStatusHelper,
+                budstikkaMikrofrontendService,
             )
             every { oppfolgingstilfelleService.getActiveOppfolgingstilfelleForArbeidstaker(any()) } returns createOppfolgingstilfelle()
             every {
@@ -88,6 +92,25 @@ class VarselServiceTest :
 
                 verify(exactly = 1) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
                 verify(exactly = 2) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), userFnr, any()) }
+                verify(exactly = 1) { budstikkaMikrofrontendService.vis(userFnr) }
+            }
+
+            it("viserIkkeMikrofrontendNarVarselIkkeSendesTilArbeidstaker") {
+                every { motebehovStatusHelper.isSvarBehovVarselAvailable(any(), any()) } returns false
+
+                varselService.sendSvarBehovVarsel(userFnr, "")
+
+                verify(exactly = 0) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
+                verify(exactly = 0) { budstikkaMikrofrontendService.vis(any()) }
+            }
+
+            it("skjulerMikrofrontendBareNarMotebehovFerdigstillesUtenInnkalling") {
+                varselService.ferdigstillSvarMotebehovVarselForArbeidstaker(userFnr)
+                varselService.ferdigstillSvarMotebehovVarsel(userFnr)
+                varselService.ferdigstillSvarMotebehovVarselVedInnkalling(userFnr, VIRKSOMHETSNUMMER_1)
+
+                verify(exactly = 3) { esyfovarselService.ferdigstillSvarMotebehovForArbeidstaker(userFnr) }
+                verify(exactly = 2) { budstikkaMikrofrontendService.skjulHvisIngenAktivtDialogmote(userFnr) }
             }
 
             it("senderIkkeVarselOmIkkeAktivtOppfolgingstilfelle") {
@@ -155,6 +178,7 @@ class VarselServiceTest :
 
                 verify(exactly = 0) { esyfovarselService.sendSvarMotebehovVarselTilArbeidstaker(userFnr) }
                 verify(exactly = 0) { esyfovarselService.sendSvarMotebehovVarselTilNarmesteLeder(any(), userFnr, any()) }
+                verify(exactly = 0) { budstikkaMikrofrontendService.vis(any()) }
             }
         }
     }) {
