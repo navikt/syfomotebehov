@@ -19,7 +19,7 @@ val apacheCommonsTextVersion = "1.15.0"
 val apacheMinaVersion = "2.2.10"
 val jakartaRsApiVersion = "4.0.0"
 val tomcatVersion = "11.0.27"
-val nettyVersion = "4.2.19.Final"
+val nettyVersion = "4.2.20.Final"
 val hikari = "7.1.0"
 val postgres = "42.7.14"
 val testcontainersVersion = "1.21.4"
@@ -57,11 +57,11 @@ dependencies {
             implementation("org.apache.tomcat.embed:tomcat-embed-websocket:$tomcatVersion") {
                 because("CVE in lower versions")
             }
-            implementation("io.netty:netty-handler:$nettyVersion") {
-                because("CVE in lower versions")
-            }
         }
     }
+
+    // Upgrade every Netty module together: mixing versions breaks the native epoll transport (#811).
+    implementation(platform("io.netty:netty-bom:$nettyVersion"))
 
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
