@@ -20,3 +20,7 @@ updates:
     cooldown:
       default-days: 7
     open-pull-requests-limit: 20
+    ignore:
+      # Temporary while investigating #811.
+      - dependency-name: "io.netty:netty-handler"
+        versions: ["4.2.20.Final"]
