@@ -9,7 +9,6 @@ spring:
       enable-auto-commit: false
   flyway:
     enabled: true
-
   datasource:
     url: jdbc:postgresql://localhost:5432/syfomotebehov?user=postgres&password=postgres
     hikari:
