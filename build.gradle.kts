@@ -18,7 +18,6 @@ val owaspSanitizerVersion = "20261011.1"
 val apacheCommonsTextVersion = "1.15.0"
 val apacheMinaVersion = "2.2.10"
 val jakartaRsApiVersion = "4.0.0"
-val tomcatVersion = "11.0.27"
 val nettyVersion = "4.2.20.Final"
 val hikari = "7.1.0"
 val postgres = "42.7.14"
@@ -29,7 +28,7 @@ val jacksonVersion = "3.2.4"
 
 plugins {
     id("java")
-    id("org.springframework.boot") version "4.1.1"
+    id("org.springframework.boot") version "4.1.2"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     kotlin("jvm") version "2.4.21"
     kotlin("plugin.spring") version "2.4.21"
@@ -46,21 +45,7 @@ repositories {
 dependencies {
     implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
 
-    constraints {
-        lockConstraintToVersion(dependencyVersion = springBootVersion(), lockToVersion = "4.1.1") {
-            implementation("org.apache.tomcat.embed:tomcat-embed-core:$tomcatVersion") {
-                because("CVE in lower versions")
-            }
-            implementation("org.apache.tomcat.embed:tomcat-embed-el:$tomcatVersion") {
-                because("CVE in lower versions")
-            }
-            implementation("org.apache.tomcat.embed:tomcat-embed-websocket:$tomcatVersion") {
-                because("CVE in lower versions")
-            }
-        }
-    }
-
-    lockConstraintToVersion(dependencyVersion = springBootVersion(), lockToVersion = "4.1.1") {
+    lockConstraintToVersion(dependencyVersion = springBootVersion(), lockToVersion = "4.1.2") {
         // Override every Netty module together: mixing versions breaks the native epoll transport (#811).
         implementation(platform("io.netty:netty-bom:$nettyVersion")) {
             because("CVE in lower versions")
