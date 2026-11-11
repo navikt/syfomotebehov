@@ -60,8 +60,12 @@ dependencies {
         }
     }
 
-    // Upgrade every Netty module together: mixing versions breaks the native epoll transport (#811).
-    implementation(platform("io.netty:netty-bom:$nettyVersion"))
+    lockConstraintToVersion(dependencyVersion = springBootVersion(), lockToVersion = "4.1.1") {
+        // Override every Netty module together: mixing versions breaks the native epoll transport (#811).
+        implementation(platform("io.netty:netty-bom:$nettyVersion")) {
+            because("CVE in lower versions")
+        }
+    }
 
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
@@ -151,10 +155,10 @@ tasks {
     }
 }
 
-fun DependencyConstraintHandlerScope.lockConstraintToVersion(
+fun <T> T.lockConstraintToVersion(
     dependencyVersion: String,
     lockToVersion: String,
-    block: DependencyConstraintHandlerScope.() -> Unit,
+    block: T.() -> Unit,
 ) {
     if (dependencyVersion == lockToVersion) {
         block()
