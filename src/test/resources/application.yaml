@@ -9,8 +9,7 @@ spring:
       enable-auto-commit: false
   flyway:
     enabled: true
-    placeholders:
-      naisCluster: local
+
   datasource:
     url: jdbc:postgresql://localhost:5432/syfomotebehov?user=postgres&password=postgres
     hikari:
