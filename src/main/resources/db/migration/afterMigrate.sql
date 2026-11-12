@@ -9,7 +9,7 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO "esyfo-analyse";
 DO $$
 DECLARE
   dvh_user text := CASE '${naisCluster}'
-    WHEN 'dev-gcp' THEN 'disykefravar@nav-data-union-restricted-prod.iam'
+    WHEN 'dev-gcp' THEN 'disykefravar-developme-4c2f9@nav-data-union-restricted-prod.iam'
     WHEN 'prod-gcp' THEN 'disykefravar-sa@nav-data-union-restricted-prod.iam'
   END;
 BEGIN
