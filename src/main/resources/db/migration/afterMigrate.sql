@@ -22,5 +22,6 @@ BEGIN
   END IF;
   EXECUTE format('REVOKE ALL ON ALL TABLES IN SCHEMA public FROM %I', dvh_user);
   EXECUTE format('GRANT SELECT ON MOTEBEHOV_DVH TO %I', dvh_user);
+  REVOKE ALL ON ALL TABLES IN SCHEMA public FROM "disykefravar@nav-data-union-restricted-prod.iam";
 END
 $$;
