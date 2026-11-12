@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.jdbc.core.JdbcTemplate
 
-private const val DEV_DVH_USER = "disykefravar@nav-data-union-restricted-prod.iam"
+private const val DEV_DVH_USER = "disykefravar-developme-4c2f9@nav-data-union-restricted-prod.iam"
 private const val PROD_DVH_USER = "disykefravar-sa@nav-data-union-restricted-prod.iam"
 
 @TestConfiguration
