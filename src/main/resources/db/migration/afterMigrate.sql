@@ -6,6 +6,16 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO cloudsqliamuser;
 GRANT SELECT ON MOTEBEHOV_DVH TO "disykefravar-x4wt@knada-gcp.iam.gserviceaccount.com";
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO "esyfo-analyse";
 
+
+DO $$
+    BEGIN
+        IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'disykefravar@nav-data-union-restricted-prod.iam') THEN
+            REVOKE SELECT ON MOTEBEHOV_DVH FROM "disykefravar@nav-data-union-restricted-prod.iam";
+        END IF;
+    END
+$$;
+
+
 DO $$
 DECLARE
   dvh_user text := CASE '${naisCluster}'
