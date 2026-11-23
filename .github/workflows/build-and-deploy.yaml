@@ -9,6 +9,10 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
   merge_group:
     types: [checks_requested]
+  schedule:
+    # Daily rebuild picks up the latest patched Chainguard base image.
+    - cron: "10 5 * * *"
+      timezone: "Europe/Oslo"
   workflow_dispatch:
 
 jobs:
