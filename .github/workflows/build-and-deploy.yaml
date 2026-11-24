@@ -27,4 +27,4 @@ jobs:
     secrets: inherit
     with:
       app: syfomotebehov
-      java-version: '21'
+      java-version: "25"
